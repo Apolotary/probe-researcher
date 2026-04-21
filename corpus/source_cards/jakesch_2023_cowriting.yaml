@@ -1,0 +1,30 @@
+id: jakesch_2023_cowriting
+title: "Co-Writing with Opinionated Language Models Affects Users' Views"
+authors:
+  - "Jakesch, Maurice"
+  - "Bhat, Advait"
+  - "Buschek, Daniel"
+  - "Zalmanson, Lior"
+  - "Naaman, Mor"
+venue: "Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems (CHI '23), Hamburg, Germany, April 23-28, 2023"
+year: 2023
+doi: "10.1145/3544548.3581196"
+url: "https://dl.acm.org/doi/10.1145/3544548.3581196"
+preprint_url: "https://arxiv.org/abs/2302.00560"
+verified: true
+verification_notes: >-
+  Fetched https://doi.org/10.1145/3544548.3581196 on 2026-04-22; resolves to
+  the ACM Digital Library canonical page. Title, all five authors in stated
+  order, venue (CHI 2023), and year confirmed. Also cross-verified against
+  arXiv:2302.00560 which lists the same author order.
+summary: >-
+  A pre-registered CHI 2023 study (n=1,506) showing that co-writing with a
+  language model configured with a built-in viewpoint shifts both the opinions
+  expressed in participants' writing and their subsequent attitudes toward the
+  topic.
+allowed_claims:
+  - "In a pre-registered experiment with 1,506 participants writing about whether social media is good for society, using an opinionated AI writing assistant changed the opinion content of participants' written posts in the direction of the model's configured stance."
+  - "After the co-writing task, participants' opinions on the target topic, measured in a subsequent attitude survey, had shifted in the direction of the language model's bias — a 'latent persuasion' effect extending beyond the text to the user's own views."
+  - "The effect occurred even though participants were not told the assistant held a viewpoint, and most participants were unaware they were being influenced."
+  - "The authors argue that built-in opinions of AI language technologies need to be monitored and engineered carefully because they can influence users' views at scale."
+tags: ["AI_disclosure", "LLM_persuasion", "co-writing", "HCI", "CHI_2023", "algorithm_influence"]

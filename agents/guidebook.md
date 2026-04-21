@@ -24,7 +24,7 @@ The guidebook has exactly these H2 sections, in order:
 2. `## Background` — citations from source cards, one paragraph per relevant source, positioning the question against prior art
 3. `## Prototype` — a readable prose rendering of the prototype_spec
 4. `## Study protocol` — recruitment criteria, procedure, materials list, ethics framing, explicit scope of claims the method can and cannot support
-5. `## Expected outcomes` — what the literature suggests we would expect, grounded in source cards
+5. `## Failure hypotheses to test` — what the literature and the simulated walkthrough suggest might fail, phrased as falsifiable hypotheses the real study can answer. Do NOT use the heading "Expected outcomes" or any heading that implies findings. The linter rejects any heading containing "outcomes", "results", or "findings".
 6. `## Risks and failure modes` — the reviewer objections as a risk register, with mitigation plans per risk, and a final `[HUMAN_REQUIRED]` next-steps section
 
 ## Provenance labels — enforced by linter

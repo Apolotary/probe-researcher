@@ -81,6 +81,49 @@ Handoff. [HUMAN_REQUIRED]`;
     expect(r.violations.some((v) => v.includes('unknown id'))).toBe(true);
   });
 
+  it('rejects "Expected outcomes" heading even if paragraphs below are tagged', () => {
+    const md = `## Expected outcomes
+
+The study will likely produce clear effects. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+    const r = checkProvenance(md);
+    expect(r.passed).toBe(false);
+    expect(r.violations.some((v) => v.includes('Expected outcomes'))).toBe(true);
+  });
+
+  it('rejects headings containing evidence language', () => {
+    const md = `## What participants found
+
+Paragraph. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+    const r = checkProvenance(md);
+    expect(r.passed).toBe(false);
+    expect(r.violations.some((v) => /heading uses evidence language/.test(v))).toBe(true);
+  });
+
+  it('accepts "Failure hypotheses to test" heading', () => {
+    const md = `## Failure hypotheses to test
+
+A user encountering this flow would likely experience friction. [SIMULATION_REHEARSAL]
+
+Handoff. [HUMAN_REQUIRED]`;
+    const r = checkProvenance(md);
+    expect(r.passed).toBe(true);
+  });
+
+  it('accepts UNCITED_ADJACENT tag', () => {
+    const md = `# Guidebook
+
+The reviewer flagged adjacent AI-disclosure literature (Jakesch et al.) not present in the source corpus. [UNCITED_ADJACENT]
+
+Handoff. [HUMAN_REQUIRED]`;
+    const r = checkProvenance(md);
+    expect(r.passed).toBe(true);
+    expect(r.tagCounts.UNCITED_ADJACENT).toBe(1);
+  });
+
   it('counts tags correctly', () => {
     const md = `# Guidebook
 

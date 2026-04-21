@@ -1,0 +1,34 @@
+id: sundar_2008_main_model
+title: "The MAIN Model: A Heuristic Approach to Understanding Technology Effects on Credibility"
+authors:
+  - "Sundar, S. Shyam"
+venue: "In M. J. Metzger & A. J. Flanagin (Eds.), Digital Media, Youth, and Credibility (The John D. and Catherine T. MacArthur Foundation Series on Digital Media and Learning). Cambridge, MA: The MIT Press. Chapter 4, pp. 73-100."
+year: 2008
+pages: "73-100"
+isbn_paperback: "978-0-262-56232-4"
+isbn_hardcover: "978-0-262-06273-2"
+doi: null
+url: "https://library.oapen.org/bitstream/handle/20.500.12657/26088/1/1003998.pdf"
+verified: true
+verification_notes: >-
+  Chapter DOI 10.1162/dmal.9780262562324.073 appears in Google Scholar metadata
+  but returns HTTP 404 via doi.org — MIT Press's dmal DOI namespace is not
+  reliably registered. DOI field set to null. Verified instead via the OAPEN
+  open-access full-text PDF on 2026-04-22: Metzger & Flanagin's introduction
+  confirms Chapter 4 is Sundar's and describes it as addressing the
+  'technological affordances of modality, agency, interactivity, and
+  navigability' and how they 'influence credibility judgments by triggering
+  cognitive heuristics.' Book metadata confirmed: MIT Press 2008,
+  ISBN 9780262562324 (paperback), ISBN 9780262062732 (hardcover), CC BY-NC-ND
+  3.0 Open Access.
+summary: >-
+  A book-chapter framework arguing that four technological affordances —
+  Modality, Agency, Interactivity, and Navigability (MAIN) — trigger cognitive
+  heuristics that influence users' credibility judgments of digital information
+  automatically and often below conscious deliberation.
+allowed_claims:
+  - "Four classes of technological affordance — Modality, Agency, Interactivity, and Navigability — shape users' credibility judgments of digital content by cueing cognitive heuristics rather than by supporting fully deliberative evaluation."
+  - "Credibility assessment in digital media is not purely a conscious, effortful process; a great deal of automaticity governs users' (and particularly youths') credibility judgments, with interface surface features serving as shortcut cues."
+  - "Specific affordances map to specific heuristics — e.g., agency cues can invoke an authority heuristic or a 'machine heuristic' that changes perceived trustworthiness independently of actual source quality."
+  - "Because these heuristics can be triggered by superficial design cues, structural and technological features of a system can bias credibility judgments in ways users do not notice, carrying implications for media literacy and interface design."
+tags: ["credibility", "heuristics", "affordances", "machine_heuristic", "HCI_theory", "media_literacy"]

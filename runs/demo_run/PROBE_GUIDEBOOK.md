@@ -98,7 +98,7 @@ This protocol can descriptively characterize how a small number of BLV screen-re
 
 This protocol cannot support population-level claims about BLV users generally, cannot separate announcement-duration effects from disclosure-semantic effects without a length-matched control condition added to the design, and cannot support quantitative hypothesis tests at n=8 that would discriminate "no effect" from "small effect under-detected." [DO_NOT_CLAIM]
 
-## Expected outcomes
+## Failure hypotheses to test
 
 Liang et al.'s finding that 57.4% of sighted researchers rated GPT-4 feedback as helpful suggests that authorship framing does shift credibility judgments in at least some expert populations, though whether and how this generalizes to auditory disclosure in BLV screen-reader contexts is unestablished. [SOURCE_CARD:liang_nejm_ai_2024]
 

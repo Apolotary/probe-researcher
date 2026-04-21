@@ -1,0 +1,28 @@
+id: longoni_2019_medical_ai_resistance
+title: "Resistance to Medical Artificial Intelligence"
+authors:
+  - "Longoni, Chiara"
+  - "Bonezzi, Andrea"
+  - "Morewedge, Carey K."
+venue: "Journal of Consumer Research, Vol. 46, Issue 4, pp. 629-650"
+year: 2019
+doi: "10.1093/jcr/ucz013"
+url: "https://academic.oup.com/jcr/article/46/4/629/5485292"
+verified: true
+verification_notes: >-
+  Fetched https://doi.org/10.1093/jcr/ucz013 on 2026-04-22; resolved to
+  academic.oup.com/jcr/article/46/4/629/5485292. Title, authors, journal,
+  volume/issue/pages (46(4):629-650), year (December 2019), and DOI all
+  confirmed on the Oxford Academic canonical page.
+summary: >-
+  A Journal of Consumer Research paper documenting that consumers are reluctant
+  to use healthcare delivered by AI rather than human providers, with
+  'uniqueness neglect' — the belief that AI cannot account for one's unique
+  characteristics — identified as the primary psychological mechanism.
+allowed_claims:
+  - "Across multiple studies using real and hypothetical choices, consumers are less willing to utilize healthcare provided by an AI provider than by a human provider, even when the AI is stipulated to perform equally or better."
+  - "The primary mechanism driving this resistance is 'uniqueness neglect' — a belief that AI, unlike humans, cannot adequately account for consumers' unique characteristics and circumstances."
+  - "Resistance is stronger among consumers who perceive themselves as more unique or as having more idiosyncratic medical needs."
+  - "Resistance is attenuated when the AI is framed as providing personalized (rather than standardized) care, when consumers decide for others rather than themselves, or when the AI serves a supporting role to a human provider rather than replacing one."
+  - "Consumers assign lower monetary value (willingness-to-pay) to AI-delivered medical services and are less sensitive to differences in provider-performance quality metrics when the provider is an AI."
+tags: ["algorithm_aversion", "medical_AI", "trust", "consumer_psychology", "uniqueness_neglect"]

@@ -6,7 +6,12 @@ interface RunCommandOptions {
   runId?: string;
   skip?: string;
   branches?: string;
-  noNovelty?: boolean;
+  /**
+   * commander.js convention: declaring `.option('--no-novelty', ...)` produces
+   * `novelty: false` in the parsed options (not `noNovelty: true`). Default is
+   * `undefined` (meaning the flag was not passed), which we treat as true.
+   */
+  novelty?: boolean;
 }
 
 export async function runCommand(
@@ -25,7 +30,8 @@ export async function runCommand(
     premise,
     skipStages: skip,
     branchCount: branches,
-    includeNovelty: !opts.noNovelty,
+    // opts.novelty === false only when --no-novelty was passed.
+    includeNovelty: opts.novelty !== false,
   };
 
   console.log(chalk.bold(`probe run ${runId}`));

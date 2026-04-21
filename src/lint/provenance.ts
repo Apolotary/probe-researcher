@@ -25,6 +25,14 @@ export const VALID_TAGS = [
   'AGENT_INFERENCE',
   'HUMAN_REQUIRED',
   'DO_NOT_CLAIM',
+  /**
+   * Named outside-corpus literature a reviewer (typically the novelty hawk)
+   * believes is adjacent to the research but not represented in the source
+   * card corpus. The downstream researcher must verify these manually before
+   * treating them as grounded. Unlike [SOURCE_CARD:<id>], no linter lookup
+   * enforces existence — only the format is enforced.
+   */
+  'UNCITED_ADJACENT',
 ] as const;
 
 export type ProvenanceTag = (typeof VALID_TAGS)[number];
@@ -63,6 +71,7 @@ export function checkProvenance(
     AGENT_INFERENCE: 0,
     HUMAN_REQUIRED: 0,
     DO_NOT_CLAIM: 0,
+    UNCITED_ADJACENT: 0,
   };
   const sourceCardsReferenced: string[] = [];
 
@@ -115,6 +124,28 @@ export function checkProvenance(
         // Header detection: tableRow whose parent's first child is this node.
         checkNode(n, 'table row');
         break;
+      case 'heading': {
+        // Headings don't need a provenance tag, but they MUST NOT use
+        // evidence language. A heading like "Expected outcomes" contradicts
+        // the rehearsal framing even if every paragraph below is tagged.
+        const text = extractText(n);
+        for (const re of FORBIDDEN_PHRASES) {
+          const vm = text.match(re);
+          if (vm) {
+            violations.push(
+              `heading uses evidence language "${vm[0]}": "${text.slice(0, 120)}"`,
+            );
+          }
+        }
+        // Additionally reject the known anti-pattern headings that imply
+        // evidence without literally containing a forbidden phrase.
+        if (/^(expected outcomes|results|findings)\b/i.test(text.trim())) {
+          violations.push(
+            `heading "${text.trim()}" implies findings — use "Failure hypotheses" or "Questions the real study must answer" instead`,
+          );
+        }
+        break;
+      }
       default:
         break;
     }

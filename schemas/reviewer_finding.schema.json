@@ -64,6 +64,21 @@
       "type": "string",
       "enum": ["reject", "major_revision", "minor_revision", "accept_revise", "human_judgment_required"]
     },
+    "uncited_adjacent_literature": {
+      "type": "array",
+      "description": "Only populated by the novelty hawk. Names papers the reviewer believes are relevant prior art NOT in the source corpus. These are flags for the researcher to verify manually, not grounded citations. The guidebook assembler preserves these as [UNCITED_ADJACENT] elements.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_reference", "why_it_matters", "confidence_exists", "confidence_author_year_exact"],
+        "properties": {
+          "candidate_reference": { "type": "string", "minLength": 10 },
+          "why_it_matters": { "type": "string", "minLength": 20 },
+          "confidence_exists": { "type": "string", "enum": ["high", "medium", "low"] },
+          "confidence_author_year_exact": { "type": "string", "enum": ["high", "medium", "low"] }
+        }
+      }
+    },
     "provenance": {
       "type": "object",
       "additionalProperties": false,
