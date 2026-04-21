@@ -28,6 +28,7 @@ program
   .option('--run-id <id>', 'override auto-generated run id')
   .option('--skip <stages>', 'comma-separated stage numbers to skip', '')
   .option('--branches <n>', 'number of parallel branches', '3')
+  .option('--no-novelty', 'skip the novelty hawk reviewer (stage 7c)')
   .action(runCommand);
 
 program

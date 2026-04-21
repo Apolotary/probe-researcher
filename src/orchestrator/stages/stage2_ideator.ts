@@ -5,6 +5,7 @@ import { promisify } from 'node:util';
 import { callClaude } from '../../anthropic/client.js';
 import { parseJsonFromModel, validateAgainst } from '../../schema/validate.js';
 import { agentPromptPath, branchDir, runDir } from '../../util/paths.js';
+import { writeJson } from '../stage_util.js';
 
 const pExecFile = promisify(execFile);
 
@@ -21,46 +22,43 @@ interface BranchCard {
   [k: string]: unknown;
 }
 
+/**
+ * Stage 2 is special: one model call produces three outputs, then three
+ * worktrees are created. Can't use the standard runJsonStage helper.
+ */
 export async function runStageIdeator(args: Stage2Args): Promise<string[]> {
   const premisePath = path.join(runDir(args.runId), 'premise_card.json');
   const premiseJson = await fs.readFile(premisePath, 'utf8');
   const system = await fs.readFile(agentPromptPath('ideator'), 'utf8');
-  const userMessage = `run_id: ${args.runId}\n\npremise_card:\n${premiseJson}\n`;
-
-  let response = await callClaude({
-    stage: '2_ideator',
-    runId: args.runId,
-    model: 'opus',
-    system,
-    userMessage,
-    maxTokens: 4096,
-    temperature: 0.9,
-  });
+  let userMessage = `run_id: ${args.runId}\n\npremise_card:\n${premiseJson}\n`;
 
   let branches: BranchCard[] = [];
   for (let attempt = 0; attempt < 2; attempt++) {
+    const response = await callClaude({
+      stage: '2_ideator',
+      runId: args.runId,
+      model: 'opus',
+      system,
+      userMessage,
+      maxTokens: 4096,
+      temperature: attempt === 0 ? 0.9 : 0.4,
+    });
+
     let parsed: unknown;
     try {
       parsed = parseJsonFromModel(response.text);
     } catch (e) {
       if (attempt === 1) throw new Error(`stage 2 JSON parse failed after repair: ${String(e)}`);
-      response = await repair(args.runId, system, userMessage, response.text, String(e));
+      userMessage = augment(userMessage, response.text, `Not valid JSON: ${String(e)}`);
       continue;
     }
 
     if (!Array.isArray(parsed) || parsed.length !== 3) {
-      if (attempt === 1) throw new Error(`stage 2 expected 3-element array, got ${JSON.stringify(parsed).slice(0, 200)}`);
-      response = await repair(
-        args.runId,
-        system,
-        userMessage,
-        response.text,
-        'Output must be a JSON array of exactly 3 branch_card objects.',
-      );
+      if (attempt === 1) throw new Error(`stage 2 expected 3-element array`);
+      userMessage = augment(userMessage, response.text, 'Output must be a JSON array of exactly 3 branch_card objects.');
       continue;
     }
 
-    // Validate each branch
     let allValid = true;
     const errors: string[] = [];
     for (const branch of parsed as BranchCard[]) {
@@ -72,15 +70,14 @@ export async function runStageIdeator(args: Stage2Args): Promise<string[]> {
     }
     if (!allValid) {
       if (attempt === 1) throw new Error(`stage 2 schema validation failed after repair:\n${errors.join('\n')}`);
-      response = await repair(args.runId, system, userMessage, response.text, errors.join('\n'));
+      userMessage = augment(userMessage, response.text, `Schema violations:\n${errors.join('\n')}`);
       continue;
     }
 
-    // Divergence self-check
     const divergenceCheck = checkDivergence(parsed as BranchCard[]);
     if (!divergenceCheck.passed) {
       if (attempt === 1) throw new Error(`stage 2 divergence check failed: ${divergenceCheck.reason}`);
-      response = await repair(args.runId, system, userMessage, response.text, `Divergence check failed: ${divergenceCheck.reason}`);
+      userMessage = augment(userMessage, response.text, `Divergence check failed: ${divergenceCheck.reason}`);
       continue;
     }
 
@@ -88,46 +85,29 @@ export async function runStageIdeator(args: Stage2Args): Promise<string[]> {
     break;
   }
 
-  // Write each branch card + create worktrees.
   const branchIds: string[] = [];
   for (const branch of branches) {
     const id = branch.branch_id;
     const dir = branchDir(args.runId, id);
     await fs.mkdir(dir, { recursive: true });
     await ensureWorktree(args.runId, id, dir);
-    const out = path.join(dir, 'branch_card.json');
-    await fs.writeFile(out, JSON.stringify(branch, null, 2) + '\n');
+    await writeJson(path.join(dir, 'branch_card.json'), branch);
     branchIds.push(id);
   }
   return branchIds;
 }
 
-async function repair(
-  runId: string,
-  system: string,
-  userMessage: string,
-  previous: string,
-  reason: string,
-) {
-  return callClaude({
-    stage: '2_ideator',
-    runId,
-    model: 'opus',
-    system,
-    userMessage:
-      userMessage +
-      `\n\nYour previous output must be corrected.\n` +
-      `Reason: ${reason}\n` +
-      `Previous (truncated):\n${previous.slice(0, 800)}\n` +
-      `Return only the corrected JSON array. No fences, no commentary.`,
-    maxTokens: 4096,
-    temperature: 0.4,
-  });
+function augment(base: string, previous: string, reason: string): string {
+  return (
+    base +
+    `\n\nYour previous output must be corrected.\n` +
+    `Reason: ${reason}\n` +
+    `Previous (truncated):\n${previous.slice(0, 800)}\n` +
+    `Return only the corrected JSON array.`
+  );
 }
 
-function checkDivergence(
-  branches: BranchCard[],
-): { passed: boolean; reason: string } {
+function checkDivergence(branches: BranchCard[]): { passed: boolean; reason: string } {
   const rq = new Set(branches.map((b) => normalize(b.research_question)));
   const ip = new Set(branches.map((b) => normalize(b.intervention_primitive)));
   const hs = new Set(branches.map((b) => b.human_system_relationship));
@@ -144,16 +124,11 @@ function normalize(s: string): string {
 }
 
 async function ensureWorktree(runId: string, branchId: string, dir: string): Promise<void> {
-  // Worktree creation uses git plumbing. Skip if a worktree is already there.
-  // For the demo, the orchestrator creates a short-lived branch named
-  // run-<runId>-<branchId> pointing at HEAD, then sets up the worktree.
   const branchName = `run-${runId.slice(-12)}-${branchId}`;
   try {
     await pExecFile('git', ['worktree', 'add', '-B', branchName, dir, 'HEAD']);
   } catch (e) {
     const msg = String((e as Error).message);
-    // Fallback: if worktree add fails (e.g., path exists without .git), continue
-    // without crashing — the branch directory is still usable as a plain folder.
     if (!/already exists|is not empty|fatal: invalid reference/.test(msg)) {
       throw e;
     }

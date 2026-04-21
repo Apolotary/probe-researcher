@@ -1,19 +1,19 @@
 import fs from 'node:fs/promises';
-import AjvModule from 'ajv';
+import Ajv2020Module from 'ajv/dist/2020.js';
 import addFormatsModule from 'ajv-formats';
 import type { ErrorObject, ValidateFunction } from 'ajv';
 import { schemaPath } from '../util/paths.js';
 
-// ESM/CJS interop: Ajv ships CJS with default on `.default`; under Node ESM
-// the default import may point at the namespace rather than the class.
+// ESM/CJS interop: the 2020 entry point also exposes default under `.default`
+// when imported in ESM mode. Handle both.
 type AjvCtor = new (opts: object) => {
   compile: (schema: unknown) => ValidateFunction;
 };
 type AddFormatsFn = (ajv: InstanceType<AjvCtor>) => void;
 
 const AjvClass: AjvCtor =
-  ((AjvModule as unknown as { default?: AjvCtor }).default ??
-    (AjvModule as unknown as AjvCtor));
+  ((Ajv2020Module as unknown as { default?: AjvCtor }).default ??
+    (Ajv2020Module as unknown as AjvCtor));
 const addFormats: AddFormatsFn =
   ((addFormatsModule as unknown as { default?: AddFormatsFn }).default ??
     (addFormatsModule as unknown as AddFormatsFn));

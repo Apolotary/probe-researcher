@@ -41,6 +41,7 @@ export interface CallOptions {
   system: string;
   userMessage: string;
   maxTokens?: number;
+  /** Accepted but ignored — Opus 4.7 deprecates this parameter. */
   temperature?: number;
 }
 
@@ -58,11 +59,13 @@ export async function callClaude(opts: CallOptions): Promise<CallResult> {
   const pricing = PRICING[modelId];
   if (!pricing) throw new Error(`no pricing entry for ${modelId}`);
 
+  // Opus 4.7 does not accept temperature. Sonnet 4.6 still does, but we
+  // keep behavior consistent across models by omitting temperature for all
+  // calls — the agent prompts carry the behavioral direction instead.
   const start = Date.now();
   const response = await client().messages.create({
     model: modelId,
     max_tokens: opts.maxTokens ?? 8192,
-    temperature: opts.temperature ?? 0.7,
     system: opts.system,
     messages: [{ role: 'user', content: opts.userMessage }],
   });

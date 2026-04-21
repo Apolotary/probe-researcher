@@ -3,6 +3,8 @@ export interface RunOptions {
   premise: string;
   skipStages: string[];
   branchCount: number;
+  /** Include the novelty hawk reviewer in stage 7. Default true. */
+  includeNovelty?: boolean;
 }
 
 export type StageId =

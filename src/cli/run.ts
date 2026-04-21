@@ -6,6 +6,7 @@ interface RunCommandOptions {
   runId?: string;
   skip?: string;
   branches?: string;
+  noNovelty?: boolean;
 }
 
 export async function runCommand(
@@ -24,6 +25,7 @@ export async function runCommand(
     premise,
     skipStages: skip,
     branchCount: branches,
+    includeNovelty: !opts.noNovelty,
   };
 
   console.log(chalk.bold(`probe run ${runId}`));
@@ -34,10 +36,19 @@ export async function runCommand(
 
   const result = await runPipeline(options);
 
+  const guidebookSkipped = skip.includes('8');
   if (result.status === 'completed') {
-    console.log(chalk.green(`\n✓ pipeline complete — runs/${runId}/PROBE_GUIDEBOOK.md`));
+    if (guidebookSkipped) {
+      console.log(chalk.green(`\n✓ pipeline complete (stage 8 skipped) — runs/${runId}/`));
+    } else {
+      console.log(chalk.green(`\n✓ pipeline complete — runs/${runId}/PROBE_GUIDEBOOK.md`));
+    }
   } else if (result.status === 'all_branches_blocked') {
-    console.log(chalk.yellow(`\n⚠ all branches blocked — see WORKSHOP_NOT_RECOMMENDED.md`));
+    console.log(
+      chalk.yellow(
+        `\n⚠ all branches blocked — see runs/${runId}/branches/*/WORKSHOP_NOT_RECOMMENDED.md`,
+      ),
+    );
   } else {
     console.log(chalk.red(`\n✗ pipeline failed at stage ${result.failedStage ?? 'unknown'}`));
     process.exitCode = 2;

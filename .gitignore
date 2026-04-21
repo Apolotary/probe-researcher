@@ -38,6 +38,20 @@ runs/*/branches/*/DONE.marker
 runs/*/branches/*/FAILED.marker
 runs/*/branches/*/IN_PROGRESS.marker
 
+# Branch worktrees are checked-out copies of the main repo. Only track the
+# Probe artifacts inside them, not the entire repo tree.
+runs/*/branches/*/*
+!runs/*/branches/*/branch_card.json
+!runs/*/branches/*/prototype_spec.json
+!runs/*/branches/*/prototype_spec.md
+!runs/*/branches/*/simulated_walkthrough.md
+!runs/*/branches/*/audit.json
+!runs/*/branches/*/audit.md
+!runs/*/branches/*/meta_review.json
+!runs/*/branches/*/WORKSHOP_NOT_RECOMMENDED.md
+!runs/*/branches/*/reviews/
+!runs/*/branches/*/reviews/*.json
+
 # Worktree metadata — worktree dirs themselves are inside runs/ and ARE tracked,
 # but each worktree's .git file would double-track. Worktrees are created at runtime.
 # The demo_run/ directory is tracked as snapshotted output.
