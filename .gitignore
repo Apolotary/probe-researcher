@@ -1,0 +1,56 @@
+# Node / TypeScript
+node_modules/
+dist/
+*.tsbuildinfo
+.npm/
+.yarn/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+probe-debug.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Anthropic keys — never commit
+ANTHROPIC_API_KEY*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Coverage / test
+coverage/
+.nyc_output/
+
+# Probe-specific — runs are tracked, but working state and markers are not
+runs/*/branches/*/DONE.marker
+runs/*/branches/*/FAILED.marker
+runs/*/branches/*/IN_PROGRESS.marker
+
+# Worktree metadata — worktree dirs themselves are inside runs/ and ARE tracked,
+# but each worktree's .git file would double-track. Worktrees are created at runtime.
+# The demo_run/ directory is tracked as snapshotted output.
+
+# Cached API responses (local dev)
+.cache/
+tmp/
+
+# Build artifacts
+build/
+
+# Demo recordings (large files — uploaded to YouTube/Loom)
+demo/recorded_run/*.mp4
+demo/recorded_run/*.mov
+demo/recorded_run/*.webm
+node_modules/
