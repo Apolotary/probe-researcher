@@ -769,11 +769,11 @@ plus-one is “scaffold,” plus-two is “cultivate.”</p>
 <p>The verdict rule is strict: any minus-two finding produces
 <code>BLOCKED</code>; two or more minus-ones produce
 <code>REVISION_REQUIRED</code>; otherwise <code>PASSED</code>. The
-orchestrator, not the model, computes this verdict from the findings.
-This is because the auditor’s own arithmetic proved inconsistent in
-roughly one in three trials during development. The model’s contribution
-is pattern judgment and evidence-span selection; the orchestrator’s
-contribution is the deterministic scoring.</p>
+orchestrator computes the verdict from the findings, overwriting any
+inconsistent self-report by the model. Without this override the
+auditor’s own arithmetic drifted in roughly one in three development
+trials. The model does pattern judgment and evidence-span selection; the
+orchestrator handles the sum.</p>
 <p>A minus-two finding triggers a
 <code>WORKSHOP_NOT_RECOMMENDED.md</code> report that names the fired
 pattern, quotes the evidence span, lists the findings that together
