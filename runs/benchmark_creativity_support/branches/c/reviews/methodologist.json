@@ -1,0 +1,74 @@
+{
+  "stage": "7_review",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "c",
+  "reviewer_persona": "methodologist",
+  "decisive_weakness": "The central claim — that moment-of-decision annotation yields a taxonomy of criteria not recoverable from other elicitation formats — is structurally unfalsifiable by this design because the 'other formats' comparison (think-aloud corpus vs. typed annotation corpus) is generated within the same session by the same participants under conditions where the annotation mechanic actively suppresses the think-aloud channel. The contrast the claim depends on cannot exist in the data that will be collected.",
+  "criticisms": [
+    {
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "the think-aloud protocol may be sparsely populated, because the annotation mechanic itself consumes the verbal channel: a participant typing or dictating a rejection reason is unlikely to also be thinking aloud in parallel"
+      },
+      "violated_criterion": "claim/method mismatch: the comparator corpus required to support the contribution cannot be produced by the instrument",
+      "why_matters": "The branch's one-sentence claim rests on showing that moment-of-decision annotation captures criteria 'not recoverable from post-hoc interviews or from accept-only telemetry.' The spec's operationalisation of this — the 'elicitation completeness' analysis comparing typed annotations against think-aloud — depends on a robust think-aloud corpus. But the annotation mechanic (lock interface, type or dictate a 5-word minimum reason, submit) consumes exactly the verbal-cognitive bandwidth that think-aloud requires. The two signals are competing for the same channel. A thin think-aloud corpus will not just weaken the comparison; it will make any observed difference attributable to modality suppression rather than to genuine elicitation asymmetry.",
+      "required_change": "Run a between-subjects comparison: one arm uses the annotation probe, a second arm drafts under think-aloud with no annotation probe, a third arm does post-hoc stimulated recall on their own draft. Compare taxonomies across arms. OR drop the 'not recoverable from other formats' claim and reframe the contribution as 'what a forced-articulation probe elicits,' descriptively, without the comparative claim.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Select which alternative to inject from the pre-prepared candidate bank... selecting the category that will be most diagnostic given the line just written... Immediately read the submitted annotation and categorise it into a provisional taxonomy node... Decide whether to vary the next injection's category based on which taxonomy nodes are under-represented so far"
+      },
+      "violated_criterion": "wizard intrusion into the measured construct; the stimulus stream is conditioned on the same live coding that will produce the dependent variable",
+      "why_matters": "The chi-square contingency test on 'alternative category predicts taxonomy node of rejection reason' is the only quantitative finding in the analysis plan that would support the claim that rejection reasons track stimulus properties systematically. But the wizard both (a) chooses the next injection category partly to fill under-represented taxonomy nodes and (b) does live categorisation that drives this choice. The contingency table is therefore the product of a closed loop between the experimenter's coding and the stimuli they deliver. A significant chi-square cannot distinguish genuine alignment from wizard-induced alignment. The walkthrough identifies this explicitly as a confound the design does not resolve.",
+      "required_change": "Pre-randomise the sequence of injection categories for each participant before the session begins; forbid live adaptive selection. Conduct all taxonomy coding post-hoc and blind to injection category. If adaptive injection is kept for qualitative reasons, drop the contingency chi-square from the analysis plan — it will not be interpretable.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "After all sessions, two researchers independently code each annotation using open coding to build a provisional taxonomy of rejection criteria. Codes are compared using Cohen's kappa; disagreements are resolved by discussion."
+      },
+      "violated_criterion": "qualitative analysis plan omits saturation stopping rule despite the claim requiring saturation",
+      "why_matters": "The one-sentence claim asserts the taxonomy is 'stable, saturated.' Saturation is a quantified property of a sample, not of a coding procedure. The analysis plan specifies kappa for inter-rater agreement but never states how many participants are needed, what stopping criterion will be used to declare saturation (e.g., no new nodes for N consecutive participants), or what the sampling frame is. Without this, the central descriptive claim ('stable, saturated taxonomy') has no operational test. The study could be run with any N and the claim defended or denied post-hoc.",
+      "required_change": "Specify a minimum sample size with justification, a pre-registered saturation rule (e.g., two consecutive participants producing no new taxonomy nodes at the second-level of coding), and a maximum sample size if saturation is not reached. Report saturation curves in results.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "the annotation widget locks the interface until a rejection reason of at least 5 words is typed or spoken into the microphone"
+      },
+      "violated_criterion": "measurement instrument induces the artefact it claims to measure (compliance confound on the primary dependent variable)",
+      "why_matters": "The typed annotations ARE the corpus from which the taxonomy is built. If the 5-word minimum produces formulaic padding — as the walkthrough predicts and the failure_cases anticipate ('I just did not like it') — then the taxonomy nodes derived from this corpus are partly an artefact of the enforcement mechanic rather than reflections of poetic criteria. The analysis plan has no pre-registered method for separating compliance padding from substantive content. Latency outlier analysis does not address this; a participant can pad quickly.",
+      "required_change": "Either (a) remove the word minimum and accept shorter annotations, coding absence of elaboration as a finding rather than a failure; or (b) add a pre-registered filter step in which two independent coders flag compliance-padded annotations before taxonomy construction, with the kappa reported for the filter step itself; or (c) pilot with and without the minimum and report whether the taxonomies differ, justifying the final choice empirically.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Latency values are log-transformed and compared across taxonomy nodes using a one-way ANOVA to test whether certain criterion types (e.g., sound/rhythm) are articulated faster than others (e.g., personal voice)"
+      },
+      "violated_criterion": "statistical test applied to non-independent observations; sample size for the test is unspecified and likely inadequate",
+      "why_matters": "Each participant contributes multiple annotations, so annotation-level latency observations are nested within participants — a one-way ANOVA treating annotations as independent violates the independence assumption and will produce inflated Type I error. Additionally, with ~8 rejections per participant and an unspecified N, cell sizes per taxonomy node will be small and unbalanced. The ANOVA result is pre-doomed as either underpowered or uninterpretable.",
+      "required_change": "Use a mixed-effects model with participant as a random effect. State the target sample size with a power calculation for the ANOVA-equivalent fixed effect. If the sample is too small for this, drop the quantitative latency comparison and treat latency qualitatively.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "branch_card",
+        "quote": "A practicing poet recruited via MFA programs or poetry societies who has completed at least one full-length manuscript or twenty published poems"
+      },
+      "violated_criterion": "recruitment criteria produce a population whose drafting practices are institutionally trained, undermining the generality of 'implicit criteria governing line-ending decisions'",
+      "why_matters": "MFA-trained poets and published society members share workshop vocabularies (prosody terms, craft heuristics from shared reading lists) that will strongly shape what rejection reasons are 'lexically accessible' — one of the analysis plan's stated targets. A taxonomy derived entirely from this population will partly reflect the workshop register, not poetic line-ending cognition generally. The claim in the branch card is not scoped to trained poets; it makes a general claim about 'poets' and 'implicit criteria.'",
+      "required_change": "Either narrow the claim and title explicitly to 'MFA-trained and published poets' and treat workshop vocabulary as a deliberate feature of the sampled frame, or broaden recruitment to include a meaningful contingent of self-taught or non-institutionally-trained practicing poets and report node frequencies stratified by training background.",
+      "severity": "major"
+    }
+  ],
+  "recommendation": "major_revision",
+  "provenance": {
+    "review": "AGENT_INFERENCE"
+  }
+}

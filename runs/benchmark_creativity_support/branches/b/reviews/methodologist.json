@@ -1,0 +1,84 @@
+{
+  "stage": "7_review",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "b",
+  "reviewer_persona": "methodologist",
+  "decisive_weakness": "The study's causal claim — that a 'meter-aware line-ending co-writer' produces higher craft ratings than solo or rhyming-dictionary drafting — cannot be tested by this design because the co-writer and rhyming-dictionary conditions differ on at least three confounded dimensions simultaneously (push vs. pull delivery, human-expert curation vs. corpus lookup, three-option register-spread vs. open search), so any difference in craft ratings is uninterpretable as evidence about 'meter-aware co-writing' per se. The intervention primitive is not isolated from its delivery modality or its curation source.",
+  "criticisms": [
+    {
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "a difference in craft scores between co-writer and rhyming-dictionary conditions would be ambiguous between 'the tool helped because of what it offered' and 'the tool helped because the participant did not have to interrupt composition to go fetch it.'"
+      },
+      "violated_criterion": "confound architecture — the active ingredient is not isolated from delivery modality",
+      "why_matters": "The central claim in the one_sentence_claim names 'meter-aware line-ending co-writer' as the causal agent, but the contrast condition (RhymeZone iframe) differs in push/pull modality, curation (human prosody expert vs. corpus search), and structure (three registers vs. open list). A positive result cannot be attributed to meter-awareness or to co-writing; it could be attributed to delivery friction alone. The paper's contribution collapses.",
+      "required_change": "Add a fourth condition that holds delivery modality constant while varying curation (e.g., a push-based rhyme-only suggestion panel without metrical scansion), OR reframe the claim as 'interaction-mode comparison' rather than a claim about meter-aware co-writing as such, OR drop the rhyming-dictionary arm and run a head-to-head of meter-aware vs. rhyme-only push suggestions.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "A researcher trained in prosody and scansion who monitors the participant's drafting interface from a separate room and, within 4 seconds of a participant completing a line stem, manually constructs and injects three candidate line endings"
+      },
+      "violated_criterion": "construct validity — the wizard is not a plausible stand-in for the claimed system",
+      "why_matters": "The study's interpretive frame is AI co-writing (grounded in Jakesch 2023, Buijsman 2025). A human prosody expert generating bespoke candidates in 4 seconds, adapting register to the participant's 'apparent lexical/tonal preferences' based on a running note, is not a simulation of any deployable language model. The wizard decisions include adaptive personalization that no fine-tuned LM actually performs at this granularity. When the debrief reveals the deception, any generalization to AI tools is unwarranted — the study measured expert human assistance, not AI co-writing.",
+      "required_change": "Either (a) reframe the contribution as 'what would an ideal formalist co-writer offer' (a ceiling-effect study), explicitly disclaiming AI generalization, or (b) build a minimally functional rule-based or LM-backed generator that actually produces the candidates, accepting lower quality to preserve construct validity.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "the statistical power to detect anything but large effects is limited. A plausible reading of null or ambiguous results would be that the study was simply too small"
+      },
+      "violated_criterion": "power adequacy for the stated quantitative claim",
+      "why_matters": "The one_sentence_claim is directional and quantitative ('higher blind craft ratings'). With 9 participants × 3 conditions × 6 raters, the mixed-effects model's power to detect the condition effect — after partitioning variance to participant, rater, and order — is low for anything smaller than a very large effect. No power analysis or minimum detectable effect is reported. A null or mixed result cannot distinguish 'no effect' from 'underpowered,' and a positive result at this n invites Type M error (effect-size inflation).",
+      "required_change": "Provide a simulation-based power analysis specifying the minimum detectable standardized mean difference for the condition fixed effect under the proposed random-effects structure; increase n to the level required for MDES ≈ 0.5, OR pre-register the study as descriptive/estimation with no directional claim and remove 'higher' from the hypothesis.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "theme constraint (the theme is 'threshold'—a moment of crossing or transition)"
+      },
+      "violated_criterion": "stimulus confound — single theme across three conditions within-subject",
+      "why_matters": "All three poems by each participant use the identical theme 'threshold,' which creates two problems: (1) participants exhaust obvious imagery and lexical territory in the first poem and must either repeat themselves or strain for novelty in the second and third, interacting with condition order in ways the poem-order covariate cannot separate from theme-exhaustion; (2) the rare-rhyme lexicon and 50-word semantic field glossary are tailored to 'threshold' specifically, meaning the wizard's performance is theme-specialized while solo and rhyming-dictionary conditions receive no equivalent resource. This is a theme × condition confound.",
+      "required_change": "Use three matched but distinct themes counterbalanced across conditions (Latin-square both theme and condition), pre-tested for comparable imagistic richness, OR run a between-subjects design with one theme per participant.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Rater reliability is assessed via intraclass correlation coefficient (ICC 3,1) across all 6 raters on each dimension; if ICC < 0.60 for any dimension, that dimension is excluded from the primary analysis."
+      },
+      "violated_criterion": "outcome-contingent analytic decisions — post-hoc exclusion based on measured reliability",
+      "why_matters": "Dropping outcome dimensions after seeing rater reliability on the study's own data is a researcher-degrees-of-freedom move: it conditions primary analysis on a data-dependent filter. If 'overall formalist craft' has low ICC it is silently removed, even though it is the dimension most closely tied to the claim. The decision rule also does not specify what happens if ICC is computed separately per condition (raters may agree more on solo poems than on co-writer poems, which is itself an outcome).",
+      "required_change": "Establish rater reliability on a separate calibration set (the 5 practice poems plus additional non-study poems) and lock the outcome dimensions before rating study poems; report all four dimensions regardless of in-study ICC, and pre-register which is primary.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "a co-writer condition poem that uses three wizard-supplied line endings with a consistent elevated register might plausibly read differently enough from a solo poem that an attentive rater could guess the condition above chance, even without labels"
+      },
+      "violated_criterion": "blinding integrity not empirically verified",
+      "why_matters": "The primary outcome depends on condition-blind craft ratings by working poets — the exact population most likely to detect stylistic fingerprints of wizard-supplied endings (Latinate diction clusters, phoneme-forced rhymes, register drift between line-middles and line-ends). If raters can guess condition above chance, 'blind' ratings encode condition priors and inflate any observed effect. The protocol has no manipulation check on blinding.",
+      "required_change": "Add a condition-guessing task after the primary rating: raters assign a condition label to each poem and state confidence. Report guess accuracy; if above-chance, treat the blind analysis as a sensitivity rather than primary result, and fit a model conditioning on guess.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "recruited via poetry MFA programs and formal poetry journals"
+      },
+      "violated_criterion": "recruitment-to-claim fit and stopping rule for qualitative sub-analyses",
+      "why_matters": "n=9 working formalist poets is a convenience sample without a stated saturation criterion for the interview/open-ended qualitative components, and the recruitment channels (MFA programs, formal journals) self-select for poets professionally invested in formalist craft — precisely the group most likely to resist or over-scrutinize AI co-writing for reasons orthogonal to the tool's affordances. The five-construct McNemar analysis on open-ended responses with n=9 paired within-subject is also statistically fragile. Neither a sampling rationale nor a stopping rule is given.",
+      "required_change": "State an explicit recruitment rationale tied to the claim, specify a saturation criterion for qualitative coding, and acknowledge that findings generalize to MFA-trained formalist poets specifically; drop McNemar at n=9 in favor of descriptive proportions with exact CIs.",
+      "severity": "major"
+    }
+  ],
+  "recommendation": "major_revision",
+  "provenance": {
+    "review": "AGENT_INFERENCE"
+  }
+}

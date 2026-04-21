@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "a",
+  "research_question": "Do algorithmically suggested line endings cause poets to diverge from their own habitual lexical and prosodic patterns during drafting, relative to a thesaurus-only baseline?",
+  "intervention_primitive": "Corpus-personalized divergence probe: a drafting tool offering line-ending candidates from a language model, instrumented to log accept/reject events, with divergence scored against an indexed corpus of each poet's prior published work.",
+  "human_system_relationship": "adversarial_check",
+  "method_family": "generative",
+  "one_sentence_claim": "Line-ending suggestions generated against a model of each poet's prior corpus produce measurable lexical and prosodic divergence from that poet's habitual patterns beyond what a thesaurus control elicits.",
+  "why_divergent": "Differs from branch B on intervention_primitive (a corpus-indexed divergence probe that pushes against the poet's habits, not an expert-rater evaluation harness of a drop-in suggestion tool) and on human_system_relationship (adversarial_check vs peer_collaboration); differs from branch C on method_family (generative mechanism study vs formative taxonomy-building).",
+  "grounding": [
+    {
+      "source_card": "jakesch_2023_cowriting",
+      "relevance": "prior_finding",
+      "quoted_claim": "Co-writing with a language model configured with a built-in viewpoint shifts both the content of participants' writing and their subsequent attitudes, demonstrating that LLM suggestion mechanisms exert measurable influence on human-authored output beyond conscious awareness."
+    },
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "capture_risk_theory",
+      "quoted_claim": "AI decision-support can erode domain-specific autonomy — comprising skilled competence and authentic value-formation — through mechanisms such as absent failure indicators and unconscious value shifts, raising design-level concerns applicable to any expert creative workflow."
+    },
+    {
+      "source_card": "sanders_stappers_2014",
+      "relevance": "methodology_precedent",
+      "quoted_claim": "Probes are framed as instruments for inspiration and dialogue rather than for extracting generalizable user data, a framing that informs the design of divergence-inducing rather than preference-capturing tool studies."
+    },
+    {
+      "source_card": "illich_1973",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "Tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool, a dynamic directly relevant to assessing whether corpus-personalized suggestion engines narrow rather than expand a poet's expressive range."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

@@ -1,0 +1,420 @@
+# Probe report · `demo_run`
+
+Generated 2026-04-21.
+
+# Research premise
+
+design a short study to understand how BLV screen-reader users interpret page hierarchy on AI-generated news articles
+
+## Run summary
+
+| branch | status | stage | reason |
+| --- | --- | --- | --- |
+| a | 🚫 blocked | 6_audit | Capture-risk audit blocked this branch on a -2 finding. |
+| b | ✓ in_progress | — | — |
+| c | 🚫 blocked | 6_audit | Capture-risk audit blocked this branch on a -2 finding. |
+
+## Cost
+
+- Total input tokens: 501,912
+- Total output tokens: 173,596
+- Total USD: $5.9296
+- Stage calls: 42
+
+## Lint status on the guidebook
+
+- Provenance: ✓ pass
+- Forbidden phrases: ✓ pass
+
+## PROBE_GUIDEBOOK.md
+
+## Premise
+
+The researcher's original premise was to design a short study to understand how BLV screen-reader users interpret page hierarchy on AI-generated news articles. [RESEARCHER_INPUT]
+
+Through Probe's sharpening process, this was narrowed to a specific sub-question: when hierarchy is held constant, does disclosing AI authorship via an ARIA-live provenance banner shift BLV screen-reader users' navigation strategies and credibility judgments compared to undisclosed or human-authored framing? [AGENT_INFERENCE]
+
+This guidebook plans a formative study of auditory AI-provenance disclosure for BLV screen-reader users. Its purpose is to characterize how a disclosure artifact interacts with screen-reader navigation, not to establish population-level effects of AI disclosure on credibility. [AGENT_INFERENCE]
+
+This study can support claims about how specific disclosure phrasings and placements interact with heading navigation under the tested conditions. [DO_NOT_CLAIM]
+
+This study cannot support claims that AI disclosures generally shift BLV users' trust, that BLV users are more or less susceptible to disclosure effects than sighted users, or that ARIA-live banners are the right intervention for provenance communication. [DO_NOT_CLAIM]
+
+## Background
+
+Kafer develops a political/relational model of disability that situates access needs within social and structural arrangements rather than locating the deficit solely in the individual user, which frames how this study treats BLV participants as expert users of their own tooling rather than as subjects of a corrective intervention. [SOURCE_CARD:kafer_2013]
+
+Buijsman, Carter, and Bermúdez argue that AI decision-support can erode domain-specific autonomy through absent failure indicators, which motivates examining whether provenance disclosure mechanisms interact with users' capacity for critical evaluation of AI-authored content. [SOURCE_CARD:buijsman_carter_bermudez_2025]
+
+Liang et al. reported in a prospective user study that 57.4% of researchers rated GPT-4 feedback on scientific manuscripts as helpful or very helpful; this finding concerns the helpfulness of AI-authored critique, not AI-authored content more broadly, and this study cannot extend that finding to BLV readers of AI-generated news without additional evidence. [SOURCE_CARD:liang_nejm_ai_2024]
+
+Illich argues that tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool, which foregrounds the question of whether undisclosed AI authorship could silently reshape reader trust and navigation behavior. [SOURCE_CARD:illich_1973]
+
+Since this guidebook was first assembled, three directly adjacent papers have been added to the source corpus (Jakesch et al. 2023 on co-writing with opinionated language models; Longoni et al. 2019 on resistance to medical AI; Sundar's 2008 MAIN model of technology effects on credibility). A regeneration of the guidebook against the updated corpus will ground the grounding section against these references rather than flag them as uncited. [AGENT_INFERENCE]
+
+The ARIA-live announcement and live-region interaction literature remains adjacent and uncited in the current source corpus; prior work on how live-region announcements interact with heading navigation is not yet incorporated. [UNCITED_ADJACENT]
+
+## Prototype
+
+The prototype is a Wizard-of-Oz evaluation in which a researcher (the "wizard") triggers ARIA-live provenance announcements on prototype news-article pages while a BLV screen-reader participant navigates them. [AGENT_INFERENCE]
+
+The study uses three article variants of approximately 800 words each, all structured identically with one H1 title and three H2 section headings, presented via a Node.js localhost server tunneled through ngrok so the wizard can inject disclosure text remotely. [AGENT_INFERENCE]
+
+Three disclosure conditions are assigned within-subjects via Latin square: (1) AI-disclosed-early, where the banner fires immediately after the H1 announcement completes; (2) AI-disclosed-late, where the banner fires after the participant's cursor passes the second H2 heading; and (3) human-framed, where a shorter byline-style string fires at the early position. [AGENT_INFERENCE]
+
+The disclosure strings are: "Disclosure: this article was generated by an AI writing assistant and reviewed by a human editor" for AI conditions, and "Written by a staff journalist" for the human-framed condition. [AGENT_INFERENCE]
+
+Five wizard controls manage the session: inject_early_banner, inject_late_banner, inject_human_banner, clear_banner (for runaway announcements), and log_heading_navigation_event (for timestamping observed keystrokes). [AGENT_INFERENCE]
+
+Observable signals captured per trial include heading-navigation keystroke sequences and dwell times, think-aloud verbalization in a 20-second post-injection window, a 7-item credibility rating scale, section-selection behavior on a trustworthiness probe, and time from page-load to first body-text dwell. [AGENT_INFERENCE]
+
+Documented failure modes include ARIA-live suppression when the participant is in forms mode at the moment of injection, ngrok tunnel drops mid-trial, and undetectable delivery when a participant uses a refreshable Braille display with speech muted; wizard-side fallback protocols are specified for each. [AGENT_INFERENCE]
+
+A rehearsal pass suggests the late-banner condition would be difficult to fire reliably for fast H-key navigators, because a participant traversing all three H2s in under 4 seconds would leave almost no window for the wizard to trigger between the second and third heading. [SIMULATION_REHEARSAL]
+
+A rehearsal also suggests the announcement-duration difference between conditions (approximately 6 seconds for the AI string versus 2 seconds for the human string) would plausibly contaminate any time-bounded behavioral measure, because a longer interruption would mechanically produce longer dwell-onset latency regardless of disclosure content. [SIMULATION_REHEARSAL]
+
+## Study protocol
+
+### Recruitment
+
+Recruit 8 blind or low-vision adults through a disability-led community organization, each with at least 6 months of daily screen-reader use and using their own personal device and preferred screen reader configuration. [AGENT_INFERENCE]
+
+The accessibility advocate reviewer flagged that the binary "primary output" Braille-display screener fails for hybrid speech+Braille users; recruitment should either restrict to speech-output-primary users in round one or stratify with a configuration inventory developed with BLV co-designers. [AGENT_INFERENCE]
+
+Compensation must be specified as a concrete rate before recruitment begins, benchmarked against consultant rates for lived-expertise contributors rather than generic participant-pool rates; a defensible floor is $75–150 per 75-minute session, to be finalized in consultation with the recruitment partner. [AGENT_INFERENCE]
+
+### Pre-study co-design phase
+
+Before any evaluation sessions run, conduct 2–3 paid co-design sessions with BLV screen-reader users from the recruitment partner to determine (a) whether auditory provenance disclosure is a wanted intervention at all, (b) the phrasing and granularity of disclosure strings, and (c) the placement and interruption model. [AGENT_INFERENCE]
+
+If the co-design phase reveals that ARIA-live banners are not the intervention BLV users want, the study does not proceed as specified; the research question is revised in response to co-designer input. [AGENT_INFERENCE]
+
+### Procedure
+
+Each session follows the five-step task flow from the prototype spec: consent and screener (0–10 min), warm-up with a neutral practice article (10–20 min), three counterbalanced experimental trials with Latin-square assigned conditions (20–55 min), semi-structured debrief interview (55–70 min), and debrief card plus compensation (70–75 min). [AGENT_INFERENCE]
+
+A rehearsal suggests the 75-minute duration budget is tight and would likely overrun when the credibility form takes longer for screen-reader users than sighted users, and that fatigue would concentrate in the third trial; the researcher should either extend the budget to 90–100 minutes with explicit break points, reduce to two experimental conditions per participant, or drop the warm-up article. [SIMULATION_REHEARSAL]
+
+### Materials
+
+Three prototype article HTML files with identical heading structure on a neutral civic topic, each passing automated WCAG 2.1 AA checks via axe-core before use. [AGENT_INFERENCE]
+
+An ARIA-live region (role='status', aria-live='polite', aria-atomic='true') positioned in DOM order immediately after the H1 element, present in all three article variants. [AGENT_INFERENCE]
+
+Node.js static file server with /inject-banner and /record-rating POST endpoints running on localhost:3000, tunneled via ngrok with a LAN-based fallback configured. [AGENT_INFERENCE]
+
+Wizard control panel HTML with labeled buttons for each injection, a trial-assignment display loaded from a Latin-square CSV, and a real-time elapsed-time counter. [AGENT_INFERENCE]
+
+Credibility rating HTML form with 7 keyboard-navigable radio-button groups, piloted with at least three BLV screen-reader users (compensated, distinct from study participants) across NVDA and VoiceOver with and without Braille display before data collection. [AGENT_INFERENCE]
+
+Consent form provided in an accessible format (HTML with headings, or audio) at least 24 hours before the session so participants can review independently, rather than relying on facilitator-read-aloud as the primary consent channel. [AGENT_INFERENCE]
+
+Observer coding sheet with a theoretically anchored 4-category think-aloud scheme, written category definitions with boundary examples, a disagreement-resolution procedure (discussion to consensus with third-coder adjudication), and an a priori Cohen's kappa threshold (≥0.70) that triggers codebook revision if unmet. [AGENT_INFERENCE]
+
+Facilitator script document with verbatim text for all standardized prompts, including the Step 3 probe which requires careful wording review because "most important for deciding whether this article is trustworthy" would plausibly prime sourcing-section selection independent of condition. [SIMULATION_REHEARSAL]
+
+Member-check packet for each participant after initial analysis, containing their session log, wizard-coded events, think-aloud category assignments, and any quotations selected for findings, with an invitation to correct or contest any interpretation, compensated at the same rate as the session. [AGENT_INFERENCE]
+
+### Ethics framing
+
+The study treats BLV participants as expert users of their own tooling and their own access configurations, consistent with a relational rather than deficit model of disability. [SOURCE_CARD:kafer_2013]
+
+The wizard's real-time judgments about participant behavior (mode detection, announcement delivery confirmation, flagged events for deeper probing) create an authority asymmetry that must be offset by structured member-check rather than left as one-way legibility from participant to researcher. [AGENT_INFERENCE]
+
+### Scope of claims
+
+This protocol can descriptively characterize how a small number of BLV screen-reader users interact with three specific disclosure variants in a single session. [DO_NOT_CLAIM]
+
+This protocol cannot support population-level claims about BLV users generally, cannot separate announcement-duration effects from disclosure-semantic effects without a length-matched control condition added to the design, and cannot support quantitative hypothesis tests at n=8 that would discriminate "no effect" from "small effect under-detected." [DO_NOT_CLAIM]
+
+## Failure hypotheses to test
+
+Liang et al.'s finding that 57.4% of sighted researchers rated GPT-4 feedback as helpful suggests that authorship framing does shift credibility judgments in at least some expert populations, though whether and how this generalizes to auditory disclosure in BLV screen-reader contexts is unestablished. [SOURCE_CARD:liang_nejm_ai_2024]
+
+Buijsman, Carter, and Bermúdez's argument that absent failure indicators erode domain-specific autonomy would predict that disclosure (as a failure indicator for authorship) supports critical evaluation, though their argument is theoretical rather than empirical and does not specify modality. [SOURCE_CARD:buijsman_carter_bermudez_2025]
+
+A rehearsal suggests that if the announcement-duration confound is uncontrolled, any condition difference in dwell-onset latency or post-banner heading-jump counts would be interpretable as a length effect rather than a content effect, and the expected behavioral pattern cannot be cleanly predicted from the current design. [SIMULATION_REHEARSAL]
+
+A rehearsal also suggests participants coded as category A in the think-aloud scheme (no verbal acknowledgment) could nonetheless show condition-differentiated credibility ratings, which would suggest silent uptake of the banner that the verbal-coding method alone would fail to detect. [SIMULATION_REHEARSAL]
+
+Under the adversarial-check framing from the branch card, a rehearsal would anticipate that AI-disclosed conditions could plausibly shift think-aloud category D frequencies and section-selection patterns, though whether this rehearsal-level anticipation survives the probe-wording priming concern is not a matter this design resolves. [SIMULATION_REHEARSAL]
+
+## Risks and failure modes
+
+### Risk register
+
+Reviewer objection (methodologist, blocking): the AI disclosure string is ~6 seconds of speech and the human-framed string is ~2 seconds, mechanically contaminating every time-bounded behavioral DV with announcement duration. [AGENT_INFERENCE]
+
+Mitigation: add a fourth condition with a length-matched human-framed string (e.g., "Written by a staff journalist and reviewed by a senior editor for this publication"), or drop the duration-sensitive behavioral DVs and restrict claims to credibility rating and section-selection measures. [AGENT_INFERENCE]
+
+Reviewer objection (methodologist, blocking): n=8 with three conditions gives Friedman/Wilcoxon tests power to detect only very large effects, making null results uninterpretable. [AGENT_INFERENCE]
+
+Mitigation: reframe as exploratory/qualitative with descriptive statistics plus thematic analysis and remove hypothesis-testing apparatus, or commit to a target n justified by simulation-based power analysis on the primary DV. [AGENT_INFERENCE]
+
+Reviewer objection (methodologist, blocking): the wizard-gated late-banner trigger cannot be reliably instantiated for fast H-key navigators, collapsing the early/late distinction for a subset of trials. [AGENT_INFERENCE]
+
+Mitigation: replace human-gated late injection with programmatic triggering via IntersectionObserver or aria-activedescendant focus tracker, piloted with 2–3 screen-reader users to measure and report the latency distribution between H2-2 traversal and banner onset. [AGENT_INFERENCE]
+
+Reviewer objection (accessibility advocate, blocking): BLV users are recruited as subjects but not as co-designers of the disclosure artifact, reproducing an extractive pattern by testing a sighted-researcher hypothesis about what BLV users need. [AGENT_INFERENCE]
+
+Mitigation: add the pre-study co-design phase specified in the Study protocol section; document co-designer input in the prototype spec; name co-designers as contributors; pivot the branch if co-design reveals ARIA-live banners are not the wanted intervention. [AGENT_INFERENCE]
+
+Reviewer objection (accessibility advocate, major): cross-disability conflation in treating Braille-display users as an edge case rather than a first-class population with distinct experimental needs. [AGENT_INFERENCE]
+
+Mitigation: either restrict round one to speech-output-primary users with Braille-output users as a separate follow-up study, or stratify recruitment across output modalities and power the analysis accordingly; replace the binary screener with a configuration inventory developed with co-designers. [AGENT_INFERENCE]
+
+Reviewer objection (accessibility advocate, major): compensation is named as a line item but the rate is unspecified, which defers an equity-shaping decision. [AGENT_INFERENCE]
+
+Mitigation: specify the rate in the protocol before recruitment; benchmark against consultant rates for lived-expertise contributors; document how the rate was determined in consultation with the recruitment organization. [AGENT_INFERENCE]
+
+Reviewer objection (accessibility advocate, major): the credibility form is asserted accessible without evidence of BLV-user pilot testing, and the facilitator-read-aloud fallback breaks blinding. [AGENT_INFERENCE]
+
+Mitigation: pilot the form with at least three compensated BLV screen-reader users across NVDA and VoiceOver before data collection; pre-register form-workaround trials as excluded from the primary analysis rather than retained with a flag. [AGENT_INFERENCE]
+
+Reviewer objection (accessibility advocate, major): wizard authority asymmetry renders the participant legible to the researcher while keeping researcher interpretations opaque to the participant. [AGENT_INFERENCE]
+
+Mitigation: add a structured member-check phase with compensated review of session logs and coded events; offer every participant the same debrief prompt bank rather than conditioning depth on wizard-flagged events. [AGENT_INFERENCE]
+
+Reviewer objection (novelty hawk, blocking): the proposal replicates the AI-disclosure-effects paradigm in a new population without citing prior work (Jakesch, Longoni, Sundar's MAIN model) or stating a differential prediction. [AGENT_INFERENCE]
+
+Mitigation: state a concrete, signed prediction for how the BLV/screen-reader condition should produce a measurably different effect than the sighted-visual-banner condition studied in prior work, and cite that prior work explicitly. [AGENT_INFERENCE]
+
+Reviewer objection (novelty hawk, major): the ARIA-live timing manipulation treats as novel a manipulation that has been studied in web accessibility research for over 15 years. [AGENT_INFERENCE]
+
+Mitigation: cite the ARIA-live / live-region interaction literature and state which specific findings the current design builds on or contradicts; explain why combining known live-region timing findings with authorship disclosure produces a novel prediction rather than a predictable summation. [AGENT_INFERENCE]
+
+Reviewer objection (methodologist, major): demand characteristics in the within-subject design are not addressed by Latin-square counterbalancing alone, and linguistic salience of "AI" makes hypothesis-guessing near-certain by trial 3. [AGENT_INFERENCE]
+
+Mitigation: convert to between-subjects, add a cover story framing the study as about layout or heading structure with a spontaneous-mention manipulation check in debrief, or treat trial 1 ratings as the primary analysis with trials 2–3 as sensitivity analyses. [AGENT_INFERENCE]
+
+Audit finding (legibility, -1): silent ARIA-live injection failures (mode-suppression, Braille-only output, network drop) are invisible to the participant; no in-flow signal tells them a disclosure was intended to reach them. [AGENT_INFERENCE]
+
+Mitigation: add a participant-accessible status surface (e.g., a "messages" heading region the participant can navigate to on demand) that logs any disclosure announcements delivered during the trial, so silent failures become participant-visible. [AGENT_INFERENCE]
+
+Audit finding (legibility, -1): the disclosure string contains no inline affordance for the participant to inspect what "generated by an AI writing assistant" or "reviewed by a human editor" concretely means at the point of encountering it. [AGENT_INFERENCE]
+
+Mitigation: co-design the disclosure string to include or link to a verifiable provenance surface (model card, review policy, byline link) that participants can inspect before committing a credibility judgment. [AGENT_INFERENCE]
+
+Audit finding (legibility, -1): the disclosure banner asks participants to factor a condensed provenance claim into a trustworthiness judgment with no task-flow affordance to trace the claim back to verifiable evidence. [AGENT_INFERENCE]
+
+Mitigation: as with the prior finding, provide an inspectable provenance surface, and consider adding a follow-up task that measures whether participants attempt to verify the claim when given the affordance. [AGENT_INFERENCE]
+
+### Meta-review scoping question
+
+The meta-review flagged that the three reviewers' decisive weaknesses are non-overlapping and in tension on what the project IS: a confound-controlled quantitative replication in a new population (methodologist), a participatory co-design study (accessibility advocate), or a theoretically differentiated extension against prior disclosure-effects literature (novelty hawk). [AGENT_INFERENCE]
+
+These three framings cannot be synthesized by an agent: fixing the duration confound does not supply a differential prediction; co-designing the artifact with BLV users may invalidate the stimulus set the methodologist wants length-matched; establishing novelty against Jakesch and Sundar does not address whether the intervention is wanted by the target population. [AGENT_INFERENCE]
+
+### Next steps
+
+Before running this study, the researcher must resolve the scoping question the meta-review flagged as requiring human judgment: decide whether this project is a confound-controlled quantitative replication, a participatory co-design study, or a theoretically differentiated extension — this decision reshapes every downstream element of the protocol and cannot be made by the agent. [HUMAN_REQUIRED]
+
+The researcher must then, in order: (1) conduct the co-design phase with BLV collaborators from the recruitment partner before finalizing any stimulus materials; (2) specify the compensation rate for both co-designers and study participants in consultation with that partner; (3) read and cite the AI-disclosure-effects literature (Jakesch et al., Longoni et al., Sundar's MAIN model) and the ARIA-live announcement literature to establish what differential prediction this study makes; (4) pilot the credibility form and the consent-delivery process with compensated BLV screen-reader users distinct from study participants; (5) replace wizard-gated late injection with programmatic triggering and measure the resulting timing distribution; (6) resolve the announcement-duration confound by length-matching stimulus strings or restricting claims to non-duration-sensitive DVs; and (7) obtain IRB approval for the finalized protocol including the member-check phase. [HUMAN_REQUIRED]
+
+
+## Blocked branches
+
+### Branch a
+
+# WORKSHOP NOT RECOMMENDED — branch a
+
+This branch should not be advanced to a human study in its current form. [AGENT_INFERENCE]
+
+## Original intent
+
+- **Research question:** Do AI-generated news articles published by outlets using LLM pipelines exhibit systematically different heading depth, landmark structure, and ARIA correctness than human-authored articles from the same outlets, and on which dimensions is divergence large enough to affect screen-reader navigation?
+- **Intervention primitive:** automated corpus audit pipeline that parses article DOMs and scores hierarchy artifacts against ARIA conformance plus screen-reader-relevant structural metrics
+- **Claim:** AI-generated news articles from LLM-using outlets diverge from human-authored articles at the same outlets on measurable hierarchy dimensions, and only a subset of those dimensions actually degrade screen-reader navigation.
+
+## Why blocked
+
+Capture-risk audit fired a -2 finding. [AGENT_INFERENCE]
+
+Blocking finding: `audit:-2`
+
+## Capture-risk audit findings
+
+### agency.auto_decides_consequential_step (score -1)
+
+> **Evidence (prototype_spec):** A WebSocket-triggered JavaScript snippet adds role='region' and aria-label='Comments section' (or the appropriate section name) to the target container's outermost div in the live DOM without altering visual rendering. NVDA will announce the new landmark on the participant's next D-key landmark navigation press.
+
+The wizard unilaterally modifies the live DOM that the participant is navigating, materially altering the stimulus mid-task without the participant's authorization or knowledge. While this is research-internal rather than externally consequential, it crosses into decision authority over the participant's sensory environment — the participant cannot deliberate over whether the injection happens. This is partially mitigated by the threshold-gating but remains a covert intervention. [AGENT_INFERENCE]
+
+### agency.weak_override (score -1)
+
+> **Evidence (simulated_walkthrough):** The overlay intervention (inject_heading_annotation_overlay) causes NVDA to announce text that would not appear on any real website ("[H2]" spoken aloud), which would likely be noticed by any proficient screen-reader user as an artifact rather than accepted as part of the page.
+
+The participant has no described mechanism to refuse or dismiss wizard-triggered overlays or landmark injections during the task. Because the cover story withholds the fact that injections occur, the participant cannot even identify what would need to be overridden. Override in this protocol is effectively impossible without breaking the study frame, making the participant's agency over their own sensory input nominal rather than substantive. [AGENT_INFERENCE]
+
+### agency.paternalistic_default (score -1)
+
+> **Evidence (prototype_spec):** If the participant cannot locate the target within 45 seconds, the wizard may activate the 'inject landmark breadcrumb' control to add an ARIA-label to the comments container visible only in the accessibility tree (not visually), which NVDA will then announce on the next D-key landmark press.
+
+The participant population is screen-reader-using blind and low-vision adults — a population historically subject to paternalistic 'help' from sighted researchers. The default behavior at the 45-second threshold is for the wizard to intervene by augmenting the page on the participant's behalf, without participant consent at the point of action. The simulated walkthrough notes the intervention could interrupt an in-progress successful workaround, instantiating exactly the paternalism Kafer critiques. The threshold-gating prevents this from reaching -2, but the default disposition is to intervene rather than wait. [AGENT_INFERENCE]
+
+### legibility.no_failure_signal (score -2)
+
+> **Evidence (prototype_spec):** The wizard should detect this when the dashboard shows zero violations for an article but the participant's navigation trace shows repeated backward heading navigations (Shift+H) indicating unexpected heading order, which contradicts the clean audit score. This is the most likely way the audit pipeline produces false-negative structural assessments.
+
+The spec explicitly acknowledges that the axe-core audit pipeline produces false-negative structural assessments (the aria-level mismatch scenario) and that two structurally very different articles can receive identical clean audit scores. The primary instrument on which the AI-vs-human analysis depends fails silently, and the participant — whose navigation is the ground truth — has no channel to flag these failures during the session. The wizard is asked to catch these via judgment, but the analysis_plan treats axe-core counts as a first-class quantitative variable in permutation tests and correlations. A silent failure mode in the central measurement instrument, acknowledged in failure_cases but not resolved, is the canonical fire for this pattern. [AGENT_INFERENCE]
+
+### legibility.no_rationale_at_point_of_action (score -1)
+
+> **Evidence (simulated_walkthrough):** The injected landmark breadcrumb, once activated, would likely resolve the blockage within one or two D-key presses as the spec anticipates, but a participant hearing a landmark announce itself where none existed seconds earlier would plausibly remark on the anomaly verbally.
+
+When wizard controls modify the DOM the participant is navigating, the participant receives no rationale at the point where that modification affects their experience. They hear a new landmark announcement or a '[H2]' badge with no explanation, and the cover story actively prevents rationale disclosure until debrief. The participant is making navigation decisions against a surface whose behavior has been silently altered, and rationale after commitment (at debrief, 75+ minutes later) is explicitly what this pattern names as insufficient. [AGENT_INFERENCE]
+
+## What to reconsider
+
+Redesign the intervention so the blocking pattern no longer fires before re-running Probe. Or reframe the research question so the blocking pattern is not load-bearing on the contribution. [AGENT_INFERENCE]
+
+## Next step
+
+A human researcher must review this finding, decide whether the blocking pattern is a mis-application (in which case file an issue against the pattern library) or a real design problem (in which case redesign), and document the decision before proceeding. [HUMAN_REQUIRED]
+
+
+### Branch c
+
+# WORKSHOP NOT RECOMMENDED — branch c
+
+This branch should not be advanced to a human study in its current form. [AGENT_INFERENCE]
+
+## Original intent
+
+- **Research question:** What failure patterns emerge when BLV screen-reader users navigate AI-generated articles over repeated sessions, and can a co-designed in-browser repair layer that rewrites hierarchy on the fly reduce those failures across successive encounters?
+- **Intervention primitive:** in-browser accessibility-repair overlay co-designed with BLV participants that detects hallucinated headings and inconsistent landmark nesting in AI-generated articles and rewrites them before screen-reader announcement
+- **Claim:** A co-designed repair overlay refined across multiple sessions with BLV screen-reader users reduces hierarchy-related navigation breakdowns on AI-generated news articles, and the specific breakdowns that resist repair reveal limits of post-hoc structural correction.
+
+## Why blocked
+
+Capture-risk audit fired a -2 finding. [AGENT_INFERENCE]
+
+Blocking finding: `audit:-2`
+
+## Capture-risk audit findings
+
+### agency.auto_decides_consequential_step (score -1)
+
+> **Evidence (prototype_spec):** Decide whether landmark nesting anomalies (e.g., a <nav> inside an <article> with no label) should be repaired silently or replaced with an ARIA label announcement — the default is silent repair unless the participant's Session 1 co-design notes indicated they want audible confirmation of repairs.
+
+The wizard silently alters the document the participant is reasoning about, by default without announcement. While the participant is not making external commitments, the structural terrain of the participant's sensemaking task is being modified on their behalf without in-the-moment authorization. The co-design process partially mitigates this after Session 1, but the default-silent posture still places a consequential interpretive decision outside the participant's authority at point of action. [AGENT_INFERENCE]
+
+### agency.hides_options_before_review (score -1)
+
+> **Evidence (prototype_spec):** Executes a pre-scripted DOM rewrite that promotes or demotes the affected heading tags to reflect the implied hierarchy, based on the rule set co-designed with the participant. The rewrite is applied to all affected headings simultaneously (batch, not one at a time) so the outline is consistent before the participant navigates through the section.
+
+At the moment of navigation the participant receives only the repaired structure, with no surfaced alternatives — the original hierarchy and the space of plausible repairs are not announced alongside. Review occurs retrospectively in the debrief via a DOM diff, but by then commitment has already been made. This is a drift rather than capture because the co-design loop does eventually expose the repair space, just not before action. [AGENT_INFERENCE]
+
+### legibility.no_failure_signal (score -2)
+
+> **Evidence (simulated_walkthrough):** The 'apparent resolution rate' metric (proportion of repairs followed within 10 seconds by a CONFIRM code or absence of DISCONFIRM) treats the absence of disconfirmation as evidence of resolution. Rehearsing this, one would note that silence after a repair could also mean the participant did not hear the repair (the NVDA verbosity case), did not connect the repair to their task, or was still processing.
+
+The failure_cases section describes scenarios where the overlay fires repairs the participant never hears (suppressed landmark announcements), repairs misaligned with semantic confabulations, and late repairs producing double-announcements. In the silent-injection case the expected_behavior is that the wizard may interpret absence of disorientation as successful repair, with no in-flow signal to the participant that something was injected. The participant has no reliable way to detect when the system has acted incorrectly on their document, and the quantitative scheme itself conflates silence with success. This is an active capture of the participant's ability to form accurate beliefs about what the tool did. [AGENT_INFERENCE]
+
+### legibility.no_rationale_at_point_of_action (score -1)
+
+> **Evidence (prototype_spec):** Decide whether to show the participant a visual diff of the original vs. repaired DOM (rendered as an indented plain-text tree read aloud by the screen reader) during the post-article debrief, or to describe changes verbally via the facilitator — the default is verbal description unless the participant requested DOM-tree review in a prior session.
+
+Rationale for each specific repair is available only post-hoc in the debrief, and even there the default is a verbal summary rather than a structural diff. At the point of action — when the participant is navigating and encountering the repaired structure — there is no inline mechanism to ask 'what was changed here and why.' The co-design loop eventually surfaces rationale at the ruleset level, but not per-action, which is what this pattern targets. [AGENT_INFERENCE]
+
+### legibility.unverifiable_summary (score -1)
+
+> **Evidence (simulated_walkthrough):** In the debrief, a participant is asked to reconstruct 'what did you hear, what did you expect to hear' from a timestamped excerpt the observer has selected. Rehearsing this, one would reasonably expect the selection itself to shape the co-design output: excerpts chosen by the observer are the moments the observer noticed, which skews toward breakdowns that were audible or verbalised and away from silent breakdowns
+
+The co-design debrief hands the participant a curated selection of speech excerpts drawn from the session log, and the participant reasons about repair rules from that summary without an affordance to surface the full session record for comparison. The selection is an observer-generated synthesis presented as the evidentiary base for rule-making, with no described mechanism for the participant to inspect unselected moments before committing to rule changes. [AGENT_INFERENCE]
+
+## What to reconsider
+
+Redesign the intervention so the blocking pattern no longer fires before re-running Probe. Or reframe the research question so the blocking pattern is not load-bearing on the contribution. [AGENT_INFERENCE]
+
+## Next step
+
+A human researcher must review this finding, decide whether the blocking pattern is a mis-application (in which case file an issue against the pattern library) or a real design problem (in which case redesign), and document the decision before proceeding. [HUMAN_REQUIRED]
+
+
+## Reviewer panel (branch b)
+
+### accessibility_advocate — major_revision
+
+**Decisive weakness:** BLV screen-reader users are recruited as study subjects but not as co-designers of the disclosure artifact itself; the specific phrasing, placement, and very premise that an ARIA-live provenance banner is the right intervention have been decided by sighted researchers before a single BLV person was consulted, which reproduces the extractive pattern this research gestures at critiquing.
+
+- **[blocking] absence of target population from design phase (participatory design / 'nothing about us without us')**
+  - Evidence (prototype_spec): *recruited from a disability-led community organization; must have at least 6 months of daily screen-reader use*
+  - Why: The disclosure string wording ('generated by an AI writing assistant and reviewed by a human editor'), the decision to use a polite ARIA-live region, the choice of placement after H1, and the very premise that auditory banner disclosure is what BLV users want to evaluate AI authorship were all determined by the research team without evidence of BLV co-design. Recruiting BLV participants only at th
+- **[major] cross-disability conflation; binary classification of heterogeneous access configurations**
+  - Evidence (prototype_spec): *the facilitator asks 'Do you use a Braille display as your primary output?' If yes, the wizard switches to a confirmation protocol: after each injection, the wizard sends the facilitator the code 'CHECK-BRAILLE' and the facilitator asks the participant 'Can you tell me what the last message at the t*
+  - Why: Braille-display users are treated as an edge case handled by a branching protocol rather than as a first-class population with distinct experimental needs. The binary 'primary output' screener fails for hybrid speech+Braille users (explicitly flagged in the walkthrough), and more fundamentally the study never asks whether Braille-primary users should be in a separate analytic stratum or whether th
+- **[major] extraction without expertise-rate compensation**
+  - Evidence (prototype_spec): *70–75 min: facilitator explains the study purpose, answers questions, and provides compensation.*
+  - Why: The spec names compensation as a line item but does not specify the rate. BLV screen-reader users who participate are contributing lived expertise about disclosure behavior that sighted researchers cannot generate, plus navigating a 75-minute cognitively demanding protocol with competing audio streams, plus absorbing the burden of an unfamiliar Zoom + screen-share + think-aloud configuration on th
+- **[major] consent and instrument hygiene; accessibility compliance of the measurement instrument itself**
+  - Evidence (prototype_spec): *The facilitator hands the participant a 7-item credibility rating scale delivered via a second static HTML page (keyboard-navigable radio buttons with visible labels and ARIA labels)*
+  - Why: The credibility form is the primary quantitative instrument, and the spec asserts it will be accessible without evidence the form has been tested by BLV users before the session. 'Keyboard-navigable radio buttons with ARIA labels' is the minimum bar, not a guarantee of usability with NVDA forms mode or VoiceOver rotor navigation. The failure_cases even anticipate that participants may have difficu
+- **[major] wizard authority asymmetry; participant-opaque failure model**
+  - Evidence (prototype_spec): *the wizard's control panel displays a confirmation indicator when the POST succeeds, showing the participant ID, trial number, and condition label so the wizard can verify the correct condition was logged*
+  - Why: The wizard continuously makes real-time judgments about the participant — when the page-load announcement has completed, whether the participant is in browse vs. forms mode, whether the banner was 'successfully' heard, whether a re-injection is warranted, whether to flag specific navigation events for deeper debrief probing. The participant has no parallel channel to see what the wizard is logging
+- **[minor] curative / deficit framing of the research motivation**
+  - Evidence (branch_card): *provenance disclosure mechanisms may be necessary to preserve users' capacity for critical evaluation*
+  - Why: The grounding quotation and the branch framing position disclosure as a mechanism to 'preserve' capacity that BLV users are at risk of losing, implicitly locating the problem in the users' vulnerability rather than in the authorship concealment practices of AI-content publishers. A non-deficit framing would ask: what do BLV screen-reader users already do to assess authorship, and where do existing
+
+### methodologist — major_revision
+
+**Decisive weakness:** The AI disclosure string is 18 words and ~6 seconds of speech; the human-framed string is 5 words and ~2 seconds. This confound is baked into the stimuli, and every behavioral dependent variable the study claims to measure (dwell-onset latency, heading-jump counts, post-banner think-aloud content in a fixed 20-second window) is mechanically sensitive to announcement duration rather than disclosure semantics. The claim 'BLV users change skim patterns when AI authorship is announced' cannot be separated from 'BLV users change skim patterns when a longer announcement interrupts them,' because no condition isolates length from content.
+
+- **[blocking] uncontrolled stimulus confound between primary IV and a nuisance variable**
+  - Evidence (simulated_walkthrough): *The human-framed condition ('Written by a staff journalist') is substantially shorter than the AI disclosure string, which introduces a confound the rehearsal cannot ignore: announcement duration differs across conditions by several seconds.*
+  - Why: The three DVs most tied to the branch claim — dwell-onset latency, heading-jump counts before body dwell, and the 20-second post-injection think-aloud window — are all time-bounded measures. A 4-6 second difference in announcement duration will mechanically shift dwell-onset latency and truncate the effective post-announcement think-aloud window in the human condition. Any condition difference the
+- **[blocking] statistical power inadequate for the quantitative claims being made**
+  - Evidence (prototype_spec): *Compare these measures across the three conditions (early-AI, late-AI, human) using a within-subject Friedman test across the 8 participants, with individual condition contrasts via Wilcoxon signed-rank.*
+  - Why: With n=8 and three conditions, a Friedman test has power to detect only very large effects (roughly d > 1.0 in paired equivalents). The branch claim is that navigation strategies and credibility ratings shift in 'measurable ways,' which is framed quantitatively, yet a null on any of these Friedman tests cannot distinguish 'no effect' from 'real but undetected small/medium effect.' The simulated_wa
+- **[blocking] manipulation fidelity — the late-banner condition cannot be reliably instantiated**
+  - Evidence (prototype_spec): *Wizard fires this control at the moment the participant's screen reader cursor passes the second H2 heading, determined by observing the screen-share video feed and listening for the second H2 heading text in the Zoom audio*
+  - Why: The simulated_walkthrough notes fast H-key navigators can traverse all three H2s in under 4 seconds, making the wizard's firing window between H2-2 and H2-3 unreliable. When the window is missed, the trial silently degrades into 'banner fired at arbitrary time after H2-2' — i.e., the late condition becomes a timing-noise condition rather than a controlled manipulation. The two-level timing manipul
+- **[major] qualitative analysis plan lacks codebook development procedure and disagreement-resolution protocol**
+  - Evidence (prototype_spec): *Two coders independently apply a 4-category scheme to each clip... Compute inter-rater agreement (Cohen's kappa) on the 24 clips (8 participants × 3 trials).*
+  - Why: The analysis_plan names Cohen's kappa but does not specify: how the four categories were developed (data-driven or a priori), how boundary cases between B/C/D will be adjudicated, what kappa threshold constitutes acceptable agreement before proceeding, or what happens when coders disagree. With only 24 clips, a single boundary-case disagreement moves kappa substantially. Reviewers will read this a
+- **[major] demand characteristics in within-subject design not addressed by the stated counterbalancing**
+  - Evidence (simulated_walkthrough): *by the third trial, a participant would reasonably have inferred that authorship framing is the experimental variable of interest, and their credibility ratings in trial 3 could plausibly reflect hypothesis-guessing rather than authentic judgment*
+  - Why: Latin-square counterbalancing addresses order effects at the group level but does nothing to prevent individual participants from reverse-engineering the manipulation by trial 3. Because the manipulation is linguistically salient (the word 'AI' appears in two of three conditions), hypothesis-guessing is near-certain by the third trial. The credibility rating DV is the most theoretically important 
+- **[major] session duration budget inconsistent with task inventory**
+  - Evidence (prototype_spec): *duration_minutes: 75*
+  - Why: The session_structure allocates 35 minutes for three 10-12 minute trial blocks (which is 30-36 minutes, already overrunning), plus 15 minutes debrief, plus 10 minutes consent/screener, plus 10 minutes warm-up, plus 5 minutes compensation — totaling 75-80 minutes at minimum with no slack for the credibility form (which the simulated_walkthrough notes 'would likely take a screen-reader user longer t
+
+### novelty_hawk — major_revision
+
+**Decisive weakness:** The proposal studies whether announcing AI authorship changes reader credibility judgments — this is the central question of the AI-disclosure-effects literature that has produced dozens of papers since roughly 2019 (Longoni et al. on AI in medical advice, Jakesch et al. on AI-generated text labels, Liu et al. on AI byline effects on news credibility, the entire 'MAIN model' work by Sundar, and more). The proposal does not cite any of this literature and does not state what its BLV-specific differentia is beyond 'we use a screen reader.' If the contribution is 'disclosure effects hold for BLV users too,' that is a replication in a new population, which is a legitimate but narrow contribution that the proposal has not framed as such.
+
+- **[blocking] insufficient differentia from prior AI-disclosure-effects literature**
+  - Evidence (branch_card): *does disclosing AI authorship via an ARIA-live provenance banner shift BLV screen-reader users' navigation strategies and credibility judgments compared to undisclosed or human-authored framing?*
+  - Why: A decade of work (Sundar's MAIN model, Jakesch et al. 2023 on AI-text labeling, Longoni & Cian on AI byline effects, the misinformation-labeling literature from Clayton/Pennycook) has measured exactly this: does labeling a piece of content as AI-authored shift perceived credibility? The proposal neither cites this corpus nor states what its BLV-screen-reader framing predicts differently. Reviewers
+- **[major] reinvented wheel in accessibility/ARIA-live announcement research**
+  - Evidence (prototype_spec): *auditory provenance disclosure element announced by the screen reader at article load, varied in phrasing, specificity, and placement relative to the heading tree*
+  - Why: The manipulation of ARIA-live announcement placement, politeness, and timing has been studied in web accessibility research for over 15 years (WAI-ARIA authoring practices work from ~2008 onward; studies by Borodin, Bigham, Brady on screen-reader interaction with dynamic content; Leporini & Paterno on auditory interruption costs). The proposal treats 'placement relative to the heading tree' as a n
+- **[major] unquantified differentia — 'measurable ways' is not a prediction**
+  - Evidence (branch_card): *BLV screen-reader users change skim patterns and trust ratings in measurable ways when AI authorship is announced auditorily, and the effect depends on where the disclosure sits in the heading tree.*
+  - Why: The claim as written will be true in some direction at some effect size for essentially any well-constructed disclosure manipulation, because the null hypothesis of 'disclosure has exactly zero effect on any behavioral or rating measure' is rarely supported. A claim that something will change 'in measurable ways' is not falsifiable as novelty; the reviewer who asks 'how is this different from Jake
+- **[minor] replication disguised as contribution — measuring 'does labeling affect perception' with a new instrument**
+  - Evidence (prototype_spec): *Two coders independently apply a 4-category scheme to each clip: (A) no verbal acknowledgment of disclosure, (B) verbal acknowledgment without evaluative language ... (D) verbal acknowledgment with skeptical or adversarial language*
+  - Why: The four-category verbal-acknowledgment scheme is a reasonable operationalization, but categorizing whether participants verbalize skepticism after encountering a trust-relevant cue is essentially the standard paradigm in source-credibility research going back to Hovland. Presenting the coding scheme as a design feature without situating it against the existing source-credibility and disclosure-re
+
+### Meta-review
+
+- Verdict: `human_judgment_required`
+- Disagreement classification: `legitimate_methodological_split`
+- Rationale: All three reviewers converge on 'major_revision,' but their decisive weaknesses are non-overlapping and in tension on what the project IS. The methodologist treats the study as a quantitative disclosure-effects experiment and demands confound control, power, and manipulation fidelity — fixes that would push toward a larger, more controlled between-subjects study. The accessibility advocate rejects the premise that sighted-researcher-designed stimuli can validly be evaluated at all and demands an upstream co-design phase that may change or eliminate the intervention before any evaluation runs. The novelty hawk says the study's contribution is undefined relative to a large prior literature the proposal does not cite, and that the BLV population swap alone is not a differential prediction. These are not reducible to one another: fixing the confound does not supply a differential prediction; co-designing the artifact with BLV users may invalidate the stimulus set the methodologist wants length-matched; establishing novelty against Jakesch/Sundar does not address whether the intervention is wanted by the target population. The design decision — whether this is a confound-controlled replication in a new population, a participatory co-design study, or a theoretically differentiated extension — is a scoping choice for a human, not a synthesis an agent should make.
+
+## Managed-agent deep audit
+
+Now I have the artifacts. Let me perform the deep audit by measuring specific claims.I have enough measured data. Let me write the deep audit.The deep audit is complete and written to both `/workspace/branch/deep_audit.md` and `/mnt/session/outputs/deep_audit.md`.
+
+Key measurements I produced with tools:
+- **AI banner = 16 words / 96 chars / ~5.3 s @180 wpm**; **human banner = 5 words / 29 chars / ~1.7 s**; delta ≈ 3.67 s (quantifies the walkthrough's "several seconds" confound and refutes the spec's "isolating phrasing as the only variable" claim).
+- **0 / 5 wizard_controls are participant-triggerable**; 0 occurrences of `stop/withdraw/opt out/abort` in the spec.
+- **0 matches** for `byline / model card / source link / editorial policy / inspect / tell me more` — confirms both `legibility.no_rationale_at_point_of_action` and `legibility.unverifiable_summary` with a measured zero.
+- **6 / 11 wizard_decisions (54.5%) are time-sensitive**; the late-AI condition is the only one with real-time cursor tracking, giving an asymmetric cognitive-load profile across conditions.
+- **Friedman n=8, k=3 minimum detectable Kendall's W = 0.374 at α=.05** (between medium and large).
+- **axe-core / WCAG gate covers only the 3 article HTMLs**, not the credibility form or the debrief card PDF that BLV participants must actually use.
+- **Debrief card's QR-code audio fallback requires vision to scan** — a direct counter-instance to the paternalistic-default mitigation claim.
+
+DEEP_AUDIT_SUMMARY: verified=5 challenged=0 new=9

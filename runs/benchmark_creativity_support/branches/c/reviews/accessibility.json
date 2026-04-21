@@ -1,0 +1,84 @@
+{
+  "stage": "7_review",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "c",
+  "reviewer_persona": "accessibility_advocate",
+  "decisive_weakness": "The design assumes a participant who can type fluently at speed, read dense on-screen instructions at browser-default rendering, produce spoken or typed 5-word annotations within a hard interface lock, and tolerate an unannounced textarea-blur interruption — recruitment and materials make no provision for poets with motor, visual, cognitive, or speech disabilities, and the 5-word minimum interface lock is a coercive floor that will disproportionately burden or exclude them while the proposal treats 'practicing poets' as a homogeneous category.",
+  "criticisms": [
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "the annotation text field and microphone icon become active and the interface remains locked until the field contains at least 5 words."
+      },
+      "violated_criterion": "Coercive interface state with no disability-aware opt-out; violates principle that consent to participate must not convert into forced production under lock",
+      "why_matters": "A poet with a motor disability (e.g., RSI, tremor, limited hand use), a speech disability (dysarthria, stammer, selective mutism), aphasia, or a processing-speed disability faces a hard interface lock that cannot be dismissed until they produce 5 words in one of two modalities. This is not an inconvenience — it is a participation barrier that converts a research task into compelled performance. A disabled poet who needs to pause, reformulate, or abandon a specific annotation has no escape hatch other than ending the session. The 5-word floor was chosen for analytic convenience (taxonomy saturation), not with any disabled poet in the room to say whether it is tolerable.",
+      "required_change": "Add a frictionless 'skip this annotation' control with no penalty, available on every rejection. Remove the hard interface lock; replace with a soft prompt. Pilot the annotation mechanic with at least two poets who self-identify as having a relevant motor, speech, cognitive, or processing disability and revise the word floor (or eliminate it) based on their feedback before live sessions.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "A practicing poet recruited via MFA programs or poetry societies who has completed at least one full-length manuscript or twenty published poems"
+      },
+      "violated_criterion": "Recruitment gatekeeping that correlates with ableism in literary institutions; failure to specify disability as an axis of participant variation",
+      "why_matters": "MFA programs and poetry societies are gatekept institutions that disabled poets — especially Deaf poets, poets with chronic illness, poets who cannot afford or access residential MFAs, and poets whose disability interrupted 'productive' publication records — enter at markedly lower rates. The publication threshold ('one full-length manuscript or twenty published poems') compounds this: publication rate is itself shaped by access to readings, residencies, and ableist editorial practices. The resulting taxonomy of line-ending criteria will be presented as a taxonomy of 'poets' criteria' but will in fact be a taxonomy of criteria held by poets who cleared ableist institutional filters. Deaf poets and Signed-language poets in particular operate with line-ending concepts (visual-spatial, handshape, rhythm-of-movement) that this sampling frame will simply miss.",
+      "required_change": "Either (a) broaden recruitment to include self-defined practicing poets regardless of publication or MFA status and name disability as an explicit axis in the sampling plan, or (b) narrow the claim of the taxonomy to 'criteria held by MFA-credentialed or institutionally-published poets' and state this limitation in the research question itself. Consult with a disabled poets' collective (e.g., Zoeglossia fellows, Deaf poetry groups) before finalising the recruitment frame.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "the microphone option is a useful safety valve for participants whose articulation is faster spoken than typed"
+      },
+      "violated_criterion": "Modality choice framed as convenience rather than as accessibility accommodation; no accommodation pathway for participants who can neither type at speed nor speak intelligibly to ASR",
+      "why_matters": "The walkthrough acknowledges that typed and spoken annotations will differ systematically in length and hedging — meaning modality choice is not a neutral accommodation, it is a covariate that affects what data each participant contributes. For a participant with a speech disability whose ASR accuracy is degraded, or a participant who uses AAC, the 'choice' between typing and speaking is a forced choice between two inaccessible paths. The materials list no AAC support, no consideration of ASR bias against disabled speech, no large-print or screen-reader consideration for the annotation panel, and no alternative input path (e.g., selecting from pre-labelled criterion tags). A Deaf poet signing a rejection reason has no supported path at all.",
+      "required_change": "Specify, in materials and task flow, (1) ASR engine tested against disabled-speech corpora or a human transcriber on standby, (2) compatibility of the annotation panel and status bar with major screen readers and keyboard-only navigation, (3) an AAC-compatible input path, (4) a signed-response option with a qualified interpreter for Deaf participants, and (5) a documented process for participants to request accommodations before the session without having to disclose a specific diagnosis.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "the annotation panel slides open and displays the alternative line ending in a grey rounded box ... The main textarea is blurred and non-editable until the participant acts."
+      },
+      "violated_criterion": "Sudden attentional shifts and blur effects without warning violate WCAG 2.1 SC 2.2.2 (Pause, Stop, Hide) and 2.3.3 (Animation from Interactions); also harmful for participants with vestibular disorders, ADHD, autism, or anxiety",
+      "why_matters": "A textarea that blurs unpredictably and a panel that slides in is a motion/attention event that (a) can trigger vestibular symptoms, (b) disrupts working memory in ways that disproportionately affect participants with ADHD, autism, or cognitive disabilities, and (c) forces an attentional switch the participant did not consent to at that moment. The walkthrough flags this as a generic 'friction hotspot' without connecting it to the disabled populations for whom the friction is categorical rather than gradient. The 'blur the textarea' design choice was made to force engagement — an inherently paternalistic mechanism that overrides participant pacing.",
+      "required_change": "Replace the forced blur/slide with a non-animated, non-blocking notification the participant can attend to when ready. Provide a 'reduce motion' setting honouring the OS-level prefers-reduced-motion flag. Provide a warning in the consent form that the interface will produce attentional-shift events and an explicit opt-out for participants for whom this is unsafe.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "two researchers independently code each annotation using open coding to build a provisional taxonomy of rejection criteria"
+      },
+      "violated_criterion": "Absent-from-design: target population not involved in constructing the taxonomy or reviewing the probe; 'nothing about us without us' breached at both the disability axis and the poet axis",
+      "why_matters": "The taxonomy of 'what counts as a poetic criterion' is being built by two researchers coding annotations, not by poets themselves, and certainly not by disabled poets whose line-ending criteria may be organised around axes (visual rhythm, breath limitation, signed prosody, fatigue-aware line length) that the researchers' open coding will not generate from the outside. The wizard's four candidate categories (Metric, Phonetic, Semantic, Syntactic) were fixed in advance by researchers; this is the frame within which the taxonomy will emerge, and it already privileges an ableist theory of what poetic craft consists of (speakable, hearable, metrically-regular).",
+      "required_change": "Add at least two poets — including at least one disabled poet — as co-designers on the candidate-bank construction and the coding scheme, compensated at a consultancy rate that reflects domain expertise, not a generic participant stipend. Document their contributions in the materials. Allow the candidate-bank categories to be revised based on their input before the first live session.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Screening questionnaire and consent form: a 1-page paper form ... plus standard informed consent covering audio and screen recording, data retention policy, and right to withdraw"
+      },
+      "violated_criterion": "No plain-language consent alternative, no accessible-format provision, and compensation unspecified",
+      "why_matters": "A 'standard' consent form is a known accessibility failure: it is typically written above a 12th-grade reading level, delivered on paper only, and does not accommodate cognitive disability, low literacy, or non-native-English poets. For a 90-minute session involving screen recording, audio recording, live monitoring by two researchers in an adjacent room, and a wizard whose role is not revealed until after the drafting phase, meaningful informed consent requires more than a paper form. The spec also does not mention participant compensation at all — a practicing poet is being asked to contribute 90 minutes of genuine creative labour and original poetic material, and the absence of any stated compensation is itself an ethics failure.",
+      "required_change": "Provide consent in plain language (aim for reading age 12), in large print, in screen-reader-compatible digital format, and with the option of having it read aloud. Disclose in consent that a wizard is monitoring in real time from an adjacent room (the current 'the wizard joins the room only after' phrasing suggests the wizard's presence is revealed late — this is a consent defect). State the compensation rate in the spec; pay at a rate reflecting creative-professional expertise, not a generic hourly participant rate; ensure the poem drafted remains the poet's intellectual property with a specified export path.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "the wizard joins the room only after the interface is closed."
+      },
+      "violated_criterion": "Deferred disclosure of a human observer; power asymmetry where a hidden researcher makes live judgments about the participant's performance",
+      "why_matters": "The wizard is making live judgments about the participant throughout the session — categorising annotations in real time, flagging them as 'tautological,' deciding whether the participant read the brief carefully enough, deciding whether the participant's drafting style justifies escalating injection frequency. The participant is not informed of this surveillance-and-judgment structure in a way that makes the power asymmetry tangible during consent, and the wizard only appears at the end. For participants with histories of institutional observation (disability assessment, special education, psychiatric evaluation), a hidden observer making real-time capability judgments reproduces a recognised harm, regardless of researcher intent.",
+      "required_change": "In consent, explicitly name that a researcher in an adjacent room is watching a live mirror of the draft, categorising annotations as the participant produces them, and deciding when to inject provocations. Offer the participant the option to meet the wizard before the session begins. Remove judgments about the participant's capability ('decide whether the participant has read the brief carefully enough') from the wizard's live role; these should be handled through scripted procedural checks by the facilitator in the room.",
+      "severity": "major"
+    }
+  ],
+  "recommendation": "major_revision",
+  "provenance": {
+    "review": "AGENT_INFERENCE"
+  }
+}

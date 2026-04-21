@@ -1,0 +1,44 @@
+{
+  "stage": "7_review",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "b",
+  "reviewer_persona": "accessibility_advocate",
+  "decisive_weakness": "NO DECISIVE WEAKNESS FOUND. This is a study of working poets with formalist training, recruited via MFA programs, composing at a standard desktop interface. The population is not defined by disability, the intervention is opt-in per Tab press, the participants are compensated experts in the craft being studied, and the design does not deploy paternalistic, curative, or extractive framings against a disabled population. The accessibility-advocate lens does not find a decisive weakness here. The concerns that do exist (interface-level keyboard-only assumptions, visual-only stress annotation, no stated accommodation protocol) are real but are minor/major gaps in recruitment accessibility rather than paternalistic or curative framings against a target population. I flag them below so they can be addressed, but I will not manufacture a blocking objection where the design does not warrant one.",
+  "criticisms": [
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Participant: desktop browser, Chrome 130, 1440×900 resolution, standard keyboard and mouse, no autocomplete or spellcheck active."
+      },
+      "violated_criterion": "recruitment accessibility: the interface assumes sighted, keyboard-and-mouse-capable participants with no stated accommodation pathway, which silently excludes blind, low-vision, and motor-disabled poets from a study about formalist craft — a tradition with significant blind and disabled practitioners (Borges, Milton, Larry Eigner, etc.)",
+      "why_matters": "The stress-annotation glyphs ('u / u / u / u / u /') are visual-only and displayed in gray, with no indication of screen-reader compatibility or alternative auditory presentation. The Tab keypress convention conflicts with assistive-technology focus navigation. A blind formalist poet (a population that exists and has historical depth in exactly this tradition) cannot participate. The finding from this study would therefore be generalized as 'what formal-verse poets think of co-writers' while silently excluding a subset of formal-verse poets whose relationship to oral/aural prosody is arguably more central than sighted poets'.",
+      "required_change": "Either (a) state explicitly that the study is scoped to sighted, keyboard-capable poets and acknowledge this limitation in the recruitment materials and the eventual write-up, or (b) pilot a screen-reader-compatible variant of the interface with at least one blind formalist poet before recruitment and adapt the stress-annotation display to an auditory or tactile equivalent. The second path is preferable because the prosodic-annotation problem is genuinely interesting under non-visual modalities.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "any participant who scores below 4/5 is thanked and dismissed before the study begins."
+      },
+      "violated_criterion": "consent and compensation fairness under a gating screen — participants who travel to the site, sign consent, and complete a prosody quiz are dismissed without clear statement of whether they are compensated for their time",
+      "why_matters": "A poet with a learning disability affecting written scansion notation (dyslexia, dyscalculia applied to syllable counting) may have strong aural metrical competence but fail a written scansion quiz. They would be screened out and, as written, the protocol does not specify whether their travel time and consent-signing labor are compensated. This is a fairness issue that compounds with disability because the screening modality (written scansion) may under-detect competence that manifests aurally.",
+      "required_change": "Specify explicitly that screened-out participants receive full session compensation. Additionally, offer the prosody screening in an aural modality (listen to a line, tap stresses on a table) as an alternative to the written notation, so that the screen measures metrical competence rather than written-notation competence.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "A quiet single-occupancy room at a university writing center; participant sits at a desk facing a 27-inch monitor."
+      },
+      "violated_criterion": "physical accessibility of the study site is unstated; a 120-minute session at a fixed desk with no stated break accommodation beyond the 5-minute between-condition pause disadvantages participants with chronic pain, fatigue conditions, or attention-related disabilities",
+      "why_matters": "A 120-minute session with only two short breaks and a demand for sustained prosodic attention effectively screens out participants whose disabilities make sustained single-position attention costly, even if they are highly competent formalist poets. The session length is a methodological choice (three conditions in one sitting reduces between-session noise), but it trades methodological neatness for participant-pool narrowness.",
+      "required_change": "Offer participants the option to complete the three conditions across two sittings with at least a 24-hour gap, and state in recruitment materials that additional breaks can be requested at any point without penalty. Document in the analysis plan how across-session participants are handled in the mixed-effects model (likely as an additional random effect or covariate).",
+      "severity": "minor"
+    }
+  ],
+  "recommendation": "minor_revision",
+  "provenance": {
+    "review": "AGENT_INFERENCE"
+  }
+}

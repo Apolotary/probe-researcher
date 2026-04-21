@@ -1,0 +1,167 @@
+{
+  "stage": "6_audit",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "a",
+  "findings": [
+    {
+      "pattern_id": "capacity.substitutes_for_practice",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "The skilled action under study is poem drafting, and the participant performs that action throughout — typing lines, deciding whether to accept or reject candidates, and continuing to draft. The tool supplies line-ending candidates but does not perform the act of composition. The participant retains authorship of structure, meaning, and most lexical choices, so the intervention augments rather than substitutes for the core skilled practice."
+    },
+    {
+      "pattern_id": "capacity.no_fade_mechanism",
+      "axis": "capacity",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "No suggestions appear until the participant explicitly requests them."
+      },
+      "rationale": "Although the participant must initiate each suggestion request (so assistance is request-gated rather than always-on), there is no mechanism that graduates, reduces, or withdraws assistance as the session progresses. The wizard delivers the same 5-chip panel on every request across both poems. This is a weak rather than strong fire: the user controls frequency, but the system itself offers no scaffolded fade or training-wheels-off flow, which would matter more if the tool were studied beyond a single session."
+    },
+    {
+      "pattern_id": "capacity.creates_dependency_loop",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "The study is a single 90-minute session with two drafting tasks; there is no longitudinal arc across which dependency could form. Observable signals measure divergence of accepted candidates, not usage growth as a success metric. The analysis plan treats acceptance rate as a descriptive engagement measure rather than an outcome to maximize, so the design does not encode a reinforcing dependency loop."
+    },
+    {
+      "pattern_id": "capacity.no_rehearsal_space",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "facilitator explains the drafting interface using a 5-minute warm-up poem task not used in analysis"
+      },
+      "rationale": "The session_structure explicitly includes a 5-minute warm-up poem task that is not used in analysis, which functions as a low-stakes rehearsal phase for the interface. This is a narrow rehearsal (interface familiarization, not skill-building), but it meets the pattern's trigger condition for a practice environment, so the pattern does not fire. The skilled action itself — poetry drafting — is one the participants already possess, so a rehearsal space for the underlying skill is not the research question."
+    },
+    {
+      "pattern_id": "agency.auto_decides_consequential_step",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Participant reviews the 5 candidate chips and either clicks one to insert it as the line ending (accept event) or dismisses the panel by clicking an 'X' button and continues typing their own ending (reject event)."
+      },
+      "rationale": "Every consequential step — requesting suggestions, choosing among them, inserting text, finishing the poem — requires an explicit deliberate participant click. The system never commits text to the draft without the participant selecting a specific chip. The wizard's behind-the-scenes candidate selection is upstream of the participant's decision and does not auto-commit any output. No external-facing consequential action is taken on the participant's behalf."
+    },
+    {
+      "pattern_id": "agency.hides_options_before_review",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "a panel slides open on the right side of the interface displaying exactly 5 line-ending candidates as clickable text chips"
+      },
+      "rationale": "The interface presents five alternatives simultaneously rather than a single recommendation, and the participant chooses among visible options or rejects all. This is explicitly a multi-option surface, which is the inverse of the pattern's trigger. The participant sees the choice space before committing. The five options are of course a curated subset of the wizard's bank, but at the point of user decision, alternatives are visible alongside each other."
+    },
+    {
+      "pattern_id": "agency.weak_override",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "dismisses the panel by clicking an 'X' button and continues typing their own ending (reject event)"
+      },
+      "rationale": "Rejecting the suggestion panel is a single click on a visible 'X' button — symmetric in effort to accepting, and the default drafting mode assumes the participant writes their own endings unless they explicitly request suggestions. Override is not hidden, effortful, or framed as deviant; in fact the baseline interaction assumes unaided drafting and suggestions are opt-in per line."
+    },
+    {
+      "pattern_id": "agency.paternalistic_default",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "Practicing poets with traceable publication records are not a stigmatized or historically paternalized population in the sense the pattern targets (disabled users, elderly users, mental health contexts, children). The intervention does not default to protective or assistive behavior on assumed-need grounds; suggestions are user-requested and opt-in per line. The consent process also explicitly surfaces the corpus-rights question rather than assuming consent."
+    },
+    {
+      "pattern_id": "exit.data_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "exports a timestamped JSON log file containing the full draft text, all suggestion events (accepted and rejected), candidate texts presented, and line-level timestamps"
+      },
+      "rationale": "The session explicitly exports a plain-text JSON log including the full draft and all event data, with documented fallback export routines if the primary export fails. The poem itself remains the participant's property in a portable format. The design treats data portability as a first-class concern with failure_cases dedicated to rescuing it, which scaffolds rather than undermines exit on the data dimension."
+    },
+    {
+      "pattern_id": "exit.workflow_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The intervention is a single-participant drafting session in a lab. It does not restructure any collaborative workflow, team cadence, or institutional process. Exit from the tool after the study requires nothing — the participant returns to whatever drafting practice they had before, with no collective switch-back required. The context is bounded to one 90-minute session rather than ongoing use."
+    },
+    {
+      "pattern_id": "exit.competence_decay_on_exit",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "A single 90-minute session cannot plausibly degrade a practicing poet's unaided compositional skill, and the study does not propose sustained or prolonged use. The research question concerns within-session effects on drafting, not long-term skill trajectories. While the walkthrough notes carryover risk between Poem A and Poem B, this is a within-session methodological concern rather than decay of underlying competence after exit."
+    },
+    {
+      "pattern_id": "exit.institutional_dependence",
+      "axis": "exit",
+      "fired": false,
+      "score": 1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "a custom web-based drafting interface served from localhost. [...] Both machines on the same local network; no internet required during the session."
+      },
+      "rationale": "The entire system runs on localhost with no cloud vendor, no subscription platform, and no internet dependency. Participants do not become tied to a vendor whose policies or existence are outside their control. The research infrastructure is deliberately self-contained, which is a positive design choice against vendor dependence — a small scaffold in favor of exit."
+    },
+    {
+      "pattern_id": "legibility.opaque_ranking",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Each chip shows only the candidate word or short phrase (2–4 words maximum), with no score, rank, or provenance label visible to the participant."
+      },
+      "rationale": "The interface explicitly presents 5 candidates with no score, rank, or provenance label. The participant cannot tell why these five were selected, whether they are ordered by divergence, synonymy, or arbitrary bank position, or what pool they were drawn from. This is deliberate for the WoZ illusion, but it nevertheless means the participant operates without a legible basis for the selection at the point of decision. The walkthrough flags this directly as collapsing dense tacit reasoning into a click that the event stream cannot decode."
+    },
+    {
+      "pattern_id": "legibility.no_failure_signal",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The notion of system 'wrongness' is ill-defined for a creative suggestion tool — a bad candidate is simply rejected by the participant, which is itself the in-flow failure signal the design captures as a reject event. There is no downstream harm from a 'wrong' suggestion that the participant would discover too late, because the participant evaluates every candidate before insertion. The pattern targets systems where error has delayed consequence, which does not fit this drafting context."
+    },
+    {
+      "pattern_id": "legibility.no_rationale_at_point_of_action",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "With no score, rank, or provenance shown, the chips carry only their text, which means the participant's decision leans heavily on aesthetic reaction within a few seconds."
+      },
+      "rationale": "At the point of action — choosing among the 5 chips — the participant has no inline affordance to inspect why a candidate was suggested, what it was divergent from, or what criterion selected it. No 'why this suggestion?' surface is described in the interface. The walkthrough explicitly names this as creating pressure toward fast aesthetic reaction rather than reflective judgment. While this opacity is partly required by the WoZ design, it is still a legibility cost the participant bears at every decision."
+    },
+    {
+      "pattern_id": "legibility.unverifiable_summary",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The tool does not produce a summary, synthesis, or distillation that the participant must trust. It produces short candidate word-or-phrase chips that the participant reads in full and inserts or rejects based on direct inspection of the text itself. There is no claim of representing some underlying source material that the participant would need to verify; the chip is the candidate, presented whole."
+    }
+  ],
+  "axis_scores": {
+    "capacity": -1,
+    "agency": 0,
+    "exit": 2,
+    "legibility": -2
+  },
+  "verdict": "REVISION_REQUIRED",
+  "verdict_rationale": "No finding scores -2, so the branch is not BLOCKED. However two findings score -1: legibility.opaque_ranking and legibility.no_rationale_at_point_of_action, both concentrated on the legibility axis. The chip interface deliberately strips score, rank, and provenance to preserve the WoZ illusion, which collapses the participant's decision into aesthetic reaction with no inspectable rationale at the point of action. A third drift finding, capacity.no_fade_mechanism, also fires weakly. Per the scoring rule (two or more -1 findings trigger REVISION_REQUIRED), this branch requires revision to surface at least minimal rationale affordances to participants or to justify the opacity explicitly in the analysis plan. Exit is well scaffolded (localhost infrastructure, plain JSON export), and agency is preserved through symmetric accept/reject and visible alternatives.",
+  "provenance": {
+    "audit": "AGENT_INFERENCE"
+  }
+}

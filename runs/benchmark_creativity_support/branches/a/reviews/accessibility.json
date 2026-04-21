@@ -1,0 +1,44 @@
+{
+  "stage": "7_review",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "a",
+  "reviewer_persona": "accessibility_advocate",
+  "decisive_weakness": "NO DECISIVE WEAKNESS FOUND. This proposal studies practicing poets as domain experts engaged with a drafting tool; it does not target a disabled population, does not deploy assistive framings, does not default to protective behavior, and does not traffic in curative imaginaries. The population (poets with 10+ published poems) is recruited on the basis of demonstrated expertise, compensated implicitly through that framing, and retains authorship and opt-in control of every suggestion. The accessibility-advocate lens finds no paternalism, no extraction-without-expertise, no absence-from-design in the sense my brief targets, and no cross-disability homogenization — because disability is not the axis of this study. Raising generic 'consider diverse participants' advocacy here without a specific evidence span would violate my own forbidden-phrases rule. The legibility and capacity concerns the audit surfaces are real but fall within the creativity-support reviewer's remit, not mine.",
+  "criticisms": [
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "5-item post-task Likert survey on paper (two copies per session, one per poem), printed in 14pt font with a 7-point agree/disagree scale."
+      },
+      "violated_criterion": "consent and instrument accessibility for participants with print disabilities or motor impairments",
+      "why_matters": "The study recruits on the basis of publication record, not on the basis of sightedness or fine motor control. A blind poet, a poet with low vision, or a poet with a tremor or motor impairment meets the inclusion criterion and could reasonably enroll, but the instruments as specified — paper Likert forms at 14pt, handwritten responses, a mouse-click chip interface, a VNC-mirrored screen the wizard reads to make real-time decisions — presume a sighted, mouse-using, handwriting-capable participant. Without alternative instrument formats pre-prepared, such a participant would be either turned away at the door or forced through instruments that distort their responses. This is not hypothetical: the poetry community includes prominent blind and disabled practitioners.",
+      "required_change": "Specify, before recruitment opens, alternative instrument formats: a digital Likert form compatible with screen readers as an equal-status alternative to paper; a keyboard-only path through the drafting interface (the chip panel must be keyboard-navigable and screen-reader-labeled, not mouse-dependent); a verbal administration option for debriefing and survey for participants who prefer it. State in the recruitment materials what formats are available so that disabled poets can self-select in rather than discovering exclusion at the session.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "collects name, publication venues for prior work (used to build the corpus index), years writing poetry, and confirmation that the participant holds rights to share their prior published text for corpus analysis."
+      },
+      "violated_criterion": "informed consent regarding downstream use of personally identifiable creative corpus",
+      "why_matters": "A poet's indexed prior corpus is not anonymizable — it is a stylistic fingerprint tied to a named body of published work. The consent form collects rights confirmation but the spec does not document what the consent form actually tells the participant about: retention period for the TF-IDF pickle, whether the corpus is destroyed after analysis, whether it can be used in follow-up studies, whether derivative statistics (e.g., the participant's modal stress pattern, their top-2000 vocabulary) will be published or shared, and what happens if the participant later withdraws. For poets — a population whose prior work is their professional identity and whose relationship to corpus-based AI training is politically fraught in 2024–2025 — this is not boilerplate. The walkthrough already notes poets 'often have complicated feelings about how their prior work is used'; the consent instrument must meet that complexity rather than treat it as a signature line.",
+      "required_change": "Expand the consent form to specify: (a) exactly what is built from the corpus (TF-IDF index, stress-pattern models, candidate banks), (b) retention and destruction timeline for each artifact, (c) whether derivative statistics will appear in publication and at what aggregation level, (d) withdrawal procedure including destruction of indexed artifacts, (e) explicit statement that the corpus will not be used to train any generative model or shared with third parties. Pilot the consent language with two or three poets not in the study sample to check it matches how poets actually think about corpus rights.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "A practicing poet with at least 10 poems published in traceable venues"
+      },
+      "violated_criterion": "compensation for lived expertise not specified",
+      "why_matters": "The spec enumerates every technical artifact in granular detail — candidate banks, TF-IDF pickles, OBS configurations, shared phones — but does not specify participant compensation. Practicing poets with 10+ published poems are domain experts whose corpus itself is being ingested as research material. Absent a stated compensation figure appropriate to expert consultation (not a generic $20 gift card), the study extracts professional expertise plus a licensed corpus in exchange for unspecified consideration. This is an equity issue independent of disability but squarely within the extractive-research pattern I'm tasked with flagging.",
+      "required_change": "State the compensation figure in the prototype_spec materials_needed or actors block. Benchmark it against honoraria for poetry readings or visiting-poet talks in the relevant region, not against generic psychology-lab participant rates, since what is being purchased is expert creative consultation plus a corpus license.",
+      "severity": "minor"
+    }
+  ],
+  "recommendation": "minor_revision",
+  "provenance": {
+    "review": "AGENT_INFERENCE"
+  }
+}

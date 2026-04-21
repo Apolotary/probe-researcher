@@ -107,6 +107,29 @@ This file captures features out of scope for the hackathon submission window but
 
 **Key risk to pre-empt.** This could degenerate into a flattering-mirror: the personas give feedback the designer wants to hear. The forbidden-phrase + default-skeptical-stance pattern from the adversarial reviewers has to carry over — the simulated personas should be as critical as the methodologist. In particular, every persona should have a `resistance_profile` that determines what they push back on regardless of what the designer wants.
 
+## 6. Linear-style workflow UI for managing the research paper pipeline
+
+**Thesis.** A researcher running Probe weekly across a dozen premises wants the same affordances a Linear user wants across issues: a compact list view, keyboard shortcuts, per-item detail pane, a timeline of everything in flight, and a cycle/backlog separation. The submission-window shipped two steps toward this (`probe runs` list view, `probe gantt <run_id>` per-run horizontal stage-timeline). A v2 extension is a single interactive Ink-based application that composes these views plus a backlog of unrun premises and a cycle-style grouping across time.
+
+**Why it matters.**
+- The CLI is already the right surface (fast, keyboard-driven); what it lacks is cross-run state and a way to see what's next
+- A Gantt per run makes parallelism and repair-pass cost visible at a glance (the shipped `probe gantt demo_run` surfaced that one branch's prototype stage cost 5x what the shallow view suggested)
+- A backlog of unrun premises with notes and priorities is the natural pair to `probe runs`; together they make Probe feel like a workflow tool rather than a batch CLI
+
+**Implementation sketch.**
+- `probe workflow` opens an Ink app with three panes: runs list (left), detail/Gantt (center), backlog (right)
+- Keyboard shortcuts: `r` new run, `a` archive, `/` filter, `j`/`k` navigate, `enter` open detail, `t` toggle Gantt vs artifact view
+- A small local sqlite for the backlog (premises with tags, notes, priority, planned-date); the runs themselves stay in `runs/<id>/` as the source of truth
+- Optional: a cycle view that groups runs by week and shows cumulative cost, surviving-branch count, blocked-branch count — approximately the Linear cycle-progress widget
+
+**Feasibility.** The shipped `probe runs` and `probe gantt` cover the read-only side at about 150 lines each. The interactive workflow app is ~1-2 weeks of Ink work on top. Most of the complexity is in the backlog (adding premises, tagging, priority), which requires storage the current file-based approach doesn't provide.
+
+**What already ships in submission scope.**
+- `probe runs` — Linear-style list with status, cost, duration, surviving/blocked/failed counts, premise preview
+- `probe gantt <run_id>` — per-run horizontal timeline with per-branch color coding, repair-pass indicators (↺N), and model color (Opus vs Sonnet)
+
+These two commands are enough to answer the question ``what's in flight right now, and where did the last run's time go?'' without a full interactive UI.
+
 ## Why these are v2 and not submission-scope
 
 The hackathon has three days left as of this writing. Each of these features is 3-10 days of focused work. Shipping any of them half-done would:

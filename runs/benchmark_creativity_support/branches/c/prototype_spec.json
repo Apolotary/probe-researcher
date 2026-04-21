@@ -1,0 +1,171 @@
+{
+  "stage": "4_prototype",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "c",
+  "title": "Rejection Annotation Probe: Eliciting Moment-of-Decision Criteria for Poetic Line-Ending Choices",
+  "actors": [
+    {
+      "role": "participant",
+      "description": "A practicing poet recruited via MFA programs or poetry societies who has completed at least one full-length manuscript or twenty published poems; they will draft a new poem during the session using the probe environment.",
+      "count": 1
+    },
+    {
+      "role": "wizard",
+      "description": "A researcher seated in an adjacent room who monitors the poet's draft in real time via a mirrored editor view and manually injects line-ending alternatives into the poet's interface at designated trigger moments, selecting from a pre-prepared bank of candidates.",
+      "count": 1
+    },
+    {
+      "role": "observer",
+      "description": "A second researcher who silently watches the session from the adjacent room via screen-share and audio feed, logging timestamps whenever the participant speaks a rejection reason, pauses more than five seconds before typing an annotation, or visibly re-reads previous lines before deciding.",
+      "count": 1
+    },
+    {
+      "role": "facilitator",
+      "description": "The researcher present in the room with the participant who introduces the task, manages consent, answers procedural questions during the warm-up only, and conducts the brief retrospective debrief at the session's end.",
+      "count": 1
+    }
+  ],
+  "context": {
+    "setting": "A quiet single-occupancy room with no windows visible to passers-by; the participant sits at a desk facing a single monitor; the facilitator sits at a 90-degree angle at least 1.5 metres away and does not look at the participant's screen during drafting; the wizard and observer work in an adjacent room connected by a local-area network with no internet access during the session.",
+    "device": "Desktop browser, Chrome 130, 1440x900, external full-size keyboard, no touchpad or secondary display for the participant; wizard uses a 1920x1080 secondary monitor running the WoZ control panel in Firefox 130.",
+    "duration_minutes": 90,
+    "session_structure": "Minutes 0–10: facilitator walks participant through written consent form, explains that the drafting tool will occasionally surface line-ending alternatives and that the participant must annotate each rejection before proceeding; participant completes a 5-minute warm-up poem on a supplied neutral prompt ('a door left open') to familiarise themselves with the annotation widget. Minutes 10–70: core drafting phase — participant writes a new poem of their choosing on any topic; the wizard injects line-ending alternatives at each line break, approximately every 60–120 seconds depending on drafting pace; the participant either accepts or rejects each alternative, and the annotation widget locks the interface until a rejection reason of at least 5 words is typed or spoken into the microphone. Minutes 70–80: participant completes a brief post-draft structured self-report (10 Likert items) rating perceived intrusiveness, relevance of suggestions, and confidence in own line-ending choices. Minutes 80–90: semi-structured debrief conducted by the facilitator using a fixed question script; the wizard joins the room only after the interface is closed."
+  },
+  "task_flow": [
+    {
+      "step": 1,
+      "participant_action": "Participant reads the task brief on screen ('Write a new poem of any length on any topic. Each time you finish a line and press Enter, the tool may offer an alternative line ending. If you reject it, type or speak a reason of at least 5 words before continuing.') and presses a green 'Begin Drafting' button to start the session clock.",
+      "system_response": "The drafting interface opens: a plain white textarea occupying 60% of the screen width, a small annotation panel on the right (hidden until triggered), and a passive status bar showing 'Suggestions: 0 | Rejections: 0'. No alternative is injected on the first line to allow the participant to settle.",
+      "wizard_decisions": [
+        "Decide whether the participant has read the brief carefully enough (based on reading time) or whether to ask the facilitator to prompt a re-read before the clock starts.",
+        "Note the participant's initial typing speed to calibrate injection timing: fast typists (>40 wpm sustained) will receive injections after every second line; slower typists after every line."
+      ]
+    },
+    {
+      "step": 2,
+      "participant_action": "Participant types or dictates the opening stanza, pressing Enter at each intended line break. After the second line break the annotation widget becomes active on the right panel; subsequent Enter keypresses trigger the possibility of a suggestion appearing.",
+      "system_response": "When the wizard fires the INJECT_ALTERNATIVE control, the annotation panel slides open and displays the alternative line ending in a grey rounded box with two buttons: 'Use this' (green) and 'Reject — tell me why' (red). The main textarea is blurred and non-editable until the participant acts. If the participant presses 'Use this', the alternative replaces the current line ending and the session counter increments. If the participant presses 'Reject', the annotation text field and microphone icon become active and the interface remains locked until the field contains at least 5 words.",
+      "wizard_decisions": [
+        "Select which alternative to inject from the pre-prepared candidate bank: choose among (a) a metrically regular completion, (b) a phonetically similar but semantically divergent completion, (c) a semantically congruent but tonally flat completion, or (d) a syntactically incomplete fragment — selecting the category that will be most diagnostic given the line just written.",
+        "Decide whether the current line is too short or ambiguous to support a meaningful alternative; if so, skip injection and wait for the next line break.",
+        "Monitor annotation latency after 'Reject' is pressed; if the participant stares at the annotation field for more than 15 seconds without typing, log this as a hesitation event rather than prompting."
+      ]
+    },
+    {
+      "step": 3,
+      "participant_action": "Participant types or speaks their rejection reason into the annotation field (minimum 5 words enforced by the interface) and presses 'Submit Reason'. The annotation is logged with a timestamp, the alternative's category tag, and the verbatim line text. The participant then continues drafting.",
+      "system_response": "The annotation panel collapses, the textarea regains focus and cursor position, and the status bar updates the rejection counter. The submitted annotation text is appended to a running log visible only on the wizard's control panel, not to the participant. If the annotation is fewer than 5 words, the Submit button remains greyed and a counter ('X more words needed') appears beneath the field.",
+      "wizard_decisions": [
+        "Immediately read the submitted annotation and categorise it into a provisional taxonomy node (sound/rhythm, imagery/word-choice, semantic fit, syntactic fit, tonal register, personal voice, other) in the wizard log to track emerging category saturation in real time.",
+        "Decide whether to vary the next injection's category based on which taxonomy nodes are under-represented so far, or to repeat a category to test whether the rejection reason is stable across similar provocations.",
+        "Flag annotations that are tautological ('I just didn't like it') for follow-up in the debrief question script by typing a flag code in the wizard log."
+      ]
+    },
+    {
+      "step": 4,
+      "participant_action": "Participant continues drafting through the middle and closing stanzas, receiving and annotating further alternatives. At any point the participant may press 'Pause' to take a 2-minute break; the clock pauses and no injections occur during breaks. The participant presses 'Finish Poem' when satisfied with the draft or when they choose to stop.",
+      "system_response": "On 'Finish Poem', the textarea locks, the full draft is displayed in read-only mode with each accepted and rejected alternative highlighted inline (accepted in light green, rejected in light red) alongside the participant's typed annotations shown as margin notes. A completion screen reads: 'Thank you. Please take a moment to read through your poem and annotations before the short questionnaire.'",
+      "wizard_decisions": [
+        "Assess whether at least 8 rejections have been collected; if fewer than 8 rejections exist with 10 minutes of core drafting time remaining, use the INJECT_DENSITY_INCREASE control to ensure one injection per line break until the minimum is reached.",
+        "Decide whether any injected alternatives were accidentally accepted (participant pressed 'Use this' then immediately deleted the alternative and re-typed their original ending) and mark these in the log as 'accidental accepts' to be excluded from accept-rate calculations.",
+        "Confirm that at least two different alternative categories (from the four-category bank) have been injected and annotated, and if not, inject a missing category on the next available line break."
+      ]
+    },
+    {
+      "step": 5,
+      "participant_action": "Participant completes the 10-item post-draft Likert questionnaire displayed on screen (items covering intrusiveness of the annotation requirement, perceived relevance of the alternatives, confidence in their own line-ending choices during the session, and whether the annotation requirement changed their drafting behaviour).",
+      "system_response": "The questionnaire is rendered as a single scrollable page with radio buttons; all 10 items must be answered before 'Submit' becomes active. On submission, the completion screen thanks the participant and the facilitator verbally indicates that the debrief conversation will now begin.",
+      "wizard_decisions": [
+        "Review the full annotation log during the 10 minutes the participant completes the questionnaire, flag any annotations that need debrief probing, and prepare a prioritised list of 3–5 specific annotations to ask the facilitator to read back to the participant during debrief.",
+        "Check for missing or implausibly short annotations (5-word minimum was met but the text is semantically empty, e.g. 'it did not sound right') and add these to the debrief probe list."
+      ]
+    }
+  ],
+  "wizard_controls": [
+    {
+      "control_name": "INJECT_ALTERNATIVE",
+      "triggers": "Wizard presses this control within 3 seconds of observing the participant press Enter at a line break, provided the line is at least 4 words long and the participant has not activated the Pause button.",
+      "effect": "Sends a preselected alternative line ending (chosen by the wizard from the candidate bank in the control panel dropdown) to the participant's annotation panel, blurring the textarea and activating the Accept/Reject widget. The control panel logs the injection timestamp, the alternative text, and the category tag selected by the wizard."
+    },
+    {
+      "control_name": "INJECT_DENSITY_INCREASE",
+      "triggers": "Wizard activates this mode when the rejection count falls below 8 with fewer than 10 minutes of core drafting time remaining, or when the participant is writing very long lines and Enter keypresses are infrequent.",
+      "effect": "Switches the injection logic from 'every second line break' to 'every line break', so the annotation widget fires on every Enter keypress for the remainder of the session or until the wizard manually deactivates the mode. A small indicator on the wizard's control panel turns orange to signal that high-density mode is active."
+    },
+    {
+      "control_name": "SKIP_INJECTION",
+      "triggers": "Wizard presses this control after an Enter keypress when the resulting line fragment is fewer than 4 words, is a stanza break (blank line), or the wizard judges that no meaningful alternative exists for the line just written (e.g., the line is a proper noun or single exclamation).",
+      "effect": "Suppresses the annotation widget for that specific Enter event; the textarea remains fully active; the skip is logged with timestamp and a free-text reason field the wizard must complete within 10 seconds ('too short', 'stanza break', 'proper noun', 'other: [text]')."
+    },
+    {
+      "control_name": "FLAG_ANNOTATION_FOR_DEBRIEF",
+      "triggers": "Wizard presses this control immediately after a participant submits an annotation that is tautological, unusually brief, or references a criterion not yet seen in the session.",
+      "effect": "Appends a debrief flag marker to that annotation's log entry and adds the annotation text verbatim to a running 'Debrief Probe Queue' list displayed in a sidebar on the wizard's control panel, which the wizard then passes to the facilitator as a printed sheet before the debrief begins."
+    }
+  ],
+  "observable_signals": [
+    {
+      "signal": "Verbatim typed rejection annotations, each linked to the alternative category injected, the verbatim line text at time of injection, and the timestamp",
+      "capture_method": "log_events",
+      "analysis_plan": "After all sessions, two researchers independently code each annotation using open coding to build a provisional taxonomy of rejection criteria. Codes are compared using Cohen's kappa; disagreements are resolved by discussion. The final taxonomy nodes are then applied as closed codes to the full corpus. Frequency distribution across nodes is computed per participant and across the full sample to identify which criteria appear earliest (saturation order), which are session-specific versus cross-participant, and whether alternative category (metric, phonetic, semantic, syntactic) predicts the taxonomy node of the rejection reason at above-chance rates using a chi-square test on the contingency table."
+    },
+    {
+      "signal": "Annotation latency: elapsed time in seconds between the participant pressing 'Reject' and pressing 'Submit Reason', capturing the duration of the participant's active deliberation about their criterion",
+      "capture_method": "task_completion_time",
+      "analysis_plan": "Latency values are log-transformed and compared across taxonomy nodes using a one-way ANOVA to test whether certain criterion types (e.g., sound/rhythm) are articulated faster than others (e.g., personal voice), which would indicate that some criteria are more lexically accessible. Latency outliers (>120 seconds) are examined against the observer's hesitation event log to determine whether they correspond to visible re-reading behaviour or distraction events rather than genuine deliberation."
+    },
+    {
+      "signal": "Post-draft Likert ratings on intrusiveness, relevance, and confidence in line-ending choices during the session",
+      "capture_method": "self_report_likert",
+      "analysis_plan": "Likert scores are treated as ordinal and summarised with medians and interquartile ranges per item. Scores on the intrusiveness item are correlated (Spearman's rho) with the participant's total rejection count to test whether high-rejection participants experienced the annotation requirement as more or less intrusive. Confidence scores are compared between participants who produced taxonomically diverse annotations (more than 4 distinct nodes used) versus those who converged on fewer nodes, to examine whether articulatory range co-varies with self-reported confidence."
+    },
+    {
+      "signal": "Observer's timestamped log of hesitation events: instances where the participant pauses more than 5 seconds before typing an annotation, re-reads previous lines before deciding, or vocalises uncertainty without yet typing",
+      "capture_method": "interviewer_notes",
+      "analysis_plan": "Hesitation events are matched to the corresponding annotation log entry by timestamp. Annotations preceded by a hesitation event are compared to non-hesitation annotations on taxonomy node and annotation length to test whether hesitation predicts annotation complexity or taxonomic novelty. The observer log also serves as a validity check: annotations that were submitted with no hesitation and contain fewer than 8 words are flagged as potentially unreflective and examined separately."
+    },
+    {
+      "signal": "Screen and audio recording of the full drafting phase, capturing the participant's typed draft in real time, all annotation widget interactions, and any spontaneous spoken commentary during drafting",
+      "capture_method": "screen_recording",
+      "analysis_plan": "Video is reviewed by the observer after each session to verify that the annotation log accurately reflects what appeared on screen (quality check). Segments where the participant speaks aloud while typing an annotation are transcribed and compared to the typed text to identify cases where the spoken reason is more elaborate than the typed one; such discrepancies are compiled as a supplementary corpus for debrief follow-up and may indicate truncation effects caused by the 5-word minimum constraint."
+    },
+    {
+      "signal": "Think-aloud vocalisations occurring during the drafting phase before or after annotation submission, capturing unprompted reasoning about line choices that is not captured in the annotation field",
+      "capture_method": "think_aloud_audio",
+      "analysis_plan": "Audio is transcribed using a verbatim protocol. Utterances that overlap temporally with an injection event (within 30 seconds before or after) are extracted and coded using the same taxonomy developed from the annotation log. The proportion of taxonomy nodes that appear only in think-aloud and not in typed annotations (and vice versa) is computed as a measure of elicitation completeness, directly addressing the branch's claim that moment-of-decision annotation yields criteria not recoverable from other formats."
+    }
+  ],
+  "failure_cases": [
+    {
+      "scenario": "The participant adopts a strategy of typing minimal 5-word annotations that meet the word-count threshold but are semantically uninformative (e.g., 'I just did not like it', 'it did not feel right', 'the words were not good') for the majority of rejections, defeating the taxonomy-building purpose of the probe.",
+      "expected_behavior": "The facilitator does not intervene during the drafting phase; the wizard flags each such annotation using FLAG_ANNOTATION_FOR_DEBRIEF, and the debrief probes those specific annotations with the question 'You wrote [annotation text] — can you say more about what specifically felt off: was it the sound, the meaning, the rhythm, or something else?'",
+      "wizard_fallback": "If more than 5 consecutive annotations are flagged as uninformative, the wizard passes a printed note to the facilitator (via a pre-agreed knock-and-slide protocol under the connecting door) reading 'Please verbally remind participant: reasons can be as specific as you like, for example mentioning sound, rhythm, word choice, or image.' The facilitator reads this reminder aloud as a neutral restatement of the task brief, not as a correction. If the pattern continues, the wizard logs the session as a potential low-yield case and the debrief is extended by 10 minutes."
+    },
+    {
+      "scenario": "The wizard injection latency exceeds 3 seconds after an Enter keypress because the wizard is still reading the previous annotation, resulting in the participant beginning the next line before the alternative widget appears; the delayed injection then interrupts mid-line rather than at a natural line break.",
+      "expected_behavior": "The wizard should use the SKIP_INJECTION control immediately if they cannot prepare and fire an alternative within 3 seconds of an Enter keypress, logging the skip as 'wizard latency'. A mid-line injection that has already fired before the wizard can cancel it will appear to the participant as interrupting their flow; the observer logs this as a timing error event.",
+      "wizard_fallback": "For sessions where wizard latency errors exceed 3 instances, the wizard pre-selects the next injection candidate during the current annotation review rather than waiting until after the annotation is submitted. The wizard's control panel includes a 'Queue Next' dropdown that pre-loads the next alternative so it fires automatically within 1 second of the next Enter keypress, reducing decision time at the critical moment. If the participant comments on a mid-line interruption, the facilitator responds with the scripted phrase: 'The tool can sometimes be a little unpredictable — just dismiss it and carry on.'"
+    },
+    {
+      "scenario": "The participant writes in a non-standard poetic form (e.g., prose poetry with no hard line breaks, or a poem composed as a single run-on sentence) such that Enter keypresses are rare or absent for several minutes, starving the injection mechanism and yielding fewer than 4 annotations in the first 30 minutes of drafting.",
+      "expected_behavior": "The wizard monitors the annotation count at the 20-minute mark. If fewer than 4 annotations have been collected and the participant is writing in a continuous-flow style, the wizard activates INJECT_DENSITY_INCREASE and additionally injects an alternative at sentence-final punctuation marks (periods, em-dashes) rather than only at Enter keypresses, using a secondary trigger in the control panel labelled 'INJECT_AT_PUNCTUATION' that fires a widget when the participant types a period followed by a space.",
+      "wizard_fallback": "If after activating both density controls the count remains below 4 at the 40-minute mark, the facilitator delivers a scripted prompt: 'If you find yourself writing in longer sections, you can press Enter to create a line break at any point — the tool treats each Enter as a potential line ending.' This prompt is delivered only once and is logged with a timestamp as a facilitator intervention event, which is noted as a confound in the session record."
+    }
+  ],
+  "materials_needed": [
+    "WoZ drafting interface: a single-page HTML/CSS/JavaScript application with a plain textarea (left 60% of viewport), an annotation panel (right 40%), a status bar, and a websocket connection to the wizard's control panel; the textarea must support keyboard shortcut capture to detect Enter keypresses and send events to the wizard's panel in under 200ms.",
+    "Wizard control panel: a separate HTML page (served locally on the same LAN) displaying a mirrored read-only view of the participant's textarea updating in real time, four control buttons (INJECT_ALTERNATIVE, INJECT_DENSITY_INCREASE, SKIP_INJECTION, FLAG_ANNOTATION_FOR_DEBRIEF), a category-tag dropdown (Metric | Phonetic | Semantic | Syntactic), a free-text 'Next Alternative' input field, and a scrolling log of all annotations with timestamps and category tags.",
+    "Pre-prepared candidate bank: a spreadsheet of 80 line-ending alternatives organised by category (20 per category: Metric completion, Phonetic variant, Semantic congruent/tonally flat, Syntactic fragment), covering a range of tonal registers (elegiac, comic, neutral, urgent) and line lengths (4–10 syllables), so the wizard can rapidly select an appropriate candidate during the 3-second injection window.",
+    "Warm-up poem prompt card: a printed A5 card reading 'Write a short poem (4–8 lines) about a door left open. This is just practice — the poem will not be analysed.' Placed on the desk before the participant enters.",
+    "Post-draft Likert questionnaire: a 10-item form rendered in the browser on submission of the final poem, covering intrusiveness (3 items), perceived relevance of suggestions (3 items), confidence in line-ending choices during session (2 items), and perceived change in drafting behaviour due to annotation requirement (2 items); all items use a 7-point scale anchored at 'Not at all' and 'Extremely'.",
+    "Debrief question script: a printed 2-page A4 script for the facilitator containing 6 fixed open-ended questions (e.g., 'Looking back at the reasons you gave, which type of reason came up most for you?'; 'Were there any moments where you knew you wanted to reject the suggestion but found it hard to say why?') plus blank slots for the 3–5 flagged annotations inserted by the wizard before debrief begins.",
+    "Observer timestamping sheet: a printed A4 grid with columns for timestamp, event type (hesitation, re-read, vocalisation, accept, reject), and a free-text notes field; pre-printed with 50 rows per session.",
+    "Session recording setup: a single wide-angle webcam pointed at the participant's keyboard and screen (not face) feeding into OBS Studio on the observer's machine, recording at 1080p 30fps with system audio from the participant's room microphone; audio routed from participant's room via a directional desktop microphone (e.g., Blue Yeti) capturing both keystrokes and vocalisations.",
+    "Screening questionnaire and consent form: a 1-page paper form collecting publication history or MFA enrolment to verify minimum poetry experience, plus standard informed consent covering audio and screen recording, data retention policy, and right to withdraw; two copies, one for participant and one for researcher files.",
+    "Pilot session materials: one complete set of the above materials pre-tested with a confederate poet to verify websocket latency under 200ms, injection timing workflow, and annotation log export format before live sessions begin."
+  ],
+  "provenance": {
+    "specification": "AGENT_INFERENCE"
+  }
+}

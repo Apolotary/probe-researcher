@@ -1,0 +1,186 @@
+{
+  "stage": "4_prototype",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "b",
+  "title": "Wizard-of-Oz Evaluative Study: Meter-Aware Line-Ending Co-Writer for Formalist Verse",
+  "actors": [
+    {
+      "role": "participant",
+      "description": "A working poet with demonstrated experience writing in fixed metrical forms (sonnet, villanelle, or ballad), recruited via poetry MFA programs and formal poetry journals; each participant completes all three drafting conditions in counterbalanced order.",
+      "count": 9
+    },
+    {
+      "role": "wizard",
+      "description": "A researcher trained in prosody and scansion who monitors the participant's drafting interface from a separate room and, within 4 seconds of a participant completing a line stem, manually constructs and injects three candidate line endings that (a) scan correctly to the pre-declared meter, (b) supply the required rhyme-scheme phoneme, and (c) vary in diction register from plain to elevated.",
+      "count": 1
+    },
+    {
+      "role": "observer",
+      "description": "A silent second researcher who sits off to the side of the participant, logs timestamps of all wizard-panel keystrokes against the screen recording timeline, and flags any wizard response latency exceeding 8 seconds for post-hoc exclusion review.",
+      "count": 1
+    },
+    {
+      "role": "facilitator",
+      "description": "The researcher who greets the participant, reads the standardized briefing script, administers condition transitions, conducts the post-session interview, and debriefs participants about the Wizard-of-Oz setup after all three conditions are complete.",
+      "count": 1
+    }
+  ],
+  "context": {
+    "setting": "A quiet single-occupancy room at a university writing center; participant sits at a desk facing a 27-inch monitor. The wizard and observer occupy an adjacent room separated by a one-way mirror and a closed audio channel; the wizard's control panel runs on a second laptop not visible to the participant. No other personnel or distractions are present in the participant room.",
+    "device": "Participant: desktop browser, Chrome 130, 1440×900 resolution, standard keyboard and mouse, no autocomplete or spellcheck active. Wizard: 13-inch laptop running a custom HTML/JS control panel (see materials) connected to the participant interface via a shared local WebSocket server on the lab LAN.",
+    "duration_minutes": 120,
+    "session_structure": "0–10 min: Facilitator reads standardized briefing script; participant signs consent form and completes a 5-item prosody screening quiz to confirm metrical competence. 10–15 min: Facilitator demonstrates the drafting interface using a neutral warm-up prompt (write two lines of iambic pentameter about weather) in whichever condition is first in the participant's counterbalanced order; wizard provides one practice round of suggestions but participant is told this is a system test. 15–55 min: Participant drafts a 14-line Shakespearean sonnet under Condition 1 (co-writer, solo, or rhyming-dictionary, per Latin-square assignment); facilitator gives a 2-min verbal prompt and leaves the room; participant works silently; wizard operates behind the curtain. 55–60 min: Participant completes the 6-item post-condition questionnaire (Likert + one open-ended). 60–100 min: Condition 2 sonnet drafted and rated under the same protocol, with a 5-minute blank-screen break between conditions. 100–110 min: Condition 3 sonnet drafted and rated. 110–120 min: Semi-structured post-session interview (5 fixed questions) and full WoZ debrief."
+  },
+  "task_flow": [
+    {
+      "step": 1,
+      "participant_action": "Participant reads the printed prompt card specifying the sonnet's required meter (iambic pentameter, ABAB CDCD EFEF GG rhyme scheme) and theme constraint (the theme is 'threshold'—a moment of crossing or transition). Participant types the first 3–5 words of line 1 into the drafting interface, stopping before the line is complete, then presses Tab to signal they are ready for suggestions.",
+      "system_response": "The interface displays a spinner icon labeled 'thinking…' for 1–4 seconds (duration randomized per trial to mask wizard latency), then presents three numbered candidate line endings in a panel to the right of the draft area. Each candidate is displayed in a fixed-width font with stress marks pre-annotated (e.g., 'u / u / u / u / u /') beneath the text to make metrical compliance visible. A 'Use this' button appears beside each candidate; a free-text override box is always visible at the bottom of the panel.",
+      "wizard_decisions": [
+        "Decide whether the participant's line stem already locks in a specific metrical pattern that restricts feasible completions (e.g., if the stem already has 7 syllables, the wizard must supply only 3-syllable completions that complete the iambic foot).",
+        "Decide the diction register of each of the three candidates: candidate 1 must use plain Anglo-Saxon vocabulary, candidate 2 must use Latinate or elevated vocabulary, candidate 3 must be semantically unexpected but metrically valid—wizard judges what 'unexpected' means given the participant's established imagery so far.",
+        "Decide whether any candidate would create an unresolvable rhyme debt in a later quatrain (i.e., if accepted, would make the required rhyme phoneme for a paired line extremely rare in English); if so, substitute a less rhyme-constraining alternative.",
+        "Decide response latency simulation: wizard dispatches the payload within 4 seconds of the Tab keypress but the interface holds the spinner for a randomized 1–4 second overlay to normalize apparent response time across all trials."
+      ]
+    },
+    {
+      "step": 2,
+      "participant_action": "Participant reads all three candidate endings, then either (a) clicks 'Use this' to accept a candidate verbatim, (b) clicks 'Use this' then edits the accepted text in-place before moving on, or (c) ignores all candidates and types a self-generated ending into the main draft area. Participant then types the stem of the next line and presses Tab again. This accept/edit/override cycle repeats for all 14 lines.",
+      "system_response": "On accept: the chosen candidate text is inserted into the draft area at the cursor; the panel clears and resets. On edit: the accepted text appears in the draft area in an editable state with a yellow highlight; when the participant clicks away or presses Enter, the highlight clears and the panel resets. On override: the panel remains visible for 5 seconds with candidates grayed out, then collapses automatically. The log records the action type (accept/edit/override), the candidate index if applicable, and the timestamp for each line.",
+      "wizard_decisions": [
+        "When a participant edits an accepted candidate, the wizard watches the screen recording feed in real time and decides whether the edit changes the metrical pattern of the line; if the edit breaks meter, the wizard queues a non-intrusive red underline annotation (via the 'flag_meter_break' control) to appear on the next Tab press rather than interrupting mid-edit.",
+        "Decide whether an override by the participant implies a semantic direction shift (e.g., participant chose a darker image than any candidate offered) that should recalibrate the register of future candidates; wizard maintains a running note on the participant's apparent lexical/tonal preferences and adjusts subsequent candidate generation accordingly.",
+        "Decide whether the participant's override completion itself scans correctly; if it does not, wizard notes this in the observer log but does NOT flag it to the participant, because the study measures output quality, not in-session coaching."
+      ]
+    },
+    {
+      "step": 3,
+      "participant_action": "Participant completes all 14 lines and clicks the 'Submit Draft' button. The interface displays the full sonnet in a clean read-only view and asks the participant to read it once silently before completing the post-condition questionnaire.",
+      "system_response": "The interface locks the draft area, saves the full poem text and all log events to a local JSON file named by participant ID, condition, and timestamp (e.g., P03_cond1_cowriter_20250110T143022.json), and displays the read-only poem view with a 'Continue to questions' button that becomes active after 30 seconds (enforcing the silent read).",
+      "wizard_decisions": [
+        "Decide whether to flag this session's poem for post-hoc prosody audit: if the wizard observed 3 or more uncorrected metrical breaks during the session (tracked in the observer log), the wizard marks the JSON file with a 'prosody_audit_required' field set to true, which will trigger an independent scansion check before the poem is submitted to blind raters.",
+        "Decide whether any wizard error occurred during the session (e.g., a candidate was dispatched with the wrong rhyme phoneme) that would require annotating the session log with a 'wizard_error' flag and notifying the PI before the poem is included in the blind rating pool."
+      ]
+    },
+    {
+      "step": 4,
+      "participant_action": "Participant completes the 6-item post-condition questionnaire on a separate paper form: items 1–5 are 7-point Likert scales (agency, fluency, satisfaction, perceived quality, tool intrusiveness); item 6 is an open-ended question ('Describe in 2–4 sentences what it felt like to write this poem'). Participant then takes a 5-minute eyes-closed break before the facilitator re-enters to begin the next condition.",
+      "system_response": "No system response during questionnaire (interface displays a blank screen with the message 'Please complete the paper questionnaire on your desk'). After the 5-minute break timer (displayed on a separate small tablet visible only to the facilitator outside the room) expires, the facilitator re-enters, collects the paper form, resets the drafting interface to blank for the next condition, and provides the next prompt card.",
+      "wizard_decisions": [
+        "Decide whether the participant's post-condition open-ended response (overheard via the one-way audio feed if the participant reads aloud, or observed on screen if typed) contains any mention that they suspected the system was not fully automated; if so, wizard flags the session for debriefing follow-up to assess whether the WoZ illusion held.",
+        "Decide whether the wizard's own performance during the condition (latency compliance, rhyme accuracy, meter accuracy) met the pre-specified quality threshold (fewer than 2 errors per 14-line poem); if not, wizard completes an error report form before the next condition begins."
+      ]
+    },
+    {
+      "step": 5,
+      "participant_action": "After all three conditions are complete, participant sits for a 10-minute semi-structured interview with the facilitator covering five fixed questions: (1) Which drafting mode felt most generative and why? (2) Did any tool or resource feel like it was pulling you away from your intended poem? (3) How did the co-writer condition compare to working with a human collaborator? (4) Did the suggestions ever feel metrically wrong, and if so, how did you handle it? (5) Would you use a tool like this in your own practice? Following the interview, the facilitator reads the full WoZ debrief script explaining that the suggestions were constructed in real time by a human prosody expert, not a software algorithm.",
+      "system_response": "No active system interface during the interview. The facilitator has a printed interview guide with probing sub-questions for each item. The observer audio-records the interview with a dedicated recorder (separate from the screen recording system) and takes contemporaneous notes on participant affect and any spontaneous elaborations not prompted by the fixed questions.",
+      "wizard_decisions": [
+        "Wizard is not active during the interview but reviews the observer's timestamped session log immediately after the session to complete the wizard performance self-report form before the next participant is scheduled."
+      ]
+    }
+  ],
+  "wizard_controls": [
+    {
+      "control_name": "inject_candidates",
+      "triggers": "Fires when the participant presses Tab in the draft area, signaling they have completed a line stem and want suggestions. The observer confirms via the shared screen feed that the Tab press was intentional (not an accidental keystroke) before the wizard dispatches.",
+      "effect": "Sends a JSON payload via WebSocket to the participant interface containing three objects, each with fields: 'candidate_text' (string), 'stress_annotation' (string of u and / characters matching the syllable count), 'rhyme_phoneme' (IPA string of the terminal rhyme sound), and 'register_label' (one of: plain, elevated, unexpected). The interface renders these as three labeled panels with 'Use this' buttons and the stress annotation displayed in gray beneath each candidate."
+    },
+    {
+      "control_name": "flag_meter_break",
+      "triggers": "Fires when the wizard observes via the screen feed that a participant has manually typed a line ending (override or edit) that does not scan to iambic pentameter, as judged by the wizard's real-time scansion. The wizard triggers this control only on the NEXT Tab press, not while the participant is typing, to avoid interrupting composition flow.",
+      "effect": "Adds a thin red underline beneath the metrically irregular line in the draft area and displays a tooltip on hover reading 'This line may not scan to iambic pentameter — check stress pattern.' The flag is purely informational; the participant can dismiss it by clicking the line and the interface does not prevent submission. The flag event is logged with timestamp and line number."
+    },
+    {
+      "control_name": "extend_spinner",
+      "triggers": "Fires when the wizard needs more than 4 seconds to construct valid candidates (e.g., the rhyme phoneme required is rare and the wizard is searching the pre-prepared rhyme lexicon). The wizard triggers this control within 3 seconds of the Tab press if they anticipate needing extra time.",
+      "effect": "Replaces the standard 'thinking…' spinner text with 'Finding options…' and extends the spinner display by up to 10 additional seconds without revealing that the delay is human-caused. Simultaneously sends an alert to the observer's tablet so the observer logs the extended latency event for post-hoc review."
+    },
+    {
+      "control_name": "suppress_panel",
+      "triggers": "Fires in the control condition (solo drafting) to ensure the candidate panel never appears, even if the participant accidentally presses Tab. Also fires if a technical error causes a WebSocket message to misfire across conditions.",
+      "effect": "Sends a WebSocket message instructing the participant interface to display nothing (no spinner, no panel) on Tab press and to treat Tab as a standard whitespace character insertion. The suppress state is toggled on at the start of each solo or rhyming-dictionary condition and toggled off at the start of each co-writer condition."
+    },
+    {
+      "control_name": "log_wizard_error",
+      "triggers": "Fires when the wizard self-identifies an error in a dispatched candidate set (wrong rhyme phoneme, incorrect syllable count, or candidate that would create an impossible rhyme debt in a later line).",
+      "effect": "Appends a structured error record to the session JSON log containing: timestamp, line number, error type (one of: wrong_phoneme, syllable_count_off, rhyme_debt_created), and a free-text description field the wizard types within 30 seconds of noticing the error. This record is reviewed by the PI before the poem is submitted to blind raters."
+    }
+  ],
+  "observable_signals": [
+    {
+      "signal": "Accept/edit/override rate per line across all 14 lines of the co-writer condition, capturing how often participants use, modify, or reject the wizard's candidate endings.",
+      "capture_method": "log_events",
+      "analysis_plan": "For each participant in the co-writer condition, compute three rates: accepts/14, edits/14, overrides/14. Compute the mean edit distance (Levenshtein) between the accepted candidate text and the final line text for all 'edit' events, to quantify how substantially participants modified suggestions. Correlate override rate with the blind rater craft scores for that poem: if high-rated poems show high override rates, this suggests the co-writer's value is in prompting rather than providing, which is a specific mechanistic interpretation. Compare override rates across the three rhyme phoneme rarity tertiles (computed from the CMU Pronouncing Dictionary frequency data in the materials) to test whether participants override more when rhyme constraints are rare."
+    },
+    {
+      "signal": "Blind craft ratings from 6 working poets who rate all 27 poems (9 participants × 3 conditions) on a 7-point scale across four dimensions: metrical regularity, sonic quality (rhyme and assonance), imagistic specificity, and overall formalist craft.",
+      "capture_method": "self_report_likert",
+      "analysis_plan": "Raters receive poems in randomized order with all identifying information removed; condition label is not revealed. Rater reliability is assessed via intraclass correlation coefficient (ICC 3,1) across all 6 raters on each dimension; if ICC < 0.60 for any dimension, that dimension is excluded from the primary analysis. Primary analysis: fit a linear mixed-effects model with craft score as outcome, condition (co-writer/solo/rhyming-dictionary) as fixed effect, participant and rater as crossed random effects, and poem order (1st/2nd/3rd drafted) as a covariate to control for fatigue and practice effects. Report the estimated marginal means and 95% confidence intervals for each condition; do not interpret significance thresholds, report effect sizes (Cohen's d with bootstrapped CIs) for all pairwise condition comparisons."
+    },
+    {
+      "signal": "Time elapsed from prompt card delivery to 'Submit Draft' button click for each condition, measuring drafting duration.",
+      "capture_method": "task_completion_time",
+      "analysis_plan": "Compute drafting time for each participant-condition cell. Fit a linear mixed-effects model with drafting time as outcome, condition as fixed effect, and participant as random effect. Test whether co-writer condition drafting time differs from solo and rhyming-dictionary conditions. Additionally, compute per-line latency from Tab press to next keystroke as a proxy for decision time after viewing candidates; compare the distribution of per-line latencies in the co-writer condition (where candidates appear) against matched line-position latencies in the solo condition (where no candidates appear) to assess whether candidates speed or slow local line-completion decisions."
+    },
+    {
+      "signal": "Participant verbal reports of agency, fluency, satisfaction, perceived quality, and tool intrusiveness on 7-point Likert scales administered immediately after each drafting condition.",
+      "capture_method": "self_report_likert",
+      "analysis_plan": "For each of the five Likert items, fit a linear mixed-effects model with item score as outcome, condition as fixed effect, and participant as random effect. Report estimated marginal means and 95% CIs per condition per item. Separately compute a composite 'creative agency' score as the mean of the agency and intrusiveness (reverse-coded) items, and test whether it correlates with that condition's override rate (from the log events signal) using Pearson r with a Bonferroni correction for five comparisons."
+    },
+    {
+      "signal": "Post-condition open-ended written responses describing the felt experience of drafting in each condition (item 6 on the paper questionnaire).",
+      "capture_method": "self_report_open_ended",
+      "analysis_plan": "Two researchers independently code each response for the presence or absence of five pre-specified constructs: (1) mention of constraint as generative, (2) mention of constraint as limiting, (3) reference to the tool as collaborator or partner, (4) reference to the tool as mechanical or impersonal, (5) mention of surprise or serendipity in the suggestions. Cohen's kappa is computed for each construct; constructs with kappa < 0.70 are flagged for adjudication. Construct presence rates are compared across conditions using McNemar's test for paired proportions (within-participant design). Raw quotes meeting the inclusion criteria (kappa ≥ 0.70, construct present in ≥ 3 participants) are preserved verbatim for the results section."
+    },
+    {
+      "signal": "Semi-structured post-session interview audio, capturing retrospective comparisons across conditions and attitudes toward co-writing tools in practice.",
+      "capture_method": "think_aloud_audio",
+      "analysis_plan": "Transcribe all interviews verbatim. Apply a deductive coding scheme with five codes corresponding to the five interview questions (generativity, autonomy disruption, human-vs-tool collaboration, metrical trust, adoption intent). For each code, extract all relevant utterance segments across participants. For the adoption intent code specifically, classify each participant's response as positive, negative, or conditional, and cross-tabulate against that participant's blind craft score ranking (top third vs. bottom third) to test whether participants whose co-writer poems rated highest are more or less likely to express adoption intent."
+    }
+  ],
+  "failure_cases": [
+    {
+      "scenario": "Wizard generates a candidate ending with the correct terminal rhyme phoneme but with one syllable too many or too few, producing a line that fails to scan as iambic pentameter. The participant accepts the candidate verbatim and moves to the next line, locking in a metrical irregularity.",
+      "expected_behavior": "The 'flag_meter_break' control should fire on the next Tab press, displaying a red underline and tooltip. The participant may or may not notice and correct the line before submission.",
+      "wizard_fallback": "If the wizard catches the error before the participant presses Tab again, the wizard immediately triggers 'log_wizard_error' and queues 'flag_meter_break' for the next Tab event. If the participant has already submitted the draft before the flag can fire, the wizard marks the session JSON with 'wizard_error: true' and 'error_type: syllable_count_off', and the PI flags that poem for independent prosody audit before it enters the blind rating pool. Poems with more than one uncorrected wizard-caused metrical error are excluded from the primary blind rating analysis and reported in a separate descriptive table."
+    },
+    {
+      "scenario": "The participant's chosen theme and imagery develop in a direction where the required rhyme-scheme phoneme for an upcoming line (e.g., the B rhyme in quatrain 2) is extremely rare in English given the established semantic field, making it impossible for the wizard to produce three candidates that are all metrically valid, semantically coherent, and phonemically correct within the 4-second window.",
+      "expected_behavior": "Wizard triggers 'extend_spinner' within 3 seconds of the Tab press to buy up to 10 additional seconds. Wizard consults the pre-prepared rare-rhyme lexicon (see materials) and the 50-word semantic field glossary for this theme. Wizard dispatches whatever candidates are achievable within the extended window, even if one candidate is semantically weaker than ideal, and logs the incident as 'rhyme_constraint_stress' in the session JSON.",
+      "wizard_fallback": "If no three valid candidates can be constructed within the total extended window (up to 14 seconds), the wizard dispatches only one or two candidates with a placeholder third reading '[no additional option]' styled in gray italic. The session log records the number of candidates delivered per line; any line receiving fewer than three candidates is flagged, and the analysis team checks whether that line's position in the poem correlates with the participant's override decision, which would indicate that candidate scarcity affected behavior."
+    },
+    {
+      "scenario": "The WebSocket connection between the wizard's control panel and the participant interface drops mid-session, causing the participant's Tab presses to produce no spinner and no candidate panel, making the interface appear frozen or broken.",
+      "expected_behavior": "The participant interface displays a fallback message: 'Suggestions temporarily unavailable — continue drafting as you normally would.' The observer notices the dropped connection alert on their tablet and immediately notifies the wizard via a pre-agreed silent signal (turning on a desk lamp visible through the one-way mirror).",
+      "wizard_fallback": "The wizard attempts to reconnect the WebSocket within 60 seconds using the reconnect button on the control panel. If reconnection fails, the facilitator enters the room, apologizes for a 'brief technical issue,' pauses the session timer, and the observer reboots the WebSocket server on the lab router (procedure printed on a laminated card attached to the router). If the session cannot resume within 5 minutes, the session is terminated, the participant is rescheduled, and all data from that session are excluded. A maximum of one reconnection attempt per session is allowed before termination."
+    },
+    {
+      "scenario": "A participant completes the session and during the WoZ debrief reports that they suspected the system was human-operated as early as the second condition, citing response latency variability or lexical choices that felt 'too tailored' as cues.",
+      "expected_behavior": "The facilitator continues the debrief script normally and asks two follow-up probing questions: (1) 'At what point did you first suspect this?' and (2) 'Did that suspicion change how you interacted with the tool?' The facilitator records responses verbatim on the debrief form.",
+      "wizard_fallback": "Data from participants who report suspicion before the third condition are flagged with a 'woz_illusion_broken' tag. The PI reviews the session logs to determine whether the flagged participant's interaction behavior changed in the suspected condition (e.g., a sharp increase in override rate). If behavior change is confirmed, that participant's data are analyzed separately in a sensitivity analysis rather than excluded entirely, preserving sample size while acknowledging the confound. The latency randomization parameters (1–4 second spinner overlay) are reviewed after each participant who reports suspicion to determine whether the window should be widened in subsequent sessions."
+    }
+  ],
+  "materials_needed": [
+    "Custom HTML/JS drafting interface: a single-page application with a left-pane draft area (plain textarea, no autocomplete, monospace font), a right-pane candidate panel that renders three suggestion cards with stress annotations and a 'Use this' button each, a free-text override input box, a 'Submit Draft' button that becomes active only after all 14 lines contain at least 8 characters each, and a WebSocket client connecting to the lab server on port 8765.",
+    "Wizard control panel: a second HTML/JS page (served from the same local server, accessible only on the wizard's laptop) with five trigger buttons (inject_candidates, flag_meter_break, extend_spinner, suppress_panel, log_wizard_error), a text input area where the wizard types the three candidate endings, a syllable counter and stress-pattern display that auto-annotates the wizard's typed text using the CMU Pronouncing Dictionary API running locally, and a live mirror of the participant's current draft.",
+    "WebSocket server: a Python 3.11 script using the 'websockets' library that routes messages between the participant interface and the wizard control panel on the lab LAN; server must run on a dedicated lab router to avoid dependency on external internet; source code and setup instructions must be included in the study materials folder.",
+    "Rare-rhyme lexicon: a CSV file listing 200 English words organized by terminal phoneme (IPA), filtered to words with at least 3 plausible rhyme partners in the CMU Pronouncing Dictionary, and annotated with register (plain/elevated); this is the wizard's lookup resource when constructing candidates under time pressure.",
+    "Semantic field glossary for the theme 'threshold': a single printed A4 sheet listing 50 words and phrases associated with crossing, liminality, transition, and passage (e.g., 'lintel,' 'estuary,' 'equinox,' 'waning,' 'betwixt'), organized by register and syllable count, to help the wizard construct semantically coherent candidates quickly.",
+    "Counterbalancing assignment sheet: a Latin-square table showing which of the 6 condition orderings (3! = 6 permutations of co-writer/solo/rhyming-dictionary) each of the 9 participants is assigned to, pre-generated before recruitment begins, with participant slots numbered P01–P09.",
+    "Three printed prompt cards (one per condition): each card states the drafting task identically ('Write a 14-line Shakespearean sonnet in iambic pentameter with ABAB CDCD EFEF GG rhyme scheme on the theme of threshold — a moment of crossing or transition') with no other instructions, to eliminate variation in task framing across conditions.",
+    "Rhyming dictionary condition setup: for the rhyming-dictionary condition, the candidate panel is replaced by a read-only embedded version of RhymeZone (rhymezone.com, loaded in an iframe, with the search field pre-populated with the current end-word from the participant's previous matched line); the wizard's suppress_panel control is active and the wizard does not operate during this condition.",
+    "Post-condition paper questionnaire (27 copies, 9 participants × 3 conditions): items 1–5 are printed 7-point Likert scales with labeled anchors; item 6 provides 6 blank lines for open-ended response; each form is pre-printed with the participant ID and condition number.",
+    "Blind rater packet preparation script: a Python script that reads all 27 submitted poem JSON files, strips participant ID and condition metadata, assigns a random 3-digit poem code, and outputs a PDF with all 27 poems in randomized order plus a structured rating form with the four craft dimensions (metrical regularity, sonic quality, imagistic specificity, overall formalist craft) each on a 7-point scale with behavioral anchors defining scores 1, 4, and 7.",
+    "Behavioral anchors for blind rater 7-point scales: a separate printed reference card given to all 6 blind raters during their rater training session, defining score 1 ('line regularly fails to scan; rhyme scheme absent or inconsistent; images generic or clichéd; overall fails basic formalist criteria'), score 4 ('line generally scans with occasional irregularities; rhyme scheme present but forced; images competent but not distinctive'), and score 7 ('line scans flawlessly; rhyme scheme feels inevitable rather than effortful; images are precise and original; overall exemplifies the formalist tradition').",
+    "Observer log template: a spreadsheet with columns for participant ID, condition, line number, event type (Tab_press, candidate_delivered, accept, edit, override, flag_meter_break_triggered, wizard_error, extend_spinner_triggered), timestamp (ms since session start), and a free-text notes column; one row per event.",
+    "Facilitator briefing script (printed): the exact word-for-word text the facilitator reads to each participant at the start of the session, covering study purpose (described as 'a study of different drafting aids for formal poetry'), consent process, session structure, and the cover story that 'the co-writer tool uses a language model fine-tuned on formal verse.'",
+    "WoZ debrief script (printed): the exact word-for-word text the facilitator reads after all three conditions are complete, explaining that the co-writer suggestions were generated in real time by a human prosody expert, why this method was used, what data were collected, and how the participant can withdraw their data.",
+    "Prosody screening quiz: a 5-item printed test requiring participants to (1) scan a provided line of verse and mark stressed/unstressed syllables, (2) identify the meter of two short passages, (3) supply a word that rhymes with a given word and fits a specified stress pattern; any participant who scores below 4/5 is thanked and dismissed before the study begins.",
+    "Rater training session materials: a 30-minute Zoom session guide for the 6 blind raters, including 5 practice poems (not from the study) with pre-assigned anchor scores and discussion of edge cases such as feminine endings, intentional metrical substitutions (pyrrhic, spondee), and near-rhymes versus true rhymes."
+  ],
+  "provenance": {
+    "specification": "AGENT_INFERENCE"
+  }
+}

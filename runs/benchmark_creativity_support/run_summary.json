@@ -1,0 +1,17 @@
+{
+  "run_id": "benchmark_creativity_support",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "in_progress"
+    },
+    {
+      "branchId": "b",
+      "status": "in_progress"
+    },
+    {
+      "branchId": "c",
+      "status": "in_progress"
+    }
+  ]
+}

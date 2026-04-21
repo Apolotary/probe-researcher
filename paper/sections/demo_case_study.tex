@@ -1,0 +1,70 @@
+\section{Demo case study}
+\label{sec:demo}
+
+The demo run takes a deliberately under-specified premise: ``design a short study to understand how BLV screen-reader users interpret page hierarchy on AI-generated news articles.'' The sentence bundles a population, a stimulus property, and a cognitive claim without operationalizing any of them. This is the kind of premise a senior PI sees on day one of a new collaboration.
+
+\subsection{Stage 1: the sharpest question}
+
+The premise agent's first line is:
+
+\begin{quote}
+What does ``AI-generated'' do to the page hierarchy that a conventionally-authored news article would not --- and if the answer is ``nothing structural,'' why is this a study about AI at all rather than a study about news-article hierarchy?
+\end{quote}
+
+The nearest template the agent names is the WebAIM survey tradition of screen-reader think-alouds on web content \citep{webaim2023survey}. The four sharpened options it produces fall along different axes: an audit-first study that corpus-analyzes heading structure across AI-generated and human-authored articles before any user study runs; a disclosure study that holds hierarchy constant and varies whether participants are told the article is AI-generated; a repair-tool formative study that observes breakdowns and specifies an accessibility-repair layer for LLM news pipelines; and a mental-model study that compares hierarchical summaries BLV users construct across conditions. The differentia the researcher has not supplied is named directly: no mechanism linking AI generation to hierarchy structure, no comparator, no definition of ``interpret,'' no specification of whether participants know.
+
+\subsection{Stage 2: three divergent branches}
+
+The ideator produces three research programs that differ on all four axes the system prompt enforces:
+
+\begin{itemize}
+    \item \textbf{Branch A} is a formative corpus audit of hierarchy structure across AI-generated and human-authored articles, infrastructural in human--system relationship.
+    \item \textbf{Branch B} is an evaluative Wizard-of-Oz study of auditory AI-provenance disclosure via ARIA-live banners, with an adversarial-check framing: does disclosure shift BLV users' navigation strategies and credibility judgments?
+    \item \textbf{Branch C} is a longitudinal peer-collaborative co-design of an in-browser accessibility-repair overlay that detects hallucinated headings in AI-generated articles and rewrites them before screen-reader announcement.
+\end{itemize}
+
+The three branches differ on research question, intervention primitive, human--system relationship, and method family. Branch B's ARIA-live-banner framing is the one we did not consider before running Probe. We flag this as the ``useful surprise'' criterion the plan explicitly targeted, acknowledging that a single-run observation is not a capability proof.
+
+\subsection{Stages 3--5: grounding, specification, rehearsal}
+
+The literature agent restricts each branch's grounding to IDs present in \texttt{corpus/source\_cards/}. The initial corpus contained seven cards, verified against DOIs on kickoff day. Before the demo's final assembly, three additional cards were added to address the novelty hawk's later finding: \citet{jakesch2023cowriting} on AI-text disclosure effects; \citet{longoni2019medical} on algorithm aversion; and \citet{sundar2008main} on credibility heuristics triggered by technology affordances. The updated corpus contains ten cards.
+
+The prototype specification for branch B is a within-subjects Wizard-of-Oz design with three conditions assigned via Latin square: AI-disclosed-early, AI-disclosed-late, and human-framed. The wizard injects an ARIA-live provenance announcement at a condition-specified moment relative to the participant's heading navigation. Observable signals include heading-navigation keystrokes, think-aloud in a 20-second post-injection window, and a seven-item credibility rating. The spec is detailed enough that a different researcher could run the session without asking clarifying questions.
+
+The simulated walkthrough is a five-section structured rehearsal where every paragraph ends with \texttt{[SIMULATION\_REHEARSAL]}. Two findings from the rehearsal become load-bearing in later stages: fast H-key navigators can traverse all three H2 headings in under four seconds, giving the wizard almost no window to fire the late-condition banner between H2 \#2 and H2 \#3; and the announcement-duration difference between conditions (approximately six seconds for the AI string versus two for the human string) would mechanically contaminate any time-bounded behavioral measure.
+
+\subsection{Stage 6: two branches blocked}
+
+The capture-risk audit fired sixteen pattern findings per branch. Branch A's audit fired \texttt{agency.auto\_decides\_consequential\_step} at minus-two: the proposed automated audit pipeline routes flagged hierarchy violations into a remediation queue without a human-in-the-loop review step. The model's reasoning: the intervention silently becomes a policy, ``what we flag, we change,'' where the decision to remediate is a consequential human-scale choice being delegated to pattern matching. Verdict: \texttt{BLOCKED}. The branch emits \texttt{WORKSHOP\_NOT\_RECOMMENDED.md} and does not advance.
+
+Branch C is blocked for a different reason: the repair overlay rewrites markup before the screen reader announces it, and the prototype spec does not distinguish ``this participant's personal overlay'' from ``an institutional default.'' The auditor flagged this as a workflow-lock-in concern that the prototype spec does not resolve. Verdict: \texttt{BLOCKED}.
+
+Branch B's audit returned \texttt{REVISION\_REQUIRED}: two minus-one findings (around legibility of the ranking mechanism and around the audit's coverage of the debrief card) but no minus-two. The branch advances to adversarial review.
+
+\subsection{Stage 7: three reviewers with three distinct objections}
+
+The methodologist reviewer's first line is the announcement-duration confound:
+
+\begin{quote}
+The AI disclosure string is 18 words and $\sim$6 seconds of speech; the human-framed string is 5 words and $\sim$2 seconds. This confound is baked into the stimuli, and every behavioral dependent variable the study measures will be mechanically contaminated by announcement length rather than disclosure content.
+\end{quote}
+
+We did not see this when reading the prototype spec. Neither did the capture-risk auditor. The reviewer's recommendation is \texttt{major\_revision}. Six total criticisms, each attached to a quoted evidence span from the prototype spec or the simulated walkthrough.
+
+The accessibility advocate applies the Kafer political-relational lens \citep{kafer2013feminist}: BLV users are recruited as \emph{subjects} of the study but not as \emph{co-designers} of the intervention. The disclosure phrasing, placement, and the premise that an ARIA-live banner is the right intervention were all decided by sighted researchers before any BLV consultation. The recommendation is \texttt{major\_revision} with a required co-design phase preceding the evaluation phase.
+
+The novelty hawk identifies adjacent literature the source-card corpus does not contain: Jakesch et al.\ on AI-text labeling; Longoni et al.\ on medical AI resistance; Sundar's MAIN model of technology-triggered credibility heuristics. The recommendation is \texttt{major\_revision}. In the system as originally shipped, the novelty hawk named these papers in free-text paragraphs tagged \texttt{[AGENT\_INFERENCE]}. After review wave one, the reviewer JSON schema now includes an \texttt{uncited\_adjacent\_literature} array, and the guidebook assembler renders each entry as a \texttt{[UNCITED\_ADJACENT]} element the researcher must verify before grounding. The three named papers have since been added to the corpus.
+
+The meta-reviewer classifies the disagreement pattern as \texttt{legitimate\_methodological\_split}: the three reviewers' decisive weaknesses do not reduce to one another. Fixing the confound does not supply a differential novelty prediction; co-designing the artifact with BLV users may invalidate the stimulus set the methodologist wants length-matched. The meta-reviewer's verdict is \texttt{human\_judgment\_required}, which is not a failure: it is the honest output when the reviewers have found real, non-reducible objections.
+
+\subsection{Stage 8: the guidebook absorbs the critique}
+
+The guidebook is a six-section document: Premise, Background, Prototype, Study protocol, Failure hypotheses to test, and Risks and failure modes. The heading ``Expected outcomes'' is explicitly banned by the linter because it implies findings; the replacement ``Failure hypotheses to test'' captures the rehearsal-not-evidence framing more honestly.
+
+Every paragraph carries a provenance tag. The study-protocol section includes a co-design phase before the evaluation phase, absorbing the accessibility advocate's blocking objection. The risks-and-failure-modes section includes the announcement-duration confound as a named \texttt{[DO\_NOT\_CLAIM]} constraint. The next-steps section at the end of the document is a \texttt{[HUMAN\_REQUIRED]} block listing six concrete items the researcher must complete before running the study.
+
+The final artifact passes both linters: every content-bearing element carries a provenance tag, and no forbidden phrase appears in Probe's own voice outside quoted context.
+
+\subsection{Cost and latency}
+
+The demo run completed in approximately twenty-five minutes of wall-clock time and cost five dollars and ninety-three cents in API credit across forty-two Claude calls (including repair passes from earlier development iterations). The per-stage cost breakdown is reported in the project's \texttt{PROBE.md} file. The managed-agents deep audit on the surviving branch added one dollar and twenty cents and produced the twenty-one-tool-call measurement session described in \S\ref{sec:system}.

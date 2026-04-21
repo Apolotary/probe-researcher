@@ -1,0 +1,74 @@
+{
+  "stage": "7_review",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "a",
+  "reviewer_persona": "methodologist",
+  "decisive_weakness": "The entire primary effect is confounded with wizard cognition: the 'corpus-divergence' condition requires the wizard to perform a 1.5-second semantic-cluster lookup plus phonological-distinctness filter that the walkthrough itself rehearses as infeasible, while the thesaurus condition is a simple lookup table. Any measured divergence difference between conditions is indistinguishable from differences in wizard latency, wizard candidate-selection quality, wizard fatigue, and consequent participant suspicion — not from the nominal manipulation. The WoZ architecture does not operationalize the claimed mechanism; it operationalizes a researcher performing an impossible task under time pressure.",
+  "criticisms": [
+    {
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "A rehearsal of this step strongly suggests that the 1.5-second window would be insufficient for a substantial share of requests, meaning `extend_latency` would plausibly fire more often than the protocol's 20%-exclusion threshold anticipates."
+      },
+      "violated_criterion": "operational feasibility of the manipulation; construct validity of condition assignment",
+      "why_matters": "The 'corpus-divergence' condition only exists if the wizard actually delivers corpus-divergence candidates within the latency illusion. If extend_latency fires on a majority of requests, the condition is neither what it claims to be (candidates are selected under degraded conditions, possibly defaulting to 'lowest-frequency in bank regardless of semantic proximity' per the failure_cases fallback) nor indistinguishable from the thesaurus condition in participant-perceptible timing. The divergence score will reflect wizard resource exhaustion, not corpus-personalization.",
+      "required_change": "Pre-compute the full candidate bank per line-content-cluster offline before the session so the wizard performs only a lookup, not a search-and-filter. Run a feasibility pilot measuring wizard latency distribution on real poet drafts; if the 90th percentile exceeds 1.5 s, abandon WoZ for a genuine retrieval-augmented LM with identical interface and accept the shift in claim.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Counterbalancing assignment sheet: a pre-generated table assigning each participant ID to a condition order (corpus-divergence first vs. thesaurus first) and prompt order (Prompt A first vs. Prompt B first), balanced using a 2x2 Latin square."
+      },
+      "violated_criterion": "carryover control in within-subjects design",
+      "why_matters": "A 2x2 Latin square on condition-order × prompt-order with a within-subjects comparison of poems drafted 45 minutes apart cannot separate carryover from condition effect. The walkthrough explicitly notes lexical territory from Poem A bleeds into Poem B. With the small N a single-session poet study will realistically recruit (given the corpus-indexing requirement), order × condition interaction is not estimable with adequate power, yet it is the exact interaction needed to rule out carryover. The primary Wilcoxon test assumes condition-paired draws are exchangeable within participant; carryover violates this.",
+      "required_change": "Either (a) move to a between-subjects design with matched poets (larger N required, power analysis needed), or (b) add a washout session on a separate day, or (c) pre-register the order × condition interaction as a primary test and commit to a sample size that can detect it. The current counterbalance provides cosmetic balance, not inferential protection.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "A practicing poet with at least 10 poems published in traceable venues"
+      },
+      "violated_criterion": "recruitment adequacy relative to the power demands of the analysis plan",
+      "why_matters": "The prototype specifies no target N, no power analysis, and no stopping rule. The primary test is a paired Wilcoxon signed-rank on per-participant median divergence scores. The walkthrough notes yield is 'highly bimodal' because only 'high-request' drafting patterns generate enough within-participant data for the per-participant medians to stabilize. The population of poets with (i) 10+ traceable publications, (ii) willingness to cede corpus rights, (iii) availability for a 90-minute in-person lab session, and (iv) high-request drafting style is small and non-random. No sampling frame or recruitment target is stated.",
+      "required_change": "State a target N with a power calculation for the paired Wilcoxon on the effect-size band the claim requires. State the sampling frame (which venues, which geography) and an explicit stopping rule. State how many within-participant accept events are required before that participant's median is usable, and pre-register the exclusion rule for low-request participants.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "if a poet's most experimental work is unpublished or published in venues that were not indexed, the low-frequency candidates drawn for them could plausibly match their own unindexed experimental register closely, producing apparent 'divergence from corpus' that is in fact convergence with their broader practice."
+      },
+      "violated_criterion": "construct validity of the outcome measure",
+      "why_matters": "The entire divergence score — the primary dependent variable — is computed against the poet's indexed published corpus. If 'divergence from indexed corpus' is systematically confounded with 'convergence to unindexed experimental practice,' the measure does not operationalize the construct it claims ('divergence from habitual patterns'). The construct is defined over the poet's actual habits; the measure is defined over what a publisher happened to accept. For poets whose published register is conservative relative to their full practice (common), the tool's divergence candidates may be their own voice.",
+      "required_change": "Validate the corpus index against a held-out sample of each poet's self-identified 'typical' versus 'atypical' prior work before accepting their enrollment. Or narrow the claim to 'divergence from published register' and acknowledge in the claim that this may not equal divergence from habitual practice.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "In the corpus-divergence condition, choose candidates that are confirmed low-frequency in the participant's indexed prior corpus AND phonologically distinct from the current line's dominant stress pattern; in the thesaurus condition, select the top 5 synonyms for the most semantically prominent word in the line from the pre-loaded thesaurus lookup table."
+      },
+      "violated_criterion": "control-condition equivalence; confound architecture",
+      "why_matters": "The two conditions differ on at least three dimensions simultaneously: (1) source corpus (personalized vs. generic), (2) selection criterion (low-frequency + phonological distinctness vs. top synonyms), (3) semantic relationship to the line (divergent vs. substitutable). A significant divergence difference cannot be attributed to corpus-personalization specifically — it could be the phonological filter alone, or the low-frequency filter alone, or the fact that thesaurus synonyms are by construction near-synonyms of a word in the line and therefore lexically closer to anything the poet might write. The thesaurus is not a control; it is a different intervention.",
+      "required_change": "Add a third condition that isolates corpus-personalization from the selection criteria (e.g., low-frequency-in-general-corpus candidates with the same phonological filter), or redesign the thesaurus arm to match corpus-divergence on selection criterion and vary only the personalization dimension. Without this, the claim 'corpus-personalized' cannot be supported by the design.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Apply a pre-specified 3-category coding scheme to each utterance that references a suggestion [...] Inter-rater reliability will be computed on 20% of utterances by a second coder blind to condition."
+      },
+      "violated_criterion": "qualitative analysis rigor — missing reliability threshold and disagreement resolution",
+      "why_matters": "The analysis plan names IRR computation on 20% of utterances but states no target kappa, no minimum acceptable reliability, no procedure for resolving disagreements, and no plan if IRR is poor. The think-aloud stream is load-bearing for interpreting reject events (per the walkthrough), yet the coding scheme has only three categories and one of them ('no comment') is the residual bucket that will dominate the data if poets do not narrate, which the walkthrough predicts.",
+      "required_change": "Pre-register a kappa threshold (e.g., ≥0.7) and the action taken if unmet. Specify disagreement-resolution procedure. Pilot the coding scheme on non-study transcripts and report base rates of the three categories before committing to it as a primary analysis.",
+      "severity": "major"
+    }
+  ],
+  "recommendation": "major_revision",
+  "provenance": {
+    "review": "AGENT_INFERENCE"
+  }
+}

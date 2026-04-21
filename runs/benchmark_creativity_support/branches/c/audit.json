@@ -1,0 +1,155 @@
+{
+  "stage": "6_audit",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "c",
+  "findings": [
+    {
+      "pattern_id": "capacity.substitutes_for_practice",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "The intervention does not substitute for the poetic skill itself; the participant writes the poem and the injected alternatives function as provocations that the participant rejects or accepts. The cognitive work of composing and of articulating rejection criteria remains with the participant throughout."
+    },
+    {
+      "pattern_id": "capacity.no_fade_mechanism",
+      "axis": "capacity",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Switches the injection logic from 'every second line break' to 'every line break', so the annotation widget fires on every Enter keypress for the remainder of the session or until the wizard manually deactivates the mode."
+      },
+      "rationale": "The assistance intensity escalates rather than fades; INJECT_DENSITY_INCREASE ramps injection frequency up when engagement is low, and no control describes tapering or participant-initiated reduction. The participant cannot signal 'I have settled into the task, give me fewer' — the only direction of travel is more provocation, not less."
+    },
+    {
+      "pattern_id": "capacity.creates_dependency_loop",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "This is a single 90-minute session that does not measure tool-invocation growth as a success signal, and the nature of the probe (provocations being rejected) does not create cumulative reliance. There is no mechanism by which repeated use would bind the poet to the tool for future drafting."
+    },
+    {
+      "pattern_id": "capacity.no_rehearsal_space",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "participant completes a 5-minute warm-up poem on a supplied neutral prompt ('a door left open') to familiarise themselves with the annotation widget."
+      },
+      "rationale": "The session structure includes an explicit low-stakes warm-up phase in which the participant practices the annotation mechanic on a neutral prompt before the core drafting phase begins. This is an adequate rehearsal space for the interaction skill the study requires; the pattern does not fire."
+    },
+    {
+      "pattern_id": "agency.auto_decides_consequential_step",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "The system does not commit any consequential action on the participant's behalf. Acceptance of an alternative requires an explicit 'Use this' press; rejection requires explicit annotation; nothing is published, submitted, or routed externally without the participant pressing a button themselves. Authority over every line-ending decision remains with the poet."
+    },
+    {
+      "pattern_id": "agency.hides_options_before_review",
+      "axis": "agency",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Select which alternative to inject from the pre-prepared candidate bank: choose among (a) a metrically regular completion, (b) a phonetically similar but semantically divergent completion, (c) a semantically congruent but tonally flat completion, or (d) a syntactically incomplete fragment — selecting the category that will be most diagnostic given the line just written."
+      },
+      "rationale": "The wizard draws from a four-category bank but presents the participant with only one alternative at a time. The participant never sees the space of alternatives they are implicitly choosing among; agency is reduced to accept/reject a single opaque proposal. Exposing a small menu of alternatives would change the decision structure materially but is not part of the design."
+    },
+    {
+      "pattern_id": "agency.weak_override",
+      "axis": "agency",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "the annotation text field and microphone icon become active and the interface remains locked until the field contains at least 5 words."
+      },
+      "rationale": "Rejecting an alternative is nominally free but operationally costly: the participant must produce a 5-word justification before the interface unlocks, while acceptance is a single click with no annotation burden. The asymmetric friction penalises exercise of the override relative to compliance, making the override ceremonial rather than neutral."
+    },
+    {
+      "pattern_id": "agency.paternalistic_default",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "The participant population — practicing poets recruited via MFA programs or poetry societies — is not a historically stigmatized group subject to paternalistic intervention in the sense this pattern names. The design does not default to protective behavior on behalf of a population assumed to need it; the pattern does not apply."
+    },
+    {
+      "pattern_id": "exit.data_lock_in",
+      "axis": "exit",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "WoZ drafting interface: a single-page HTML/CSS/JavaScript application with a plain textarea (left 60% of viewport), an annotation panel (right 40%), a status bar, and a websocket connection to the wizard's control panel"
+      },
+      "rationale": "The poem drafted during the session lives inside the bespoke WoZ interface and its associated log format. No materials_needed item or wizard_control describes an export path by which the participant leaves with a copy of their own poem in a portable format. The artifact the poet produced is effectively retained by the study apparatus."
+    },
+    {
+      "pattern_id": "exit.workflow_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The intervention is a single-session research probe operated by the participant alone. It does not restructure team processes, meeting cadences, or collective workflows; there is nothing for the participant's wider practice to be locked into, since the probe is not adopted as an ongoing tool beyond the session."
+    },
+    {
+      "pattern_id": "exit.competence_decay_on_exit",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "A 90-minute session is too short to induce meaningful skill decay in a practicing poet's line-ending craft, and the probe does not replace the compositional work. The research question does not concern sustained adoption, so the absence of a longitudinal unaided-performance measure does not constitute a capture risk here."
+    },
+    {
+      "pattern_id": "exit.institutional_dependence",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The materials run on a local LAN with no internet access during the session and no cloud service or third-party vendor is implicated. The participant's post-session life is not bound to any institution or platform by having taken part; the pattern does not apply."
+    },
+    {
+      "pattern_id": "legibility.opaque_ranking",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The system does not present ranked or filtered lists of options; each injection surfaces a single alternative, not an ordered set. Since there is no list ordering for the participant to misread as meaningful, the specific harm this pattern names does not arise."
+    },
+    {
+      "pattern_id": "legibility.no_failure_signal",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The 'correctness' frame does not apply naturally here: injected alternatives are deliberately provocative, not purporting to be right answers. The participant's rejection is itself the signal, and the observer log plus think-aloud capture provide multiple surfaces for detecting inappropriate injections."
+    },
+    {
+      "pattern_id": "legibility.no_rationale_at_point_of_action",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "Under the task framing, confusion would plausibly concentrate around authorship — specifically, whether the alternative represents a machine suggestion, a human collaborator's suggestion, or something else — and this attribution would in turn shape the rejection reason."
+      },
+      "rationale": "At the moment the participant must accept or reject, no inline surface explains where the alternative came from, why this particular candidate appeared, or on what basis. The walkthrough explicitly identifies this authorship opacity as shaping rejection reasons; a 'why this suggestion' affordance at point of action would materially change the decision and is absent."
+    },
+    {
+      "pattern_id": "legibility.unverifiable_summary",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The system does not produce a synthesis, summary, or distillation presented as ground truth. Injected alternatives are single-line poetic candidates, not condensed representations of source material the participant needs to verify. The pattern does not apply to this probe's output type."
+    }
+  ],
+  "axis_scores": {
+    "capacity": -1,
+    "agency": -2,
+    "exit": -1,
+    "legibility": -1
+  },
+  "verdict": "REVISION_REQUIRED",
+  "verdict_rationale": "No finding reaches -2, so BLOCKED is not triggered. Four findings fire at -1: capacity.no_fade_mechanism (escalation via INJECT_DENSITY_INCREASE with no taper), agency.hides_options_before_review (single injected alternative with the four-category bank invisible to the participant), agency.weak_override (asymmetric 5-word annotation cost on rejection versus one-click accept), exit.data_lock_in (no export path for the poet's own draft), and legibility.no_rationale_at_point_of_action (authorship and basis of injections opaque at the moment of decision). Two or more -1 findings place the branch in REVISION_REQUIRED; agency is the most concentrated site of concern.",
+  "provenance": {
+    "audit": "AGENT_INFERENCE"
+  }
+}

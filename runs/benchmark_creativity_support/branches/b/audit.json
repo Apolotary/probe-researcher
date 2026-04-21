@@ -1,0 +1,175 @@
+{
+  "stage": "6_audit",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "b",
+  "findings": [
+    {
+      "pattern_id": "capacity.substitutes_for_practice",
+      "axis": "capacity",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Participant types the first 3–5 words of line 1 into the drafting interface, stopping before the line is complete, then presses Tab to signal they are ready for suggestions... presents three numbered candidate line endings in a panel to the right of the draft area. Each candidate is displayed in a fixed-width font with stress marks pre-annotated"
+      },
+      "rationale": "The wizard performs the skilled metrical and rhyming work — constructing scansion-compliant line endings with pre-annotated stress marks — at precisely the step where that prosodic reasoning is the creative act of formalist poetry. The participant types a stem and receives completed, metrically annotated candidates. However, the within-subjects design explicitly includes solo and rhyming-dictionary conditions in which participants must perform the skill unaided, which partially mitigates substitution by making unaided competence a measured comparison rather than a bypassed step."
+    },
+    {
+      "pattern_id": "capacity.no_fade_mechanism",
+      "axis": "capacity",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "This accept/edit/override cycle repeats for all 14 lines."
+      },
+      "rationale": "Within the co-writer condition, assistance is provided at a constant level across all 14 lines, with no mechanism for the participant to reduce suggestion intensity, turn off specific registers, or move to a 'training wheels off' mode as the poem progresses. The wizard_controls describe always-available injection on every Tab press without conditional gating on participant confidence, skill demonstration, or elapsed time. For a 120-minute session this is a minor drift rather than deep capture, but the uniform assistance level misses the opportunity to study graduated reliance."
+    },
+    {
+      "pattern_id": "capacity.creates_dependency_loop",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "The study is a single-session within-subjects evaluation, not a longitudinal adoption study, so there is no mechanism by which successive uses could build reliance over time. Observable signals do not measure tool-invocation growth as a success metric; they measure accept/edit/override rates and compare conditions. The design does not create a feedback loop where each use increases reliance on subsequent uses within or across sessions."
+    },
+    {
+      "pattern_id": "capacity.no_rehearsal_space",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "10–15 min: Facilitator demonstrates the drafting interface using a neutral warm-up prompt (write two lines of iambic pentameter about weather) in whichever condition is first in the participant's counterbalanced order; wizard provides one practice round of suggestions but participant is told this is a system test."
+      },
+      "rationale": "The session_structure does include an explicit low-stakes warm-up phase with a neutral prompt and a practice round of suggestions before the measured drafting begins. The rehearsal is brief and only covers the first condition per the counterbalanced order (which the walkthrough flags as asymmetric), but a rehearsal space is present in the design rather than absent, so the pattern's fire condition — absence of any low-stakes practice — is not met."
+    },
+    {
+      "pattern_id": "agency.auto_decides_consequential_step",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "No step in the task flow commits to an external or consequential action without participant authorization. The system presents candidates; the participant explicitly clicks 'Use this', edits, or overrides. Submission is participant-triggered via 'Submit Draft'. No publication, routing to third parties, or consequential automated commitment occurs — the wizard's outputs are advisory and the participant retains execution authority at every commitment point."
+    },
+    {
+      "pattern_id": "agency.hides_options_before_review",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "presents three numbered candidate line endings in a panel to the right of the draft area... candidate 1 must use plain Anglo-Saxon vocabulary, candidate 2 must use Latinate or elevated vocabulary, candidate 3 must be semantically unexpected but metrically valid"
+      },
+      "rationale": "The interface always presents three alternatives spanning a deliberately designed register spread (plain/elevated/unexpected) plus a visible free-text override box, so the space of alternatives is exposed rather than collapsed to a single recommendation. The pattern does not fire. The walkthrough notes register labels are not visible to participants, which is a legibility concern rather than an option-hiding concern since the alternatives themselves are fully shown."
+    },
+    {
+      "pattern_id": "agency.weak_override",
+      "axis": "agency",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "When a participant overrides, the panel stays visible for five seconds with grayed-out candidates before collapsing. A participant might reasonably experience this as mild judgmental presence — the rejected candidates lingering in peripheral vision while they type their own ending — and this lingering could plausibly suppress override behavior"
+      },
+      "rationale": "The override path is nominally available (free-text box always visible) but the five-second lingering grayed-out panel after override introduces asymmetric friction compared to the one-click 'Use this' accept path. The walkthrough identifies this as a design choice that could suppress override behavior through mild social-presence pressure, and since override rate is a primary observable signal, this weak-override asymmetry directly confounds interpretation of participant agency. The effect is drift rather than capture because the override remains functionally possible and is a tracked signal."
+    },
+    {
+      "pattern_id": "agency.paternalistic_default",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "The participant population is working poets with MFA training and demonstrated formalist competence, screened via a prosody quiz. This is not a population historically subject to paternalistic design, and the intervention does not impose protective or assistive defaults framed around a stigmatized identity. The opt-in structure (voluntary Tab press to invoke suggestions) is the opposite of paternalistic auto-assistance."
+    },
+    {
+      "pattern_id": "exit.data_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "saves the full poem text and all log events to a local JSON file named by participant ID, condition, and timestamp (e.g., P03_cond1_cowriter_20250110T143022.json)"
+      },
+      "rationale": "Artifacts are stored as local JSON files on lab hardware in an open, documented format that preserves the full poem text and structured log events. JSON is a portable, non-proprietary format, and the naming convention is transparent. Participants' poems are trivially extractable as plain text from these files. No vendor-proprietary schema or service binding is described."
+    },
+    {
+      "pattern_id": "exit.workflow_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The study is a single 120-minute lab session with individual participants; there is no team, editorial workflow, or institutional process being restructured. Poets compose privately at a desk. No task_flow step creates dependencies on other actors adopting the same tool for the participant to continue working, and the intervention does not propagate into the participant's home writing practice during the study itself."
+    },
+    {
+      "pattern_id": "exit.competence_decay_on_exit",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Participant drafts a 14-line Shakespearean sonnet under Condition 1 (co-writer, solo, or rhyming-dictionary, per Latin-square assignment)"
+      },
+      "rationale": "The within-subjects design explicitly includes a solo drafting condition where each participant composes an unaided sonnet, which directly measures unaided performance as part of the primary comparison. Additionally, the study is a single session with no longitudinal adoption, so sustained-use competence decay is not at issue. The risk the pattern names — no measurement of unaided skill — is actively addressed by the solo condition."
+    },
+    {
+      "pattern_id": "exit.institutional_dependence",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "server must run on a dedicated lab router to avoid dependency on external internet; source code and setup instructions must be included in the study materials folder"
+      },
+      "rationale": "The infrastructure is explicitly designed to avoid external vendor dependency: a local WebSocket server on a lab router, locally running CMU Pronouncing Dictionary API, open-source Python libraries. The only external dependency is the RhymeZone iframe in the control condition, which is a comparison baseline rather than a core adoption path. Participants are not being onboarded to a vendor platform whose terms could change on them."
+    },
+    {
+      "pattern_id": "legibility.opaque_ranking",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "the interface does not label the registers to the participant — the register tags live only in the wizard's dispatch payload. A participant who happens to perceive and articulate the register dimension would be doing so via their own aesthetic sensibility, while a participant who does not perceive it would be treating the three candidates as an unstructured menu."
+      },
+      "rationale": "The three candidates are ordered/structured along a deliberate plain/elevated/unexpected register dimension that carries the study's theoretical weight, but this basis of selection is invisible to the participant at the point of choice. Numbered positions 1-2-3 without register labels present the candidates as an unstructured menu rather than as principled alternatives, which both confounds the study's own construct (unexpected candidate selection) and denies participants the rationale they need to choose among options understanding what they are choosing between."
+    },
+    {
+      "pattern_id": "legibility.no_failure_signal",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Adds a thin red underline beneath the metrically irregular line in the draft area and displays a tooltip on hover reading 'This line may not scan to iambic pentameter — check stress pattern.'"
+      },
+      "rationale": "The design explicitly surfaces metrical failures via the flag_meter_break control, which visibly annotates lines that fail to scan and thereby provides an in-flow signal when something has gone wrong prosodically. Additionally, stress annotations under each candidate make compliance inspectable at the point of decision. The log_wizard_error control and prosody audit flag further capture system errors. This constitutes scaffold, not capture — but the asymmetry that wizard-caused errors are flagged to PI while participant-override scansion errors are deliberately not flagged to the participant is noted in task_flow step 2 as a study-design choice, not a failure silence, so the pattern does not fire overall."
+    },
+    {
+      "pattern_id": "legibility.no_rationale_at_point_of_action",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Each candidate is displayed in a fixed-width font with stress marks pre-annotated (e.g., 'u / u / u / u / u /') beneath the text to make metrical compliance visible. A 'Use this' button appears beside each candidate"
+      },
+      "rationale": "Stress annotations provide partial rationale for metrical compliance — a genuine scaffold for the prosodic dimension of each choice. However, at the point where the participant clicks 'Use this,' no inline mechanism surfaces why each candidate was offered, what semantic or imagistic consideration justified it relative to the developing poem, or what register each represents. The register labels exist in the wizard payload but are not displayed. The rationale is partial: metrical compliance is visible, but diction and semantic reasoning are opaque until commitment."
+    },
+    {
+      "pattern_id": "legibility.unverifiable_summary",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The system does not produce summaries, syntheses, or extractive outputs claiming to represent underlying sources. It produces generative candidate line endings, which are creative proposals rather than distillations of a source corpus the participant would need to verify against. The 'trust me summary' failure mode this pattern targets — e.g., a generated abstract of a clinical record — is not present in a creative writing suggestion interface."
+    }
+  ],
+  "axis_scores": {
+    "capacity": -2,
+    "agency": -1,
+    "exit": 0,
+    "legibility": -2
+  },
+  "verdict": "REVISION_REQUIRED",
+  "verdict_rationale": "No finding scores -2, so the BLOCKED threshold is not reached. However, four findings score -1: capacity.substitutes_for_practice (wizard performs the skilled prosodic act that is the object of study), capacity.no_fade_mechanism (uniform assistance across all 14 lines with no graduated reliance mechanism), agency.weak_override (five-second grayed-panel lingering introduces asymmetric friction that the walkthrough explicitly flags as potentially suppressing override behavior, confounding a primary observable signal), legibility.opaque_ranking (the plain/elevated/unexpected register structure carrying the study's theoretical weight is invisible to participants), and legibility.no_rationale_at_point_of_action (diction and semantic rationale for each candidate is not surfaced before commitment). Five -1 findings substantially exceed the two-finding threshold for REVISION_REQUIRED. The revisions most worth considering: exposing register labels to participants, collapsing the override panel immediately, and considering a graduated-assistance or fade mechanism within the co-writer condition.",
+  "provenance": {
+    "audit": "AGENT_INFERENCE"
+  }
+}

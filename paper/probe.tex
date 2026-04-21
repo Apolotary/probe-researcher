@@ -1,0 +1,53 @@
+% arXiv paper — Probe: rehearsal-stage triage for screen-based interactive research.
+%
+% Build with: pdflatex probe.tex (requires LaTeX). Pandoc fallback available
+% in scripts/render_paper.ts that produces a PDF via HTML using the same
+% section files under paper/sections/.
+
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{authblk}
+\usepackage[round,sort]{natbib}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  xleftmargin=1em,
+  xrightmargin=1em,
+}
+
+\title{Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research}
+\author[1]{Bektur Ryskeldiev}
+\affil[1]{Independent Research / Built at the Cerebral Valley Opus 4.7 Hackathon, April 2026}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/system}
+\input{sections/demo_case_study}
+\input{sections/evaluation}
+\input{sections/discussion}
+\input{sections/limitations}
+\input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

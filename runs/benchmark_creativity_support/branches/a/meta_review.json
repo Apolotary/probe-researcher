@@ -1,0 +1,28 @@
+{
+  "stage": "7d_meta",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "a",
+  "reviewers_read": [
+    "methodologist",
+    "accessibility_advocate"
+  ],
+  "disagreement_matrix": [
+    {
+      "reviewer": "methodologist",
+      "recommendation": "major_revision",
+      "decisive_weakness": "The WoZ architecture does not operationalize the claimed mechanism. The corpus-divergence condition requires the wizard to perform a 1.5-second semantic-cluster lookup plus phonological filter that the walkthrough itself flags as infeasible, while the thesaurus condition is a simple lookup. Measured divergence differences will reflect wizard cognition, fatigue, and fallback behavior rather than corpus-personalization. Compounded by a 2x2 Latin-square counterbalance that cannot separate carryover from condition in a within-subjects design, and by two conditions that differ on three orthogonal dimensions (source corpus, selection criterion, semantic relationship) so 'corpus-personalization' is unidentifiable from the other manipulations."
+    },
+    {
+      "reviewer": "accessibility_advocate",
+      "recommendation": "minor_revision",
+      "decisive_weakness": "No decisive weakness within the accessibility-advocate remit: disability is not the study's axis. Flags three concrete issues that do fall within remit: (1) instruments (paper Likert at 14pt, mouse-only chip panel, VNC-mirrored screen) presume sighted, mouse-using, handwriting-capable participants though the inclusion criterion does not; (2) consent form does not document retention, destruction, derivative-statistic publication, or withdrawal procedure for a named stylistic corpus in a political moment where poets have charged relationships to corpus ingestion; (3) participant compensation is unspecified despite the study extracting both expert consultation and a licensed corpus."
+    }
+  ],
+  "disagreement_classification": "spurious_surface_disagreement",
+  "verdict": "accept_revise",
+  "verdict_rationale": "The reviewers address non-overlapping aspects of the proposal and do not contradict each other. The methodologist flags blocking internal-validity failures (wizard feasibility, condition confounding, carryover) and recommends major_revision. The accessibility advocate explicitly disclaims decisive weakness within her remit and raises three bounded instrument/consent/compensation issues, recommending minor_revision. Taken together, the methodologist's concerns dominate and both reviewers' revision requests are compatible and additive: redesign the conditions and counterbalance per methodologist, and extend instruments/consent/compensation per accessibility advocate. Per the verdict rule, one reviewer at major_revision and one at minor_revision with no active contradiction resolves to accept_revise with substantial required changes — but note that the methodologist's 'blocking'-severity criticisms mean the revision is non-trivial and the claim may need to be narrowed if the feasibility pilot fails.",
+  "provenance": {
+    "meta": "AGENT_INFERENCE"
+  }
+}

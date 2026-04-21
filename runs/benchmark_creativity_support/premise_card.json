@@ -1,0 +1,29 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "raw_premise": "design a study to evaluate a creativity-support tool that gives poets alternative line endings during drafting",
+  "sharpest_question": "What is the theory of what a 'good' line ending is, and whose judgment — the poet's, a reader's, a trained critic's — constitutes the outcome you are measuring?",
+  "claim": "A suggestion system offering alternative line endings during drafting measurably changes some property of the poem or the poet's process in a way attributable to the tool rather than to generic reflection or delay.",
+  "differentia": "Not visible in the premise. 'Alternative line endings' is a surface feature of the interface; the premise does not specify what cognitive or craft-level operation this is supposed to support (rhyme search? prosodic variation? semantic surprise? escape from cliché?), nor how it differs from a thesaurus, a rhyming dictionary, or generic LLM autocomplete.",
+  "nearest_template": "Shneiderman/Cherry-style Creativity Support Index evaluations of writing-assistant tools, typically a within-subjects comparison of drafting with vs. without AI suggestions, measured via CSI, self-report ownership, and sometimes expert rating of outputs. The Clark et al. 'Creative Writing with a Machine in the Loop' study is the canonical instance.",
+  "missing_evidence": [
+    "No specification of what makes line endings a meaningful unit of intervention in poetry rather than an arbitrary interface choice",
+    "No identified poetic population — MFA students, hobbyists, formalists vs. free-verse writers all have different relationships to line endings",
+    "No outcome construct — craft quality, process experience, ownership, divergence from the poet's default, reader response, all imply different studies",
+    "No control condition specified; 'evaluate' against what baseline (no tool, thesaurus, generic LLM suggestion, human collaborator)",
+    "No account of why line endings specifically, as opposed to any other locus of suggestion",
+    "No stance on whether the tool is meant to be evaluated as useful, as interesting, or as a probe for understanding poetic decision-making"
+  ],
+  "sharpened_options": [
+    "Reframe as a mechanism study: do suggested line endings cause poets to diverge from their habitual lexical and prosodic patterns, measured against a corpus of each poet's prior work, compared to a thesaurus-only control?",
+    "Reframe as a craft-quality study with expert raters: blind comparison of poems drafted with the tool vs. without, rated by working poets on specified craft dimensions, with population restricted to one tradition (e.g., metrical verse) where 'line ending' has load-bearing technical meaning.",
+    "Reframe as an ownership/agency study: the interesting question is not whether output is better but whether poets feel the resulting poem is theirs, and under what suggestion densities that shifts — a parametric study varying how many alternatives are offered.",
+    "Reframe as a probe study, not an evaluation: use the tool as an instrument to elicit and record which alternatives poets reject and why, producing a taxonomy of line-ending decisions rather than a verdict on the tool.",
+    "Reframe as a longitudinal skill study: does repeated drafting with the tool change what poets do at line endings when the tool is removed — scaffolding vs. substitution, measured at pre/post/follow-up."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

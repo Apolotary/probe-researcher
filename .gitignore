@@ -68,3 +68,4 @@ demo/recorded_run/*.mp4
 demo/recorded_run/*.mov
 demo/recorded_run/*.webm
 node_modules/
+.claude/

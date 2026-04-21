@@ -18,6 +18,9 @@ import { exploreCommand } from './explore.js';
 import { auditDeepCommand } from './audit_deep.js';
 import { interviewCommand } from './interview.js';
 import { symposiumCommand } from './symposium.js';
+import { renderCommand } from './render.js';
+import { runsCommand } from './runs.js';
+import { ganttCommand } from './gantt.js';
 
 const program = new Command();
 
@@ -79,6 +82,25 @@ program
   .argument('<run_ids...>', 'two or more run ids of completed Probe runs on adjacent premises')
   .description('Convene N completed Probe runs as a simulated symposium. Produces a disagreement-preserving convener report that maps where the position papers agree, disagree, and share blind spots. Not a synthesis paper — a workshop-planning artifact.')
   .action(symposiumCommand);
+
+program
+  .command('render')
+  .argument('<run_id>', 'run id to render')
+  .description('Render a single-file PDF/HTML/markdown report bundling the guidebook, reviewer panel, audit findings, blocked branches, lint status, and cost log. Auto-detects the best available backend (pandoc+wkhtmltopdf > pandoc HTML > raw markdown).')
+  .option('-f, --format <format>', 'pdf | html | md | auto (default auto)')
+  .option('-o, --output <path>', 'output path (default runs/<id>/PROBE_REPORT.<ext>)')
+  .action(renderCommand);
+
+program
+  .command('runs')
+  .description('List all Probe runs under runs/ with status, cost, duration, and surviving-branch count. Linear-style workflow overview.')
+  .action(runsCommand);
+
+program
+  .command('gantt')
+  .argument('<run_id>', 'run id to visualize')
+  .description('Per-run Gantt-style terminal view of stage durations and costs, grouped by branch. Shows model (Opus/Sonnet), repair-pass count, and where time/$ went.')
+  .action(ganttCommand);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err);

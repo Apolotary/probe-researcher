@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "c",
+  "research_question": "What taxonomy of reasons do poets give, in the moment, for rejecting suggested line endings, and what does the distribution of those reasons reveal about the implicit criteria governing line-ending decisions?",
+  "intervention_primitive": "Elicitation instrument: a drafting environment that surfaces line-ending alternatives on demand and requires the poet to annotate each rejection with a short spoken or typed reason, treating the tool as a structured interview apparatus rather than a productivity aid.",
+  "human_system_relationship": "infrastructural_support",
+  "method_family": "formative",
+  "one_sentence_claim": "Rejection reasons collected at the moment of line-ending choice yield a stable, saturated taxonomy of poetic criteria that is not recoverable from post-hoc interviews or from accept-only telemetry.",
+  "why_divergent": "Differs from branch A on method_family (formative taxonomy-building vs generative mechanism study) and on research_question (implicit criteria vs behavioral divergence); differs from branch B on human_system_relationship (infrastructural_support for elicitation vs peer_collaboration) and on intervention_primitive (annotation-forcing probe vs meter-aware co-writer).",
+  "grounding": [
+    {
+      "source_card": "sanders_stappers_2014",
+      "relevance": "methodology_precedent",
+      "quoted_claim": "Probes are framed as instruments for inspiration and dialogue rather than for extracting generalizable user data."
+    },
+    {
+      "source_card": "gaver_dunne_pacenti_1999",
+      "relevance": "methodology_precedent",
+      "quoted_claim": "Cultural probes embrace uncertainty and partial returns rather than seeking comprehensive coverage of user behavior, positioning the artefact as a means of eliciting inspirational fragments from participants."
+    },
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "Domain-specific autonomy comprises skilled competence and authentic value-formation within a domain of expertise, both of which can be eroded by AI decision-support systems that obscure failure indicators or produce unconscious value shifts."
+    },
+    {
+      "source_card": "illich_1973",
+      "relevance": "capture_risk_theory",
+      "quoted_claim": "Tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool, contracting rather than expanding the range of autonomous action available to users."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

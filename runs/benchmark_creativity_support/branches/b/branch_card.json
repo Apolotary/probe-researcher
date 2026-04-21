@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "b",
+  "research_question": "Within metrical verse specifically, do poems drafted with a line-ending co-writer receive higher blind craft ratings from working poets than poems drafted solo or with a rhyming dictionary?",
+  "intervention_primitive": "Turn-taking line-ending co-writer: a drafting surface in which the tool proposes three candidate endings per line that scan to a pre-declared meter and rhyme scheme, with the poet accepting, editing, or overriding each proposal, constrained to formalist tradition.",
+  "human_system_relationship": "peer_collaboration",
+  "method_family": "evaluative",
+  "one_sentence_claim": "Formalist poems drafted with a meter-aware line-ending co-writer receive higher blind craft ratings from working poets than matched poems drafted solo or with a rhyming dictionary.",
+  "why_divergent": "Differs from branch A on method_family (expert-rated evaluative comparison vs generative mechanism study) and on intervention_primitive (meter-constrained peer co-writer vs corpus-indexed divergence probe); differs from branch C on human_system_relationship (peer_collaboration vs infrastructural_support) and on research_question (outcome quality vs taxonomy of rejection).",
+  "grounding": [
+    {
+      "source_card": "jakesch_2023_cowriting",
+      "relevance": "prior_finding",
+      "quoted_claim": "Co-writing with an AI writing assistant changed the opinion content of participants' written posts in the direction of the model's configured stance, demonstrating that AI co-writing tools exert measurable influence on textual output."
+    },
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "capture_risk_theory",
+      "quoted_claim": "AI decision-support can erode domain-specific autonomy — comprising skilled competence and authentic value-formation — through mechanisms such as unconscious value shifts, raising design concerns relevant to creative co-writing tools."
+    },
+    {
+      "source_card": "illich_1973",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "Tools past a certain threshold of scale and complexity can reverse from serving human purposes to conditioning humans to serve the tool, a risk applicable to meter-prescriptive co-writing systems that constrain poetic choice."
+    },
+    {
+      "source_card": "liang_nejm_ai_2024",
+      "relevance": "methodology_precedent",
+      "quoted_claim": "The authors combine retrospective corpus analysis with a prospective user study to evaluate AI-generated outputs against expert human judgments, providing a methodological template for blind expert rating of AI-assisted creative work."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "stage": "7d_meta",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "branch_id": "c",
+  "reviewers_read": [
+    "methodologist",
+    "accessibility_advocate"
+  ],
+  "disagreement_matrix": [
+    {
+      "reviewer": "methodologist",
+      "recommendation": "major_revision",
+      "decisive_weakness": "The central claim that moment-of-decision annotation yields a taxonomy not recoverable from other formats is structurally unfalsifiable because the annotation mechanic suppresses the think-aloud channel that would serve as the comparator; additionally, wizard adaptive injection creates a closed loop that confounds the chi-square test the claim relies on."
+    },
+    {
+      "reviewer": "accessibility_advocate",
+      "recommendation": "major_revision",
+      "decisive_weakness": "The coercive 5-word interface lock, the gatekept MFA/publication recruitment frame, the undisclosed wizard observation, and the absence of accessible consent/AAC/signed-response pathways make the study exclusionary of disabled poets and extractive toward participants, with taxonomy co-design excluded from the very population whose criteria are being catalogued."
+    }
+  ],
+  "disagreement_classification": "legitimate_methodological_split",
+  "verdict": "human_judgment_required",
+  "verdict_rationale": "Both reviewers issue major_revision overall, but each raises distinct blocking-severity criticisms that the other does not address and whose remedies are partially incompatible. The methodologist's blocker (the comparator corpus cannot exist because annotation suppresses think-aloud) pushes toward a between-subjects redesign or dropping the comparative claim. The accessibility advocate's blockers (coercive interface lock without disability-aware opt-out; deferred consent disclosure of wizard and compensation) push toward softening the mechanic, broadening recruitment beyond institutional gatekeeping, and restructuring consent and co-design. Resolving the methodologist's blocker by adding between-subjects arms does not fix the exclusionary recruitment, the coercive lock, or the consent defects; resolving the accessibility advocate's blockers by removing the lock and broadening recruitment does not address the comparator-corpus problem or the wizard-injection confound, and in fact a soft/skip-able annotation further weakens the comparator data the methodologist requires. The tradeoff between analytic rigor (forced articulation, institutionally-anchored sample, adaptive stimulus control) and accessibility/ethics (opt-out, inclusive recruitment, co-designed taxonomy) is a design-level value judgment, not an agent-delegable reconciliation.",
+  "provenance": {
+    "meta": "AGENT_INFERENCE"
+  }
+}
