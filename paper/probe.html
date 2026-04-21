@@ -339,30 +339,29 @@ Interactive Research</h1>
 <p class="date">2026-04-22</p>
 <div class="abstract">
 <div class="abstract-title">Abstract</div>
-<p>Research on screen-based interactive systems takes months to stand
-up. Recruitment, pilot sessions, IRB, and the first three rounds of peer
-review each expose design flaws the authors could have caught earlier.
-We describe <strong>Probe</strong>, a command-line tool that runs a
-rough HCI research premise through an eight-stage pipeline of Claude
-Opus 4.7 and Sonnet 4.6 agents: premise interrogation, divergent
+<p>Screen-based HCI studies take months to stand up. Recruitment, IRB,
+and reviewer round one each expose design flaws the authors could have
+caught in an afternoon. We describe <strong>Probe</strong>, a
+command-line tool that runs a rough premise through eight stages of
+Claude Opus 4.7 and Sonnet 4.6 agents: premise interrogation, divergent
 ideation, literature grounding, Wizard-of-Oz specification, simulated
 walkthrough, capture-risk audit, adversarial review, and guidebook
 assembly. Each branch runs in a real git worktree; each stage’s output
 validates against a JSON schema with one repair pass; every paragraph of
 the final guidebook carries a provenance tag that a markdown-AST linter
 enforces. A Managed Agents extension lets a reviewer agent run bash and
-grep against the branch artifacts to produce measurements a
-single-prompt audit cannot. On one demo premise, the adversarial
-methodologist caught an announcement-duration confound the authors
-missed; on an ablation trial, Sonnet 4.6 caught the same confound for
-2.4 less cost but recommended reject where Opus recommended major
-revision. A planted fake citation did not produce a fabricated
-<code>[SOURCE_CARD]</code> tag. The tool refuses to cross the
-rehearsal-to-evidence boundary through a combination of required
-provenance tags, a forbidden-phrase linter, and a dedicated
-<code>[HUMAN_REQUIRED]</code> next-step block. Probe is not a
-replacement for user research. It is a triage layer between a rough
-premise and a study that a researcher can actually defend.</p>
+grep against the branch artifacts — on the demo run, twenty-one tool
+calls measured the announcement-duration delta between the study’s AI
+and human stimulus strings at 3.67 seconds, a figure the shallow audit
+had described only as “substantially longer.” The adversarial
+methodologist caught the same duration confound without tools, and on an
+ablation trial Sonnet 4.6 caught it too for 2.4 less cost but
+recommended reject where Opus recommended major revision. A planted fake
+citation did not produce a fabricated <code>[SOURCE_CARD]</code> tag;
+the assembler wrapped the reference in <code>[HUMAN_REQUIRED]</code>
+with explicit verification instructions. Probe sits between a rough
+premise and the study a researcher is about to spend six months building
+— rehearsal stage, never performance.</p>
 </div>
 </header>
 <h1 id="introduction">Introduction</h1>
@@ -388,9 +387,10 @@ tagged-as-rehearsal paragraph that uses evidence language. A second
 command spawns a Managed Agents session in which a reviewer agent runs
 bash and grep against the spec and measures the announcement-duration
 difference the shallow audit could only approximate.</p>
-<p>The tool is called <strong>Probe</strong>. It does not replace user
-research. It sits between the blank document and the study the
-researcher is about to spend six months building.</p>
+<p>The tool is called <strong>Probe</strong>. It sits between the blank
+document and the study the researcher is about to spend six months
+building. Probe does not run a study; it rehearses the plan the study
+would test.</p>
 <h2 id="the-claim">The claim</h2>
 <p>Probe’s claim is narrow. A senior colleague reading a rough premise
 will, in the first thirty seconds, ask three or four sharp questions,
@@ -406,12 +406,11 @@ disagreement to consensus <span class="citation"
 data-cites="illich1973conviviality buijsman2025autonomy">(Illich 1973;
 Buijsman, Carter, and Bermúdez 2025)</span>.</p>
 <p>None of this produces evidence about users. The point is for it not
-to. Probe’s enforcement mechanism is a single markdown linter that fails
-the build on any unlabeled paragraph, any forbidden phrase outside
-quoted context, any paragraph tagged <code>[SIMULATION_REHEARSAL]</code>
-that uses evidence language, and any heading that names findings. The
-linter is the ethical core of the system, and it runs as a test gate
-before the guidebook is allowed to leave the run directory.</p>
+to. A single markdown linter fails the build on any unlabeled paragraph,
+any forbidden phrase outside quoted context, any paragraph tagged
+<code>[SIMULATION_REHEARSAL]</code> that uses evidence language, and any
+heading that names findings. A guidebook that does not pass this lint
+never leaves the run directory.</p>
 <h2 id="contributions">Contributions</h2>
 <p>This paper’s contributions are:</p>
 <ol>
@@ -1404,17 +1403,15 @@ from evidence. Every paragraph that could be mistaken for a finding
 carries a tag that says otherwise; the linter rejects the build when a
 <code>[SIMULATION_REHEARSAL]</code>-tagged paragraph uses evidence
 language; a <code>[HUMAN_REQUIRED]</code> block at the end of every
-guidebook forces the handoff to be explicit. The commitment is
-structural, not ornamental: a run that violates it fails the lint and
-does not ship.</p>
-<p>What Probe does not claim to be is an autonomous scientist. It
-refuses the framing. A researcher who uses the tool is working with a
-skeptical colleague who can produce a passable first draft of a study
-design in half an hour. That draft is not the study. The study still
-needs human judgment about which reviewer’s objection to prioritize,
-whether a blocking pattern fired correctly or mis-matched a
-manipulation-under-test, and whether the simulated walkthrough’s
-friction points generalize to real participants.</p>
+guidebook forces the handoff to be explicit. A run that violates any of
+this fails the lint and does not ship.</p>
+<p>A researcher who uses Probe is working with a skeptical colleague who
+can produce a passable first draft of a study design in half an hour.
+That draft is not the study. The study still needs human judgment about
+which reviewer’s objection to prioritize, whether a blocking pattern
+fired correctly or mis-matched a manipulation-under-test, and whether
+the simulated walkthrough’s friction points generalize to real
+participants.</p>
 <p>The ablation result the paper reports against its own initial claim
 is the illustrative moment. We had expected Opus 4.7 to uniquely catch
 the confound that the Sonnet 4.6 comparison revealed both models could
