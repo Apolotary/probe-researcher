@@ -1,0 +1,23 @@
+{
+  "run_id": "smoke_test_01",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2"
+    },
+    {
+      "branchId": "b",
+      "status": "in_progress"
+    },
+    {
+      "branchId": "c",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2"
+    }
+  ]
+}

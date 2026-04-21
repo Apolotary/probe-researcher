@@ -1,0 +1,24 @@
+* 752cfe5 stage-7d [branch-b]: meta-review human_judgment_required (legitimate_methodological_split)
+* 122ed32 stage-7c [branch-b]: novelty hawk major_revision
+* 14c0b01 stage-7b [branch-b]: accessibility advocate major_revision
+* b41266c stage-7a [branch-b]: methodologist major_revision
+* 9b5a61c stage-6 [branch-b]: capture-risk audit verdict REVISION_REQUIRED
+* d3fb6d2 stage-6 [branch-b]: capture-risk audit verdict REVISION_REQUIRED
+* 0edd4ea stage-5 [branch-b]: simulated walkthrough (Mode A)
+* 8f00fb8 stage-4 [branch-b]: prototype spec with 5 task-flow steps
+* a2524ad stage-3 [branch-b]: literature grounded to 4 source cards
+| * ca949d4 stage-6 [branch-c]: capture-risk audit verdict BLOCKED
+| * f705310 stage-6 [branch-c]: capture-risk audit verdict BLOCKED
+| * 3639e64 stage-5 [branch-c]: simulated walkthrough (Mode A)
+| * ea4b8a9 stage-4 [branch-c]: prototype spec with 5 task-flow steps
+| * 8eb6b29 stage-3 [branch-c]: literature grounded to 4 source cards
+|/  
+| * 66d3b8e stage-6 [branch-a]: capture-risk audit verdict BLOCKED
+| * d518032 stage-5 [branch-a]: simulated walkthrough (Mode A)
+| * e0567b9 stage-4 [branch-a]: prototype spec with 5 task-flow steps
+| * d335ede stage-3 [branch-a]: literature grounded to 4 source cards
+|/  
+* 7d1cf8c scaffold: CLI, orchestrator, linters — provenance linter working end-to-end
+* 3b4ed64 scaffold: agent prompts for stages 1-2 + demo storyboard + HHD fallback
+* 087dc8a scaffold: schemas, corpus, patterns — stage boundaries defined
+* e65a09a scaffold: project foundation — CLAUDE.md, README, license, package config

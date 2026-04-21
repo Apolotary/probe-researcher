@@ -1,0 +1,34 @@
+{
+  "stage": "7d_meta",
+  "schema_version": "1.0.0",
+  "run_id": "smoke_test_01",
+  "branch_id": "b",
+  "reviewers_read": [
+    "methodologist",
+    "accessibility_advocate",
+    "novelty_hawk"
+  ],
+  "disagreement_matrix": [
+    {
+      "reviewer": "methodologist",
+      "recommendation": "major_revision",
+      "decisive_weakness": "Announcement-duration confound (AI disclosure is 18 words/~6s, human framing is 5 words/~2s) mechanically contaminates every time-bounded behavioral DV; combined with n=8 inadequate for Friedman/Wilcoxon hypothesis testing and unreliable wizard-gated late-injection timing, the design cannot support its quantitative claims."
+    },
+    {
+      "reviewer": "accessibility_advocate",
+      "recommendation": "major_revision",
+      "decisive_weakness": "BLV users are recruited as subjects but not as co-designers; the disclosure phrasing, placement, and the premise that an ARIA-live banner is the right intervention were all decided by sighted researchers before any BLV consultation, reproducing the extractive pattern the research gestures at critiquing."
+    },
+    {
+      "reviewer": "novelty_hawk",
+      "recommendation": "major_revision",
+      "decisive_weakness": "The proposal replicates the AI-disclosure-effects paradigm (Jakesch, Longoni, Sundar's MAIN model, etc.) in a new population without citing that literature or stating a differential prediction; 'measurable ways' is not a falsifiable novelty claim, and ARIA-live timing research is also uncited."
+    }
+  ],
+  "disagreement_classification": "legitimate_methodological_split",
+  "verdict": "human_judgment_required",
+  "verdict_rationale": "All three reviewers converge on 'major_revision,' but their decisive weaknesses are non-overlapping and in tension on what the project IS. The methodologist treats the study as a quantitative disclosure-effects experiment and demands confound control, power, and manipulation fidelity — fixes that would push toward a larger, more controlled between-subjects study. The accessibility advocate rejects the premise that sighted-researcher-designed stimuli can validly be evaluated at all and demands an upstream co-design phase that may change or eliminate the intervention before any evaluation runs. The novelty hawk says the study's contribution is undefined relative to a large prior literature the proposal does not cite, and that the BLV population swap alone is not a differential prediction. These are not reducible to one another: fixing the confound does not supply a differential prediction; co-designing the artifact with BLV users may invalidate the stimulus set the methodologist wants length-matched; establishing novelty against Jakesch/Sundar does not address whether the intervention is wanted by the target population. The design decision — whether this is a confound-controlled replication in a new population, a participatory co-design study, or a theoretically differentiated extension — is a scoping choice for a human, not a synthesis an agent should make.",
+  "provenance": {
+    "meta": "AGENT_INFERENCE"
+  }
+}

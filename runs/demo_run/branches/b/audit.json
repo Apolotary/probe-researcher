@@ -1,0 +1,151 @@
+{
+  "stage": "6_audit",
+  "schema_version": "1.0.0",
+  "run_id": "smoke_test_01",
+  "branch_id": "b",
+  "findings": [
+    {
+      "pattern_id": "capacity.substitutes_for_practice",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "The intervention under study is an ARIA-live disclosure banner that announces authorship provenance; it does not perform a cognitive task on the participant's behalf. Participants navigate and evaluate credibility themselves. The banner is an information surface, not a skill substitute, so this pattern does not apply to the study design."
+    },
+    {
+      "pattern_id": "capacity.no_fade_mechanism",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "This is a within-session evaluation of a disclosure artifact, not a longitudinal tool-adoption study where fade mechanisms would be relevant. The banner is a one-shot announcement per trial rather than ongoing assistance, so the concept of graduated reduction of reliance does not map onto the intervention's timescale or function."
+    },
+    {
+      "pattern_id": "capacity.creates_dependency_loop",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "The observable signals measure credibility judgment, navigation behavior, and verbal acknowledgment, not frequency of tool invocation or growing reliance. The banner is not a tool the participant invokes; it is an announcement fired by the wizard. No success metric in the analysis plan rewards repeated use, so the dependency-loop heuristic does not fire."
+    },
+    {
+      "pattern_id": "capacity.no_rehearsal_space",
+      "axis": "capacity",
+      "fired": true,
+      "score": 1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "10–20 min: facilitator gives a warm-up task (navigating a neutral practice article unrelated to the study) to acclimate participant to the think-aloud protocol and confirm screen-share is working for the wizard."
+      },
+      "rationale": "The session structure explicitly builds in a low-stakes warm-up phase with a neutral practice article before experimental trials begin. This gives participants space to rehearse the think-aloud protocol and navigation patterns without trial data being collected, which scaffolds participant comfort rather than coupling all interaction to high-stakes measured tasks."
+    },
+    {
+      "pattern_id": "agency.auto_decides_consequential_step",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "No system step commits to an external consequential action on the participant's behalf. The wizard controls inject disclosure text but do not purchase, publish, or route anything externally. Credibility ratings are submitted only by explicit participant action on a radio-button form. The intervention does not exercise decision authority over outcomes affecting the participant or third parties."
+    },
+    {
+      "pattern_id": "agency.hides_options_before_review",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "The study does not present a recommender or generator that selects among alternatives. Disclosure banners convey a single factual claim about authorship, which is the experimental stimulus rather than a recommendation. There is no space of alternatives being concealed because the banner is not selecting from options; it is delivering a conditionally-assigned stimulus."
+    },
+    {
+      "pattern_id": "agency.weak_override",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "There is no system decision for the participant to override. The disclosure banner is a stimulus, not a recommendation awaiting acceptance or rejection. The participant's credibility judgment is itself the dependent variable and is rendered freely on a 7-point scale with no system-proposed default to accept or contest, so override mechanics do not apply."
+    },
+    {
+      "pattern_id": "agency.paternalistic_default",
+      "axis": "agency",
+      "fired": true,
+      "score": 1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "A blind or low-vision adult who uses a screen reader as their primary means of web access, recruited from a disability-led community organization; must have at least 6 months of daily screen-reader use."
+      },
+      "rationale": "The population includes a group historically subject to paternalistic design. However, the spec recruits through a disability-led organization and requires participants to use their own personal device and preferred screen reader with their existing configurations, rather than imposing researcher-chosen assistive defaults. The study examines whether disclosures help BLV users without forcing additional assistance, which treats participants as expert users of their own tooling."
+    },
+    {
+      "pattern_id": "exit.data_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "Participants are not producing personal artifacts they would need to export. The data generated is research data (ratings, logs) stored in researcher-controlled JSONL and spreadsheet formats for analysis. Because participants are not authoring content they own, there is no artifact-portability question for them. Data lock-in as defined targets user content, which does not exist in this study."
+    },
+    {
+      "pattern_id": "exit.workflow_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The intervention is a single-session evaluation conducted on the participant's own device with their own screen reader; it does not restructure ongoing workflows, require other actors to adopt the same tool, or create team-level process dependencies. Participants return to their normal browsing environment after the 75-minute session with no surrounding workflow changes implicated."
+    },
+    {
+      "pattern_id": "exit.competence_decay_on_exit",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The study is a single 75-minute session, not sustained adoption of a tool that could erode unaided skill over time. Participants are not using the disclosure banner as an ongoing assistive prosthesis that would replace some underlying capacity. Competence decay requires prolonged use, which is structurally outside the scope of this evaluation design."
+    },
+    {
+      "pattern_id": "exit.institutional_dependence",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The prototype runs on localhost via a Node.js server; participants' ongoing web access does not depend on any vendor or institution created by the study. ngrok and Zoom are researcher-side infrastructure used during the session only. After the session, participants retain their existing browser, screen reader, and independent web access with no new platform dependency installed."
+    },
+    {
+      "pattern_id": "legibility.opaque_ranking",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The system does not rank or filter any options presented to the participant. The three article variants are presented one at a time under Latin-square assignment, not as a ranked list. The disclosure banner itself delivers a single text string, not an ordered selection. No ranking surface exists in the task flow for the pattern to apply to."
+    },
+    {
+      "pattern_id": "legibility.no_failure_signal",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "The think-aloud coding scheme treats verbal acknowledgment of the disclosure as the primary evidence of banner uptake, but a participant who hears the banner and silently updates their credibility judgment without verbalizing it would be coded as category A (no acknowledgment) and thereby appear identical to a participant for whom the banner was suppressed entirely."
+      },
+      "rationale": "When the ARIA-live injection fails silently (mode-suppression, Braille-only output, network drop), the participant has no in-flow signal that a disclosure was intended to reach them. The failure_cases describe wizard-side recovery protocols but provide no surface by which the participant themselves detects that the system attempted and failed to communicate something. Research data becomes contaminated without participant-visible failure indication."
+    },
+    {
+      "pattern_id": "legibility.no_rationale_at_point_of_action",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "the ARIA-live region to announce 'Disclosure: this article was generated by an AI writing assistant and reviewed by a human editor' before the participant reaches the first H2"
+      },
+      "rationale": "The disclosure string itself contains no inline mechanism for the participant to inspect what 'generated by an AI writing assistant' or 'reviewed by a human editor' concretely means at the point of encountering it. Participants must make credibility judgments immediately following the announcement without any affordance to query what model was used, what review entailed, or what source materials underlie the article. The rationale behind the provenance claim is absent at the point where it would shape the participant's judgment."
+    },
+    {
+      "pattern_id": "legibility.unverifiable_summary",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Sets the ARIA-live region textContent to 'Written by a staff journalist.' so that the announcement latency and structural position are identical to the early AI disclosure condition, isolating phrasing as the only variable."
+      },
+      "rationale": "The disclosure banners function as a condensed provenance claim that participants are expected to factor into a trustworthiness judgment, yet there is no task_flow step or affordance allowing participants to trace the claim back to verifiable evidence — no byline link, no model card, no editorial policy page. Participants are asked to update credibility on the basis of an unverifiable authorship summary, which is precisely the 'trust me' output pattern the heuristic targets."
+    }
+  ],
+  "axis_scores": {
+    "capacity": 1,
+    "agency": 1,
+    "exit": 0,
+    "legibility": -3
+  },
+  "verdict": "REVISION_REQUIRED",
+  "verdict_rationale": "No finding scored -2, so BLOCKED is not triggered. However, three legibility findings fire at -1: legibility.no_failure_signal (silent injection failures invisible to participants), legibility.no_rationale_at_point_of_action (disclosure strings lack inline detail for judgment), and legibility.unverifiable_summary (authorship claims unverifiable). Three -1 findings exceed the two-minimum threshold, driving the REVISION_REQUIRED verdict. Revision should add participant-facing failure signaling and an affordance to inspect provenance claims before credibility commitment.",
+  "provenance": {
+    "audit": "AGENT_INFERENCE"
+  }
+}

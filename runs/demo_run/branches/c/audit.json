@@ -1,0 +1,167 @@
+{
+  "stage": "6_audit",
+  "schema_version": "1.0.0",
+  "run_id": "smoke_test_01",
+  "branch_id": "c",
+  "findings": [
+    {
+      "pattern_id": "capacity.substitutes_for_practice",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "The intervention repairs document structure (DOM tags, ARIA labels) rather than performing the navigation skill on the participant's behalf. Screen-reader navigation itself — heading-key scanning, landmark traversal, linear reading — remains entirely the participant's action. The overlay modifies the terrain, not the act of traversing it, so it does not substitute for the skill under study."
+    },
+    {
+      "pattern_id": "capacity.no_fade_mechanism",
+      "axis": "capacity",
+      "fired": true,
+      "score": 1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Wizard activates this control at any point to suppress all automatic overlay mutations for 60 seconds — used when the participant appears to be navigating successfully without overlay assistance"
+      },
+      "rationale": "The repair_hold control provides an explicit mechanism for assistance to recede when the participant is navigating successfully, and Session 1 operates with the overlay disabled entirely as a baseline. This constitutes a scaffold-level positive: assistance is conditionally gated on observed success rather than always-on, so the pattern fires but in the cultivate direction."
+    },
+    {
+      "pattern_id": "capacity.creates_dependency_loop",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "Observable signals do not treat overlay invocation frequency as a success metric. The analysis explicitly computes apparent resolution rates, persistent failures, and overlay-resistant cases, and flags participants whose Session 3 ratings fall below Session 1 as candidates for harm review. Success is framed around resolution of breakdowns, not growth of tool reliance."
+    },
+    {
+      "pattern_id": "capacity.no_rehearsal_space",
+      "axis": "capacity",
+      "fired": true,
+      "score": 1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "30 min baseline navigation tasks on 4 AI-generated articles with repair overlay disabled (wizard observes only)"
+      },
+      "rationale": "Session 1 is an explicit low-stakes unaided baseline in which the participant navigates the same article class without any overlay intervention. This functions as a rehearsal and calibration space for the participant's own unaided skill before overlay-active sessions begin, meeting the pattern in its positive form."
+    },
+    {
+      "pattern_id": "agency.auto_decides_consequential_step",
+      "axis": "agency",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Decide whether landmark nesting anomalies (e.g., a <nav> inside an <article> with no label) should be repaired silently or replaced with an ARIA label announcement — the default is silent repair unless the participant's Session 1 co-design notes indicated they want audible confirmation of repairs."
+      },
+      "rationale": "The wizard silently alters the document the participant is reasoning about, by default without announcement. While the participant is not making external commitments, the structural terrain of the participant's sensemaking task is being modified on their behalf without in-the-moment authorization. The co-design process partially mitigates this after Session 1, but the default-silent posture still places a consequential interpretive decision outside the participant's authority at point of action."
+    },
+    {
+      "pattern_id": "agency.hides_options_before_review",
+      "axis": "agency",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Executes a pre-scripted DOM rewrite that promotes or demotes the affected heading tags to reflect the implied hierarchy, based on the rule set co-designed with the participant. The rewrite is applied to all affected headings simultaneously (batch, not one at a time) so the outline is consistent before the participant navigates through the section."
+      },
+      "rationale": "At the moment of navigation the participant receives only the repaired structure, with no surfaced alternatives — the original hierarchy and the space of plausible repairs are not announced alongside. Review occurs retrospectively in the debrief via a DOM diff, but by then commitment has already been made. This is a drift rather than capture because the co-design loop does eventually expose the repair space, just not before action."
+    },
+    {
+      "pattern_id": "agency.weak_override",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "Override is not structured as participant-initiated, so the usual weak-override frame does not cleanly apply. The participant's channel for rejecting the tool's behavior is the co-design debrief and rule-card template, which is effortful but substantive rather than ceremonial. There is no one-click accept path the participant is being steered through, so the asymmetric-friction structure this pattern targets is absent."
+    },
+    {
+      "pattern_id": "agency.paternalistic_default",
+      "axis": "agency",
+      "fired": true,
+      "score": 1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "20 min co-design discussion — participant annotates problem moments on printed article DOM tree diagrams and proposes repair rules verbally; 10 min facilitator summarises agreed repair rules and reads them back to participant for confirmation."
+      },
+      "rationale": "The participant population (BLV screen-reader users) is historically subject to paternalistic accessibility interventions, and the design actively counters this by making participants the authors of the repair ruleset, reading back agreed rules for confirmation, and including an explicit retrospective question about whether the overlay made things worse. The default is participant-authored behavior, not institution-imposed protection, so this pattern fires positively."
+    },
+    {
+      "pattern_id": "exit.data_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "Session artifacts are stored as local JSON files (repair logs, rating forms, rule configurations) using open schemas described in materials_needed. The articles are self-contained local HTML fixtures, and Whisper transcripts are text. No proprietary platform or opaque schema is involved, so the data-lock-in concern does not apply."
+    },
+    {
+      "pattern_id": "exit.workflow_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The intervention operates at the level of an individual browsing session and does not restructure team cadences, review processes, or communication norms. The participant's ordinary workflow (screen reader, browser, personal settings) is explicitly preserved, and the overlay is injected per-session rather than installed. Exit requires no collective switch-back."
+    },
+    {
+      "pattern_id": "exit.competence_decay_on_exit",
+      "axis": "exit",
+      "fired": true,
+      "score": 1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Across sessions, the change in event-type counts from Session 1 (baseline, no overlay) to Sessions 2 and 3 (overlay active) is computed to identify which event types decreased, which persisted, and which appeared only in overlay-active sessions (potential overlay-introduced confusions)."
+      },
+      "rationale": "The Session 1 unaided baseline provides a measurement of unaided navigation performance, and the analysis explicitly looks for overlay-introduced confusions as a tracked outcome. While the three-session arc is short and no post-exit unaided measurement is scheduled, the design does keep unaided competence visible as a reference point, which partially addresses the decay concern in the scaffold direction."
+    },
+    {
+      "pattern_id": "exit.institutional_dependence",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "Materials are local HTML fixtures, a self-contained JavaScript overlay, and standard screen-reader software the participants already own and use. No cloud service, vendor platform, or subscription is implicated. Whisper is described as local deployment. Participants depend on no external provider whose terms could change post-study."
+    },
+    {
+      "pattern_id": "legibility.opaque_ranking",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The system does not present ranked lists, filtered recommendations, or ordered options to the participant. Its outputs are DOM rewrites to a single article, not selections among alternatives. The ranking-opacity pattern targets recommender-style interfaces and does not apply to a structural-repair overlay of this kind."
+    },
+    {
+      "pattern_id": "legibility.no_failure_signal",
+      "axis": "legibility",
+      "fired": true,
+      "score": -2,
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "The 'apparent resolution rate' metric (proportion of repairs followed within 10 seconds by a CONFIRM code or absence of DISCONFIRM) treats the absence of disconfirmation as evidence of resolution. Rehearsing this, one would note that silence after a repair could also mean the participant did not hear the repair (the NVDA verbosity case), did not connect the repair to their task, or was still processing."
+      },
+      "rationale": "The failure_cases section describes scenarios where the overlay fires repairs the participant never hears (suppressed landmark announcements), repairs misaligned with semantic confabulations, and late repairs producing double-announcements. In the silent-injection case the expected_behavior is that the wizard may interpret absence of disorientation as successful repair, with no in-flow signal to the participant that something was injected. The participant has no reliable way to detect when the system has acted incorrectly on their document, and the quantitative scheme itself conflates silence with success. This is an active capture of the participant's ability to form accurate beliefs about what the tool did."
+    },
+    {
+      "pattern_id": "legibility.no_rationale_at_point_of_action",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Decide whether to show the participant a visual diff of the original vs. repaired DOM (rendered as an indented plain-text tree read aloud by the screen reader) during the post-article debrief, or to describe changes verbally via the facilitator — the default is verbal description unless the participant requested DOM-tree review in a prior session."
+      },
+      "rationale": "Rationale for each specific repair is available only post-hoc in the debrief, and even there the default is a verbal summary rather than a structural diff. At the point of action — when the participant is navigating and encountering the repaired structure — there is no inline mechanism to ask 'what was changed here and why.' The co-design loop eventually surfaces rationale at the ruleset level, but not per-action, which is what this pattern targets."
+    },
+    {
+      "pattern_id": "legibility.unverifiable_summary",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "In the debrief, a participant is asked to reconstruct 'what did you hear, what did you expect to hear' from a timestamped excerpt the observer has selected. Rehearsing this, one would reasonably expect the selection itself to shape the co-design output: excerpts chosen by the observer are the moments the observer noticed, which skews toward breakdowns that were audible or verbalised and away from silent breakdowns"
+      },
+      "rationale": "The co-design debrief hands the participant a curated selection of speech excerpts drawn from the session log, and the participant reasons about repair rules from that summary without an affordance to surface the full session record for comparison. The selection is an observer-generated synthesis presented as the evidentiary base for rule-making, with no described mechanism for the participant to inspect unselected moments before committing to rule changes."
+    }
+  ],
+  "axis_scores": {
+    "capacity": 2,
+    "agency": -1,
+    "exit": 1,
+    "legibility": -4
+  },
+  "verdict": "BLOCKED",
+  "verdict_rationale": "legibility.no_failure_signal fires at -2, which under the scoring rules forces a BLOCKED verdict. The design's signature failure cases (silent landmark injections under non-default NVDA verbosity, late-repair double-announcements, and semantic confabulations invisible to DOM-layer detection) all produce conditions where the participant has no in-flow signal that the overlay has acted wrongly, and the 'apparent resolution rate' metric itself treats silence as success — compounding rather than catching the error. Secondary drift findings — agency.auto_decides_consequential_step, agency.hides_options_before_review, legibility.no_rationale_at_point_of_action, and legibility.unverifiable_summary each at -1 — would independently have driven REVISION_REQUIRED, but the -2 on failure-signal is the blocking finding.",
+  "provenance": {
+    "audit": "AGENT_INFERENCE"
+  }
+}

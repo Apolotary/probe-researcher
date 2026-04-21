@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "smoke_test_01",
+  "branch_id": "a",
+  "research_question": "Do AI-generated news articles published by outlets using LLM pipelines exhibit systematically different heading depth, landmark structure, and ARIA correctness than human-authored articles from the same outlets, and on which dimensions is divergence large enough to affect screen-reader navigation?",
+  "intervention_primitive": "automated corpus audit pipeline that parses article DOMs and scores hierarchy artifacts against ARIA conformance plus screen-reader-relevant structural metrics",
+  "human_system_relationship": "infrastructural_support",
+  "method_family": "formative",
+  "one_sentence_claim": "AI-generated news articles from LLM-using outlets diverge from human-authored articles at the same outlets on measurable hierarchy dimensions, and only a subset of those dimensions actually degrade screen-reader navigation.",
+  "why_divergent": "Differs from branch B on intervention_primitive (artifact-level corpus audit, not a user-facing disclosure manipulation) and from branch C on method_family (formative corpus characterization vs. longitudinal co-design with a repair tool).",
+  "grounding": [
+    {
+      "source_card": "kafer_2013",
+      "relevance": "accessibility_lens",
+      "quoted_claim": "Kafer develops a political/relational model of disability in contrast to both the medical model and the British social model, foregrounding how structural and designed environments constitute disability rather than locating it solely in the individual."
+    },
+    {
+      "source_card": "liang_nejm_ai_2024",
+      "relevance": "prior_finding",
+      "quoted_claim": "A large-scale empirical analysis comparing LLM-generated outputs to human-produced counterparts found measurable, quantifiable divergence between the two on specific dimensions, using retrospective corpus analysis as the primary method."
+    },
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "capture_risk_theory",
+      "quoted_claim": "AI decision-support systems can erode domain-specific autonomy via absent failure indicators, suggesting that structural deficiencies introduced by AI pipelines may go undetected without explicit auditing mechanisms."
+    },
+    {
+      "source_card": "illich_1973",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "Illich argues that tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool, providing a theoretical basis for concern that LLM-driven content pipelines may systematically reshape structural output in ways that marginalize non-default users."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

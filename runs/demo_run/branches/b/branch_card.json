@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "smoke_test_01",
+  "branch_id": "b",
+  "research_question": "When hierarchy is held constant, does disclosing AI authorship via an ARIA-live provenance banner shift BLV screen-reader users' navigation strategies and credibility judgments compared to undisclosed or human-authored framing?",
+  "intervention_primitive": "auditory provenance disclosure element announced by the screen reader at article load, varied in phrasing, specificity, and placement relative to the heading tree",
+  "human_system_relationship": "adversarial_check",
+  "method_family": "evaluative",
+  "one_sentence_claim": "BLV screen-reader users change skim patterns and trust ratings in measurable ways when AI authorship is announced auditorily, and the effect depends on where the disclosure sits in the heading tree.",
+  "why_divergent": "Differs from branch A on intervention_primitive (a user-facing disclosure artifact rather than a backend audit) and from branch C on human_system_relationship (adversarial provenance check vs. peer collaboration on a repair tool).",
+  "grounding": [
+    {
+      "source_card": "kafer_2013",
+      "relevance": "accessibility_lens",
+      "quoted_claim": "Kafer develops a political/relational model of disability that situates access needs within social and structural arrangements rather than locating the deficit solely in the individual user."
+    },
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "AI decision-support can erode domain-specific autonomy through absent failure indicators, supporting the premise that provenance disclosure mechanisms may be necessary to preserve users' capacity for critical evaluation."
+    },
+    {
+      "source_card": "liang_nejm_ai_2024",
+      "relevance": "prior_finding",
+      "quoted_claim": "In a prospective user study, 57.4% of researchers rated GPT-4 feedback as helpful or very helpful, indicating that perceived source identity shapes credibility judgments about AI-generated content."
+    },
+    {
+      "source_card": "illich_1973",
+      "relevance": "capture_risk_theory",
+      "quoted_claim": "Tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool, foregrounding the risk that undisclosed AI authorship could silently reshape reader trust and navigation behavior."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

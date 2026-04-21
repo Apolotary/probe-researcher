@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "smoke_test_01",
+  "branch_id": "c",
+  "research_question": "What failure patterns emerge when BLV screen-reader users navigate AI-generated articles over repeated sessions, and can a co-designed in-browser repair layer that rewrites hierarchy on the fly reduce those failures across successive encounters?",
+  "intervention_primitive": "in-browser accessibility-repair overlay co-designed with BLV participants that detects hallucinated headings and inconsistent landmark nesting in AI-generated articles and rewrites them before screen-reader announcement",
+  "human_system_relationship": "peer_collaboration",
+  "method_family": "longitudinal",
+  "one_sentence_claim": "A co-designed repair overlay refined across multiple sessions with BLV screen-reader users reduces hierarchy-related navigation breakdowns on AI-generated news articles, and the specific breakdowns that resist repair reveal limits of post-hoc structural correction.",
+  "why_divergent": "Differs from branch A on method_family (longitudinal co-design vs. formative corpus audit) and from branch B on intervention_primitive (DOM-rewriting repair layer vs. provenance disclosure announcement).",
+  "grounding": [
+    {
+      "source_card": "sanders_stappers_2014",
+      "relevance": "methodology_precedent",
+      "quoted_claim": "Probes are framed as instruments for inspiration and dialogue rather than for extracting generalizable user data."
+    },
+    {
+      "source_card": "sanders_stappers_2014",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "The authors distinguish between a 'designing for people' mindset and a 'designing with people' (participatory) mindset, positioning codesign approaches along axes of temporal focus and design intent."
+    },
+    {
+      "source_card": "kafer_2013",
+      "relevance": "accessibility_lens",
+      "quoted_claim": "Kafer develops a 'political/relational' model of disability in contrast to both the medical model and the British social model, foregrounding how built environments and systems produce disability rather than locating it solely in the individual."
+    },
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "capture_risk_theory",
+      "quoted_claim": "AI decision-support can erode domain-specific autonomy via absent failure indicators, suggesting that when AI-generated content lacks adequate structural signals, users' skilled competence in navigating that content may be undermined."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

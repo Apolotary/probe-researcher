@@ -1,0 +1,76 @@
+{
+  "stage": "8_guidebook",
+  "schema_version": "1.0.0",
+  "run_id": "smoke_test_01",
+  "surviving_branch": "b",
+  "blocked_branches": [
+    {
+      "branch_id": "a",
+      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
+      "blocking_finding": "audit:capture_risk:-2"
+    },
+    {
+      "branch_id": "c",
+      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
+      "blocking_finding": "audit:capture_risk:-2"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Premise",
+      "anchor": "premise",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Background",
+      "anchor": "background",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Prototype",
+      "anchor": "prototype",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Study protocol",
+      "anchor": "study-protocol",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Expected outcomes",
+      "anchor": "expected-outcomes",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Risks and failure modes",
+      "anchor": "risks-and-failure-modes",
+      "provenance_dominant": "AGENT_INFERENCE"
+    }
+  ],
+  "source_cards_cited": [
+    "kafer_2013",
+    "buijsman_carter_bermudez_2025",
+    "liang_nejm_ai_2024",
+    "illich_1973"
+  ],
+  "provenance_tag_counts": {
+    "RESEARCHER_INPUT": 1,
+    "SOURCE_CARD": 7,
+    "SIMULATION_REHEARSAL": 6,
+    "AGENT_INFERENCE": 57,
+    "HUMAN_REQUIRED": 2,
+    "DO_NOT_CLAIM": 4
+  },
+  "forbidden_phrase_check": {
+    "passed": true,
+    "violations": []
+  },
+  "assembly_rationale": "Branch b survived capture-risk audit and meta-review; it provides the sole basis for this guidebook. Blocked branches: a, c.",
+  "human_required_next_steps": [
+    "Before running this study, the researcher must resolve the scoping question the meta-review flagged as requiring human judgment: decide whether this project is a confound-controlled quantitative replication, a participatory co-design study, or a theoretically differentiated extension — this decision reshapes every downstream element of the protocol and cannot be made by the agent.",
+    "The researcher must then, in order: (1) conduct the co-design phase with BLV collaborators from the recruitment partner before finalizing any stimulus materials; (2) specify the compensation rate for both co-designers and study participants in consultation with that partner; (3) read and cite the AI-disclosure-effects literature (Jakesch et al., Longoni et al., Sundar's MAIN model) and the ARIA-live announcement literature to establish what differential prediction this study makes; (4) pilot the credibility form and the consent-delivery process with compensated BLV screen-reader users distinct from study participants; (5) replace wizard-gated late injection with programmatic triggering and measure the resulting timing distribution; (6) resolve the announcement-duration confound by length-matching stimulus strings or restricting claims to non-duration-sensitive DVs; and (7) obtain IRB approval for the finalized protocol including the member-check phase."
+  ],
+  "provenance": {
+    "assembly": "AGENT_INFERENCE"
+  }
+}
