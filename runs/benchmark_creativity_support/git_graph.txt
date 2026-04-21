@@ -1,0 +1,40 @@
+* 4599bb3 feat: arXiv paper scaffold, report renderer, Linear-style probe runs + gantt, V2 ideas
+| * 0139517 stage-7d [branch-b]: meta-review accept_revise (consensus)
+| * 0455261 stage-7b [branch-b]: accessibility advocate minor_revision
+| * 8e42aaa stage-7a [branch-b]: methodologist major_revision
+| * b7eae0e stage-6 [branch-b]: capture-risk audit verdict REVISION_REQUIRED
+| * 260e66e stage-5 [branch-b]: simulated walkthrough (Mode A)
+| * d37a84e stage-4 [branch-b]: prototype spec with 5 task-flow steps
+| * 0161646 stage-3 [branch-b]: literature grounded to 4 source cards
+|/  
+| * b8a6428 stage-7d [branch-c]: meta-review human_judgment_required (legitimate_methodological_split)
+| * f8d8315 stage-7b [branch-c]: accessibility advocate major_revision
+| * 141db39 stage-7a [branch-c]: methodologist major_revision
+| * d403fa8 stage-6 [branch-c]: capture-risk audit verdict REVISION_REQUIRED
+| * 9ab6fa0 stage-5 [branch-c]: simulated walkthrough (Mode A)
+| * 1f8de9d stage-4 [branch-c]: prototype spec with 5 task-flow steps
+| * 9aacffc stage-3 [branch-c]: literature grounded to 4 source cards
+|/  
+| * 27ace06 stage-7d [branch-a]: meta-review accept_revise (spurious_surface_disagreement)
+| * ca90c8b stage-7b [branch-a]: accessibility advocate minor_revision
+| * 2f9542e stage-7a [branch-a]: methodologist major_revision
+| * 1df4d3c stage-6 [branch-a]: capture-risk audit verdict REVISION_REQUIRED
+| * 87b3dba stage-5 [branch-a]: simulated walkthrough (Mode A)
+| * fe19bc4 stage-4 [branch-a]: prototype spec with 5 task-flow steps
+| * 2cd5166 stage-3 [branch-a]: literature grounded to 4 source cards
+|/  
+* fc736c8 fix: close all BLOCKERs + most MAJORs from review wave 1
+* af1cc7e feat: v2 — simulated interview + agent symposium scaffolds, PROBE.md orchestration contract
+* ce26c00 refactor: extract per-branch stage helpers, add Managed Agents audit-deep, v2 roadmap
+* 7b95b02 feat: CLI polish, Ink explore UI, ablation, hallucination test, second benchmark
+| * 5709fd2 stage-7a [branch-c]: methodologist major_revision
+| * 3fbec09 stage-6 [branch-c]: capture-risk audit verdict REVISION_REQUIRED
+| * 669b61e stage-5 [branch-c]: simulated walkthrough (Mode A)
+| * 0f9ed90 stage-4 [branch-c]: prototype spec with 5 task-flow steps
+| * 6d8bc83 stage-3 [branch-c]: literature grounded to 4 source cards
+|/  
+| * 6c7f3ea stage-6 [branch-a]: capture-risk audit verdict BLOCKED
+| * 37e341e stage-5 [branch-a]: simulated walkthrough (Mode A)
+| * 5b74da7 stage-4 [branch-a]: prototype spec with 5 task-flow steps
+| * bb4a840 stage-3 [branch-a]: literature grounded to 4 source cards
+|/  

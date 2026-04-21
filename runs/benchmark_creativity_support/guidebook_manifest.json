@@ -1,0 +1,65 @@
+{
+  "stage": "8_guidebook",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_creativity_support",
+  "surviving_branch": "a",
+  "blocked_branches": [],
+  "sections": [
+    {
+      "heading": "Premise",
+      "anchor": "premise",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Background",
+      "anchor": "background",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Prototype",
+      "anchor": "prototype",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Study protocol",
+      "anchor": "study-protocol",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Failure hypotheses to test",
+      "anchor": "failure-hypotheses-to-test",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Risks and failure modes",
+      "anchor": "risks-and-failure-modes",
+      "provenance_dominant": "AGENT_INFERENCE"
+    }
+  ],
+  "source_cards_cited": [
+    "jakesch_2023_cowriting",
+    "buijsman_carter_bermudez_2025",
+    "sanders_stappers_2014",
+    "illich_1973"
+  ],
+  "provenance_tag_counts": {
+    "RESEARCHER_INPUT": 1,
+    "SOURCE_CARD": 4,
+    "SIMULATION_REHEARSAL": 17,
+    "AGENT_INFERENCE": 64,
+    "HUMAN_REQUIRED": 1,
+    "DO_NOT_CLAIM": 4,
+    "UNCITED_ADJACENT": 6
+  },
+  "forbidden_phrase_check": {
+    "passed": true,
+    "violations": []
+  },
+  "assembly_rationale": "Branch a survived capture-risk audit and meta-review; it provides the sole basis for this guidebook. Blocked branches: none.",
+  "human_required_next_steps": [
+    "Before running this study, the researcher must: (1) run a wizard-feasibility pilot measuring latency distribution on real poet drafts, and commit before the pilot to the specific threshold at which WoZ will be abandoned for a real retrieval-augmented LM; (2) redesign the control condition to isolate corpus-personalization from the co-varying selection criteria, or narrow the claim; (3) choose between a between-subjects design, a washout-session design, or a power-justified within-subjects design and commit to an N; (4) cross-check the corpus index against each poet's self-identified typical-vs-atypical prior work before accepting enrollment, or narrow the claim to \"published register\"; (5) pilot the expanded consent form with 2–3 non-sample poets and finalize compensation; (6) pre-prepare accessible instrument alternatives and announce them in recruitment materials; (7) pre-register the qualitative coding kappa threshold, the per-participant accept-event minimum, and the order × condition interaction test; (8) obtain IRB approval covering the expanded consent, compensation, and corpus-retention language."
+  ],
+  "provenance": {
+    "assembly": "AGENT_INFERENCE"
+  }
+}

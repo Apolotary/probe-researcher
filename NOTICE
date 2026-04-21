@@ -12,3 +12,15 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+------------------------------------------------------------------------
+Attribution notice
+------------------------------------------------------------------------
+
+The Apache 2.0 license requires derivative works to preserve this NOTICE
+file and its contents. In addition, if you use Probe in research,
+teaching, or derivative software, the author asks that you cite the
+project. See CITATION.cff and the "Citing this work" section of README.md
+for the preferred citation. The canonical repository is:
+
+    https://github.com/Apolotary/probe-researcher

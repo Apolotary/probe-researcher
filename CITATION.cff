@@ -1,0 +1,48 @@
+# YAML-based machine-readable citation info (https://citation-file-format.github.io).
+# GitHub renders a "Cite this repository" button from this file.
+# If you use Probe in research, teaching, or derivative software, please
+# cite either this repository or the arXiv paper that documents the system.
+
+cff-version: 1.2.0
+message: "If you use Probe in research, teaching, or derivative software, please cite the arXiv paper (preferred) or this repository."
+
+title: "Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research"
+type: software
+authors:
+  - family-names: "Ryskeldiev"
+    given-names: "Bektur"
+    # email: ryskeldiev.b@gmail.com  # uncomment if you want the email published
+    # orcid: "https://orcid.org/XXXX-XXXX-XXXX-XXXX"  # add your ORCID here
+
+repository-code: "https://github.com/Apolotary/probe-researcher"
+url: "https://github.com/Apolotary/probe-researcher"
+license: Apache-2.0
+
+# Preferred citation — the arXiv paper that documents the system in depth.
+# Update arXiv ID and date after submission.
+preferred-citation:
+  type: article
+  title: "Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research"
+  authors:
+    - family-names: "Ryskeldiev"
+      given-names: "Bektur"
+  year: 2026
+  # arxiv-id: "2604.XXXXX"   # TODO: update after arXiv submission
+  # doi: "10.48550/arXiv.2604.XXXXX"
+  url: "https://github.com/Apolotary/probe-researcher"
+  notes: "Built at the Cerebral Valley Claude Opus 4.7 hackathon, April 2026. arXiv ID pending."
+
+keywords:
+  - "human-computer interaction"
+  - "research methodology"
+  - "AI-assisted research design"
+  - "multi-agent systems"
+  - "provenance"
+  - "large language models"
+  - "Claude"
+  - "accessibility research"
+  - "capture-risk audit"
+  - "adversarial review"
+
+version: "0.1.0"
+date-released: "2026-04-27"

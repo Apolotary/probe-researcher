@@ -1,11 +1,15 @@
 /**
- * Forbidden-phrase linter. Probe's own voice (not inside quoted blocks) must
- * never use evidence language. Running this against PROBE_GUIDEBOOK.md
+ * Forbidden-phrase linter. Probe's own voice (not attributed to a source)
+ * must never use evidence language. Running this against PROBE_GUIDEBOOK.md
  * guarantees that simulation is not presented as findings.
  *
- * Quoted context (inside `>` blockquotes or surrounded by "...") is allowed
- * to contain these phrases because it represents something being reported,
- * not claimed by Probe.
+ * Allowed contexts (phrases permitted inside these):
+ *   - `>` blockquotes — representing third-party content
+ *   - `"..."` double-quoted regions — direct quotation
+ *   - `[SOURCE_CARD:id]`-tagged lines — the paragraph attributes a finding
+ *     to a specific source card, so evidence verbs ("demonstrated that",
+ *     "users preferred") are reporting what the source claims, not what
+ *     Probe claims
  */
 
 export const FORBIDDEN_PHRASES: ReadonlyArray<RegExp> = [
@@ -15,7 +19,13 @@ export const FORBIDDEN_PHRASES: ReadonlyArray<RegExp> = [
   /\bparticipants? reported\b/i,
   /\bthe study shows\b/i,
   /\bfindings show\b/i,
-  /\b(statistically\s+)?significant(ly)?\b/i,
+  // "significant" in the statistical sense. We specifically allow the
+  // bare word when it means "substantial" or "important" in ordinary
+  // English (e.g., "significant overlap", "significant concern"), and
+  // only fire on usages that clearly imply statistical significance.
+  /\bstatistically\s+significant(ly)?\b/i,
+  /\bsignificantly\s+(different|higher|lower|more|less|greater|better|worse|fewer|slower|faster|correlated|associated|predicted|varied|increased|decreased|reduced|improved)\b/i,
+  /\bsignificant\s+(effect|difference|result|finding|correlation|association|p[-\s]?value|impact on)\b/i,
   /\bvalidated?\b/i,
   /\bproved\b/i,
   /\bdemonstrated that\b/i,
@@ -33,11 +43,17 @@ export function checkForbiddenPhrases(markdown: string): LintResult {
   const lines = markdown.split(/\r?\n/);
 
   lines.forEach((line, idx) => {
-    // Skip blockquote lines (representing third-party content)
+    // Skip blockquote lines (representing third-party content).
     if (/^\s*>/.test(line)) return;
 
-    // Strip code blocks and inline code
+    // Skip fenced code-block markers.
     if (/^```/.test(line)) return;
+
+    // Skip lines that attribute a finding to a source card. Such a line
+    // carries the provenance claim that the surrounding assertion comes
+    // from the card, not from Probe's own voice. Forbidden phrases are
+    // legitimate here because they describe what the source reports.
+    if (/\[SOURCE_CARD:[a-z0-9_-]+\]/.test(line)) return;
 
     // Strip double-quoted regions from the line so quoted speech isn't flagged.
     const stripped = line.replace(/"[^"]*"/g, '""').replace(/"[^"]*"/g, '""');

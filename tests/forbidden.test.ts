@@ -28,10 +28,34 @@ describe('forbidden-phrase linter', () => {
     expect(r.passed).toBe(false);
   });
 
-  it('flags "significant"', () => {
-    const md = `Significant improvement was observed. [SIMULATION_REHEARSAL]`;
+  it('flags "statistically significant"', () => {
+    const md = `A statistically significant improvement was observed. [SIMULATION_REHEARSAL]`;
     const r = checkForbiddenPhrases(md);
     expect(r.passed).toBe(false);
+  });
+
+  it('flags "significantly different"', () => {
+    const md = `The groups were significantly different on the outcome. [SIMULATION_REHEARSAL]`;
+    const r = checkForbiddenPhrases(md);
+    expect(r.passed).toBe(false);
+  });
+
+  it('flags "significant effect"', () => {
+    const md = `The intervention had a significant effect. [SIMULATION_REHEARSAL]`;
+    const r = checkForbiddenPhrases(md);
+    expect(r.passed).toBe(false);
+  });
+
+  it('allows bare "significant" meaning substantial', () => {
+    const md = `There is significant overlap between the two conditions' wording. [AGENT_INFERENCE]`;
+    const r = checkForbiddenPhrases(md);
+    expect(r.passed).toBe(true);
+  });
+
+  it('allows "a significant concern"', () => {
+    const md = `This is a significant concern for the researcher. [AGENT_INFERENCE]`;
+    const r = checkForbiddenPhrases(md);
+    expect(r.passed).toBe(true);
   });
 
   it('flags "validated"', () => {
@@ -50,5 +74,17 @@ describe('forbidden-phrase linter', () => {
     const md = `The reviewer wrote, "users preferred X", in their critique. [AGENT_INFERENCE]`;
     const r = checkForbiddenPhrases(md);
     expect(r.passed).toBe(true);
+  });
+
+  it('allows forbidden phrases when attributed to a source card', () => {
+    const md = `Jakesch et al. demonstrated that opinionated AI shifts user views. [SOURCE_CARD:jakesch_2023_cowriting]`;
+    const r = checkForbiddenPhrases(md);
+    expect(r.passed).toBe(true);
+  });
+
+  it('still rejects forbidden phrases in AGENT_INFERENCE paragraphs', () => {
+    const md = `The study shows that users preferred X. [AGENT_INFERENCE]`;
+    const r = checkForbiddenPhrases(md);
+    expect(r.passed).toBe(false);
   });
 });

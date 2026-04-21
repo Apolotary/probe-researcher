@@ -112,9 +112,29 @@ See [`CLAUDE.md`](./CLAUDE.md) for:
 - How to add source cards, capture-risk patterns, agent prompts
 - The non-negotiable commitments
 
+## Citing this work
+
+If you use Probe in research, teaching, derivative software, or a paper, **please cite it**. This is the one thing the author asks in exchange for open-sourcing the code.
+
+The preferred citation is the arXiv paper that documents the system in depth:
+
+```bibtex
+@article{ryskeldiev2026probe,
+  title   = {Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research},
+  author  = {Ryskeldiev, Bektur},
+  year    = {2026},
+  journal = {arXiv preprint},
+  note    = {Built at the Cerebral Valley Claude Opus 4.7 hackathon}
+}
+```
+
+A machine-readable citation is available in [`CITATION.cff`](./CITATION.cff) — GitHub will render a "Cite this repository" button from it automatically.
+
+If you modify Probe and ship a derivative, the Apache 2.0 license already requires you to (1) include the [`LICENSE`](./LICENSE) file, (2) preserve the [`NOTICE`](./NOTICE) file and its contents in any derivative works, and (3) state prominent changes. See the [Apache 2.0 attribution terms](https://www.apache.org/licenses/LICENSE-2.0#redistribution). The CITATION.cff file makes the additional expectation explicit: if you publish or demo the derivative, cite the paper.
+
 ## License
 
-Apache 2.0 — see [`LICENSE`](./LICENSE).
+Apache 2.0 — see [`LICENSE`](./LICENSE) and [`NOTICE`](./NOTICE). Attribution is required under the license terms; see the [Citing this work](#citing-this-work) section above for the preferred citation.
 
 ## Author
 
