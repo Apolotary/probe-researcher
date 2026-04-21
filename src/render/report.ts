@@ -275,25 +275,115 @@ async function readJsonIfExists(file: string): Promise<unknown> {
 }
 
 const REPORT_CSS = `
+/* Kami-inspired print-first CSS: locked palette, serif body, reading-optimized
+   line-heights, no shadows, one accent color. Constraints here are
+   deliberate — we want the report to look like a document, not a webpage. */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  font-size: 11pt;
-  line-height: 1.55;
-  max-width: 7.5in;
-  margin: 1in auto;
-  color: #1a1a1a;
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-size: 11.5pt;
+  line-height: 1.5;
+  max-width: 7in;
+  margin: 0.9in auto;
+  color: #1f1d1a;
+  background: #f7f5ef;
 }
-h1 { font-size: 20pt; font-weight: 600; margin: 0.4em 0; border-bottom: 2px solid #333; padding-bottom: 0.2em; }
-h2 { font-size: 15pt; font-weight: 600; margin: 1.8em 0 0.5em; color: #2a4f7a; }
-h3 { font-size: 12pt; font-weight: 600; margin: 1.2em 0 0.4em; color: #333; }
-code { background: #f5f5f7; padding: 1px 4px; border-radius: 2px; font-size: 0.9em; font-family: Menlo, Consolas, monospace; }
-pre { background: #1f2226; color: #d8dbe0; padding: 0.8em; border-radius: 4px; overflow-x: auto; font-size: 0.85em; }
-blockquote { border-left: 3px solid #b0b0b0; margin: 0.8em 0; padding: 0.2em 1em; color: #555; font-style: italic; }
-table { border-collapse: collapse; width: 100%; margin: 0.8em 0; }
-th, td { border: 1px solid #d0d0d0; padding: 6px 10px; text-align: left; font-size: 0.95em; }
-th { background: #f0f1f3; font-weight: 600; }
+
+/* Headings use a modern sans for contrast; body stays in the serif. */
+h1, h2, h3, h4 {
+  font-family: 'Inter', -apple-system, 'Helvetica Neue', sans-serif;
+  font-weight: 600;
+  color: #1a1d2c;
+  line-height: 1.25;
+}
+h1 {
+  font-size: 22pt;
+  margin: 0.4em 0 0.6em;
+  border-bottom: 1.5pt solid #1a1d2c;
+  padding-bottom: 0.25em;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 14pt;
+  margin: 2em 0 0.5em;
+  color: #1B365D;
+  letter-spacing: -0.005em;
+}
+h3 {
+  font-size: 11.5pt;
+  margin: 1.4em 0 0.4em;
+  color: #1f1d1a;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0.6em 0;
+  orphans: 3;
+  widows: 3;
+}
+
+code {
+  font-family: 'JetBrains Mono', Menlo, Consolas, monospace;
+  background: #ede9dc;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 0.88em;
+  color: #3a2f1f;
+}
+pre {
+  font-family: 'JetBrains Mono', Menlo, Consolas, monospace;
+  background: #1f1d1a;
+  color: #f7f5ef;
+  padding: 0.9em 1.1em;
+  border-radius: 3px;
+  overflow-x: auto;
+  font-size: 0.85em;
+  line-height: 1.45;
+  page-break-inside: avoid;
+}
+blockquote {
+  border-left: 2.5pt solid #1B365D;
+  margin: 0.9em 0;
+  padding: 0.4em 1.1em;
+  color: #4a443a;
+  font-style: italic;
+  background: #ede9dc66;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  page-break-inside: avoid;
+  font-size: 10.5pt;
+}
+th, td {
+  border: 0.5pt solid #d0cbb8;
+  padding: 7px 11px;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: #ede9dc;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: #1a1d2c;
+}
+
 ul, ol { padding-left: 1.6em; }
-li { margin: 0.2em 0; }
-strong { color: #1a1a1a; }
-a { color: #2a4f7a; text-decoration: none; border-bottom: 1px dotted #2a4f7a; }
+li { margin: 0.25em 0; }
+
+strong { color: #1a1d2c; }
+em { color: #4a443a; }
+
+a {
+  color: #1B365D;
+  text-decoration: none;
+  border-bottom: 0.5pt solid #1B365D;
+}
+
+/* Provenance-tag callouts, rendered as subtle inline markers. */
+p[data-tag], li[data-tag] {
+  position: relative;
+}
 `.trim();

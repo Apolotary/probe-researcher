@@ -83,9 +83,13 @@
         "SIMULATION_REHEARSAL",
         "AGENT_INFERENCE",
         "HUMAN_REQUIRED",
-        "DO_NOT_CLAIM"
+        "DO_NOT_CLAIM",
+        "UNCITED_ADJACENT",
+        "TOOL_VERIFIED"
       ],
       "properties": {
+        "UNCITED_ADJACENT": { "type": "integer", "minimum": 0 },
+        "TOOL_VERIFIED": { "type": "integer", "minimum": 0 },
         "RESEARCHER_INPUT": { "type": "integer", "minimum": 0 },
         "SOURCE_CARD": { "type": "integer", "minimum": 0 },
         "SIMULATION_REHEARSAL": { "type": "integer", "minimum": 0 },

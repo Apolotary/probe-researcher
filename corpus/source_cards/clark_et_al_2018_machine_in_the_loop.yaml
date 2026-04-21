@@ -1,0 +1,30 @@
+id: clark_et_al_2018_machine_in_the_loop
+title: "Creative Writing with a Machine in the Loop: Case Studies on Slogans and Stories"
+authors:
+  - "Clark, Elizabeth"
+  - "Ross, Anne Spencer"
+  - "Tan, Chenhao"
+  - "Ji, Yangfeng"
+  - "Smith, Noah A."
+venue: "Proceedings of the 23rd International Conference on Intelligent User Interfaces (IUI '18), Tokyo, Japan, March 7-11, 2018"
+year: 2018
+doi: "10.1145/3172944.3172983"
+url: "https://dl.acm.org/doi/10.1145/3172944.3172983"
+verified: true
+verification_notes: >-
+  DOI resolves via 302 redirect to ACM Digital Library on 2026-04-22. Crossref
+  metadata (api.crossref.org/works/10.1145/3172944.3172983) confirms exact
+  title, all five authors in stated order, venue (IUI '18), and year. ACM
+  full-page fetch returned 403 (bot protection); Crossref is authoritative for
+  bibliographic metadata.
+summary: >-
+  An IUI 2018 study of a "machine in the loop" creative writing system in
+  which a neural language model offers on-demand suggestions that writers can
+  accept, edit, or ignore, evaluated through two case studies: short-form
+  slogan writing and longer-form story writing.
+allowed_claims:
+  - "Clark et al. (2018) built a 'machine in the loop' interface in which a neural language model proposes optional next-sentence or next-phrase suggestions that the human writer can accept, edit, or ignore while drafting."
+  - "The system was evaluated in two case studies covering a short creative task (slogan writing) and a longer narrative task (story writing), contrasting a with-suggestions condition against a no-suggestions baseline."
+  - "Writers reported that machine suggestions were more useful for longer, open-ended story writing than for the tightly constrained slogan task, where suggestions were more often judged off-topic or unhelpful."
+  - "The paper introduces the 'machine in the loop' framing — a human-led creative pipeline in which the AI is an on-demand collaborator rather than an autonomous generator — which has since become a canonical reference point for creativity-support tool research."
+tags: ["creativity_support", "co_writing", "human_AI_collaboration", "IUI_2018", "creative_writing", "HCI"]

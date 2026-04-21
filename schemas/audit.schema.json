@@ -58,12 +58,26 @@
               "section": { "type": "string" }
             }
           },
-          "rationale": { "type": "string", "minLength": 20 }
+          "rationale": { "type": "string", "minLength": 20 },
+          "applicability_check": {
+            "type": "string",
+            "description": "Required if fired is true and score is negative. One sentence justifying that the constraint flagged by this pattern is NOT itself the study's manipulation-under-test. Addresses the cross-domain transfer issue where a deliberate friction feature (e.g., an adversarial challenger designed to create reflection) gets mis-flagged as paternalism.",
+            "minLength": 25
+          }
         },
         "allOf": [
           {
             "if": { "properties": { "fired": { "const": true } } },
             "then": { "required": ["evidence_span"] }
+          },
+          {
+            "if": {
+              "allOf": [
+                { "properties": { "fired": { "const": true } } },
+                { "properties": { "score": { "maximum": -1 } } }
+              ]
+            },
+            "then": { "required": ["applicability_check"] }
           }
         ]
       }

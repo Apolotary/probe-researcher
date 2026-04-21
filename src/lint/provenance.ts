@@ -33,6 +33,13 @@ export const VALID_TAGS = [
    * enforces existence — only the format is enforced.
    */
   'UNCITED_ADJACENT',
+  /**
+   * Claim measured by a Managed Agents tool-equipped session (bash, grep,
+   * file ops) rather than reasoned about. Used by `probe audit-deep` to
+   * mark findings the agent verified computationally (e.g., "the AI
+   * disclosure string is 16 words, 96 characters, ~5.3s at 180 wpm").
+   */
+  'TOOL_VERIFIED',
 ] as const;
 
 export type ProvenanceTag = (typeof VALID_TAGS)[number];
@@ -72,6 +79,7 @@ export function checkProvenance(
     HUMAN_REQUIRED: 0,
     DO_NOT_CLAIM: 0,
     UNCITED_ADJACENT: 0,
+    TOOL_VERIFIED: 0,
   };
   const sourceCardsReferenced: string[] = [];
 

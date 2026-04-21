@@ -35,21 +35,21 @@ The simulated walkthrough is a five-section structured rehearsal where every par
 
 \subsection{Stage 6: two branches blocked}
 
-The capture-risk audit fired sixteen pattern findings per branch. Branch A's audit fired \texttt{agency.auto\_decides\_consequential\_step} at minus-two: the proposed automated audit pipeline routes flagged hierarchy violations into a remediation queue without a human-in-the-loop review step. The model's reasoning: the intervention silently becomes a policy, ``what we flag, we change,'' where the decision to remediate is a consequential human-scale choice being delegated to pattern matching. Verdict: \texttt{BLOCKED}. The branch emits \texttt{WORKSHOP\_NOT\_RECOMMENDED.md} and does not advance.
+The capture-risk audit fired sixteen pattern findings per branch. Branch A's audit fired \texttt{legibility.no\_failure\_signal} at minus-two, alongside minus-one findings on three agency patterns (\texttt{auto\_decides\_consequential\_step}, \texttt{weak\_override}, \texttt{paternalistic\_default}) and one additional legibility pattern (\texttt{no\_rationale\_at\_point\_of\_action}). The model's reasoning on the minus-two: the branch's live-DOM injection of ARIA landmarks and heading-annotation overlays can silently fail — a mode switch, a Braille-only configuration, or a network drop — and the participant has no in-flow indication that the injection was attempted and did not land. Research data becomes contaminated without a participant-visible failure indication. Verdict: \texttt{BLOCKED}. The branch emits \texttt{WORKSHOP\_NOT\_RECOMMENDED.md} and does not advance.
 
 Branch C is blocked for a different reason: the repair overlay rewrites markup before the screen reader announces it, and the prototype spec does not distinguish ``this participant's personal overlay'' from ``an institutional default.'' The auditor flagged this as a workflow-lock-in concern that the prototype spec does not resolve. Verdict: \texttt{BLOCKED}.
 
-Branch B's audit returned \texttt{REVISION\_REQUIRED}: two minus-one findings (around legibility of the ranking mechanism and around the audit's coverage of the debrief card) but no minus-two. The branch advances to adversarial review.
+Branch B's audit returned \texttt{REVISION\_REQUIRED}: three minus-one findings on legibility patterns (\texttt{no\_failure\_signal} on silent think-aloud-coding failures; \texttt{no\_rationale\_at\_point\_of\_action} on the disclosure string lacking inspectable backing; \texttt{unverifiable\_summary} on the credibility rating scheme), and no minus-two. The branch advances to adversarial review.
 
 \subsection{Stage 7: three reviewers with three distinct objections}
 
-The methodologist reviewer's first line is the announcement-duration confound:
+The methodologist reviewer's first line is the announcement-duration confound. From the reviewer's JSON output:
 
 \begin{quote}
-The AI disclosure string is 18 words and $\sim$6 seconds of speech; the human-framed string is 5 words and $\sim$2 seconds. This confound is baked into the stimuli, and every behavioral dependent variable the study measures will be mechanically contaminated by announcement length rather than disclosure content.
+The announcement-duration confound is uncontrolled and fatal to the core claim. The AI disclosure string is roughly 4--5$\times$ longer in spoken duration than the human-framed string. Any condition difference in dwell-onset latency, heading-jump counts, or post-banner navigation could be fully explained by the extra seconds of speech interrupting the participant's flow, rather than by the semantic content of the disclosure.
 \end{quote}
 
-We did not see this when reading the prototype spec. Neither did the capture-risk auditor. The reviewer's recommendation is \texttt{major\_revision}. Six total criticisms, each attached to a quoted evidence span from the prototype spec or the simulated walkthrough.
+The managed-agent deep audit later quantifies this exactly: the AI string is 96 characters / 16 words / $\sim$5.3 seconds of speech at 180 words per minute; the human-framed string is 29 characters / 5 words / $\sim$1.7 seconds. Delta: 3.67 seconds. We did not see this when reading the prototype spec. Neither did the capture-risk auditor. The reviewer's recommendation is \texttt{major\_revision}. Six total criticisms, each attached to a quoted evidence span from the prototype spec or the simulated walkthrough.
 
 The accessibility advocate applies the Kafer political-relational lens \citep{kafer2013feminist}: BLV users are recruited as \emph{subjects} of the study but not as \emph{co-designers} of the intervention. The disclosure phrasing, placement, and the premise that an ARIA-live banner is the right intervention were all decided by sighted researchers before any BLV consultation. The recommendation is \texttt{major\_revision} with a required co-design phase preceding the evaluation phase.
 

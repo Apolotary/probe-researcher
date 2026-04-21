@@ -1,0 +1,28 @@
+id: gero_chilton_2019_metaphoria
+title: "Metaphoria: An Algorithmic Companion for Metaphor Creation"
+authors:
+  - "Gero, Katy Ilonka"
+  - "Chilton, Lydia B."
+venue: "Proceedings of the 2019 CHI Conference on Human Factors in Computing Systems (CHI '19), Glasgow, Scotland, UK, May 4-9, 2019"
+year: 2019
+doi: "10.1145/3290605.3300526"
+url: "https://dl.acm.org/doi/10.1145/3290605.3300526"
+verified: true
+verification_notes: >-
+  DOI resolves via 302 redirect to ACM Digital Library on 2026-04-22. Crossref
+  metadata (api.crossref.org/works/10.1145/3290605.3300526) confirms exact
+  title, both authors in stated order (Katy Ilonka Gero, Lydia B. Chilton;
+  Columbia University), venue (CHI 2019), and year. ACM full-page fetch
+  returned 403 (bot protection); Crossref is authoritative for bibliographic
+  metadata.
+summary: >-
+  A CHI 2019 paper introducing Metaphoria, an interactive tool that generates
+  candidate metaphorical connections between two user-supplied concepts to
+  scaffold writers' figurative-language ideation rather than produce finished
+  metaphors.
+allowed_claims:
+  - "Gero and Chilton (2019) introduce Metaphoria, an algorithmic writing companion that, given a target concept and a vehicle concept, proposes candidate connections the writer can develop into metaphors."
+  - "The tool is positioned as a suggestion-and-inspiration aid for the writer's own figurative reasoning rather than an end-to-end metaphor generator, aligning with a creativity-support rather than full-automation design stance."
+  - "Metaphoria was evaluated with writers, and the authors report that algorithmically suggested connections can expand the space of metaphors writers consider without replacing their authorial judgment."
+  - "The paper is a canonical CHI reference for algorithmic support of figurative-language creation and is widely cited in subsequent work on LLM-era co-writing and creativity-support tools."
+tags: ["creativity_support", "co_writing", "metaphor", "figurative_language", "CHI_2019", "HCI"]

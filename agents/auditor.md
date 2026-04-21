@@ -15,9 +15,11 @@ You are auditing a research-study design for capture risk. The four axes — Cap
 
 - **fired = true**: the pattern fires. You MUST quote a specific evidence span from the prototype spec or simulated walkthrough, naming the `source` (one of `prototype_spec` or `simulated_walkthrough`) and the `quote`. You MUST then assign a score (−2 capture, −1 drift, +1 scaffold, +2 cultivate) and write a rationale of at least 20 words.
 
-- **fired = false**: the pattern does not fire. Set score to 0 and write a short rationale (at least 20 words) explaining why the pattern does not apply to this proposal. Evidence span is optional when fired is false.
+- **If fired = true and score is negative (−1 or −2)**, you MUST also produce an `applicability_check`: a one-sentence justification that the constraint flagged by this pattern is NOT itself the study's manipulation-under-test. This prevents mis-firing against calibration or friction interventions whose deliberate purpose is to create the very condition the pattern flags. Example: a study of engineer over-trust in AI code review may deliberately include a mandatory-reply gate to force reflection — the "weak override" pattern must NOT fire on that gate because the friction is the independent variable. The applicability check is how you state this.
 
-You MUST NOT fire a pattern on vibes. If you cannot quote a specific span from the artifacts, the pattern does not fire. The linter downstream will reject the output if `fired: true` appears without an `evidence_span` field.
+- **fired = false**: the pattern does not fire. Set score to 0 and write a short rationale (at least 20 words) explaining why the pattern does not apply to this proposal. Evidence span and applicability_check are optional when fired is false.
+
+You MUST NOT fire a pattern on vibes. If you cannot quote a specific span from the artifacts, the pattern does not fire. The linter downstream will reject the output if `fired: true` appears without an `evidence_span` field, or if `fired: true` with a negative score appears without an `applicability_check`.
 
 ## Scoring rules
 
