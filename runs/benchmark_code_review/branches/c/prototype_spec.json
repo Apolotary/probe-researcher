@@ -1,0 +1,184 @@
+{
+  "stage": "4_prototype",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_code_review",
+  "branch_id": "c",
+  "title": "Longitudinal WoZ Study: AI Onboarding Scaffold and Mental Model Formation in Legacy Codebase Navigation",
+  "actors": [
+    {
+      "role": "participant",
+      "description": "Mid-level software engineer (2–6 years professional experience, unfamiliar with the study codebase) who is onboarding to a simulated legacy codebase and using either the AI-scaffold PR review tool (treatment) or documentation-plus-code-search (control) across 8–12 weeks of structured weekly sessions.",
+      "count": 10
+    },
+    {
+      "role": "wizard",
+      "description": "A senior engineer with deep knowledge of the study codebase who sits in a separate room monitoring the participant's GitHub pull request drafts in real time and manually composing AI-scaffold annotations — including pointers to historical commits, related module references, and convention rationales — injected into the PR interface within 90 seconds of PR submission, mimicking a responsive automated system.",
+      "count": 2
+    },
+    {
+      "role": "observer",
+      "description": "A researcher who watches the screen-share feed and think-aloud audio during weekly benchmark sessions, takes timestamped notes on navigation choices and verbal uncertainty markers, and does not interact with the participant during the session.",
+      "count": 1
+    },
+    {
+      "role": "facilitator",
+      "description": "A researcher who briefs participants at the start of each weekly session, administers structured tasks and verbal probes at designated checkpoints, collects post-session self-report instruments, and debriefs participants at week 12 — the facilitator does not answer codebase-content questions during tasks.",
+      "count": 1
+    }
+  ],
+  "context": {
+    "setting": "Remote sessions conducted over video conference (Zoom with screen-share enabled); participants work from their own workstation with a standardized repository clone of the study codebase (a real, open-source legacy Rails monolith, ruby-on-rails/rails at commit sha pinned to 7.0.4) checked out locally; wizard and observer join the Zoom from separate private rooms with muted cameras.",
+    "device": "Participant's own laptop running their preferred OS; Chrome 120+ browser for the simulated GitHub PR interface (a static HTML fixture served at localhost:4000); VS Code 1.85+ for local code navigation; screen-share at 1920x1080 minimum resolution captured by Zoom cloud recording.",
+    "duration_minutes": 90,
+    "session_structure": "Each of the 10 weekly benchmark sessions runs 90 minutes and follows a fixed four-part structure. Part 1 (10 min): Facilitator opens the Zoom, confirms screen-share is recording, and reads the session brief aloud from a script — this brief names the week's focus area within the codebase (e.g., 'Active Record callbacks and their interactions with the transaction layer'). Part 2 (50 min): Participant completes three structured tasks in sequence — a codebase-navigation search task (15 min, timed), an architectural-sketching task where they draw a module-relationship diagram on a shared Miro board (20 min), and a predictive-debugging task where they read a synthetic bug report and name the file and line range they expect to contain the fault before opening any code (15 min). During Part 2, treatment participants may open PRs on the fixture GitHub interface and receive wizard annotations; control participants may use only the pinned Rails documentation PDF and VS Code's global search. Part 3 (20 min): Semi-structured interview in which the facilitator asks six fixed verbal probes (listed in the interview script) about the participant's reasoning during each task. Part 4 (10 min): Participant completes three self-report Likert instruments (AI reliance, codebase confidence, annotation usefulness) and one open-ended written reflection prompt, then is debriefed on session logistics for the next week."
+  },
+  "task_flow": [
+    {
+      "step": 1,
+      "participant_action": "Participant reads the week's focus-area brief provided by the facilitator, then opens VS Code and begins navigating the Rails codebase to locate a specific module named in the navigation task prompt (e.g., 'Find the entry point for transaction rollback callbacks in Active Record and trace the call chain to the point where callbacks are invoked'). They verbalize their navigation decisions continuously and may use only VS Code global search and file tree — not browser search or external references — during this 15-minute window.",
+      "system_response": "For treatment participants: the fixture GitHub PR interface is available in the browser but the wizard does not inject annotations during the navigation task itself — annotations are reserved for PR-submission moments. The system presents no proactive hints. For control participants: the Rails documentation PDF is open in a separate window; no other resources are available. The VS Code file tree and global search function normally for all participants.",
+      "wizard_decisions": [
+        "Decide whether the participant has submitted a draft PR during the navigation window (which should not occur — if it does, do not inject annotations yet; log the anomaly for the observer).",
+        "Monitor the screen-share to note which files the participant visits and in what sequence; record this in the wizard log for later comparison against the architectural-sketch task.",
+        "If the participant appears completely stuck after 10 minutes (no file opened in 2+ minutes, audible distress), relay a signal to the facilitator via private Zoom chat — the facilitator may then offer a single scripted hint: 'The entry point documentation is in activerecord/lib/active_record'."
+      ]
+    },
+    {
+      "step": 2,
+      "participant_action": "Participant opens the fixture GitHub PR interface in Chrome, creates a draft PR for a small synthetic change they are given (a two-line patch file pre-loaded into the fixture as a git diff), writes a PR description explaining what the change does and why, and submits the draft. They then wait, narrating their expectations aloud, until annotations appear. After reading the annotations, they revise or confirm their PR description and mark the PR ready for review.",
+      "system_response": "For treatment participants: within 90 seconds of PR submission, the wizard injects a structured annotation block into the PR comment thread via the wizard control panel. The annotation block contains exactly three sections — (A) 'Related historical commits' listing 2–3 commit SHAs with one-sentence summaries drawn from the wizard's pre-prepared annotation library for this week's focus area; (B) 'Related modules' naming 2–3 files in the codebase with a one-sentence rationale for the connection; (C) 'Convention rationale' explaining the Rails convention the patch touches, citing the specific documentation section. The annotation is prefaced with the label 'AI Learning Scaffold (for your reference — not a blocking review)'. For control participants: no annotation appears; the fixture PR interface shows only the diff and the participant's own description.",
+      "wizard_decisions": [
+        "Select which pre-authored annotation set from the annotation library matches this week's focus area and the specific diff in the patch — the library contains 12 sets, one per anticipated focus area; choose the closest match even if not exact.",
+        "Decide whether the participant's PR description demonstrates a misconception about the change's purpose that warrants selecting the annotation variant that corrects the misconception (annotation variant B) versus the standard variant (A) — use variant B only if the description contains a factually incorrect claim about which module is affected.",
+        "Decide whether the annotation should be injected at exactly 60 seconds (standard) or delayed to 90 seconds if the participant is mid-sentence in think-aloud, to avoid disrupting a coherent verbal thought."
+      ]
+    },
+    {
+      "step": 3,
+      "participant_action": "Participant opens the shared Miro board and, using the provided module-card deck (a set of labeled sticky notes pre-placed on the board representing 20 Rails modules), draws directional arrows between modules to represent their understanding of dependency and call relationships within the focus area. They have 20 minutes and must place at least 8 arrows. They narrate each arrow placement, explaining why they believe the relationship exists.",
+      "system_response": "No AI scaffold or annotation fires during the sketching task for either group. The Miro board is identical for all participants. The system is passive — the fixture GitHub PR interface is closed by the facilitator before this task begins. The observer silently records which arrows are placed, their direction, and the verbal rationale via timestamped observer notes in a separate Google Doc.",
+      "wizard_decisions": [
+        "Confirm that the PR interface fixture is closed and no annotation can appear during the sketching window — if the participant attempts to re-open the fixture, relay to the facilitator via private chat to redirect the participant back to Miro.",
+        "Note in the wizard log any module connections the participant draws that were directly named in the annotation injected in Step 2 — these will be flagged for later analysis to assess annotation-to-sketch transfer.",
+        "If the participant places fewer than 4 arrows by the 10-minute mark, relay a signal to the facilitator, who reads the scripted prompt: 'Remember, there are no wrong answers — place arrows for relationships you are uncertain about too.'"
+      ]
+    },
+    {
+      "step": 4,
+      "participant_action": "Participant reads a synthetic bug report (a one-page PDF displayed in the browser at localhost:4000/bugreport) describing an unexpected behavior in the Rails transaction layer during a callback sequence. Without opening any code, they write down — in a plain text file on their desktop — the file path and line-number range they predict contains the fault, along with a one-paragraph explanation of their reasoning. They submit by saving the file and verbally saying 'done'.",
+      "system_response": "No AI scaffold fires during this task. The fixture is passive. After the participant says 'done', the facilitator opens the actual Rails codebase in VS Code to the correct fault location (pre-identified by the research team and recorded in the scoring rubric) and shares the screen briefly so the participant can see whether their prediction was in the correct file, adjacent file, or a different subsystem — this immediate feedback is standardized and scripted.",
+      "wizard_decisions": [
+        "Decide whether the participant's stated prediction file path matches, partially matches (correct directory, wrong file), or misses entirely (wrong subsystem), and record this in the wizard log using the three-category rubric (exact-match / adjacent / miss) before the facilitator reveals the answer.",
+        "If the participant's prediction matches a module that was specifically named in this week's Step 2 annotation, flag the log entry with tag 'annotation-influenced prediction' for later cross-analysis with Step 2 annotation content.",
+        "Confirm that the correct-fault location shown by the facilitator matches the pre-registered rubric answer — if the research team's rubric has an error (discovered live), log the discrepancy and continue without revealing uncertainty to the participant."
+      ]
+    },
+    {
+      "step": 5,
+      "participant_action": "Participant completes the post-session semi-structured interview (six fixed verbal probes read by the facilitator), then fills out three Likert instruments (AI Reliance Scale — 5 items; Codebase Confidence Scale — 6 items; Annotation Usefulness Scale — 4 items, treatment group only) and one open-ended written reflection prompt ('Describe in 2–3 sentences how your understanding of this area of the codebase changed during today's session, if at all'). They submit the written responses by typing into a Google Form and clicking submit.",
+      "system_response": "No AI system is active during this step. The Google Form auto-timestamps submission. The facilitator confirms receipt and provides the logistics brief for the next session. The session Zoom recording stops after the debrief.",
+      "wizard_decisions": [
+        "Review the wizard log entries from Steps 2, 3, and 4 before the interview begins (during the 5-minute instrument-completion window) and flag any discrepancies or notable observations to relay to the observer for inclusion in observer notes.",
+        "Decide whether any annotation injected in Step 2 appeared to be incorrectly matched to the participant's patch — if yes, note this in the wizard debrief log for protocol calibration before the next session."
+      ]
+    }
+  ],
+  "wizard_controls": [
+    {
+      "control_name": "inject_annotation_block",
+      "triggers": "Fires when the wizard sees a new draft PR submission appear in the fixture GitHub interface (monitored via the fixture's admin dashboard at localhost:4000/admin) during Step 2 of any session. The wizard clicks 'Inject Annotation' in the admin panel, selects the matching annotation set from a dropdown of 12 pre-authored sets, selects variant A or B, and clicks 'Post' — the annotation appears in the PR comment thread within 2 seconds of the wizard clicking Post.",
+      "effect": "A structured three-section comment block (sections: Related Historical Commits, Related Modules, Convention Rationale) appears in the participant's PR comment thread, prefaced with 'AI Learning Scaffold (for your reference — not a blocking review)', rendered as styled Markdown in the fixture PR interface. The injection timestamp and selected annotation set ID are automatically logged to a CSV file at logs/annotations.csv on the wizard's machine."
+    },
+    {
+      "control_name": "flag_stuck_participant",
+      "triggers": "Fires during Step 1 when the wizard observes no new file has been opened in VS Code for 2 or more consecutive minutes AND the participant's think-aloud audio has gone silent or contains repeated expressions of uncertainty (e.g., 'I don't know where to start', 'I'm lost'). The wizard clicks 'Flag Stuck' in the admin panel.",
+      "effect": "A private Zoom chat message reading 'STUCK SIGNAL — offer scripted hint now' is sent from the wizard's Zoom account to the facilitator's Zoom account. The facilitator then reads the pre-scripted hint from the session script. The flag event is logged with a timestamp to logs/facilitator_interventions.csv."
+    },
+    {
+      "control_name": "annotation_variant_override",
+      "triggers": "Fires during Step 2 when the wizard reads the participant's PR description and determines it contains a factually incorrect claim about which module is affected by the patch (e.g., participant writes 'this modifies the persistence layer' when the patch modifies the callback invocation layer). The wizard selects variant B from the annotation set dropdown before clicking Post.",
+      "effect": "The injected annotation block's Convention Rationale section is replaced with a corrective version that names the correct module and explicitly states 'Note: this change affects [correct module], not [incorrectly named module]'. All other sections remain identical to variant A. The variant selection (A or B) is recorded in logs/annotations.csv alongside the PR submission timestamp."
+    },
+    {
+      "control_name": "session_pause_relay",
+      "triggers": "Fires at any point during Steps 1–4 if a technical failure is detected by the wizard (fixture server unresponsive, Zoom screen-share frozen, participant reports VS Code crash). The wizard clicks 'Pause Session' in the admin panel.",
+      "effect": "A private Zoom chat message reading 'PAUSE — technical issue detected, pause the task clock' is sent to the facilitator. The facilitator reads the scripted pause announcement to the participant: 'We need to pause briefly for a technical check — please stop the task and relax.' The wizard logs the pause duration in logs/session_events.csv; task time for the affected sub-task is adjusted by subtracting the pause duration before recording."
+    }
+  ],
+  "observable_signals": [
+    {
+      "signal": "Codebase navigation path during Step 1: the sequence of files opened in VS Code, time spent per file, and total number of unique files visited before locating the target module.",
+      "capture_method": "screen_recording",
+      "analysis_plan": "Export Zoom cloud recording for each session. A research assistant watches each recording and manually codes the file-open sequence into a spreadsheet using a pre-defined file-taxonomy sheet that groups Rails files into 7 architectural layers (routing, controller, model, callback, transaction, persistence, test). For each participant at each week, compute: (a) number of files opened before reaching the correct target, (b) number of architectural layers traversed, (c) proportion of visited files that belong to the focus-area layer vs. peripheral layers. Compare treatment vs. control groups using repeated-measures coding across weeks 1, 4, 8, and 12 to assess whether treatment participants' navigation paths become more direct (fewer files, fewer layers) or broader over time."
+    },
+    {
+      "signal": "Architectural sketch arrow placement on Miro board during Step 3: which module pairs are connected, arrow direction, and the verbal rationale given for each arrow.",
+      "capture_method": "screen_recording",
+      "analysis_plan": "Export the Miro board state as a PNG after each session (auto-saved). Code each arrow as correct, plausible-but-unverifiable, or incorrect against a pre-registered answer key of 15 canonical relationships within the focus area (constructed by two senior Rails engineers prior to the study). For each participant and week, compute: (a) proportion of correct arrows, (b) proportion of arrows connecting modules named in that week's wizard annotation (treatment) or documentation section (control), (c) total number of cross-layer vs. within-layer arrows as a proxy for architectural breadth vs. depth. Additionally, cross-reference the verbal rationale (from think-aloud audio transcript) with annotation content: flag any rationale phrase that verbatim matches annotation wording as 'annotation echo' and compute the weekly frequency of annotation-echo rationales per treatment participant."
+    },
+    {
+      "signal": "Predictive debugging accuracy in Step 4: whether the participant's predicted fault file is an exact match, adjacent file, or miss, coded against the pre-registered rubric.",
+      "capture_method": "error_count",
+      "analysis_plan": "Score each Step 4 prediction as 0 (miss — wrong subsystem), 1 (adjacent — correct directory, wrong file), or 2 (exact match — correct file and line range within ±10 lines). Record scores in the master data CSV alongside group assignment and week number. Compute mean prediction score per group per week. Track score trajectory across weeks 1, 4, 8, and 12 within each participant to identify the week at which treatment and control group trajectories diverge, if at all. Cross-reference with the wizard log flags for 'annotation-influenced prediction' to assess how often correct predictions in the treatment group co-occur with annotations that named the correct module in Step 2 of the same session."
+    },
+    {
+      "signal": "Self-reported AI reliance and codebase confidence from Step 5 Likert instruments, collected at every session.",
+      "capture_method": "self_report_likert",
+      "analysis_plan": "Export Google Form responses to CSV. Score the 5-item AI Reliance Scale (1–5 per item, summed 5–25) and the 6-item Codebase Confidence Scale (1–5 per item, summed 6–30) for each participant at each week. Plot individual trajectories and group means across all weeks. For the treatment group, compute the Pearson correlation between the weekly AI Reliance score and the weekly architectural sketch accuracy score, to assess whether higher reported reliance co-occurs with narrower or broader sketch performance. For the control group, compute the same correlation between Codebase Confidence and sketch accuracy as a baseline."
+    },
+    {
+      "signal": "Open-ended written reflection content from Step 5: participant's self-description of how their codebase understanding changed during the session.",
+      "capture_method": "self_report_open_ended",
+      "analysis_plan": "Export all reflection text from Google Form. Two coders independently apply a pre-defined coding scheme with four mutually exclusive categories: (1) 'breadth expansion' — participant mentions learning about new modules or connections not previously known; (2) 'depth consolidation' — participant mentions understanding a known area more precisely; (3) 'confusion or regression' — participant expresses less certainty than before; (4) 'no change reported'. Coders resolve disagreements by discussion; inter-rater agreement is computed as Cohen's kappa before adjudication. Track the proportion of each code category per group per week to assess whether the treatment group skews toward breadth expansion and the control group toward depth consolidation over time."
+    },
+    {
+      "signal": "Task completion time for the Step 1 navigation task: elapsed time from task-start signal to the moment the participant verbally names or opens the correct target file.",
+      "capture_method": "task_completion_time",
+      "analysis_plan": "Facilitator records start time and the moment the participant says 'I found it' or opens the correct file (observer confirms from screen recording). Compute elapsed seconds per session per participant. Compare treatment vs. control group mean completion times at weeks 1, 4, 8, and 12. Assess whether the treatment group's navigation time decreases faster than the control group's, plateaus earlier, or diverges in a different pattern. Flag any session where the facilitator issued the scripted hint (from the stuck-participant control) and exclude that data point from the primary navigation-time analysis, reporting it separately."
+    },
+    {
+      "signal": "Wizard annotation log entries: which annotation set was selected, which variant (A or B), and the timestamp delta between PR submission and annotation injection.",
+      "capture_method": "log_events",
+      "analysis_plan": "Export logs/annotations.csv after each session. For each treatment-group session, verify that injection delta (time from PR submission to annotation appearance) was within the 90-second protocol window; flag any session exceeding 90 seconds as a protocol deviation. Compute the frequency of variant B selections across all sessions and weeks to assess whether participant PR descriptions improve over time (fewer misconceptions requiring variant B). Cross-reference annotation set IDs with sketch-arrow data: for each week, determine what proportion of correct sketch arrows connect module pairs explicitly named in that week's annotation, as a direct measure of annotation influence on mental-model representation."
+    }
+  ],
+  "failure_cases": [
+    {
+      "scenario": "The wizard is unable to inject an annotation within 90 seconds because the fixture admin dashboard fails to load (localhost:4000/admin returns 502) during a live PR submission in Step 2, leaving the treatment participant waiting with no response from the simulated AI system for longer than the plausible latency window.",
+      "expected_behavior": "The participant, expecting an AI annotation, will wait silently or narrate confusion ('It's not responding') and may begin interpreting the absence of annotation as a signal that their PR description was rejected or that the system is processing — potentially altering their PR-revision behavior in ways that contaminate the session data.",
+      "wizard_fallback": "Wizard immediately clicks 'Pause Session' in the admin panel to trigger the facilitator pause relay. Facilitator reads the scripted pause announcement. Wizard restarts the fixture server using the pre-written shell script at scripts/restart_fixture.sh (documented in the operator manual), confirms admin dashboard loads, then signals facilitator via private chat: 'RESUME — inject ready'. Facilitator resumes the task clock. The pause duration is logged in logs/session_events.csv and subtracted from the session record. If the server cannot be restarted within 5 minutes, the session is rescheduled and the participant is told the system had a maintenance window."
+    },
+    {
+      "scenario": "During Step 3 (architectural sketching on Miro), a treatment participant explicitly recalls and recites content from the wizard's annotation injected in Step 2 (e.g., 'The AI told me that module X connects to module Y, so I'll draw that') instead of independently deriving relationships from their own codebase understanding — making the sketch a direct transcription of the annotation rather than a measure of the participant's mental model.",
+      "expected_behavior": "The participant draws arrows that directly mirror the annotation's 'Related Modules' section and verbally attributes each arrow to the annotation rather than to their own navigation or reasoning. This produces sketch data that cannot be distinguished from annotation copying versus genuine mental-model formation, undermining the sketching task's validity as a mental-model probe.",
+      "wizard_fallback": "The observer flags the issue in real time by typing 'ANNOTATION RECALL — direct copy observed' in the observer notes Google Doc with a timestamp. The wizard logs the same flag in logs/session_events.csv. The facilitator does not interrupt during the sketch task. In the Step 5 semi-structured interview, the facilitator adds a follow-up probe (scripted in the interview guide as Probe 6b, used only when triggered): 'When you drew the arrow between [module X] and [module Y], were you recalling something specific or reasoning from the code you explored?' The participant's response is recorded and used to code that session's sketch data as 'annotation-derived' rather than 'independently derived' in the master dataset, and those arrows are excluded from the primary mental-model accuracy analysis but retained in a separate annotation-influence tally."
+    },
+    {
+      "scenario": "A control-group participant discovers that the pinned Rails documentation PDF contains a direct answer to the predictive-debugging bug report in Step 4 (because the synthetic bug report was inadvertently based on a documented known issue described verbatim in the PDF), giving them an unfair information advantage equivalent to the treatment group's annotation.",
+      "expected_behavior": "The control participant locates the exact fault location by searching the PDF rather than reasoning from their mental model, producing an anomalously high prediction-accuracy score that inflates control-group performance and compresses the treatment-control gap.",
+      "wizard_fallback": "If the observer or wizard detects rapid PDF-to-prediction behavior (participant submits prediction within 3 minutes of reading the bug report and verbally references the documentation rather than reasoning), the observer logs 'PDF-shortcut detected' in observer notes with a timestamp. The wizard logs the same in logs/session_events.csv. That session's Step 4 score is flagged for sensitivity analysis — it is included in the primary analysis but also reported separately in a 'flagged sessions' table. Before the next session, the facilitator reviews all remaining bug report prompts against the PDF index and, if overlap is found, the research team replaces the overlapping bug report with an alternate from the pre-authored set of 6 backup bug reports."
+    }
+  ],
+  "materials_needed": [
+    "Pinned Rails monolith repository clone: ruby-on-rails/rails at commit SHA 7.0.4.3, cloned to each participant's machine before session 1 using the setup script at scripts/participant_setup.sh",
+    "Fixture GitHub PR interface: static HTML/CSS/JS application served at localhost:4000, built from the fixture source at fixtures/pr_interface/, simulating a GitHub PR thread with diff viewer, comment thread, and draft/ready-for-review toggle; admin dashboard at localhost:4000/admin for wizard use",
+    "Annotation library: 12 pre-authored annotation sets (one per focus area), each containing variant A (standard) and variant B (misconception-correcting), stored as JSON at fixtures/annotations/set_01.json through set_12.json; each set contains three sections: related_commits (array of 2–3 objects with sha and summary), related_modules (array of 2–3 objects with file_path and rationale), and convention_rationale (string)",
+    "Synthetic patch files: 12 two-line git diff files (one per focus area week), pre-loaded into the fixture as static diffs at fixtures/patches/week_01.diff through week_12.diff",
+    "Synthetic bug reports: 12 one-page PDF bug reports (one per focus area week) plus 6 backup alternates, stored at fixtures/bug_reports/week_01.pdf through week_12.pdf and fixtures/bug_reports/backup_01.pdf through backup_06.pdf",
+    "Pre-registered fault-location rubric: a spreadsheet at rubric/fault_locations.xlsx listing the correct file path, correct line range (±10 lines), and the adjacent-file alternative for each of the 12 weekly bug reports",
+    "Miro board template: a shared Miro board with 20 labeled module sticky-notes pre-placed in a neutral grid layout, exported as a template file at fixtures/miro_template.rtb; a new board instance is created from this template for each participant before session 1",
+    "Module-relationship answer key: a spreadsheet at rubric/sketch_answer_key.xlsx listing 15 canonical directional relationships among the 20 modules, constructed and signed off by two senior Rails engineers prior to study launch",
+    "Three Likert instruments as Google Forms: (1) AI Reliance Scale (5 items, 1–5 anchors), (2) Codebase Confidence Scale (6 items, 1–5 anchors), (3) Annotation Usefulness Scale (4 items, 1–5 anchors, treatment group only) — form URLs distributed to participants via session email",
+    "Open-ended reflection Google Form: single text-area prompt with character minimum of 100 characters enforced by form validation",
+    "Semi-structured interview script: a PDF at materials/interview_script.pdf containing six fixed verbal probes plus Probe 6b (annotation-recall follow-up), with instructions for the facilitator on probe sequencing and clarification limits",
+    "Session script for facilitator: a per-week PDF at materials/session_scripts/week_01_script.pdf through week_12_script.pdf containing the focus-area brief, task instructions read aloud, scripted hint text, pause announcement text, and post-session debrief text",
+    "Wizard operator manual: a PDF at materials/wizard_manual.pdf documenting the admin dashboard controls, annotation injection procedure, flag controls, fixture restart script location, and protocol deviation logging procedures",
+    "Logging infrastructure: CSV log files initialized before session 1 at logs/annotations.csv, logs/session_events.csv, and logs/facilitator_interventions.csv, with column headers defined in materials/log_schema.md",
+    "Observer notes Google Doc template: a shared Google Doc with timestamped row structure, pre-populated with session metadata fields and the four observable-signal shorthand codes (NAV, SKETCH, DEBUG, RELAY) for rapid in-session tagging",
+    "Setup script: scripts/participant_setup.sh for cloning the pinned Rails repo and installing VS Code extensions (GitLens 14.x, Ruby LSP 0.x) on participant machines before session 1",
+    "Fixture restart script: scripts/restart_fixture.sh for wizard use during server failure, documented with expected output and failure states in the wizard operator manual"
+  ],
+  "provenance": {
+    "specification": "AGENT_INFERENCE"
+  }
+}

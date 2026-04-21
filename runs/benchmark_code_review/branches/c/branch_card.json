@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_code_review",
+  "branch_id": "c",
+  "research_question": "Over 8–12 weeks of onboarding to an unfamiliar legacy codebase, does sustained use of an AI review tool accelerate, retard, or redirect the mental models mid-level engineers build of that codebase — measured through codebase-navigation tasks, architectural sketching, and predictive debugging?",
+  "intervention_primitive": "an onboarding-period scaffold in which the AI reviewer annotates PRs with pointers to historical commits, related modules, and convention rationales, positioned explicitly as a learning aid and logged for later review by the engineer; compared longitudinally against an equally-resourced control using only documentation and code search",
+  "human_system_relationship": "human_scaffolds_system",
+  "method_family": "longitudinal",
+  "one_sentence_claim": "Mid-level engineers onboarding to a legacy codebase with an AI review scaffold develop different mental models — broader in reach but shallower in architectural depth — than peers using conventional tools, with the divergence visible by week 6.",
+  "why_divergent": "Differs from branch A on method_family (longitudinal trajectory vs single-session evaluation) and research_question (learning and mental-model formation vs defect-class attention shift); differs from branch B on human_system_relationship (human_scaffolds_system, where the engineer curates and directs the tool's annotations, vs adversarial_check) and intervention_primitive (onboarding scaffold vs challenger agent).",
+  "grounding": [
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "capture_risk_theory",
+      "quoted_claim": "AI decision-support can erode domain-specific autonomy — comprising skilled competence and authentic value-formation — through absent failure indicators and unconscious value shifts, raising design questions about preserving users' skilled competence while leveraging AI capabilities."
+    },
+    {
+      "source_card": "illich_1973",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "Tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool, contracting rather than expanding the range of autonomous action available to users."
+    },
+    {
+      "source_card": "jakesch_2023_cowriting",
+      "relevance": "prior_finding",
+      "quoted_claim": "Co-writing with an opinionated AI assistant shifts users' expressed views and subsequent attitudes in the direction of the model's configured stance, even when users are unaware they are being influenced — a latent effect that extends beyond the immediate task."
+    },
+    {
+      "source_card": "sundar_2008_main_model",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "Structural and technological features of a system can bias users' judgments via cognitive heuristics triggered by interface affordances in ways users do not notice, with agency cues in particular invoking an authority or machine heuristic that alters perceived trustworthiness independently of actual source quality."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

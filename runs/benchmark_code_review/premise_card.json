@@ -1,0 +1,29 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_code_review",
+  "raw_premise": "design a study to evaluate an AI-assisted code review tool for mid-level engineers working on legacy codebases",
+  "sharpest_question": "Evaluate against what — review speed, defect-catch rate, reviewer learning, or the downstream quality of the code that ships — because each implies a different study and they are not compatible with one specific study.",
+  "claim": "An AI-assisted code review tool produces measurably better outcomes than unaided review when mid-level engineers work on legacy code.",
+  "differentia": "Not visible in the premise. 'AI-assisted code review' is now a crowded category (Copilot Review, CodeRabbit, Graphite, Sourcery, GitHub's own PR summaries); the premise does not name what is specific about legacy-context review that existing evaluations miss, nor what about mid-level engineers (as opposed to junior or senior) changes the evaluation design.",
+  "nearest_template": "The standard 'AI pair-programmer productivity' study (e.g., the Copilot RCT genre): recruit developers, give half the tool, measure task completion time and a quality proxy on a bounded task. Transposed here from authoring to reviewing.",
+  "missing_evidence": [
+    "No operational definition of 'legacy codebase' — age, test coverage, language, absence of original authors, documentation state — any of which changes what an AI reviewer can even see.",
+    "No specification of what 'mid-level' means or why this population is the right one to study rather than a confound to control for.",
+    "No primary outcome. Review throughput, defect detection, reviewer calibration, and long-term code health are four different studies.",
+    "No comparison condition. Versus no tool? Versus a non-AI static analyzer? Versus a senior human reviewer?",
+    "No theory of why AI assistance would help more (or less) on legacy code than on greenfield code — the premise assumes legacy is the interesting setting without arguing it.",
+    "No account of the reviewer's role — is the human gatekeeping AI suggestions, or is the AI gatekeeping the human's review? The dependent variable depends on this."
+  ],
+  "sharpened_options": [
+    "A defect-detection study: seeded-bug PRs in real legacy repositories, within-subjects design, measuring whether AI assistance changes which bug classes mid-level reviewers catch versus miss, with a specific hypothesis that AI helps on local bugs but hurts on architectural/contextual ones that require tribal knowledge.",
+    "A calibration study: measure whether AI-assisted reviewers become more or less accurate at judging their own review quality — i.e., does the tool induce automation bias on legacy code, where context the AI lacks is the dominant failure mode?",
+    "A skill-trajectory study: longitudinal (8–12 weeks), tracking whether mid-level engineers using the tool on unfamiliar legacy code build mental models of the codebase faster, slower, or differently than a control group — reframing the tool as a learning intervention, not a productivity one.",
+    "A review-artifact study: compare the review comments themselves (human-only vs. human+AI) on matched legacy PRs, coded for depth, locality, and whether they reference project-specific conventions — asking whether AI assistance shifts review from architectural concerns toward surface concerns.",
+    "A deployment-realism study: field deployment in one organization's legacy codebase, measuring post-merge defect rate and revert rate over 3 months, accepting loss of experimental control in exchange for ecological validity on the legacy-specific question."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

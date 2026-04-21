@@ -1,0 +1,155 @@
+{
+  "stage": "6_audit",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_code_review",
+  "branch_id": "a",
+  "findings": [
+    {
+      "pattern_id": "capacity.substitutes_for_practice",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "The study is a measurement study of attention shift under simulated AI review assistance, not a skill-training intervention. The AI does not substitute for the participant's core reviewing skill on the target defect classes (architectural/convention); in fact the research question is precisely whether the participant continues to exercise that skill. Participants perform the review themselves and author their own comments; the simulated AI only flags local-checkable issues as a scripted stimulus. No button performs the reviewing work on the participant's behalf."
+    },
+    {
+      "pattern_id": "capacity.no_fade_mechanism",
+      "axis": "capacity",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "In the AI-assistant condition: after the participant has viewed at least one file fully (wizard-triggered), the AI sidebar populates with 3–5 pre-scripted inline comments anchored to specific line numbers."
+      },
+      "rationale": "Within an AI-assistant trial, the assistance is always-on at a fixed level: the sidebar activates, comments stream in, and a 'No issues detected' placeholder fires for unflagged files. There is no wizard control or task-flow mechanism that gradually reduces scaffolding based on participant signal or session progress. While this is a short study, the design models an always-on assistant without any fade affordance, which is the condition this pattern flags."
+    },
+    {
+      "pattern_id": "capacity.creates_dependency_loop",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "rationale": "No observable_signal is framed as 'tool usage growth' being a success metric. On the contrary, the primary dependent measures explicitly include detection rates on defect classes the AI does not flag and the ratio of attention to architectural/convention files, which are designed to surface rather than celebrate dependency. The analysis plan treats high AI-deference as a finding to be characterized, not as a success outcome."
+    },
+    {
+      "pattern_id": "capacity.no_rehearsal_space",
+      "axis": "capacity",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "10–15 min: Warm-up task — participant reviews a short unseeded PR in the same Gitea interface to acclimate to the tool."
+      },
+      "rationale": "The session structure includes an explicit warm-up PR in the same Gitea interface for tool familiarization before any seeded trials. While the walkthrough notes that five minutes may be insufficient for Gitea unfamiliarity, a low-stakes rehearsal space is provided by design. Additionally, this is a one-shot research session rather than a skill-building intervention, so the pattern's ongoing-practice concern does not map cleanly."
+    },
+    {
+      "pattern_id": "agency.auto_decides_consequential_step",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "No consequential action is taken by the system on the participant's behalf. The participant personally authors every inline comment, chooses the verdict (Approve / Request Changes / Comment), types the summary, and clicks Submit. The simulated AI only posts advisory comments in a sidebar; it does not submit reviews, merge PRs, or route decisions to third parties. Authority over the review outcome remains fully with the participant."
+    },
+    {
+      "pattern_id": "agency.hides_options_before_review",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "The AI assistant in this study does not present a curated recommendation that substitutes for the participant's option set. Participants retain full access to the entire PR diff, all files, and all lines; the AI comments are additive annotations, not a filtered or ranked recommendation that suppresses alternatives. The participant can freely navigate files the AI has not commented on, so the space of reviewable alternatives is not hidden."
+    },
+    {
+      "pattern_id": "agency.weak_override",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "There is no override mechanism to evaluate because the AI does not make binding decisions. Participants can simply ignore, disagree with, or contradict any AI comment by writing their own, and the submission flow treats participant and AI comments as distinct. No ceremonial-override asymmetry is introduced by the design."
+    },
+    {
+      "pattern_id": "agency.paternalistic_default",
+      "axis": "agency",
+      "fired": false,
+      "score": 0,
+      "rationale": "The participant population is mid-level software engineers, not a population historically subject to paternalistic framing in the sense this pattern targets (disabled, elderly, mental health, children). The default assistance is experimental stimulus rather than protective intervention imposed on an assumed-to-need-it group, so the pattern does not apply."
+    },
+    {
+      "pattern_id": "exit.data_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "Artifacts produced during the session (review comments, questionnaires, logs) are stored in Gitea's database, SurveyJS forms, and spreadsheets — all standard or exportable formats. Participants' authored comments are their own review text in a forked local Gitea instance used only for the study; there is no participant-owned artifact that would be trapped in a proprietary format they would want to take elsewhere after the session."
+    },
+    {
+      "pattern_id": "exit.workflow_lock_in",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The study is a single 120-minute lab session on a locally-hosted Gitea fork; it does not restructure the participant's team workflow, meeting cadence, or review norms at their real workplace. No task_flow step requires coworkers or institutional systems to adopt the simulated assistant, so exit is costless — the participant simply leaves the lab and returns to their normal review process."
+    },
+    {
+      "pattern_id": "exit.competence_decay_on_exit",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "within-condition order is randomized per participant per a pre-generated schedule"
+      },
+      "rationale": "The within-participant counterbalanced design explicitly includes an unaided condition for every participant, so unaided performance on architectural/convention defects is measured directly. Moreover, the exposure is a single 120-minute session — far too brief to induce the sustained-use competence decay this pattern targets. Unaided performance measurement is in fact the primary dependent variable."
+    },
+    {
+      "pattern_id": "exit.institutional_dependence",
+      "axis": "exit",
+      "fired": false,
+      "score": 0,
+      "rationale": "The Gitea instance is locally hosted on a dedicated server run by the research team, and the simulated AI is a Wizard-of-Oz illusion with no real vendor dependency. Participants do not carry any platform account, subscription, or institutional credential away from the session. After the debrief they return to whatever code review infrastructure their employer uses, with no new dependency created."
+    },
+    {
+      "pattern_id": "legibility.opaque_ranking",
+      "axis": "legibility",
+      "fired": false,
+      "score": 0,
+      "rationale": "The simulated AI does not rank or filter a list of options for the participant. It posts inline comments anchored to specific line numbers, which are additive annotations rather than a ranked selection. The participant still sees the full diff in its natural file/line order, so there is no hidden ordering rationale to flag."
+    },
+    {
+      "pattern_id": "legibility.no_failure_signal",
+      "axis": "legibility",
+      "fired": true,
+      "score": -2,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "AI sidebar shows no new comments for the architectural-drift or convention-violation files — the pre-scripted comment set is intentionally limited to local-checkable issues only, so the sidebar remains static for these files. A subtle 'No issues detected in this file' placeholder appears in the sidebar when the participant navigates to these files."
+      },
+      "rationale": "This is the study's central manipulation: the simulated AI is silently wrong on architectural and convention defects and actively asserts 'No issues detected in this file' when real seeded defects are present. The expected behavior is that the participant will not detect this failure; the walkthrough itself notes 'the primary dependent measure depends on participants not realizing what is happening to them.' There is no in-flow signal that the AI has limited scope, no confidence indicator, no disclosure of the defect classes the AI cannot see. Participants are exposed to false-negative assertions presented as positive evidence of cleanliness, which is precisely the capture condition this pattern flags — and it is a measurement study that records but does not remediate this exposure within the session. Combined with the WoZ deception (not revealed until debrief), participants cannot form an accurate mental model of failure modes at the point of action."
+    },
+    {
+      "pattern_id": "legibility.no_rationale_at_point_of_action",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "the AI sidebar populates with 3–5 pre-scripted inline comments anchored to specific line numbers. Comments are always of the local-checkable class (e.g., null-pointer risk on line 47, unused import on line 12, off-by-one in loop bound on line 83) regardless of which defect classes are actually seeded in that PR."
+      },
+      "rationale": "AI comments appear with defect-specific text but no inline affordance to inspect why this line was flagged and not others, what the AI's scope or confidence is, or on what basis 'No issues detected' is asserted for architectural files. Participants must either accept or ignore each comment without a rationale-inspection surface at the point of decision. The walkthrough confirms this is a salient gap ('A sophisticated participant... might plausibly form a meta-hypothesis: this AI only catches surface stuff') — the design relies on the opacity of rationale for its manipulation to work."
+    },
+    {
+      "pattern_id": "legibility.unverifiable_summary",
+      "axis": "legibility",
+      "fired": true,
+      "score": -1,
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "sidebar updates to show 'Review complete — AI flagged 3–5 issues, you flagged N issues' with a count comparison."
+      },
+      "rationale": "At submission, a synthesized count-comparison summary is presented to the participant immediately before the completeness Likert measurement, with no affordance to inspect what 'issues' were counted on either side, what defect classes were covered, or whether the AI's count represents comprehensive coverage. The walkthrough explicitly notes this 'couples an experimental manipulation with a measurement step' and could shift completeness ratings in either direction. Presenting an unverifiable tally as a review-complete signal, with no drill-down, matches this pattern; the participant cannot trace the summary back to its basis before acting on it (submitting and self-rating)."
+    }
+  ],
+  "axis_scores": {
+    "capacity": -1,
+    "agency": 0,
+    "exit": 0,
+    "legibility": -4
+  },
+  "verdict": "BLOCKED",
+  "verdict_rationale": "legibility.no_failure_signal fires at -2 because the study's central manipulation is a silent-wrong AI that asserts 'No issues detected in this file' on files with real seeded architectural and convention defects, with the design depending on participants not detecting this failure during the session. Per the scoring rules, any -2 finding triggers BLOCKED. Contributing -1 findings on legibility.no_rationale_at_point_of_action and legibility.unverifiable_summary compound the axis erosion, and capacity.no_fade_mechanism at -1 indicates the always-on shape of the simulated assistance. A WORKSHOP_NOT_RECOMMENDED report should be emitted; the legibility erosion is not incidental but constitutive of the manipulation, so proceeding would require reconceiving how failure modes and the count summary are disclosed to participants (e.g., within-session debrief, post-trial disclosure of AI scope, or a scope-labeled assistant) rather than minor revision.",
+  "provenance": {
+    "audit": "AGENT_INFERENCE"
+  }
+}

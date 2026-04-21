@@ -1,0 +1,25 @@
+{
+  "run_id": "benchmark_code_review",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2"
+    },
+    {
+      "branchId": "c",
+      "status": "failed",
+      "stage": "7_review",
+      "reason": "7b_accessibility schema validation failed after repair:\n/recommendation: must be equal to one of the allowed values"
+    }
+  ]
+}

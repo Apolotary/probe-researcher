@@ -1,6 +1,8 @@
 import chalk from 'chalk';
 import { runPipeline } from '../orchestrator/pipeline.js';
 import type { RunOptions } from '../orchestrator/types.js';
+import { banner, tagline, strapline } from '../ui/logo.js';
+import { palette, emojis } from '../ui/theme.js';
 
 interface RunCommandOptions {
   runId?: string;
@@ -34,10 +36,16 @@ export async function runCommand(
     includeNovelty: opts.novelty !== false,
   };
 
-  console.log(chalk.bold(`probe run ${runId}`));
-  console.log(chalk.dim(`  premise: ${premise}`));
-  console.log(chalk.dim(`  branches: ${branches}`));
-  if (skip.length > 0) console.log(chalk.dim(`  skipping stages: ${skip.join(', ')}`));
+  // Logo banner — suppress on narrow terminals.
+  if ((process.stdout.columns ?? 80) >= 52 && !process.env.PROBE_NO_BANNER) {
+    console.log(banner());
+    console.log(tagline());
+    console.log('');
+  }
+  console.log(strapline(runId, premise));
+  if (skip.length > 0) {
+    console.log(chalk.hex(palette.dim)(`  skipping stages: ${skip.join(', ')}`));
+  }
   console.log('');
 
   const result = await runPipeline(options);
@@ -45,18 +53,28 @@ export async function runCommand(
   const guidebookSkipped = skip.includes('8');
   if (result.status === 'completed') {
     if (guidebookSkipped) {
-      console.log(chalk.green(`\n✓ pipeline complete (stage 8 skipped) — runs/${runId}/`));
+      console.log(
+        '\n' + chalk.hex(palette.passed)(`${emojis.passed}  pipeline complete (stage 8 skipped) — runs/${runId}/`),
+      );
     } else {
-      console.log(chalk.green(`\n✓ pipeline complete — runs/${runId}/PROBE_GUIDEBOOK.md`));
+      console.log(
+        '\n' +
+          chalk.hex(palette.passed)(
+            `${emojis.passed}  pipeline complete — runs/${runId}/PROBE_GUIDEBOOK.md`,
+          ),
+      );
     }
   } else if (result.status === 'all_branches_blocked') {
     console.log(
-      chalk.yellow(
-        `\n⚠ all branches blocked — see runs/${runId}/branches/*/WORKSHOP_NOT_RECOMMENDED.md`,
-      ),
+      '\n' +
+        chalk.hex(palette.revision)(
+          `${emojis.blocked}  all branches blocked — see runs/${runId}/branches/*/WORKSHOP_NOT_RECOMMENDED.md`,
+        ),
     );
   } else {
-    console.log(chalk.red(`\n✗ pipeline failed at stage ${result.failedStage ?? 'unknown'}`));
+    console.log(
+      '\n' + chalk.hex(palette.blocked)(`✗ pipeline failed at stage ${result.failedStage ?? 'unknown'}`),
+    );
     process.exitCode = 2;
   }
 }

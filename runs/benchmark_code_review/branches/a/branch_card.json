@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_code_review",
+  "branch_id": "a",
+  "research_question": "Does AI review assistance systematically shift mid-level reviewers' attention toward locally-checkable surface issues and away from architectural or convention-specific concerns that require tribal knowledge of a legacy codebase?",
+  "intervention_primitive": "seeded-defect pull requests spanning a taxonomy of bug classes (local syntax/logic, cross-file coupling, project-convention violations, architectural drift) injected into forks of real open-source legacy repositories, reviewed with vs. without an AI review assistant",
+  "human_system_relationship": "system_augments_human",
+  "method_family": "evaluative",
+  "one_sentence_claim": "Mid-level reviewers with AI assistance catch more local defects but miss more architectural and convention-specific defects than unaided reviewers on matched legacy pull requests, with the shift being largest where project-specific context is thickest.",
+  "why_divergent": "Differs from branch B on human_system_relationship (system_augments_human vs adversarial_check) and intervention_primitive (seeded-defect PR corpus vs a red-team agent challenging the reviewer); differs from branch C on method_family (evaluative vs longitudinal) and research_question (attention-shift in bug-catching vs mental-model formation over time).",
+  "grounding": [
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "AI decision-support can erode domain-specific autonomy via absent failure indicators and unconscious value shifts, undermining the skilled competence component of expertise."
+    },
+    {
+      "source_card": "liang_nejm_ai_2024",
+      "relevance": "prior_finding",
+      "quoted_claim": "LLM-generated feedback overlaps with human reviewer feedback at roughly 30–39%, suggesting AI assistance complements but does not replicate the full scope of human expert review judgment."
+    },
+    {
+      "source_card": "sundar_2008_main_model",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "Structural and technological features of a system can bias credibility judgments via cognitive heuristics triggered by surface cues, in ways users do not notice — carrying implications for how interface design shapes attention and evaluation."
+    },
+    {
+      "source_card": "jin_agentreview_2024",
+      "relevance": "methodology_precedent",
+      "quoted_claim": "Simulated reviewer agent biases can account for substantial variation in review outcomes, illustrating how latent factors in reviewer cognition and support tools systematically shift which issues receive attention."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

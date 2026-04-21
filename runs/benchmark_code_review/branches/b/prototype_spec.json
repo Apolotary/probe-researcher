@@ -1,0 +1,172 @@
+{
+  "stage": "4_prototype",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_code_review",
+  "branch_id": "b",
+  "title": "Adversarial Devil's Advocate AI Challenger for Code Review Calibration — WoZ Prototype Specification",
+  "actors": [
+    {
+      "role": "participant",
+      "description": "A mid-level software engineer (2–6 years professional experience, has conducted code reviews in a team context but is not a designated tech lead) who reviews legacy Python or Java pull requests through a browser-based mock code review interface.",
+      "count": 1
+    },
+    {
+      "role": "wizard",
+      "description": "A senior engineer or researcher seated in a separate room who monitors the participant's review activity in real time via a shared screen feed and types challenger-agent responses into a wizard control panel that injects them into the participant's interface with a simulated 2–4 second processing delay.",
+      "count": 1
+    },
+    {
+      "role": "observer",
+      "description": "A researcher who silently watches the session from an adjacent observation room via screen share and audio feed, takes timestamped field notes on participant hesitation, rereads, and verbal expressions of uncertainty, and does not intervene during the session.",
+      "count": 1
+    },
+    {
+      "role": "facilitator",
+      "description": "A researcher physically present with the participant who introduces the task, administers consent and pre-session questionnaires, prompts think-aloud if the participant goes silent for more than 30 seconds, and administers the post-task interview.",
+      "count": 1
+    }
+  ],
+  "context": {
+    "setting": "A quiet single-occupancy usability lab room with one participant workstation (monitor, keyboard, mouse) and no coding environment beyond the browser-based mock review interface. The wizard and observer occupy a separate room connected via a one-way audio feed and screenshare. The participant is told they are evaluating 'an experimental AI-assisted code review tool' and is not informed that a human is generating the AI responses.",
+    "device": "Desktop browser, Chrome 124 or later, 1920x1080 display, standard keyboard and mouse; wizard uses a separate laptop running the WoZ control panel (a custom localhost web app) on Chrome 124, same resolution.",
+    "duration_minutes": 90,
+    "session_structure": "0–10 min: Facilitator conducts consent, collects demographics (years of experience, languages used, prior AI tool exposure), and administers a 10-item Reviewer Self-Efficacy Scale (Likert 1–7) as baseline. 10–15 min: Facilitator walks participant through the mock interface using a non-study warm-up PR (a 20-line trivial bug fix) in no-tool condition so participant is comfortable with the UI before any challenger interactions. 15–75 min: Participant completes three legacy-code PR review tasks in counterbalanced condition order (adversarial challenger, suggestion-style AI, no tool) with each PR taking approximately 20 minutes; a 2-minute buffer between tasks allows the facilitator to reset the interface. 75–85 min: Semi-structured post-session interview covering perceived tool utility, moments of confidence change, and task difficulty. 85–90 min: Facilitator administers a 6-item Confidence Calibration Reflection questionnaire and debriefs the participant about the WoZ nature of the AI responses."
+  },
+  "task_flow": [
+    {
+      "step": 1,
+      "participant_action": "Participant opens the mock review interface, reads the PR description (a 150–250 line legacy Python or Java diff with embedded ground-truth defects pre-seeded by the research team), and begins reading the first hunk of changed code. Participant is instructed to think aloud and to annotate hunks with inline comments as they would in a real review, rating their confidence in each comment on a 1–5 scale using a confidence slider embedded below each comment box before submitting it.",
+      "system_response": "The interface displays the diff with line numbers, a right-side panel labeled 'AI Review Assistant', and per-comment confidence sliders. No challenger response is shown yet; the panel displays 'Analyzing...' with a spinner after the participant submits a confidence rating, lasting 2–4 seconds (wizard-controlled delay).",
+      "wizard_decisions": [
+        "Decide whether the participant's inline comment addresses a real defect, a phantom issue, or a stylistic preference, using the pre-prepared ground-truth answer key for this PR.",
+        "Decide whether the participant's stated confidence level (1–5 slider) is well-calibrated, overconfident, or underconfident relative to the ground truth, to determine the intensity of the challenger response needed.",
+        "Decide whether to fire a full adversarial challenge, a lighter clarifying question, or no challenge at this step (e.g., if the comment is unambiguously correct and participant confidence is appropriately moderate, the wizard may issue only a clarifying question rather than a strong counterexample)."
+      ]
+    },
+    {
+      "step": 2,
+      "participant_action": "Participant reads the challenger agent's response, which appears in the right-side panel as a chat-style message attributed to 'DevAudit AI'. The message either (a) presents a counterexample from a different file in the repository (shown as a code snippet in the panel) and asks 'What would have to be true in [FileX] for this change to be safe?', or (b) asks the participant to name the invariant they are relying on. Participant must type a written reply in a mandatory response box (minimum 20 characters enforced by the UI) and click 'Submit Response' before the 'Approve Hunk' or 'Request Changes' button becomes active.",
+      "system_response": "The 'Approve Hunk' and 'Request Changes' buttons are grayed out and display 'Respond to AI before proceeding' until the participant submits a reply. After the participant submits their reply, the buttons activate and the AI panel shows a brief acknowledgment message ('Response recorded') — the wizard does not generate a second-turn rebuttal unless they trigger the FOLLOW_UP_PROBE control.",
+      "wizard_decisions": [
+        "Decide which specific counterexample snippet to inject: select from the pre-prepared counterexample library for this PR (each PR has 3–5 pre-written counterexamples at varying relevance levels) or compose a novel one if none fits; record which was used.",
+        "Decide whether the participant's typed reply is substantive (engages with the counterexample logic) or dismissive (e.g., 'I still think it's fine') and flag dismissive replies in the wizard log for post-session analysis.",
+        "Decide whether to trigger FOLLOW_UP_PROBE if the participant's reply is dismissive or contains an apparent logical gap, or to allow progression to avoid excessive friction that could cause task abandonment."
+      ]
+    },
+    {
+      "step": 3,
+      "participant_action": "After responding to the challenger, participant clicks 'Approve Hunk' or 'Request Changes', then adjusts or confirms their confidence slider rating (they may revise it after seeing the challenge). Participant moves to the next hunk and repeats the review. After completing all hunks in the PR, participant clicks 'Submit Review' and completes a 5-item per-PR Calibration Check questionnaire asking them to estimate: (1) how many real defects they believe they caught, (2) how confident they are in their overall review decision, and (3) which comments they are least certain about.",
+      "system_response": "On 'Submit Review', the interface displays a confirmation screen: 'Review submitted. The AI has logged your review.' No ground-truth feedback is given during the session to avoid learning effects contaminating subsequent PR tasks. The per-PR questionnaire appears as a modal overlay immediately after submission.",
+      "wizard_decisions": [
+        "Decide whether to log any final-moment confidence-slider changes (post-challenge vs. pre-challenge values are automatically logged by the interface, but the wizard annotates whether a change followed a substantive or dismissive participant reply).",
+        "Decide whether the session pacing requires any facilitator signal: if the participant has spent more than 22 minutes on a single PR, the wizard sends a pacing nudge via a private channel to the facilitator to prompt the participant to wrap up.",
+        "Decide whether any wizard actions during this PR deviated from the protocol (e.g., a counterexample was improvised rather than drawn from the library) and enter a deviation note in the wizard log before the next PR begins."
+      ]
+    },
+    {
+      "step": 4,
+      "participant_action": "Participant completes all three PR tasks (each under a different condition: adversarial challenger, suggestion-style AI, no tool) in their assigned counterbalanced order, with the facilitator resetting the interface between tasks. Between tasks, participant completes a 3-item between-task questionnaire rating perceived cognitive load (NASA-TLX Mental Demand subscale, 0–100) and perceived tool helpfulness (single Likert 1–7 item).",
+      "system_response": "For the suggestion-style AI condition, the wizard injects responses using the SUGGESTION_MODE control, which formats the AI panel message as 'Consider whether X' without a mandatory response gate — the Approve/Request Changes buttons remain active immediately. For the no-tool condition, the AI panel is hidden and the wizard takes no action.",
+      "wizard_decisions": [
+        "Decide, for the suggestion-style condition, which suggestion to display from the parallel suggestion library (matched in content to the adversarial counterexamples but phrased as non-blocking hints) so that informational content is held constant across conditions.",
+        "Decide whether any technical issue (interface freeze, delayed injection) has occurred that requires a session interruption, and if so, signal the facilitator via the private channel to pause and note the timestamp.",
+        "Decide at end of all three PRs whether wizard log completeness is sufficient or whether a gap-fill debrief note is needed before the facilitator begins the post-session interview."
+      ]
+    },
+    {
+      "step": 5,
+      "participant_action": "Facilitator conducts a 10-minute semi-structured post-session interview. Questions include: 'Describe a moment during the review when you changed your mind about a comment — what prompted that?', 'Were there moments the AI felt adversarial in a way that was unhelpful?', 'How did your confidence in your decisions compare across the three review sessions?', and 'Was there anything the AI said that you dismissed but later reconsidered?' Participant answers verbally; facilitator may probe with 'Can you say more about that?' but does not introduce new topics.",
+      "system_response": "The interface is inactive during the interview. The wizard ends screen-capture recording of the interface and begins reviewing their wizard log for completeness while the interview proceeds. No system response is generated.",
+      "wizard_decisions": [
+        "Decide whether to flag any specific wizard-log events (e.g., a dismissive reply that the participant later reconsidered) to pass to the facilitator as a probe topic before the interview begins, via a pre-interview 30-second private channel message.",
+        "Decide whether any wizard actions during the session were ambiguous enough that they require a post-session clarification note distinguishing protocol-compliant from improvised decisions, to be recorded in the deviation log before the session closes."
+      ]
+    }
+  ],
+  "wizard_controls": [
+    {
+      "control_name": "ADVERSARIAL_CHALLENGE",
+      "triggers": "Fires when the participant submits an inline comment with a confidence slider rating of 3 or higher (on a 1–5 scale) in the adversarial-challenger condition, or when the participant submits a comment that the wizard judges as overconfident relative to the ground-truth answer key regardless of slider value. The wizard clicks the 'Challenge' button in the control panel within 2 seconds of the participant's submission to start the simulated processing delay.",
+      "effect": "Injects a chat-style message into the participant's right-side AI panel after a 2–4 second simulated delay. The message contains: (1) a code snippet drawn from the pre-prepared counterexample library for this PR, displayed in a syntax-highlighted code block labeled with the source filename and line numbers, and (2) a mandatory follow-up question formatted as bold text, either 'What would have to be true in [filename] for this change to be safe?' or 'Name the invariant you are relying on here.' The 'Approve Hunk' and 'Request Changes' buttons are simultaneously disabled via a CSS class toggle until the participant submits a reply of at least 20 characters."
+    },
+    {
+      "control_name": "FOLLOW_UP_PROBE",
+      "triggers": "Fires when the participant's mandatory reply to an ADVERSARIAL_CHALLENGE is judged by the wizard as dismissive — operationally defined as fewer than 40 characters, containing no reference to the counterexample snippet, or containing phrases such as 'still think', 'doesn't matter', or 'should be fine' without elaboration. The wizard must fire this within 3 seconds of the participant clicking 'Submit Response' to maintain the illusion of real-time AI processing.",
+      "effect": "Injects a second-turn message into the AI panel that reads: 'I notice your response didn't address [specific element from the counterexample snippet]. Can you explain why [specific element] would not create a problem in this context?' The mandatory response gate reactivates; the participant must submit another reply before proceeding. The wizard logs that FOLLOW_UP_PROBE was triggered and records the participant reply verbatim in the wizard log."
+    },
+    {
+      "control_name": "SUGGESTION_MODE",
+      "triggers": "Active only during the suggestion-style AI condition. Fires on the same trigger logic as ADVERSARIAL_CHALLENGE (participant submits a comment with confidence 3 or higher, or wizard judges overconfidence) but routes to a different response template.",
+      "effect": "Injects a non-blocking suggestion message into the AI panel after the same 2–4 second delay. The message is formatted as 'Consider whether [matched-content hint from suggestion library]' without a mandatory response gate. The 'Approve Hunk' and 'Request Changes' buttons remain active immediately. The suggestion is drawn from a parallel library that matches each adversarial counterexample in informational content but removes the mandatory interrogation framing and the response gate."
+    },
+    {
+      "control_name": "PACING_NUDGE",
+      "triggers": "Fires when the participant has been on a single PR for more than 22 minutes without clicking 'Submit Review', as tracked by the wizard via a visible elapsed-time counter on the wizard control panel.",
+      "effect": "Sends a private text message to the facilitator's phone (Signal or equivalent) reading 'PACING: prompt wrap-up'. The facilitator then says aloud to the participant: 'You have about 3 more minutes on this review — please submit what you have.' No message appears in the participant's interface. The wizard logs the timestamp of the nudge."
+    },
+    {
+      "control_name": "DEVIATION_LOG_ENTRY",
+      "triggers": "Fires whenever the wizard departs from the protocol — for example, composing a novel counterexample not in the pre-prepared library, skipping a challenge that protocol requires, or firing FOLLOW_UP_PROBE outside its operationalized trigger condition.",
+      "effect": "Opens a timestamped free-text entry in the wizard log (a separate browser tab on the wizard laptop) where the wizard records: the step number, the nature of the deviation, the reason, and whether the deviation likely increased or decreased challenge intensity relative to protocol. This log is reviewed by the research team before analysis begins to flag sessions with high deviation counts for sensitivity analysis."
+    }
+  ],
+  "observable_signals": [
+    {
+      "signal": "Pre- vs. post-challenge confidence slider values per comment, paired with ground-truth correctness of each comment",
+      "capture_method": "log_events",
+      "analysis_plan": "For each inline comment across all participants and conditions, extract the tuple (pre-challenge slider value, post-challenge slider value, ground-truth correctness: 0/1). Compute a calibration score per comment using the Brier score formula: BS = (confidence_normalized – outcome)². Aggregate mean Brier scores per participant per condition (adversarial, suggestion, no-tool). Compare mean BS across conditions using a within-subjects repeated-measures approach (Wilcoxon signed-rank given expected non-normality, n < 30). A lower mean Brier score in the adversarial condition relative to the suggestion or no-tool condition is the primary quantitative signal supporting the research question. Additionally, compute the proportion of comments where confidence moved toward correct calibration (i.e., slider decreased after challenge when comment was wrong, or stayed high when correct) vs. away from correct calibration, separately for substantive vs. dismissive wizard-coded replies."
+    },
+    {
+      "signal": "Think-aloud verbalizations of uncertainty or reconsideration triggered by challenger messages",
+      "capture_method": "think_aloud_audio",
+      "analysis_plan": "Audio recordings are transcribed verbatim. Two coders independently apply a coding scheme with four mutually exclusive categories per challenger-response episode: (1) ACCEPT — participant explicitly acknowledges the counterexample changes their view, (2) DISMISS — participant verbalizes rejection without engaging the logic ('that's fine', 'not relevant'), (3) PARTIAL — participant engages the logic but does not change confidence slider, (4) SILENT — no verbalization during the mandatory response window. Inter-rater reliability is computed as Cohen's kappa; target kappa > 0.70 before proceeding. Proportion of ACCEPT vs. DISMISS episodes is compared across PR difficulty levels (operationally: PRs with ground-truth defect density above vs. below the median) to assess whether automation bias pressure (high defect density in unfamiliar legacy code) predicts dismissal rates."
+    },
+    {
+      "signal": "Time spent reading and responding to each challenger message vs. time spent on each hunk without a challenge",
+      "capture_method": "task_completion_time",
+      "analysis_plan": "Screen recording timestamps are used to extract: (a) dwell time on each hunk (from hunk scroll-into-view to comment submission), (b) time from challenger message appearance to mandatory reply submission, and (c) total PR completion time per condition. For each participant, compute mean hunk dwell time in hunks that received a challenge vs. those that did not within the adversarial condition. A systematic increase in dwell time following challenges (relative to no-challenge hunks) is interpreted as evidence that the mandatory interrogation gate is inducing deliberation rather than being bypassed by rapid dismissal. Total PR completion time is compared across conditions to assess whether adversarial challenge adds unacceptable task overhead (operationally flagged if mean adversarial condition exceeds no-tool condition by more than 8 minutes, suggesting friction rather than reflection)."
+    },
+    {
+      "signal": "Per-PR Calibration Check questionnaire: participant's self-estimated defect catch count vs. actual ground-truth defect catch count",
+      "capture_method": "self_report_likert",
+      "analysis_plan": "For each participant and each PR condition, compute the absolute error between self-estimated defect catch count (Calibration Check item 1) and actual defect count caught (from wizard log coding of submitted comments against ground-truth answer key). A lower absolute error in the adversarial condition indicates improved metacognitive accuracy. Additionally, correlate the per-PR confidence rating (Calibration Check item 2) with actual defect catch accuracy to produce a within-participant confidence-accuracy correlation per condition; higher correlation in the adversarial condition supports the hypothesis. These correlations are compared across conditions using Fisher's r-to-z transformation."
+    },
+    {
+      "signal": "Wizard-coded dismissiveness of mandatory replies (substantive vs. dismissive) and deviation log entries",
+      "capture_method": "interviewer_notes",
+      "analysis_plan": "The wizard's real-time dismissiveness ratings (logged per challenge episode as substantive/dismissive/partial using the operationalized criteria) are tabulated per participant and condition. These ratings are cross-validated against the independent coder's think-aloud codes from the audio analysis: episodes coded DISMISS in think-aloud audio should align with wizard-coded 'dismissive' replies at rate > 75% for protocol fidelity. Deviation log entries are counted per session; sessions with more than 3 deviations are flagged for exclusion or sensitivity analysis. The dismissiveness rate per participant is treated as a moderator variable in the Brier score analysis to assess whether participants who engage more substantively with challenges show greater calibration improvement."
+    }
+  ],
+  "failure_cases": [
+    {
+      "scenario": "Participant completes the mandatory 20-character reply box with non-substantive filler text (e.g., 'I disagree with this', repeated characters, or a copy-paste of the AI's own message) in order to unlock the Approve/Request Changes buttons without genuine engagement with the counterexample, defeating the mandatory gate mechanism.",
+      "expected_behavior": "The interface should gate progression only on character count, not reply quality, so filler text successfully unlocks the buttons. The participant proceeds without genuine deliberation, which means the adversarial condition functionally collapses to a friction-only condition rather than a challenger condition — confidence slider updates may be minimal and Brier scores may not differ from the no-tool condition.",
+      "wizard_fallback": "When the wizard detects a filler reply (operationally: reply contains no noun or verb that references the challenge content, as judged within 5 seconds of submission), the wizard immediately fires FOLLOW_UP_PROBE with a message that names the specific element the participant has not addressed: 'Your response didn't mention [specific code element from the counterexample]. Please explain why that element is not a concern.' The wizard also marks this episode as 'gate-bypassed' in the deviation log. If the participant bypasses three consecutive challenges with filler text, the facilitator is privately signaled to say: 'Please try to engage with the AI's questions as fully as you can — your responses are part of what we are studying.'"
+    },
+    {
+      "scenario": "The wizard cannot identify an appropriate counterexample from the pre-prepared library for a specific hunk the participant is reviewing — either because the participant's comment addresses a hunk the research team did not pre-seed with ground-truth defects (i.e., an off-script comment on an innocuous hunk) or because the participant's comment is genuinely correct and no plausible counterexample exists without fabricating a misleading one.",
+      "expected_behavior": "The protocol requires the wizard to inject a challenge whenever confidence is 3 or higher, but injecting a fabricated or irrelevant counterexample for a correct comment could introduce misinformation and invalidate calibration scores by artificially pushing the participant toward incorrect conclusions. This is the most likely break in ecological validity of the adversarial condition.",
+      "wizard_fallback": "For off-script hunks (participant comments on a hunk not in the pre-seeded defect set), the wizard skips the ADVERSARIAL_CHALLENGE and instead fires a lightweight clarifying question using a fallback template: 'What assumption about the calling context are you relying on here?' — which is content-neutral and does not reference a specific counterexample. The wizard logs the episode as 'off-script fallback' in the deviation log. For hunks where the participant's comment is correct and confidence is appropriate, the wizard applies the skip rule (documented in the wizard protocol sheet as: if slider ≤ 2 AND wizard judgment = correct, do not challenge) and logs as 'skip — correct low-confidence'. Sessions where more than 30% of expected challenge opportunities result in fallback or skip are flagged for sensitivity analysis."
+    }
+  ],
+  "materials_needed": [
+    "Three legacy-code pull requests in Python or Java, each 150–250 lines of diff, selected from open-source repositories with known historical bug records (e.g., Apache Commons, Django codebase pre-2015 commits); each PR must have a pre-prepared ground-truth answer key listing the 3–5 intentional defects, their locations by file and line number, and the correct reviewer judgment (approve vs. request changes).",
+    "Pre-prepared counterexample library: for each of the 3–5 defects per PR, 3–5 counterexample snippets drawn from other files in the same repository, each formatted as a syntax-highlighted code block with filename and line numbers, paired with a wizard-readable annotation explaining why this snippet is a relevant challenger for the defect. Total: approximately 45–75 pre-written counterexample items across all three PRs.",
+    "Parallel suggestion library: for each counterexample in the adversarial library, a matched suggestion-mode hint phrased as 'Consider whether [equivalent informational content]' without interrogative framing or mandatory gate, used in the SUGGESTION_MODE condition to hold informational content constant.",
+    "WoZ control panel: a localhost web application (HTML/JS, no external dependencies) running on the wizard's laptop that displays (a) a live screen-share iframe of the participant's interface, (b) a button panel with named controls (ADVERSARIAL_CHALLENGE, FOLLOW_UP_PROBE, SUGGESTION_MODE, PACING_NUDGE, DEVIATION_LOG_ENTRY), (c) a dropdown to select which pre-prepared counterexample to inject, (d) a free-text field for composing novel counterexamples if needed, (e) an elapsed-time counter per PR, and (f) a real-time wizard log with auto-timestamped entries.",
+    "Mock code review interface: a browser-based HTML/CSS/JS single-page application (no back-end required beyond a local Node or Python server) that renders the three PRs as syntax-highlighted unified diffs with per-hunk inline comment boxes, confidence sliders (1–5, labeled 'Not confident' to 'Very confident'), an AI panel on the right side capable of receiving injected messages from the wizard control panel via a WebSocket or polling endpoint, and a 'Submit Review' button that triggers the per-PR Calibration Check questionnaire modal.",
+    "Ground-truth answer key document (PDF, printed and laminated for the wizard): lists each PR's defect locations, the correct reviewer judgment, the threshold for 'overconfident' wizard judgment per hunk, and the ordered counterexample choices for each defect.",
+    "Pre-session questionnaire packet (paper or Qualtrics): 10-item Reviewer Self-Efficacy Scale, demographics form (years experience, primary languages, prior AI tool exposure as Yes/No/Regularly).",
+    "Between-task questionnaire (paper or Qualtrics): NASA-TLX Mental Demand subscale (single item, 0–100 slider) and single-item perceived tool helpfulness (Likert 1–7, labeled 'Not at all helpful' to 'Extremely helpful').",
+    "Per-PR Calibration Check questionnaire (paper, administered immediately post-PR submission): 5 items — (1) 'How many real defects do you think you caught in this PR?' (open numeric), (2) 'How confident are you in your overall review decision for this PR?' (Likert 1–7), (3) 'Which of your comments are you least certain about?' (open text), (4) 'Did anything in the AI's responses change your view?' (Yes/No + open text), (5) 'How disruptive did you find the AI's interruptions during this review?' (Likert 1–7).",
+    "Post-session semi-structured interview guide (1 printed page for facilitator): four primary questions with two follow-up probes per question, as specified in task_flow step 5.",
+    "Counterbalancing assignment sheet: a pre-generated Latin square assignment for condition order (adversarial, suggestion, no-tool) across participants, with PR assignment randomized independently of condition order to prevent PR-condition confounds. Printed and stored in sealed envelopes labeled by participant ID.",
+    "Wizard protocol sheet (printed, A4, one per wizard): operationalized trigger criteria for each control, the skip rule for low-confidence correct comments, the 3-bypass threshold for facilitator intervention, and the deviation log entry procedure.",
+    "Screen recording software configured to capture: participant's full display at 1920x1080 at 30fps with audio (OBS Studio or equivalent), wizard's control panel display (separate recording), and a synchronized clock overlay on both recordings for timestamp alignment.",
+    "Private communication channel between wizard and facilitator: Signal or equivalent messaging app on phones not visible to the participant, used only for PACING_NUDGE messages and technical interruption signals.",
+    "Debrief script (printed for facilitator): explains WoZ nature of the AI responses, clarifies that no live AI model was used, explains the purpose of the adversarial design, and asks participants not to discuss the study with colleagues for 30 days."
+  ],
+  "provenance": {
+    "specification": "AGENT_INFERENCE"
+  }
+}

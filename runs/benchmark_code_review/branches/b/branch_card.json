@@ -1,0 +1,38 @@
+{
+  "stage": "3_literature",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_code_review",
+  "branch_id": "b",
+  "research_question": "Can an adversarial AI 'devil's advocate' that interrogates the reviewer's justifications improve mid-level reviewers' calibration — the match between their confidence in a review decision and its actual correctness — on legacy code where automation bias is the dominant failure mode?",
+  "intervention_primitive": "a challenger agent that, after a reviewer writes a comment or approves a hunk, surfaces counterexamples, asks 'what would have to be true elsewhere in the repo for this to be safe?', and forces the reviewer to respond before submission; compared against a standard suggestion-style AI reviewer and against no tool",
+  "human_system_relationship": "adversarial_check",
+  "method_family": "generative",
+  "one_sentence_claim": "Reviewers paired with an adversarial challenger show tighter confidence-accuracy calibration on legacy PRs than those using a suggestion-style AI, even when raw defect-catch rates are similar.",
+  "why_divergent": "Differs from branch A on human_system_relationship (adversarial_check vs system_augments_human) and method_family (generative design of a novel interaction vs evaluative comparison on a fixed stimulus set); differs from branch C on intervention_primitive (a challenger agent vs an onboarding scaffold) and research_question (calibration vs learning trajectory).",
+  "grounding": [
+    {
+      "source_card": "buijsman_carter_bermudez_2025",
+      "relevance": "capture_risk_theory",
+      "quoted_claim": "AI decision-support can erode domain-specific autonomy through absent failure indicators and unconscious value shifts, motivating design patterns such as defeater mechanisms and reflective-practice support to preserve skilled competence."
+    },
+    {
+      "source_card": "sundar_2008_main_model",
+      "relevance": "theoretical_grounding",
+      "quoted_claim": "Agency cues in digital systems can invoke a machine heuristic that alters perceived trustworthiness independently of actual source quality, meaning structural interface features can bias credibility judgments in ways users do not consciously notice."
+    },
+    {
+      "source_card": "jin_agentreview_2024",
+      "relevance": "methodology_precedent",
+      "quoted_claim": "An LLM-agent-based simulation of the review process modelling distinct reviewer roles reveals that simulated reviewer biases can account for substantial variation in review outcomes, demonstrating the tractability of agent-mediated review research."
+    },
+    {
+      "source_card": "liang_nejm_ai_2024",
+      "relevance": "prior_finding",
+      "quoted_claim": "LLM-generated feedback can complement but not replace human expert review, with overlap between AI and human reviewers comparable to human-human overlap, suggesting AI review tools occupy a supporting rather than authoritative role."
+    }
+  ],
+  "provenance": {
+    "ideation": "AGENT_INFERENCE",
+    "grounding": "SOURCE_CARD"
+  }
+}

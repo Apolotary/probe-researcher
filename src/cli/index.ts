@@ -14,6 +14,7 @@ import { runCommand } from './run.js';
 import { replayCommand } from './replay.js';
 import { lintCommand } from './lint.js';
 import { initCommand } from './init.js';
+import { exploreCommand } from './explore.js';
 
 const program = new Command();
 
@@ -47,6 +48,12 @@ program
   .command('init')
   .argument('<run_id>', 'run id to scaffold')
   .action(initCommand);
+
+program
+  .command('explore')
+  .argument('<run_id>', 'run id to explore visually (worktree-style 3-pane UI)')
+  .description('Open a multi-pane terminal UI for a completed run — navigate branches, toggle artifact views, lock/unlock branches')
+  .action(exploreCommand);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err);

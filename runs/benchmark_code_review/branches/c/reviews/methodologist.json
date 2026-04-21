@@ -1,0 +1,74 @@
+{
+  "stage": "7_review",
+  "schema_version": "1.0.0",
+  "run_id": "benchmark_code_review",
+  "branch_id": "c",
+  "reviewer_persona": "methodologist",
+  "decisive_weakness": "The treatment and control conditions differ on at least three dimensions simultaneously — presence of AI annotation, presence of PR-submission ritual, and access to documentation — so no observed difference in mental-model trajectories can be causally attributed to the AI scaffold. The central claim of the study is unfalsifiable with this design.",
+  "criticisms": [
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "During Part 2, treatment participants may open PRs on the fixture GitHub interface and receive wizard annotations; control participants may use only the pinned Rails documentation PDF and VS Code's global search."
+      },
+      "violated_criterion": "confound architecture — treatment and control differ on multiple variables simultaneously",
+      "why_matters": "The treatment group gets (a) the annotation, (b) the PR-submission ritual that structures their reasoning about the patch, and (c) a simulated interlocutor that may prompt reflection independent of annotation content. The control group gets documentation access the treatment group apparently lacks. If treatment participants develop 'broader but shallower' mental models, the cause could be the PR ritual, the annotation, the absence of documentation, or any combination. The one-sentence claim about 'AI scaffold' effects cannot be isolated. The simulated walkthrough flags this explicitly and the protocol does not resolve it.",
+      "required_change": "Add a third arm that receives the PR-submission ritual and documentation access but no annotations (ritual-only control), OR give both arms identical documentation access and identical PR-submission structure so the annotation is the sole manipulated variable. Without one of these, reframe the contribution as comparing two onboarding regimes rather than isolating AI scaffold effects.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "branch_card",
+        "quote": "Mid-level engineers onboarding to a legacy codebase with an AI review scaffold develop different mental models — broader in reach but shallower in architectural depth — than peers using conventional tools, with the divergence visible by week 6."
+      },
+      "violated_criterion": "power analysis absent for a quantitative longitudinal comparison claim",
+      "why_matters": "The claim asserts a detectable between-group divergence at a specific timepoint (week 6) across repeated measures. With n=10 participants split across two arms (effectively ~5 per arm), and four primary quantitative outcomes (navigation time, sketch accuracy, prediction score, Likert trajectories) measured weekly, the study is severely underpowered to detect any but enormous effects and will be unable to distinguish 'no divergence' from 'insufficient power to see divergence.' The spec provides no power calculation, no expected effect size from pilot data, and no pre-registered threshold for what counts as 'divergence.'",
+      "required_change": "Provide a power analysis for the primary outcome (specify which of the four signals is primary) with justified effect size, or increase n to a level derived from such an analysis, or explicitly reframe as a hypothesis-generating qualitative study and remove quantitative trajectory claims.",
+      "severity": "blocking"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Code each arrow as correct, plausible-but-unverifiable, or incorrect against a pre-registered answer key of 15 canonical relationships within the focus area (constructed by two senior Rails engineers prior to the study)."
+      },
+      "violated_criterion": "ground-truth validity — single-source construction of the criterion measure",
+      "why_matters": "The primary mental-model accuracy outcome is scored against a key built by two engineers whose architectural framing may not generalize. If these two share a particular view of Rails architecture, the 'accuracy' score is partly measuring rubric-alignment rather than architectural correctness. Because this key drives the central dependent variable across 8–12 weeks of data collection, any bias in the key propagates through every finding. The walkthrough flags this risk and the protocol provides no inter-rater agreement statistics for the key itself.",
+      "required_change": "Add at least one independent senior Rails engineer (ideally 2–3) to construct the answer key independently; report agreement between constructors; retain only relationships where ≥3 of the constructors agree as 'canonical,' and treat disputed relationships as 'plausible' rather than scoring them correct/incorrect.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "Decide whether the participant's PR description demonstrates a misconception about the change's purpose that warrants selecting the annotation variant that corrects the misconception (annotation variant B) versus the standard variant (A) — use variant B only if the description contains a factually incorrect claim about which module is affected."
+      },
+      "violated_criterion": "analysis-affecting decision made by wizard with no inter-rater reliability procedure",
+      "why_matters": "Variant selection is a live judgment call made by one of two wizards with no calibration exercise, no written operationalization of 'factually incorrect,' and no check on wizard-to-wizard agreement. The walkthrough identifies this as 'a quiet source of protocol variance.' Because variant B is specifically corrective, systematic drift between wizards in when they invoke it means treatment participants assigned to different wizards receive systematically different interventions — a between-subjects confound embedded inside the treatment arm.",
+      "required_change": "Run a pre-study calibration exercise where both wizards independently code 20+ example PR descriptions for variant-B eligibility, report Cohen's kappa, and iterate the operational definition until agreement exceeds 0.80. Pre-register the wizard assignment schedule (e.g., crossed with participant) so wizard identity can be included as a covariate.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "simulated_walkthrough",
+        "quote": "real-world confounds — participants doing work in other codebases between sessions, reading Rails material on their own, changing jobs — would reasonably accumulate. The study captures in-session behavior richly but has no instrument for between-session exposure, which means week-over-week trajectories are partly measuring uncontrolled external learning."
+      },
+      "violated_criterion": "uncontrolled exposure variable in a longitudinal learning study",
+      "why_matters": "The claim is specifically about longitudinal mental-model formation over 8–12 weeks. If treatment participants happen to encounter more Rails material at work or on their own between sessions, this between-session learning — not the annotation — drives any observed trajectory change. With n=5 per arm, a single participant in either arm with heavy external Rails exposure can dominate the group trajectory. The protocol does not measure this.",
+      "required_change": "Add a weekly between-session exposure log administered at the start of each session asking participants to estimate hours spent on Rails outside the study, what resources they used, and whether they worked on Rails at their day job. Include this as a covariate in trajectory analyses and report sessions/participants above a pre-registered exposure threshold separately.",
+      "severity": "major"
+    },
+    {
+      "evidence_span": {
+        "source": "prototype_spec",
+        "quote": "After the participant says 'done', the facilitator opens the actual Rails codebase in VS Code to the correct fault location (pre-identified by the research team and recorded in the scoring rubric) and shares the screen briefly so the participant can see whether their prediction was in the correct file, adjacent file, or a different subsystem — this immediate feedback is standardized and scripted."
+      },
+      "violated_criterion": "measurement contamination — outcome reveal precedes state measurement used as longitudinal DV",
+      "why_matters": "The Step 4 correctness reveal occurs minutes before the Step 5 Codebase Confidence Likert. The walkthrough notes this explicitly: confidence is being measured as a state partly set by the immediately-prior correctness revelation rather than as a stable trait. Across 8–12 sessions this means the Codebase Confidence trajectory is confounded with the Step 4 prediction-accuracy trajectory — the two signals are not independent, yet the analysis plan treats them as separate observables and even correlates them as if they were.",
+      "required_change": "Either (a) administer the Codebase Confidence Likert at the start of the next session before any task feedback, (b) administer it before the Step 4 reveal, or (c) explicitly reframe it as a post-feedback state measure and remove any claim that it tracks stable codebase understanding.",
+      "severity": "major"
+    }
+  ],
+  "recommendation": "major_revision",
+  "provenance": {
+    "review": "AGENT_INFERENCE"
+  }
+}
