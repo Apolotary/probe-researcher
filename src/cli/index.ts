@@ -15,6 +15,7 @@ import { replayCommand } from './replay.js';
 import { lintCommand } from './lint.js';
 import { initCommand } from './init.js';
 import { exploreCommand } from './explore.js';
+import { auditDeepCommand } from './audit_deep.js';
 
 const program = new Command();
 
@@ -54,6 +55,14 @@ program
   .argument('<run_id>', 'run id to explore visually (worktree-style 3-pane UI)')
   .description('Open a multi-pane terminal UI for a completed run — navigate branches, toggle artifact views, lock/unlock branches')
   .action(exploreCommand);
+
+program
+  .command('audit-deep')
+  .argument('<run_id>', 'run id')
+  .argument('<branch_id>', 'branch id (a | b | c)')
+  .description('Deep capture-risk audit using Claude Managed Agents — the agent can bash/grep/file-read the branch artifacts and measure quantitative claims (like announcement-duration confounds) rather than only reason about them')
+  .option('--dry-run', 'print what would happen without creating a session')
+  .action(auditDeepCommand);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err);
