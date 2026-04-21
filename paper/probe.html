@@ -910,16 +910,19 @@ a capability proof.</p>
 grounding, specification, rehearsal</h2>
 <p>The literature agent restricts each branch’s grounding to IDs present
 in <code>corpus/source_cards/</code>. The initial corpus contained seven
-cards, verified against DOIs on kickoff day. Before the demo’s final
-assembly, three additional cards were added to address the novelty
-hawk’s later finding: <span class="citation"
-data-cites="jakesch2023cowriting">Jakesch et al. (2023)</span> on
-AI-text disclosure effects; <span class="citation"
+cards, verified against DOIs on kickoff day. Five additional cards were
+added as the novelty hawk surfaced gaps across benchmark domains: <span
+class="citation" data-cites="jakesch2023cowriting">Jakesch et al.
+(2023)</span> on AI-text disclosure effects; <span class="citation"
 data-cites="longoni2019medical">Longoni, Bonezzi, and Morewedge
-(2019)</span> on algorithm aversion; and <span class="citation"
+(2019)</span> on algorithm aversion; <span class="citation"
 data-cites="sundar2008main">Sundar (2008)</span> on credibility
-heuristics triggered by technology affordances. The updated corpus
-contains ten cards.</p>
+heuristics triggered by technology affordances; <span class="citation"
+data-cites="clark2018machineintheloop">Clark et al. (2018)</span> on the
+machine-in-the-loop creative-writing framing; and <span class="citation"
+data-cites="gero2019metaphoria">Gero and Chilton (2019)</span> on
+algorithmic companions for figurative-language ideation. The current
+corpus contains twelve cards.</p>
 <p>The prototype specification for branch B is a within-subjects
 Wizard-of-Oz design with three conditions assigned via Latin square:
 AI-disclosed-early, AI-disclosed-late, and human-framed. The wizard
@@ -953,12 +956,15 @@ no in-flow indication that the injection was attempted and did not land.
 Research data becomes contaminated without a participant-visible failure
 indication. Verdict: <code>BLOCKED</code>. The branch emits
 <code>WORKSHOP_NOT_RECOMMENDED.md</code> and does not advance.</p>
-<p>Branch C is blocked for a different reason: the repair overlay
-rewrites markup before the screen reader announces it, and the prototype
-spec does not distinguish “this participant’s personal overlay” from “an
-institutional default.” The auditor flagged this as a workflow-lock-in
-concern that the prototype spec does not resolve. Verdict:
-<code>BLOCKED</code>.</p>
+<p>Branch C’s audit fires <code>legibility.no_failure_signal</code> at
+minus-two for a structurally different reason. The repair overlay
+silently rewrites heading markup before the screen reader announces it.
+When the rewriter misfires — a heuristic that picks the wrong semantic
+level, a cached DOM that outruns the fix, an unexpected ARIA pattern the
+rewriter was not designed for — the participant has no in-flow signal
+that the repair was attempted and landed incorrectly. The participant
+experiences a DOM that appears authoritative and is quietly
+miscorrected. Verdict: <code>BLOCKED</code>.</p>
 <p>Branch B’s audit returned <code>REVISION_REQUIRED</code>: three
 minus-one findings on legibility patterns
 (<code>no_failure_signal</code> on silent think-aloud-coding failures;
@@ -1487,6 +1493,15 @@ Open-Ended Machine Learning Research.”</span> <em>arXiv Preprint</em>.
 <a
 href="https://doi.org/10.48550/arXiv.2505.19955">https://doi.org/10.48550/arXiv.2505.19955</a>.
 </div>
+<div id="ref-clark2018machineintheloop" class="csl-entry"
+role="listitem">
+Clark, Elizabeth, Anne Spencer Ross, Chenhao Tan, Yangfeng Ji, and Noah
+A. Smith. 2018. <span>“Creative Writing with a Machine in the Loop: Case
+Studies on Slogans and Stories.”</span> In <em>Proceedings of the 23rd
+International Conference on Intelligent User Interfaces (IUI ’18)</em>.
+<a
+href="https://doi.org/10.1145/3172944.3172983">https://doi.org/10.1145/3172944.3172983</a>.
+</div>
 <div id="ref-costanzachock2020designjustice" class="csl-entry"
 role="listitem">
 Costanza-Chock, Sasha. 2020. <em>Design Justice: Community-Led Practices
@@ -1507,6 +1522,13 @@ International Conference on Machine Learning (ICML)</em>.
 Gaver, Bill, Tony Dunne, and Elena Pacenti. 1999. <span>“Design:
 Cultural Probes.”</span> <em>Interactions</em> 6 (1): 21–29. <a
 href="https://doi.org/10.1145/291224.291235">https://doi.org/10.1145/291224.291235</a>.
+</div>
+<div id="ref-gero2019metaphoria" class="csl-entry" role="listitem">
+Gero, Katy Ilonka, and Lydia B. Chilton. 2019.
+<span>“<span>Metaphoria</span>: An Algorithmic Companion for Metaphor
+Creation.”</span> In <em>Proceedings of the 2019 CHI Conference on Human
+Factors in Computing Systems (CHI ’19)</em>. <a
+href="https://doi.org/10.1145/3290605.3300526">https://doi.org/10.1145/3290605.3300526</a>.
 </div>
 <div id="ref-companion2025feynman" class="csl-entry" role="listitem">
 getcompanion-ai. 2025. <span>“Feynman: The Open Source <span>AI</span>

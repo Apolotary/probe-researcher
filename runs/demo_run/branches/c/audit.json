@@ -1,7 +1,7 @@
 {
   "stage": "6_audit",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branch_id": "c",
   "findings": [
     {
@@ -9,7 +9,7 @@
       "axis": "capacity",
       "fired": false,
       "score": 0,
-      "rationale": "The intervention repairs document structure (DOM tags, ARIA labels) rather than performing the navigation skill on the participant's behalf. Screen-reader navigation itself — heading-key scanning, landmark traversal, linear reading — remains entirely the participant's action. The overlay modifies the terrain, not the act of traversing it, so it does not substitute for the skill under study."
+      "rationale": "The intervention repairs document structure (DOM tags, ARIA labels) rather than performing the navigation skill on the participant's behalf. Screen-reader navigation itself \u2014 heading-key scanning, landmark traversal, linear reading \u2014 remains entirely the participant's action. The overlay modifies the terrain, not the act of traversing it, so it does not substitute for the skill under study."
     },
     {
       "pattern_id": "capacity.no_fade_mechanism",
@@ -18,7 +18,7 @@
       "score": 1,
       "evidence_span": {
         "source": "prototype_spec",
-        "quote": "Wizard activates this control at any point to suppress all automatic overlay mutations for 60 seconds — used when the participant appears to be navigating successfully without overlay assistance"
+        "quote": "Wizard activates this control at any point to suppress all automatic overlay mutations for 60 seconds \u2014 used when the participant appears to be navigating successfully without overlay assistance"
       },
       "rationale": "The repair_hold control provides an explicit mechanism for assistance to recede when the participant is navigating successfully, and Session 1 operates with the overlay disabled entirely as a baseline. This constitutes a scaffold-level positive: assistance is conditionally gated on observed success rather than always-on, so the pattern fires but in the cultivate direction."
     },
@@ -47,7 +47,7 @@
       "score": -1,
       "evidence_span": {
         "source": "prototype_spec",
-        "quote": "Decide whether landmark nesting anomalies (e.g., a <nav> inside an <article> with no label) should be repaired silently or replaced with an ARIA label announcement — the default is silent repair unless the participant's Session 1 co-design notes indicated they want audible confirmation of repairs."
+        "quote": "Decide whether landmark nesting anomalies (e.g., a <nav> inside an <article> with no label) should be repaired silently or replaced with an ARIA label announcement \u2014 the default is silent repair unless the participant's Session 1 co-design notes indicated they want audible confirmation of repairs."
       },
       "rationale": "The wizard silently alters the document the participant is reasoning about, by default without announcement. While the participant is not making external commitments, the structural terrain of the participant's sensemaking task is being modified on their behalf without in-the-moment authorization. The co-design process partially mitigates this after Session 1, but the default-silent posture still places a consequential interpretive decision outside the participant's authority at point of action."
     },
@@ -60,7 +60,7 @@
         "source": "prototype_spec",
         "quote": "Executes a pre-scripted DOM rewrite that promotes or demotes the affected heading tags to reflect the implied hierarchy, based on the rule set co-designed with the participant. The rewrite is applied to all affected headings simultaneously (batch, not one at a time) so the outline is consistent before the participant navigates through the section."
       },
-      "rationale": "At the moment of navigation the participant receives only the repaired structure, with no surfaced alternatives — the original hierarchy and the space of plausible repairs are not announced alongside. Review occurs retrospectively in the debrief via a DOM diff, but by then commitment has already been made. This is a drift rather than capture because the co-design loop does eventually expose the repair space, just not before action."
+      "rationale": "At the moment of navigation the participant receives only the repaired structure, with no surfaced alternatives \u2014 the original hierarchy and the space of plausible repairs are not announced alongside. Review occurs retrospectively in the debrief via a DOM diff, but by then commitment has already been made. This is a drift rather than capture because the co-design loop does eventually expose the repair space, just not before action."
     },
     {
       "pattern_id": "agency.weak_override",
@@ -76,7 +76,7 @@
       "score": 1,
       "evidence_span": {
         "source": "prototype_spec",
-        "quote": "20 min co-design discussion — participant annotates problem moments on printed article DOM tree diagrams and proposes repair rules verbally; 10 min facilitator summarises agreed repair rules and reads them back to participant for confirmation."
+        "quote": "20 min co-design discussion \u2014 participant annotates problem moments on printed article DOM tree diagrams and proposes repair rules verbally; 10 min facilitator summarises agreed repair rules and reads them back to participant for confirmation."
       },
       "rationale": "The participant population (BLV screen-reader users) is historically subject to paternalistic accessibility interventions, and the design actively counters this by making participants the authors of the repair ruleset, reading back agreed rules for confirmation, and including an explicit retrospective question about whether the overlay made things worse. The default is participant-authored behavior, not institution-imposed protection, so this pattern fires positively."
     },
@@ -137,9 +137,9 @@
       "score": -1,
       "evidence_span": {
         "source": "prototype_spec",
-        "quote": "Decide whether to show the participant a visual diff of the original vs. repaired DOM (rendered as an indented plain-text tree read aloud by the screen reader) during the post-article debrief, or to describe changes verbally via the facilitator — the default is verbal description unless the participant requested DOM-tree review in a prior session."
+        "quote": "Decide whether to show the participant a visual diff of the original vs. repaired DOM (rendered as an indented plain-text tree read aloud by the screen reader) during the post-article debrief, or to describe changes verbally via the facilitator \u2014 the default is verbal description unless the participant requested DOM-tree review in a prior session."
       },
-      "rationale": "Rationale for each specific repair is available only post-hoc in the debrief, and even there the default is a verbal summary rather than a structural diff. At the point of action — when the participant is navigating and encountering the repaired structure — there is no inline mechanism to ask 'what was changed here and why.' The co-design loop eventually surfaces rationale at the ruleset level, but not per-action, which is what this pattern targets."
+      "rationale": "Rationale for each specific repair is available only post-hoc in the debrief, and even there the default is a verbal summary rather than a structural diff. At the point of action \u2014 when the participant is navigating and encountering the repaired structure \u2014 there is no inline mechanism to ask 'what was changed here and why.' The co-design loop eventually surfaces rationale at the ruleset level, but not per-action, which is what this pattern targets."
     },
     {
       "pattern_id": "legibility.unverifiable_summary",
@@ -160,7 +160,7 @@
     "legibility": -4
   },
   "verdict": "BLOCKED",
-  "verdict_rationale": "legibility.no_failure_signal fires at -2, which under the scoring rules forces a BLOCKED verdict. The design's signature failure cases (silent landmark injections under non-default NVDA verbosity, late-repair double-announcements, and semantic confabulations invisible to DOM-layer detection) all produce conditions where the participant has no in-flow signal that the overlay has acted wrongly, and the 'apparent resolution rate' metric itself treats silence as success — compounding rather than catching the error. Secondary drift findings — agency.auto_decides_consequential_step, agency.hides_options_before_review, legibility.no_rationale_at_point_of_action, and legibility.unverifiable_summary each at -1 — would independently have driven REVISION_REQUIRED, but the -2 on failure-signal is the blocking finding.",
+  "verdict_rationale": "legibility.no_failure_signal fires at -2, which under the scoring rules forces a BLOCKED verdict. The design's signature failure cases (silent landmark injections under non-default NVDA verbosity, late-repair double-announcements, and semantic confabulations invisible to DOM-layer detection) all produce conditions where the participant has no in-flow signal that the overlay has acted wrongly, and the 'apparent resolution rate' metric itself treats silence as success \u2014 compounding rather than catching the error. Secondary drift findings \u2014 agency.auto_decides_consequential_step, agency.hides_options_before_review, legibility.no_rationale_at_point_of_action, and legibility.unverifiable_summary each at -1 \u2014 would independently have driven REVISION_REQUIRED, but the -2 on failure-signal is the blocking finding.",
   "provenance": {
     "audit": "AGENT_INFERENCE"
   }

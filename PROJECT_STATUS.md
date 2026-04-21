@@ -1,5 +1,7 @@
 # Probe — Project Status for Review
 
+> **⚠ HISTORICAL SNAPSHOT — preserved for context.** This document was written at Day 1 Hour 2 of the build, before the self-audit waves that followed. Several numbers have moved since: tests grew from 16 → 29, corpus from 7 → 12 cards, CLI from 4 → 12 commands, provenance tags from 6 → 8 (added `UNCITED_ADJACENT` and `TOOL_VERIFIED`), and Branch A's -2 pattern turned out to be `legibility.no_failure_signal` (not `agency.auto_decides_consequential_step` as claimed below). The current state of the system is documented in [`PROBE.md`](./PROBE.md), the current numbers are in [`README.md`](./README.md) and [`paper/probe.pdf`](./paper/probe.pdf), and the self-audit trail lives in [`docs/self_audit/wave1_summary.md`](./docs/self_audit/wave1_summary.md). This file is kept to show the honest distance between what I claimed on Day 1 and what the system did under review.
+
 **Hackathon:** Cerebral Valley · Claude Opus 4.7
 **Builder:** Bektur Ryskeldiev (solo)
 **Duration:** Apr 22 – Apr 27, 2026 (~128 hours)

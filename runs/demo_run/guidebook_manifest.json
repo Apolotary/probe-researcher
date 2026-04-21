@@ -1,7 +1,7 @@
 {
   "stage": "8_guidebook",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "surviving_branch": "b",
   "blocked_branches": [
     {
@@ -37,8 +37,8 @@
       "provenance_dominant": "AGENT_INFERENCE"
     },
     {
-      "heading": "Expected outcomes",
-      "anchor": "expected-outcomes",
+      "heading": "Failure hypotheses to test",
+      "anchor": "failure-hypotheses-to-test",
       "provenance_dominant": "AGENT_INFERENCE"
     },
     {
@@ -67,7 +67,7 @@
   },
   "assembly_rationale": "Branch b survived capture-risk audit and meta-review; it provides the sole basis for this guidebook. Blocked branches: a, c.",
   "human_required_next_steps": [
-    "Before running this study, the researcher must resolve the scoping question the meta-review flagged as requiring human judgment: decide whether this project is a confound-controlled quantitative replication, a participatory co-design study, or a theoretically differentiated extension — this decision reshapes every downstream element of the protocol and cannot be made by the agent.",
+    "Before running this study, the researcher must resolve the scoping question the meta-review flagged as requiring human judgment: decide whether this project is a confound-controlled quantitative replication, a participatory co-design study, or a theoretically differentiated extension \u2014 this decision reshapes every downstream element of the protocol and cannot be made by the agent.",
     "The researcher must then, in order: (1) conduct the co-design phase with BLV collaborators from the recruitment partner before finalizing any stimulus materials; (2) specify the compensation rate for both co-designers and study participants in consultation with that partner; (3) read and cite the AI-disclosure-effects literature (Jakesch et al., Longoni et al., Sundar's MAIN model) and the ARIA-live announcement literature to establish what differential prediction this study makes; (4) pilot the credibility form and the consent-delivery process with compensated BLV screen-reader users distinct from study participants; (5) replace wizard-gated late injection with programmatic triggering and measure the resulting timing distribution; (6) resolve the announcement-duration confound by length-matching stimulus strings or restricting claims to non-duration-sensitive DVs; and (7) obtain IRB approval for the finalized protocol including the member-check phase."
   ],
   "provenance": {

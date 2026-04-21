@@ -1,19 +1,19 @@
 {
   "stage": "1_premise",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "raw_premise": "design a short study to understand how BLV screen-reader users interpret page hierarchy on AI-generated news articles",
-  "sharpest_question": "What does 'AI-generated' do to the page hierarchy that a conventionally-authored news article would not — and if the answer is 'nothing structural', why is this a study about AI at all rather than a study about news-article hierarchy?",
+  "sharpest_question": "What does 'AI-generated' do to the page hierarchy that a conventionally-authored news article would not \u2014 and if the answer is 'nothing structural', why is this a study about AI at all rather than a study about news-article hierarchy?",
   "claim": "BLV screen-reader users' interpretation of page hierarchy differs in some characterizable way when the underlying article is AI-generated, and that difference has implications for accessibility practice or authoring tools.",
-  "differentia": "Not visible in the premise. The premise bundles three independent variables — BLV population, screen-reader modality, AI provenance — without specifying which contrast is load-bearing. Without that, this reduces to one of several existing templates.",
+  "differentia": "Not visible in the premise. The premise bundles three independent variables \u2014 BLV population, screen-reader modality, AI provenance \u2014 without specifying which contrast is load-bearing. Without that, this reduces to one of several existing templates.",
   "nearest_template": "Qualitative/think-aloud studies of screen-reader navigation on web content (Mack et al., Bigham lab, WebAIM survey tradition), typically reporting heading-level confusion, landmark mis-use, and skim strategies. 'AI-generated' is a surface substitution on a well-worn protocol.",
   "missing_evidence": [
     "No pilot data or informal observation suggesting AI-generated articles have systematically different hierarchy from human-authored ones (flatter? deeper? mislabeled headings? hallucinated section structure?).",
-    "No specification of what 'interpret' means operationally — navigation time, mental model reconstruction, trust judgments, content recall, or something else.",
+    "No specification of what 'interpret' means operationally \u2014 navigation time, mental model reconstruction, trust judgments, content recall, or something else.",
     "No control condition named. AI-generated vs. what? Human-authored from the same outlet? Same topic? Matched length?",
     "No account of how participants would know or not know the article is AI-generated, and whether that disclosure is part of the manipulation.",
     "No sample size reasoning or recruitment plan for a population that is expensive to recruit and over-studied for low-stakes questions.",
-    "No stated stakeholder — is this for screen-reader users, for news organizations deploying LLMs, for accessibility tooling, or for AI model developers?"
+    "No stated stakeholder \u2014 is this for screen-reader users, for news organizations deploying LLMs, for accessibility tooling, or for AI model developers?"
   ],
   "sharpened_options": [
     "Audit-first study: corpus-analyze hierarchy structure (heading depth, landmark use, ARIA correctness) across AI-generated vs. human-authored articles from matched outlets, then run a small user study only on the dimensions where the audit shows real divergence. Grounds the user study in a demonstrated artifact difference.",

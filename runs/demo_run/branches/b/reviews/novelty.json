@@ -1,10 +1,10 @@
 {
   "stage": "7_review",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branch_id": "b",
   "reviewer_persona": "novelty_hawk",
-  "decisive_weakness": "The proposal studies whether announcing AI authorship changes reader credibility judgments — this is the central question of the AI-disclosure-effects literature that has produced dozens of papers since roughly 2019 (Longoni et al. on AI in medical advice, Jakesch et al. on AI-generated text labels, Liu et al. on AI byline effects on news credibility, the entire 'MAIN model' work by Sundar, and more). The proposal does not cite any of this literature and does not state what its BLV-specific differentia is beyond 'we use a screen reader.' If the contribution is 'disclosure effects hold for BLV users too,' that is a replication in a new population, which is a legitimate but narrow contribution that the proposal has not framed as such.",
+  "decisive_weakness": "The proposal studies whether announcing AI authorship changes reader credibility judgments \u2014 this is the central question of the AI-disclosure-effects literature that has produced dozens of papers since roughly 2019 (Longoni et al. on AI in medical advice, Jakesch et al. on AI-generated text labels, Liu et al. on AI byline effects on news credibility, the entire 'MAIN model' work by Sundar, and more). The proposal does not cite any of this literature and does not state what its BLV-specific differentia is beyond 'we use a screen reader.' If the contribution is 'disclosure effects hold for BLV users too,' that is a replication in a new population, which is a legitimate but narrow contribution that the proposal has not framed as such.",
   "criticisms": [
     {
       "evidence_span": {
@@ -12,7 +12,7 @@
         "quote": "does disclosing AI authorship via an ARIA-live provenance banner shift BLV screen-reader users' navigation strategies and credibility judgments compared to undisclosed or human-authored framing?"
       },
       "violated_criterion": "insufficient differentia from prior AI-disclosure-effects literature",
-      "why_matters": "A decade of work (Sundar's MAIN model, Jakesch et al. 2023 on AI-text labeling, Longoni & Cian on AI byline effects, the misinformation-labeling literature from Clayton/Pennycook) has measured exactly this: does labeling a piece of content as AI-authored shift perceived credibility? The proposal neither cites this corpus nor states what its BLV-screen-reader framing predicts differently. Reviewers will read this as 'disclosure effects, but on blind users' — a population swap without a theoretical reason the effect should differ.",
+      "why_matters": "A decade of work (Sundar's MAIN model, Jakesch et al. 2023 on AI-text labeling, Longoni & Cian on AI byline effects, the misinformation-labeling literature from Clayton/Pennycook) has measured exactly this: does labeling a piece of content as AI-authored shift perceived credibility? The proposal neither cites this corpus nor states what its BLV-screen-reader framing predicts differently. Reviewers will read this as 'disclosure effects, but on blind users' \u2014 a population swap without a theoretical reason the effect should differ.",
       "required_change": "State a concrete, testable prediction for how the BLV/screen-reader condition should produce a measurably different effect than the sighted-visual-banner condition already studied in prior work. For example: 'because auditory ARIA-live announcements interrupt sequential heading navigation in a way visual banners do not, we predict larger navigation-pattern shifts and smaller rating shifts in BLV users than prior sighted studies have found.' Without such a differential prediction, this is a replication.",
       "severity": "blocking"
     },
@@ -23,7 +23,7 @@
       },
       "violated_criterion": "reinvented wheel in accessibility/ARIA-live announcement research",
       "why_matters": "The manipulation of ARIA-live announcement placement, politeness, and timing has been studied in web accessibility research for over 15 years (WAI-ARIA authoring practices work from ~2008 onward; studies by Borodin, Bigham, Brady on screen-reader interaction with dynamic content; Leporini & Paterno on auditory interruption costs). The proposal treats 'placement relative to the heading tree' as a novel manipulation but this is adjacent to well-mapped territory on how live-region announcements interact with heading navigation. None of it is cited.",
-      "required_change": "Cite the ARIA-live / live-region interaction literature and state which specific findings the current design builds on or contradicts. If the contribution is 'we apply known live-region timing findings to the new stimulus of authorship disclosure,' say so — and explain why that combination produces a novel prediction rather than a predictable summation.",
+      "required_change": "Cite the ARIA-live / live-region interaction literature and state which specific findings the current design builds on or contradicts. If the contribution is 'we apply known live-region timing findings to the new stimulus of authorship disclosure,' say so \u2014 and explain why that combination produces a novel prediction rather than a predictable summation.",
       "severity": "major"
     },
     {
@@ -31,7 +31,7 @@
         "source": "branch_card",
         "quote": "BLV screen-reader users change skim patterns and trust ratings in measurable ways when AI authorship is announced auditorily, and the effect depends on where the disclosure sits in the heading tree."
       },
-      "violated_criterion": "unquantified differentia — 'measurable ways' is not a prediction",
+      "violated_criterion": "unquantified differentia \u2014 'measurable ways' is not a prediction",
       "why_matters": "The claim as written will be true in some direction at some effect size for essentially any well-constructed disclosure manipulation, because the null hypothesis of 'disclosure has exactly zero effect on any behavioral or rating measure' is rarely supported. A claim that something will change 'in measurable ways' is not falsifiable as novelty; the reviewer who asks 'how is this different from Jakesch 2023?' gets no answer.",
       "required_change": "Specify the direction and rough magnitude of the predicted effect, and say which prior finding it would contradict or extend. Example: 'We predict early-position disclosure produces a larger dwell-onset latency increase than late-position disclosure, contra the prior sighted-visual-banner finding that position does not matter (cite).' Without a signed, comparative prediction, the novelty claim collapses into 'we ran the experiment.'",
       "severity": "major"
@@ -41,7 +41,7 @@
         "source": "prototype_spec",
         "quote": "Two coders independently apply a 4-category scheme to each clip: (A) no verbal acknowledgment of disclosure, (B) verbal acknowledgment without evaluative language ... (D) verbal acknowledgment with skeptical or adversarial language"
       },
-      "violated_criterion": "replication disguised as contribution — measuring 'does labeling affect perception' with a new instrument",
+      "violated_criterion": "replication disguised as contribution \u2014 measuring 'does labeling affect perception' with a new instrument",
       "why_matters": "The four-category verbal-acknowledgment scheme is a reasonable operationalization, but categorizing whether participants verbalize skepticism after encountering a trust-relevant cue is essentially the standard paradigm in source-credibility research going back to Hovland. Presenting the coding scheme as a design feature without situating it against the existing source-credibility and disclosure-reactivity coding literatures makes it look like a fresh invention of a well-established measurement approach.",
       "required_change": "Anchor the coding scheme to at least one prior source-credibility or disclosure-reactivity study and state whether the scheme adapts, extends, or breaks from its predecessor. If it adapts a prior scheme, cite it; if it is original, justify why existing schemes were insufficient for the BLV/auditory context specifically.",
       "severity": "minor"

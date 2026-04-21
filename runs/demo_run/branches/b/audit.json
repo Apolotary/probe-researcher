@@ -1,7 +1,7 @@
 {
   "stage": "6_audit",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branch_id": "b",
   "findings": [
     {
@@ -32,7 +32,7 @@
       "score": 1,
       "evidence_span": {
         "source": "prototype_spec",
-        "quote": "10–20 min: facilitator gives a warm-up task (navigating a neutral practice article unrelated to the study) to acclimate participant to the think-aloud protocol and confirm screen-share is working for the wizard."
+        "quote": "10\u201320 min: facilitator gives a warm-up task (navigating a neutral practice article unrelated to the study) to acclimate participant to the think-aloud protocol and confirm screen-share is working for the wizard."
       },
       "rationale": "The session structure explicitly builds in a low-stakes warm-up phase with a neutral practice article before experimental trials begin. This gives participants space to rehearse the think-aloud protocol and navigation patterns without trial data being collected, which scaffolds participant comfort rather than coupling all interaction to high-stakes measured tasks."
     },
@@ -134,7 +134,7 @@
         "source": "prototype_spec",
         "quote": "Sets the ARIA-live region textContent to 'Written by a staff journalist.' so that the announcement latency and structural position are identical to the early AI disclosure condition, isolating phrasing as the only variable."
       },
-      "rationale": "The disclosure banners function as a condensed provenance claim that participants are expected to factor into a trustworthiness judgment, yet there is no task_flow step or affordance allowing participants to trace the claim back to verifiable evidence — no byline link, no model card, no editorial policy page. Participants are asked to update credibility on the basis of an unverifiable authorship summary, which is precisely the 'trust me' output pattern the heuristic targets."
+      "rationale": "The disclosure banners function as a condensed provenance claim that participants are expected to factor into a trustworthiness judgment, yet there is no task_flow step or affordance allowing participants to trace the claim back to verifiable evidence \u2014 no byline link, no model card, no editorial policy page. Participants are asked to update credibility on the basis of an unverifiable authorship summary, which is precisely the 'trust me' output pattern the heuristic targets."
     }
   ],
   "axis_scores": {

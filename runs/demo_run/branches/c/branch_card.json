@@ -1,7 +1,7 @@
 {
   "stage": "3_literature",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branch_id": "c",
   "research_question": "What failure patterns emerge when BLV screen-reader users navigate AI-generated articles over repeated sessions, and can a co-designed in-browser repair layer that rewrites hierarchy on the fly reduce those failures across successive encounters?",
   "intervention_primitive": "in-browser accessibility-repair overlay co-designed with BLV participants that detects hallucinated headings and inconsistent landmark nesting in AI-generated articles and rewrites them before screen-reader announcement",

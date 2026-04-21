@@ -49,7 +49,7 @@ This is the load-bearing piece. It walks the markdown AST and requires a tag on 
 cat runs/demo_run/branches/a/WORKSHOP_NOT_RECOMMENDED.md
 ```
 
-Branch A of the demo run got blocked. The report names `legibility.no_failure_signal` at -2 with the quoted evidence span from the prototype spec. Toward the end, a "What would unblock this branch" section names specifically which findings would need to be removed or re-scored. The closing `[HUMAN_REQUIRED]` block asks the researcher to confirm the pattern fired correctly before redesigning.
+Branch A of the demo run got blocked. The report names `legibility.no_failure_signal` at -2 with the quoted evidence span from the prototype spec. The "What to reconsider" section suggests redesigning the intervention so the pattern no longer fires or reframing the research question so the pattern is not load-bearing. The closing `[HUMAN_REQUIRED]` block asks the researcher to confirm the pattern fired correctly before redesigning. (The updated `workshop_not_recommended.ts` template adds a per-finding "What would unblock this branch" section for runs generated after 2026-04-22; the shipped `runs/demo_run/` artifacts predate that change.)
 
 ## Step 5 — Read the surviving guidebook (3-5 minutes)
 
@@ -60,7 +60,7 @@ open runs/demo_run/PROBE_REPORT.pdf   # macOS
 # or xdg-open on Linux
 ```
 
-The report bundles the guidebook, reviewer panel, audit findings, blocked-branch reports, lint status, cost log, and the managed-agent deep audit into one file. Newsreader serif body, Inter headings, warm off-white background. 14 pages.
+The report bundles the guidebook, reviewer panel, audit findings, blocked-branch reports, lint status, cost log, and the managed-agent deep audit into one file. Newsreader serif body, Inter headings, warm off-white background. 18 pages.
 
 If you want to see the raw guidebook:
 
@@ -107,7 +107,7 @@ Spawns a Claude Managed Agent with bash/grep/file tools inside a managed cloud c
 open paper/probe.pdf
 ```
 
-15-page arXiv paper. Section structure: abstract, introduction, related work (four clusters), system description, demo case study, evaluation (ablation + hallucination test + second-domain benchmark + deep audit), discussion, limitations, conclusion. 27 verified bibliography entries.
+17-page arXiv paper. Section structure: abstract, introduction, related work (four clusters), system description, demo case study, evaluation (ablation + hallucination test + second-domain benchmark + deep audit), discussion, limitations, conclusion. 31 verified bibliography entries.
 
 If the PDF is stale, rebuild:
 

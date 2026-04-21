@@ -1,7 +1,7 @@
 {
   "stage": "3_literature",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branch_id": "a",
   "research_question": "Do AI-generated news articles published by outlets using LLM pipelines exhibit systematically different heading depth, landmark structure, and ARIA correctness than human-authored articles from the same outlets, and on which dimensions is divergence large enough to affect screen-reader navigation?",
   "intervention_primitive": "automated corpus audit pipeline that parses article DOMs and scores hierarchy artifacts against ARIA conformance plus screen-reader-relevant structural metrics",

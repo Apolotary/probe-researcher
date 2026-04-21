@@ -156,7 +156,7 @@ Temperature parameter is omitted on all calls (deprecated on Opus 4.7).
 ## Linter and test invariants
 
 - `npx tsc --noEmit` must pass clean.
-- `npx vitest run` must pass with ≥23 tests.
+- `npx vitest run` must pass with ≥29 tests.
 - `npx probe lint runs/demo_run/PROBE_GUIDEBOOK.md` must exit 0 (both provenance and voice pass).
 
 If any invariant fails, DO NOT ship. The demo depends on these.

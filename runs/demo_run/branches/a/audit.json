@@ -1,7 +1,7 @@
 {
   "stage": "6_audit",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branch_id": "a",
   "findings": [
     {
@@ -32,7 +32,7 @@
       "score": 1,
       "evidence_span": {
         "source": "prototype_spec",
-        "quote": "0–10 min: facilitator reads consent form and orientation script; participant completes warm-up navigation task on a neutral article not in the stimulus set to calibrate screen-reader speed and confirm think-aloud protocol."
+        "quote": "0\u201310 min: facilitator reads consent form and orientation script; participant completes warm-up navigation task on a neutral article not in the stimulus set to calibrate screen-reader speed and confirm think-aloud protocol."
       },
       "rationale": "The session_structure explicitly includes a warm-up navigation task on a neutral article before stimulus articles are introduced, providing a low-stakes rehearsal phase for the think-aloud protocol and screen-reader calibration. This is a small but explicit scaffold for the participant's practiced engagement with the task format."
     },
@@ -45,7 +45,7 @@
         "source": "prototype_spec",
         "quote": "A WebSocket-triggered JavaScript snippet adds role='region' and aria-label='Comments section' (or the appropriate section name) to the target container's outermost div in the live DOM without altering visual rendering. NVDA will announce the new landmark on the participant's next D-key landmark navigation press."
       },
-      "rationale": "The wizard unilaterally modifies the live DOM that the participant is navigating, materially altering the stimulus mid-task without the participant's authorization or knowledge. While this is research-internal rather than externally consequential, it crosses into decision authority over the participant's sensory environment — the participant cannot deliberate over whether the injection happens. This is partially mitigated by the threshold-gating but remains a covert intervention."
+      "rationale": "The wizard unilaterally modifies the live DOM that the participant is navigating, materially altering the stimulus mid-task without the participant's authorization or knowledge. While this is research-internal rather than externally consequential, it crosses into decision authority over the participant's sensory environment \u2014 the participant cannot deliberate over whether the injection happens. This is partially mitigated by the threshold-gating but remains a covert intervention."
     },
     {
       "pattern_id": "agency.hides_options_before_review",
@@ -74,7 +74,7 @@
         "source": "prototype_spec",
         "quote": "If the participant cannot locate the target within 45 seconds, the wizard may activate the 'inject landmark breadcrumb' control to add an ARIA-label to the comments container visible only in the accessibility tree (not visually), which NVDA will then announce on the next D-key landmark press."
       },
-      "rationale": "The participant population is screen-reader-using blind and low-vision adults — a population historically subject to paternalistic 'help' from sighted researchers. The default behavior at the 45-second threshold is for the wizard to intervene by augmenting the page on the participant's behalf, without participant consent at the point of action. The simulated walkthrough notes the intervention could interrupt an in-progress successful workaround, instantiating exactly the paternalism Kafer critiques. The threshold-gating prevents this from reaching -2, but the default disposition is to intervene rather than wait."
+      "rationale": "The participant population is screen-reader-using blind and low-vision adults \u2014 a population historically subject to paternalistic 'help' from sighted researchers. The default behavior at the 45-second threshold is for the wizard to intervene by augmenting the page on the participant's behalf, without participant consent at the point of action. The simulated walkthrough notes the intervention could interrupt an in-progress successful workaround, instantiating exactly the paternalism Kafer critiques. The threshold-gating prevents this from reaching -2, but the default disposition is to intervene rather than wait."
     },
     {
       "pattern_id": "exit.data_lock_in",
@@ -120,7 +120,7 @@
         "source": "prototype_spec",
         "quote": "The wizard should detect this when the dashboard shows zero violations for an article but the participant's navigation trace shows repeated backward heading navigations (Shift+H) indicating unexpected heading order, which contradicts the clean audit score. This is the most likely way the audit pipeline produces false-negative structural assessments."
       },
-      "rationale": "The spec explicitly acknowledges that the axe-core audit pipeline produces false-negative structural assessments (the aria-level mismatch scenario) and that two structurally very different articles can receive identical clean audit scores. The primary instrument on which the AI-vs-human analysis depends fails silently, and the participant — whose navigation is the ground truth — has no channel to flag these failures during the session. The wizard is asked to catch these via judgment, but the analysis_plan treats axe-core counts as a first-class quantitative variable in permutation tests and correlations. A silent failure mode in the central measurement instrument, acknowledged in failure_cases but not resolved, is the canonical fire for this pattern."
+      "rationale": "The spec explicitly acknowledges that the axe-core audit pipeline produces false-negative structural assessments (the aria-level mismatch scenario) and that two structurally very different articles can receive identical clean audit scores. The primary instrument on which the AI-vs-human analysis depends fails silently, and the participant \u2014 whose navigation is the ground truth \u2014 has no channel to flag these failures during the session. The wizard is asked to catch these via judgment, but the analysis_plan treats axe-core counts as a first-class quantitative variable in permutation tests and correlations. A silent failure mode in the central measurement instrument, acknowledged in failure_cases but not resolved, is the canonical fire for this pattern."
     },
     {
       "pattern_id": "legibility.no_rationale_at_point_of_action",

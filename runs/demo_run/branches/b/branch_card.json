@@ -1,7 +1,7 @@
 {
   "stage": "3_literature",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branch_id": "b",
   "research_question": "When hierarchy is held constant, does disclosing AI authorship via an ARIA-live provenance banner shift BLV screen-reader users' navigation strategies and credibility judgments compared to undisclosed or human-authored framing?",
   "intervention_primitive": "auditory provenance disclosure element announced by the screen reader at article load, varied in phrasing, specificity, and placement relative to the heading tree",

@@ -1,7 +1,7 @@
 {
   "stage": "7_review",
   "schema_version": "1.0.0",
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branch_id": "b",
   "reviewer_persona": "methodologist",
   "decisive_weakness": "The AI disclosure string is 18 words and ~6 seconds of speech; the human-framed string is 5 words and ~2 seconds. This confound is baked into the stimuli, and every behavioral dependent variable the study claims to measure (dwell-onset latency, heading-jump counts, post-banner think-aloud content in a fixed 20-second window) is mechanically sensitive to announcement duration rather than disclosure semantics. The claim 'BLV users change skim patterns when AI authorship is announced' cannot be separated from 'BLV users change skim patterns when a longer announcement interrupts them,' because no condition isolates length from content.",
@@ -12,7 +12,7 @@
         "quote": "The human-framed condition ('Written by a staff journalist') is substantially shorter than the AI disclosure string, which introduces a confound the rehearsal cannot ignore: announcement duration differs across conditions by several seconds."
       },
       "violated_criterion": "uncontrolled stimulus confound between primary IV and a nuisance variable",
-      "why_matters": "The three DVs most tied to the branch claim — dwell-onset latency, heading-jump counts before body dwell, and the 20-second post-injection think-aloud window — are all time-bounded measures. A 4-6 second difference in announcement duration will mechanically shift dwell-onset latency and truncate the effective post-announcement think-aloud window in the human condition. Any condition difference the Friedman tests detect is interpretable as a length effect. The stated contribution (semantic content of provenance disclosure shifts behavior) becomes unrecoverable from the data.",
+      "why_matters": "The three DVs most tied to the branch claim \u2014 dwell-onset latency, heading-jump counts before body dwell, and the 20-second post-injection think-aloud window \u2014 are all time-bounded measures. A 4-6 second difference in announcement duration will mechanically shift dwell-onset latency and truncate the effective post-announcement think-aloud window in the human condition. Any condition difference the Friedman tests detect is interpretable as a length effect. The stated contribution (semantic content of provenance disclosure shifts behavior) becomes unrecoverable from the data.",
       "required_change": "Add a fourth condition with a length-matched human-framed string (e.g., 'Written by a staff journalist and reviewed by a senior editor for this publication'), OR add a length-matched neutral control string, so that phrasing-content can be separated from announcement-duration. Alternatively, drop the duration-sensitive behavioral DVs and restrict claims to the credibility rating and section-selection measures, which are less duration-coupled.",
       "severity": "blocking"
     },
@@ -31,19 +31,19 @@
         "source": "prototype_spec",
         "quote": "Wizard fires this control at the moment the participant's screen reader cursor passes the second H2 heading, determined by observing the screen-share video feed and listening for the second H2 heading text in the Zoom audio"
       },
-      "violated_criterion": "manipulation fidelity — the late-banner condition cannot be reliably instantiated",
-      "why_matters": "The simulated_walkthrough notes fast H-key navigators can traverse all three H2s in under 4 seconds, making the wizard's firing window between H2-2 and H2-3 unreliable. When the window is missed, the trial silently degrades into 'banner fired at arbitrary time after H2-2' — i.e., the late condition becomes a timing-noise condition rather than a controlled manipulation. The two-level timing manipulation (early vs late) is the design feature that distinguishes this branch from a plain disclosure-vs-no-disclosure study. If the late condition is operationally unreliable, the branch's specific contribution over simpler prior designs collapses.",
+      "violated_criterion": "manipulation fidelity \u2014 the late-banner condition cannot be reliably instantiated",
+      "why_matters": "The simulated_walkthrough notes fast H-key navigators can traverse all three H2s in under 4 seconds, making the wizard's firing window between H2-2 and H2-3 unreliable. When the window is missed, the trial silently degrades into 'banner fired at arbitrary time after H2-2' \u2014 i.e., the late condition becomes a timing-noise condition rather than a controlled manipulation. The two-level timing manipulation (early vs late) is the design feature that distinguishes this branch from a plain disclosure-vs-no-disclosure study. If the late condition is operationally unreliable, the branch's specific contribution over simpler prior designs collapses.",
       "required_change": "Replace human-gated late injection with programmatic triggering: use an IntersectionObserver or aria-activedescendant focus tracker that fires the banner automatically when the participant's virtual cursor reaches a specific DOM landmark. Pilot with 2-3 screen-reader users and report the measured latency distribution between H2-2 traversal and banner announcement onset before running main data collection.",
       "severity": "blocking"
     },
     {
       "evidence_span": {
         "source": "prototype_spec",
-        "quote": "Two coders independently apply a 4-category scheme to each clip... Compute inter-rater agreement (Cohen's kappa) on the 24 clips (8 participants × 3 trials)."
+        "quote": "Two coders independently apply a 4-category scheme to each clip... Compute inter-rater agreement (Cohen's kappa) on the 24 clips (8 participants \u00d7 3 trials)."
       },
       "violated_criterion": "qualitative analysis plan lacks codebook development procedure and disagreement-resolution protocol",
       "why_matters": "The analysis_plan names Cohen's kappa but does not specify: how the four categories were developed (data-driven or a priori), how boundary cases between B/C/D will be adjudicated, what kappa threshold constitutes acceptable agreement before proceeding, or what happens when coders disagree. With only 24 clips, a single boundary-case disagreement moves kappa substantially. Reviewers will read this as thematic analysis with a kappa number pasted on, which is exactly the critique Braun & Clarke and others have repeatedly flagged.",
-      "required_change": "Specify (a) whether the 4-category scheme is theoretically derived (if so, from which literature) or pilot-derived, (b) written definitions and boundary examples for each category, (c) a disagreement-resolution procedure (discussion to consensus, third coder, or adjudication by PI), and (d) an a priori kappa threshold (e.g., ≥0.70) that triggers codebook revision if unmet.",
+      "required_change": "Specify (a) whether the 4-category scheme is theoretically derived (if so, from which literature) or pilot-derived, (b) written definitions and boundary examples for each category, (c) a disagreement-resolution procedure (discussion to consensus, third coder, or adjudication by PI), and (d) an a priori kappa threshold (e.g., \u22650.70) that triggers codebook revision if unmet.",
       "severity": "major"
     },
     {
@@ -62,7 +62,7 @@
         "quote": "duration_minutes: 75"
       },
       "violated_criterion": "session duration budget inconsistent with task inventory",
-      "why_matters": "The session_structure allocates 35 minutes for three 10-12 minute trial blocks (which is 30-36 minutes, already overrunning), plus 15 minutes debrief, plus 10 minutes consent/screener, plus 10 minutes warm-up, plus 5 minutes compensation — totaling 75-80 minutes at minimum with no slack for the credibility form (which the simulated_walkthrough notes 'would likely take a screen-reader user longer to complete than a sighted user'), fallback activation events, or mode-suppression retries. Fatigue will concentrate in trial 3, compounding the demand-characteristic drift already flagged.",
+      "why_matters": "The session_structure allocates 35 minutes for three 10-12 minute trial blocks (which is 30-36 minutes, already overrunning), plus 15 minutes debrief, plus 10 minutes consent/screener, plus 10 minutes warm-up, plus 5 minutes compensation \u2014 totaling 75-80 minutes at minimum with no slack for the credibility form (which the simulated_walkthrough notes 'would likely take a screen-reader user longer to complete than a sighted user'), fallback activation events, or mode-suppression retries. Fatigue will concentrate in trial 3, compounding the demand-characteristic drift already flagged.",
       "required_change": "Either extend session budget to 90-100 minutes with explicit break points and re-consent for the extension, or reduce to two experimental conditions per participant (accepting a mixed within/between design), or drop the warm-up article (accepting that screen-share configuration issues may surface during trial 1).",
       "severity": "major"
     }

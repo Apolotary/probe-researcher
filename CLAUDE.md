@@ -28,10 +28,12 @@ Every paragraph, bullet, blockquote, list item, and table row in `PROBE_GUIDEBOO
 - `[AGENT_INFERENCE]` — reasoning by an agent, not grounded in a source or simulation
 - `[HUMAN_REQUIRED]` — explicit handoff point where a human must act
 - `[DO_NOT_CLAIM]` — content the guidebook explicitly flags as unclaimable
+- `[UNCITED_ADJACENT]` — named outside-corpus literature a reviewer surfaced; the researcher must verify before grounding
+- `[TOOL_VERIFIED]` — claim measured by a Managed Agents tool-equipped session (bash, grep, file ops), used only by `probe audit-deep`
 
 The linter fails the build on any missing tag.
 
-## Forbidden language (enforced by `probe lint-voice`)
+## Forbidden language (enforced by `probe lint`)
 
 Probe's own voice MUST NEVER use (outside of quoted context):
 

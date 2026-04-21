@@ -1,23 +1,26 @@
 {
-  "run_id": "smoke_test_01",
+  "run_id": "demo_run",
   "branches": [
     {
       "branchId": "a",
       "status": "blocked",
       "stage": "6_audit",
-      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
-      "blockingFinding": "audit:capture_risk:-2"
+      "reason": "Capture-risk audit fired a -2 finding on legibility.no_failure_signal.",
+      "blockingFinding": "audit:legibility.no_failure_signal:-2"
     },
     {
       "branchId": "b",
-      "status": "in_progress"
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "reason": "Meta-reviewer verdict: human_judgment_required (legitimate_methodological_split). Guidebook assembled.",
+      "blockingFinding": null
     },
     {
       "branchId": "c",
       "status": "blocked",
       "stage": "6_audit",
-      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
-      "blockingFinding": "audit:capture_risk:-2"
+      "reason": "Capture-risk audit fired a -2 finding on legibility.no_failure_signal.",
+      "blockingFinding": "audit:legibility.no_failure_signal:-2"
     }
   ]
 }
