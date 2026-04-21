@@ -16,13 +16,13 @@ Kafer develops a political/relational model of disability that situates access n
 
 Buijsman, Carter, and Bermúdez argue that AI decision-support can erode domain-specific autonomy through absent failure indicators, which motivates examining whether provenance disclosure mechanisms interact with users' capacity for critical evaluation of AI-authored content. [SOURCE_CARD:buijsman_carter_bermudez_2025]
 
-Liang et al. reported in a prospective user study that 57.4% of researchers rated GPT-4 feedback as helpful or very helpful, indicating that perceived source identity shapes credibility judgments about AI-generated content in at least one sighted expert population. [SOURCE_CARD:liang_nejm_ai_2024]
+Liang et al. reported in a prospective user study that 57.4% of researchers rated GPT-4 feedback on scientific manuscripts as helpful or very helpful; this finding concerns the helpfulness of AI-authored critique, not AI-authored content more broadly, and this study cannot extend that finding to BLV readers of AI-generated news without additional evidence. [SOURCE_CARD:liang_nejm_ai_2024]
 
 Illich argues that tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool, which foregrounds the question of whether undisclosed AI authorship could silently reshape reader trust and navigation behavior. [SOURCE_CARD:illich_1973]
 
-The AI-disclosure-effects literature (Jakesch et al. on AI-text labeling, Longoni et al. on AI in medical advice, Sundar's MAIN model work, and related source-credibility research) is adjacent to this study but is not represented in the current source corpus; the novelty hawk reviewer flagged this as a gap the researcher must close before writing up. [AGENT_INFERENCE]
+Since this guidebook was first assembled, three directly adjacent papers have been added to the source corpus (Jakesch et al. 2023 on co-writing with opinionated language models; Longoni et al. 2019 on resistance to medical AI; Sundar's 2008 MAIN model of technology effects on credibility). A regeneration of the guidebook against the updated corpus will ground the grounding section against these references rather than flag them as uncited. [AGENT_INFERENCE]
 
-The ARIA-live announcement and live-region interaction literature is similarly adjacent and uncited in the current source corpus; prior work on how live-region announcements interact with heading navigation is not yet incorporated into this guidebook. [AGENT_INFERENCE]
+The ARIA-live announcement and live-region interaction literature remains adjacent and uncited in the current source corpus; prior work on how live-region announcements interact with heading navigation is not yet incorporated. [UNCITED_ADJACENT]
 
 ## Prototype
 
@@ -108,7 +108,7 @@ A rehearsal suggests that if the announcement-duration confound is uncontrolled,
 
 A rehearsal also suggests participants coded as category A in the think-aloud scheme (no verbal acknowledgment) could nonetheless show condition-differentiated credibility ratings, which would suggest silent uptake of the banner that the verbal-coding method alone would fail to detect. [SIMULATION_REHEARSAL]
 
-Under the adversarial-check framing from the branch card, a prediction would be that AI-disclosed conditions produce higher frequencies of think-aloud category D (skeptical or adversarial language) and shift section-selection toward sourcing/methodology sections; whether this prediction survives the probe-wording priming concern is an open question the design itself does not resolve. [AGENT_INFERENCE]
+Under the adversarial-check framing from the branch card, a rehearsal would anticipate that AI-disclosed conditions could plausibly shift think-aloud category D frequencies and section-selection patterns, though whether this rehearsal-level anticipation survives the probe-wording priming concern is not a matter this design resolves. [SIMULATION_REHEARSAL]
 
 ## Risks and failure modes
 

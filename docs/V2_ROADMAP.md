@@ -38,7 +38,10 @@ This file captures features out of scope for the hackathon submission window but
 
 **Scope caveat.** This is only in-scope because the project's "screen-based interactive research" boundary allows video-of-interactions. It does NOT open Probe up to ethnographic fieldwork.
 
-## 3. Simulated user interview (Wizard-of-Oz / Chinese Room style)
+## 3. Simulated user interview (Wizard-of-Oz / Chinese Room style) — SHIPPED 2026-04-22
+
+> This was originally planned as v2 but shipped in the submission window as `probe interview <run_id>`. See [`src/managed_agents/simulated_interview.ts`](../src/managed_agents/simulated_interview.ts) and [`agents/simulated-participant.md`](../agents/simulated-participant.md). Section below preserved as design rationale.
+
 
 **Thesis.** Probe already generates a study protocol. A v2 extension runs a *simulated* interview against that protocol: the researcher enters the interview script, the agent plays a simulated participant answering in-character, and the researcher can see where questions fall flat or produce unhelpful data before recruiting real participants.
 

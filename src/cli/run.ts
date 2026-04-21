@@ -7,7 +7,6 @@ import { palette, emojis } from '../ui/theme.js';
 interface RunCommandOptions {
   runId?: string;
   skip?: string;
-  branches?: string;
   /**
    * commander.js convention: declaring `.option('--no-novelty', ...)` produces
    * `novelty: false` in the parsed options (not `noNovelty: true`). Default is
@@ -25,13 +24,12 @@ export async function runCommand(
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
-  const branches = Number.parseInt(opts.branches ?? '3', 10);
 
   const options: RunOptions = {
     runId,
     premise,
     skipStages: skip,
-    branchCount: branches,
+    branchCount: 3, // schema enforces a/b/c enum; not configurable for now
     // opts.novelty === false only when --no-novelty was passed.
     includeNovelty: opts.novelty !== false,
   };

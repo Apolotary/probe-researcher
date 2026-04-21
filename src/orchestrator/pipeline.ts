@@ -23,7 +23,7 @@ import {
   stageDoneLabel,
   stageSpinner,
 } from './per_branch.js';
-import type { PipelineResult, RunOptions } from './types.js';
+import type { PipelineResult, RunOptions, StageId } from './types.js';
 
 /**
  * Main pipeline driver.
@@ -232,7 +232,7 @@ async function finishRun(args: {
     return {
       runId,
       status: 'failed',
-      failedStage: (failed[0]?.stage as never) ?? undefined,
+      failedStage: failed[0]?.stage as StageId | undefined,
       survivingBranches: [],
       blockedBranches: [],
     };

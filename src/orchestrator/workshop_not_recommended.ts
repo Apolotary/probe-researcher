@@ -63,10 +63,33 @@ export async function writeWorkshopNotRecommended(args: WnrArgs): Promise<void> 
       }
     }
   }
-  lines.push(`## What to reconsider`);
+  lines.push(`## What would unblock this branch`);
+  lines.push('');
+  if (audit) {
+    const blockingFindings = audit.findings.filter((f) => f.fired && f.score === -2);
+    const driftFindings = audit.findings.filter((f) => f.fired && f.score === -1);
+    if (blockingFindings.length > 0) {
+      lines.push(`The blocking -2 finding(s) would need to be removed or re-scored. Specifically:`);
+      lines.push('');
+      for (const f of blockingFindings) {
+        lines.push(`- **${f.pattern_id}** (score -2): would need to be downgraded to ≥-1. That requires changing the prototype spec such that the pattern's trigger heuristic no longer matches. Concretely: revise the feature(s) named in the evidence span so that the pattern's \`fired\` evaluation returns false, or add a compensating feature that shifts the score above -2. [AGENT_INFERENCE]`);
+      }
+      lines.push('');
+    }
+    if (driftFindings.length > 0) {
+      lines.push(`Additionally, the following -1 findings contribute to the score and may need mitigation: ${driftFindings.map((f) => '`' + f.pattern_id + '`').join(', ')}. [AGENT_INFERENCE]`);
+      lines.push('');
+    }
+  } else {
+    lines.push(
+      `Redesign the intervention so the blocking pattern no longer fires before re-running Probe. Or reframe the research question so the blocking pattern is not load-bearing on the contribution. [AGENT_INFERENCE]`,
+    );
+    lines.push('');
+  }
+  lines.push(`## Alternative: is the pattern mis-firing?`);
   lines.push('');
   lines.push(
-    `Redesign the intervention so the blocking pattern no longer fires before re-running Probe. Or reframe the research question so the blocking pattern is not load-bearing on the contribution. [AGENT_INFERENCE]`,
+    `Before redesigning, a human researcher should confirm the pattern fired correctly. If the constraint the pattern flagged is itself the manipulation-under-study (for example, a calibration intervention flagged as paternalism when the friction is the DV), then the finding is a pattern-library false positive and should be annotated in patterns/*.yaml rather than acted on. [AGENT_INFERENCE]`,
   );
   lines.push('');
   lines.push(`## Next step`);

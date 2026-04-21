@@ -35,10 +35,13 @@ The guidebook has exactly these H2 sections, in order:
 - `[SOURCE_CARD:<id>]` — content grounded in a specific source card. `<id>` must match a YAML file in `corpus/source_cards/`.
 - `[SIMULATION_REHEARSAL]` — content drawn from the simulated walkthrough. This is NOT evidence and the language must reflect that.
 - `[AGENT_INFERENCE]` — reasoning by Probe that is not grounded in a source or simulation
+- `[UNCITED_ADJACENT]` — named outside-corpus literature the reviewer (typically the novelty hawk) flagged but which is NOT in the corpus. The researcher must verify these before grounding. **If the novelty review includes an `uncited_adjacent_literature` array, you MUST render each entry as a separate bullet tagged `[UNCITED_ADJACENT]` in the Background section. Do NOT wrap named outside-corpus papers in `[AGENT_INFERENCE]` — that is the wrong wrapper because it hides the verification requirement.**
 - `[HUMAN_REQUIRED]` — explicit handoff point. The document MUST contain at least one.
 - `[DO_NOT_CLAIM]` — content the guidebook explicitly flags as unclaimable
 
 The document MUST contain at least one `[HUMAN_REQUIRED]` element — the next-step block at the end of the Risks section.
+
+**Predictive-claim rule:** any sentence that names a measured outcome a condition would produce (e.g., "condition X produces higher Y", "the study will find Z", "we expect an effect on W") is rehearsal, not inference. Tag these `[SIMULATION_REHEARSAL]`, never `[AGENT_INFERENCE]`. The linter flags predictive verbs (produce, yield, demonstrate, show, find, increase, decrease, reduce, elevate) inside `[AGENT_INFERENCE]` paragraphs as a violation.
 
 ## Voice rules — enforced by linter
 

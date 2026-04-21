@@ -55,20 +55,23 @@ export function Explore({ runId }: ExploreProps): React.ReactElement {
   const { exit } = useApp();
   const [branches, setBranches] = useState<BranchPaneData[]>([]);
   const [focused, setFocused] = useState(0);
-  const [scrollOffsets, setScrollOffsets] = useState<number[]>([0, 0, 0]);
+  const [scrollOffsets, setScrollOffsets] = useState<number[]>([]);
   const [premise, setPremise] = useState<string>('');
   const [guidebook, setGuidebook] = useState<string>('');
   const [showGuidebook, setShowGuidebook] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     void (async () => {
       try {
         const premisePath = path.join(runDir(runId), 'premise.md');
         const p = await fs.readFile(premisePath, 'utf8').catch(() => '');
+        if (cancelled) return;
         setPremise(p);
 
         const gbPath = path.join(runDir(runId), 'PROBE_GUIDEBOOK.md');
         const gb = await fs.readFile(gbPath, 'utf8').catch(() => '');
+        if (cancelled) return;
         setGuidebook(gb);
 
         const branchesDir = path.join(runDir(runId), 'branches');
@@ -101,20 +104,27 @@ export function Explore({ runId }: ExploreProps): React.ReactElement {
             status,
           });
         }
+        if (cancelled) return;
         setBranches(loaded);
+        setScrollOffsets(new Array(loaded.length).fill(0));
       } catch (e) {
-        setPremise(`error loading run: ${String((e as Error).message)}`);
+        if (!cancelled) setPremise(`error loading run: ${String((e as Error).message)}`);
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [runId]);
 
   useInput((input, key) => {
-    if (input === 'q' || key.escape) {
-      exit();
-      return;
-    }
+    // Handle overlay state first — escape in the guidebook overlay should
+    // return to the main view, not exit the whole app.
     if (showGuidebook) {
       if (input === 'g' || key.escape) setShowGuidebook(false);
+      return;
+    }
+    if (input === 'q' || key.escape) {
+      exit();
       return;
     }
     if (input === 'g') {
@@ -128,7 +138,11 @@ export function Explore({ runId }: ExploreProps): React.ReactElement {
     } else if (key.downArrow) {
       setScrollOffsets((o) => {
         const next = [...o];
-        next[focused] = (next[focused] ?? 0) + 1;
+        const current = next[focused] ?? 0;
+        // Clamp against the content length of the focused pane.
+        const lines = (branches[focused]?.contents[branches[focused]?.view ?? 'branch_card'] ?? '').split('\n').length;
+        const maxScroll = Math.max(0, lines - 4);
+        next[focused] = Math.min(maxScroll, current + 1);
         return next;
       });
     } else if (key.upArrow) {

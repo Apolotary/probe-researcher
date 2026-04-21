@@ -79,9 +79,13 @@ export interface PerBranchNoVerdictArgs {
  */
 export async function perBranchNoVerdict(args: PerBranchNoVerdictArgs): Promise<void> {
   const { states, stageId, stageStates, fn } = args;
+  const active = liveBranches(states);
+  if (active.length === 0) {
+    markStage(stageStates, stageId, 'pending');
+    return;
+  }
   const spinner = stageSpinner(stageId);
   markStage(stageStates, stageId, 'active');
-  const active = liveBranches(states);
   const outcomes: Array<{ id: string; ok: boolean; err?: string }> = [];
   await Promise.all(
     active.map(async (id) => {
@@ -129,9 +133,13 @@ export interface PerBranchWithVerdictArgs {
  */
 export async function perBranchWithVerdict(args: PerBranchWithVerdictArgs): Promise<void> {
   const { runId, states, stageId, stageStates, fn, blockingVerdicts, blockedReason, blockingFinding, doneLabel } = args;
+  const active = liveBranches(states);
+  if (active.length === 0) {
+    markStage(stageStates, stageId, 'pending');
+    return;
+  }
   const spinner = stageSpinner(stageId);
   markStage(stageStates, stageId, 'active');
-  const active = liveBranches(states);
   const outcomes: Array<{ id: string; verdict: string }> = [];
   await Promise.all(
     active.map(async (id) => {

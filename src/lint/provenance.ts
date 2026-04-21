@@ -105,9 +105,23 @@ export function checkProvenance(
         }
       }
     }
+
+    // AGENT_INFERENCE elements must not contain predictive outcome claims.
+    // Sentences like "condition X produces higher Y" are rehearsal at best
+    // and must be tagged [SIMULATION_REHEARSAL] so the researcher is
+    // warned they are looking at a prior, not a finding.
+    if (tag === 'AGENT_INFERENCE') {
+      const predictiveRe = /\b(produces?|yields?|would (produce|yield|demonstrate|show|find|cause)|predict(s|ed)?\s+(that|a|an)|will (produce|yield|demonstrate|show|find|increase|decrease|reduce))\b[^.]{3,}\b(higher|lower|greater|more|less|increase|decrease|elevated|reduced|significant)\b/i;
+      const m = text.match(predictiveRe);
+      if (m) {
+        violations.push(
+          `AGENT_INFERENCE contains predictive outcome claim "${m[0].slice(0, 80)}" — this must be tagged [SIMULATION_REHEARSAL]`,
+        );
+      }
+    }
   };
 
-  visit(tree, (node) => {
+  visit(tree, (node, _index, parent) => {
     const n = node as Parent;
     switch (node.type) {
       case 'paragraph':
@@ -119,11 +133,14 @@ export function checkProvenance(
       case 'blockquote':
         checkNode(n, 'blockquote');
         break;
-      case 'tableRow':
-        // Skip the header row; require provenance on body rows only.
-        // Header detection: tableRow whose parent's first child is this node.
+      case 'tableRow': {
+        // Skip the header row. In mdast, table.children[0] is the header row.
+        if (parent && (parent as Parent).children?.[0] === node) {
+          break;
+        }
         checkNode(n, 'table row');
         break;
+      }
       case 'heading': {
         // Headings don't need a provenance tag, but they MUST NOT use
         // evidence language. A heading like "Expected outcomes" contradicts
