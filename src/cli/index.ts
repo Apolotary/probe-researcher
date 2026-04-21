@@ -16,6 +16,8 @@ import { lintCommand } from './lint.js';
 import { initCommand } from './init.js';
 import { exploreCommand } from './explore.js';
 import { auditDeepCommand } from './audit_deep.js';
+import { interviewCommand } from './interview.js';
+import { symposiumCommand } from './symposium.js';
 
 const program = new Command();
 
@@ -63,6 +65,21 @@ program
   .description('Deep capture-risk audit using Claude Managed Agents — the agent can bash/grep/file-read the branch artifacts and measure quantitative claims (like announcement-duration confounds) rather than only reason about them')
   .option('--dry-run', 'print what would happen without creating a session')
   .action(auditDeepCommand);
+
+program
+  .command('interview')
+  .argument('<run_id>', 'run id (guidebook study protocol will be loaded as context)')
+  .description('Rehearse the guidebook\'s interview protocol against a simulated participant (Managed Agents session). Not evidence — every participant response is [SIMULATION_REHEARSAL].')
+  .option('--persona <description>', 'inline persona description for the simulated participant')
+  .option('--persona-file <path>', 'file path containing persona description')
+  .option('--single-turn', 'single question/answer, then exit (smoke test)')
+  .action(interviewCommand);
+
+program
+  .command('symposium')
+  .argument('<run_ids...>', 'two or more run ids of completed Probe runs on adjacent premises')
+  .description('Convene N completed Probe runs as a simulated symposium. Produces a disagreement-preserving convener report that maps where the position papers agree, disagree, and share blind spots. Not a synthesis paper — a workshop-planning artifact.')
+  .action(symposiumCommand);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err);
