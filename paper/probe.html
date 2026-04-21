@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Bektur Ryskeldiev" />
+  <meta name="dcterms.date" content="2026-04-22" />
+  <title>Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    div.abstract {
+      margin: 2em 2em 2em 2em;
+      text-align: left;
+      font-size: 85%;
+    }
+    div.abstract-title {
+      font-weight: bold;
+      text-align: center;
+      padding: 0;
+      margin-bottom: 0.5em;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+      margin-bottom: 0em;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap');
+
+  body {
+    font-family: 'Newsreader', 'Times New Roman', serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    max-width: 6.8in;
+    margin: 0.75in auto;
+    color: #1a1a1a;
+    background: #ffffff;
+    padding: 0 0.4in;
+  }
+
+  /* Title, author, date block at top. */
+  header h1, .title { /* pandoc renders title in <h1 class="title"> */
+    font-family: 'Inter', sans-serif;
+    font-size: 19pt;
+    font-weight: 600;
+    text-align: center;
+    margin: 0.5em 0 0.3em;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
+  .author, .date {
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    color: #555;
+    font-size: 10pt;
+    margin: 0.2em 0;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: #0d0d0d;
+    line-height: 1.25;
+  }
+  h1 { font-size: 16pt; margin: 1.6em 0 0.5em; border-bottom: 0.5pt solid #999; padding-bottom: 0.15em; }
+  h2 { font-size: 13pt; margin: 1.4em 0 0.4em; }
+  h3 { font-size: 11.5pt; margin: 1.2em 0 0.3em; }
+  h4 { font-size: 11pt; margin: 1em 0 0.25em; font-weight: 600; }
+
+  /* Abstract. Pandoc wraps the tex abstract in <div class="abstract">. */
+  .abstract {
+    background: #f9f7f2;
+    padding: 0.9em 1.1em;
+    margin: 1.2em 0;
+    border-left: 2.5pt solid #1B365D;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    orphans: 3;
+    widows: 3;
+  }
+  .abstract::before {
+    content: 'Abstract';
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10pt;
+    display: block;
+    margin-bottom: 0.4em;
+    color: #1B365D;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  p { margin: 0.5em 0; orphans: 3; widows: 3; text-align: justify; hyphens: auto; }
+
+  code, tt {
+    font-family: 'JetBrains Mono', Menlo, Consolas, monospace;
+    background: #f0ece4;
+    padding: 0px 3px;
+    border-radius: 2px;
+    font-size: 0.88em;
+    color: #2d2014;
+  }
+  pre {
+    font-family: 'JetBrains Mono', Menlo, Consolas, monospace;
+    background: #1a1a1a;
+    color: #f5f4ed;
+    padding: 0.8em 1em;
+    border-radius: 3px;
+    overflow-x: auto;
+    font-size: 0.82em;
+    line-height: 1.45;
+    page-break-inside: avoid;
+  }
+
+  blockquote {
+    border-left: 2pt solid #1B365D;
+    margin: 0.7em 0;
+    padding: 0.2em 0.9em;
+    color: #333;
+    font-style: italic;
+    font-size: 10.5pt;
+  }
+
+  table { border-collapse: collapse; width: 100%; margin: 0.8em 0; page-break-inside: avoid; font-size: 10pt; }
+  th, td { border: 0.4pt solid #999; padding: 5px 9px; text-align: left; vertical-align: top; }
+  th { background: #f0ece4; font-family: 'Inter', sans-serif; font-weight: 600; color: #1a1a1a; font-size: 9.5pt; }
+  caption { caption-side: bottom; font-size: 9.5pt; color: #555; padding: 0.3em 0; }
+
+  ul, ol { padding-left: 1.5em; }
+  li { margin: 0.15em 0; }
+
+  a { color: #1B365D; text-decoration: none; border-bottom: 0.4pt solid #ccc; }
+  a:hover { border-bottom: 0.8pt solid #1B365D; }
+
+  /* References. Pandoc+citeproc typically outputs a <div id="refs">. */
+  #refs, .references {
+    font-size: 10pt;
+    border-top: 0.5pt solid #999;
+    margin-top: 2em;
+    padding-top: 0.8em;
+  }
+  #refs h1, #refs h2, .references h1, .references h2 {
+    font-size: 13pt;
+  }
+  #refs p, .references p, .csl-entry {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+    text-indent: -1.5em;
+    text-align: left;
+    hyphens: manual;
+  }
+
+  /* Figures and listings. */
+  .figure, figure { margin: 1em 0; text-align: center; page-break-inside: avoid; }
+  figcaption { font-size: 9.5pt; color: #555; margin-top: 0.3em; font-style: italic; }
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Probe: Rehearsal-Stage Triage for Screen-Based
+Interactive Research</h1>
+<p class="author">Bektur Ryskeldiev</p>
+<p class="date">2026-04-22</p>
+<div class="abstract">
+<div class="abstract-title">Abstract</div>
+<p>Research on screen-based interactive systems takes months to stand
+up. Recruitment, pilot sessions, IRB, and the first three rounds of peer
+review each expose design flaws the authors could have caught earlier.
+We describe <strong>Probe</strong>, a command-line tool that runs a
+rough HCI research premise through an eight-stage pipeline of Claude
+Opus 4.7 and Sonnet 4.6 agents: premise interrogation, divergent
+ideation, literature grounding, Wizard-of-Oz specification, simulated
+walkthrough, capture-risk audit, adversarial review, and guidebook
+assembly. Each branch runs in a real git worktree; each stage’s output
+validates against a JSON schema with one repair pass; every paragraph of
+the final guidebook carries a provenance tag that a markdown-AST linter
+enforces. A Managed Agents extension lets a reviewer agent run bash and
+grep against the branch artifacts to produce measurements a
+single-prompt audit cannot. On one demo premise, the adversarial
+methodologist caught an announcement-duration confound the authors
+missed; on an ablation trial, Sonnet 4.6 caught the same confound for
+2.4 less cost but recommended reject where Opus recommended major
+revision. A planted fake citation did not produce a fabricated
+<code>[SOURCE_CARD]</code> tag. The tool refuses to cross the
+rehearsal-to-evidence boundary through a combination of required
+provenance tags, a forbidden-phrase linter, and a dedicated
+<code>[HUMAN_REQUIRED]</code> next-step block. Probe is not a
+replacement for user research. It is a triage layer between a rough
+premise and a study that a researcher can actually defend.</p>
+</div>
+</header>
+<h1 id="introduction">Introduction</h1>
+<p>A graduate student opens a new document and writes: “I want to study
+how blind and low-vision users interpret page hierarchy on AI-generated
+news articles.” The premise has three parts bundled into a sentence: a
+population, a stimulus property, and a cognitive claim. None of them is
+operationalized yet. The student will spend the next two weeks writing a
+recruitment script, the week after that piloting it against one BLV
+collaborator, another two weeks adjusting stimuli, and six months later
+will present a CHI submission whose first reviewer comment reads “the
+AI-generated framing is not operationalized.”</p>
+<p>This paper describes a tool that reads the same sentence and returns,
+twenty-five minutes and roughly six dollars of API credit later, a study
+guidebook of seventy-seven content-bearing elements for one of three
+research programs, two of which it blocks with specific capture-risk
+findings quoted from their own prototype specs. Every paragraph of the
+guidebook carries a tag naming where the content came from: the
+researcher’s input, a grounded source card, a simulated walkthrough, an
+agent’s inference, or a point at which a human must take over. A
+markdown linter rejects any paragraph that lacks a tag, and rejects any
+tagged-as-rehearsal paragraph that uses evidence language. A second
+command spawns a Managed Agents session in which a reviewer agent runs
+bash and grep against the spec and measures the announcement-duration
+difference the shallow audit could only approximate.</p>
+<p>The tool is called <strong>Probe</strong>. It does not replace user
+research. It sits between the blank document and the study the
+researcher is about to spend six months building.</p>
+<h2 id="the-claim">The claim</h2>
+<p>Probe’s claim is narrow. A senior colleague reading a rough premise
+will, in the first thirty seconds, ask three or four sharp questions,
+name the nearest existing work, and propose two or three alternative
+framings. The first two stages of Probe try to do exactly that, as a
+large model under a senior-PI system prompt. The remaining six stages
+try to do what takes a lab several weeks: specify three divergent
+prototypes, rehearse what a user session under each would surface, audit
+each for the patterns Illich and Buijsman et al. identify as
+autonomy-eroding, and attack each from the perspective of three distinct
+reviewer personas whose meta-reviewer is forbidden from collapsing
+disagreement to consensus <span class="citation"
+data-cites="illich1973conviviality buijsman2025autonomy">(Illich 1973;
+Buijsman, Carter, and Bermúdez 2025)</span>.</p>
+<p>None of this produces evidence about users. The point is for it not
+to. Probe’s enforcement mechanism is a single markdown linter that fails
+the build on any unlabeled paragraph, any forbidden phrase outside
+quoted context, any paragraph tagged <code>[SIMULATION_REHEARSAL]</code>
+that uses evidence language, and any heading that names findings. The
+linter is the ethical core of the system, and it runs as a test gate
+before the guidebook is allowed to leave the run directory.</p>
+<h2 id="contributions">Contributions</h2>
+<p>This paper’s contributions are:</p>
+<ol>
+<li><p>A pipeline architecture for research-design triage that routes
+stages to Opus 4.7 or Sonnet 4.6 based on whether the stage requires
+normative reasoning or structured templating, and that runs per-branch
+stages in parallel with failure isolation via real git
+worktrees.</p></li>
+<li><p>A 16-pattern capture-risk audit library across four axes
+(Capacity, Agency, Exit, Legibility) grounded in autonomy-by-design and
+conviviality theory, with each pattern requiring a quoted evidence span
+to fire.</p></li>
+<li><p>A provenance-tag enforcement system that runs as a markdown-AST
+linter at paragraph, list-item, blockquote, and table-row granularity,
+with additional checks for evidence-language-in-rehearsal elements and
+predictive-outcome claims inside inference-tagged paragraphs.</p></li>
+<li><p>A Managed Agents extension that lets a reviewer agent run bash
+and grep against the branch artifacts, producing measured quantitative
+findings the shallow audit could only approximate. On the demo run, this
+surfaced nine new findings the shallow audit missed.</p></li>
+<li><p>An Opus-versus-Sonnet ablation on the methodologist reviewer
+stage that reports an honest and partly counterintuitive result: Sonnet
+4.6 caught the same methodological confound at 2.4 lower cost but
+recommended reject where Opus recommended major revision. This tempers
+rather than amplifies the Opus-unique capability story.</p></li>
+<li><p>A dedicated hallucination test that plants a fabricated adjacent
+paper into the guidebook assembler’s context and verifies no
+<code>[SOURCE_CARD:fake_id]</code> tag appears in the output.</p></li>
+</ol>
+<h2 id="scope">Scope</h2>
+<p>Probe is deliberately scoped to <em>screen-based interactive
+research</em>. Ethnographic fieldwork, long-term in-the-wild deployment,
+and embodied AR without screen capture are out of scope. The README
+states this and the linter does not enforce it. The authors of any
+future paper that calls Probe’s output “findings” will be refuted by the
+first peer reviewer who checks the provenance tags.</p>
+<h1 id="sec:related">Related work</h1>
+<p>Probe sits at the intersection of four literatures: LLM-based peer
+review, AI-assisted research-design tooling, multi-agent systems for
+scientific work, and the autonomy-by-design tradition in critical HCI.
+Each cluster motivates specific architectural choices and clarifies what
+Probe is (a triage tool that defers to humans) versus what it refuses to
+be (an autonomous scientist).</p>
+<h2 id="llm-based-peer-review-and-reviewer-simulation">LLM-based peer
+review and reviewer simulation</h2>
+<p>Work on LLMs as reviewers runs from complementary feedback <span
+class="citation" data-cites="liang2024large">(Liang et al. 2024)</span>
+through structured simulation <span class="citation"
+data-cites="jin2024agentreview darcy2024marg zhu2025deepreview bougie2025gar">(Jin
+et al. 2024; D’Arcy et al. 2024; Zhu et al. 2025; Bougie and Watanabe
+2025)</span> to full reviewer replacement in AI-Scientist-style
+pipelines. Probe borrows the role-specialized reviewer panel and the
+disagreement-preserving meta-review from this line but refuses the
+replacement framing; it inherits Liang’s “complement, not replace”
+conclusion as the structural invariant that every guidebook must carry a
+<code>[HUMAN_REQUIRED]</code> tag. AgentReview supplies the empirical
+warrant for role-specialized personas: introducing a single biased
+reviewer flips the accept/reject decision on 37.1% of papers <span
+class="citation" data-cites="jin2024agentreview">(Jin et al.
+2024)</span>. Probe treats this finding not as a bug to average away but
+as a signal to preserve through the meta-review rather than collapsing
+to a single consensus score. MARG <span class="citation"
+data-cites="darcy2024marg">(D’Arcy et al. 2024)</span> decomposes review
+into aspect-specific sub-agents and reduces the rate of generic comments
+from 60% (GPT-4 baseline) to 29%; this is the architectural antecedent
+for Probe’s Stage 7 split across methodologist, accessibility, and
+novelty reviewers. DeepReview <span class="citation"
+data-cites="zhu2025deepreview">(Zhu et al. 2025)</span> shows that
+structured, literature-grounded reasoning chains reduce hallucinated
+critique, which is the motivation for Probe’s forbidden-phrase linter
+and its provenance-tagged criticisms. GAR <span class="citation"
+data-cites="bougie2025gar">(Bougie and Watanabe 2025)</span> and
+ResearchAgent <span class="citation"
+data-cites="baek2025researchagent">(Baek et al. 2025)</span> demonstrate
+that reviewer agents can produce human-comparable feedback at scale, but
+the Dagstuhl-derived survey of NLP for peer review <span
+class="citation" data-cites="kuznetsov2024nlppeerreview">(Kuznetsov et
+al. 2024)</span> catalogues why full automation remains premature: data
+licensing, operationalization, and ethics problems that Probe addresses
+by scoping to early-stage triage rather than submission review. The
+citation-fabrication literature establishes the concrete failure mode
+that Probe’s provenance linter and <code>corpus/source_cards/</code>
+allowed-claims whitelist exist to prevent.</p>
+<h2
+id="research-design-and-study-planning-tools-with-ai-assistance">Research-design
+and study-planning tools with AI assistance</h2>
+<p>The immediate neighbors are systems that use LLMs to help researchers
+develop research questions <span class="citation"
+data-cites="liu2024coquest">(Liu et al. 2024)</span>, research ideas
+<span class="citation"
+data-cites="si2024novelideas baek2025researchagent">(Si, Yang, and
+Hashimoto 2024; Baek et al. 2025)</span>, or full papers <span
+class="citation"
+data-cites="lu2024aiscientist schmidgall2025agentlab">(Lu et al. 2024;
+Schmidgall et al. 2025)</span>. None generates adversarially-reviewed,
+provenance-labeled study guidebooks for human workshops — the gap Probe
+fills. Si, Yang, and Hashimoto’s blind review with 100+ NLP researchers
+<span class="citation" data-cites="si2024novelideas">(Si, Yang, and
+Hashimoto 2024)</span> established the first statistically-significant
+finding that LLM-generated ideas are rated more novel but less feasible
+than expert ideas, which Probe treats as the motivation for the Stage-6
+audit: if machine-generated study designs over-sell novelty and
+under-check feasibility, a dedicated feasibility audit with binding
+verdicts becomes load-bearing. ResearchAgent <span class="citation"
+data-cites="baek2025researchagent">(Baek et al. 2025)</span> introduces
+the core loop of LLM ideation with a reviewing-agent feedback stage,
+which Probe’s eight-stage pipeline extends by adding explicit
+provenance, three divergent branches instead of one iterated idea, and a
+forbidden-phrase linter that rejects evidence language in Probe’s own
+voice. CoQuest <span class="citation" data-cites="liu2024coquest">(Liu
+et al. 2024)</span> focuses on breadth-first versus depth-first ideation
+UX and finds that AI processing delays increase researcher reflection,
+which Probe operationalizes by running three branches to completion in
+parallel rather than returning a single best answer. On the
+cultural-probes side, Gaver et al. <span class="citation"
+data-cites="gaver1999probes">(Gaver, Dunne, and Pacenti 1999)</span> and
+Sanders and Stappers <span class="citation"
+data-cites="sanders2014codesign">(Sanders and Stappers 2014)</span>
+supply the “rehearsal, not evidence” framing that Probe inherits
+verbatim; the <code>[SIMULATION_REHEARSAL]</code> provenance tag exists
+because these authors explicitly rejected the generalizable-data reading
+of probe work. Jakesch et al.’s demonstration that opinionated language
+models shift user views <span class="citation"
+data-cites="jakesch2023cowriting">(Jakesch et al. 2023)</span> is the
+empirical grounding for Probe’s Legibility axis: an AI that quietly
+reshapes the researcher’s framing is the specific capture risk the
+self-audit is designed to flag.</p>
+<h2
+id="multi-agent-systems-for-complex-scientific-and-creative-tasks">Multi-agent
+systems for complex scientific and creative tasks</h2>
+<p>Probe’s eight-stage pipeline with parallel branches sits inside a
+dense landscape of multi-agent frameworks, which divide along two axes:
+academic papers defining patterns and open-source pipelines that commit
+to a specific end-to-end task. CAMEL <span class="citation"
+data-cites="li2023camel">(Li et al. 2023)</span> established
+inception-prompted role-play as a core pattern; AutoGen <span
+class="citation" data-cites="wu2024autogen">(Wu et al. 2024)</span>
+generalized this to composable conversation patterns; MetaGPT <span
+class="citation" data-cites="hong2024metagpt">(Hong et al. 2024)</span>
+encoded standardized operating procedures as the key to reducing
+inter-agent error — Probe’s per-stage typed schema validation and
+single-repair-pass policy derive from this SOP discipline. Multi-agent
+debate <span class="citation" data-cites="du2024debate">(Du et al.
+2024)</span> shows parallel agents with different viewpoints reduce
+hallucination; Probe’s three-branch divergent ideation applies this
+pattern at the research-design level rather than the answer-refinement
+level.</p>
+<p>Among open-source systems, AI-Scientist <span class="citation"
+data-cites="lu2024aiscientist">(Lu et al. 2024)</span> and Agent
+Laboratory <span class="citation"
+data-cites="schmidgall2025agentlab">(Schmidgall et al. 2025)</span> are
+the closest full-pipeline analogues. An independent evaluation by Beel
+et al. <span class="citation"
+data-cites="beel2025aiscientistevaluation">(Beel, Kan, and Baumgart
+2025)</span> found AI-Scientist’s literature review yields “poor novelty
+assessments” and that 5 of 12 proposed experiments (42%) failed on
+coding errors. MLR-Bench <span class="citation"
+data-cites="chen2025mlrbench">(Chen et al. 2025)</span> evaluates
+AI-Scientist v2 alongside its own MLR-Agent and reports that coding
+agents produce fabricated or invalidated experimental results in roughly
+80% of tasks — a failure mode both systems share. Probe’s response is
+structural: it does not run experiments or claim novelty without human
+verification; its Managed Agents deep audit uses bash and grep to
+measure quantitative claims against the repository itself, producing
+<code>[TOOL_VERIFIED]</code> tags only for claims the audit could
+mechanically check. Karpathy’s <code>autoresearch</code> <span
+class="citation" data-cites="karpathy2025autoresearch">(Karpathy
+2025)</span> is the stylistic antecedent for Probe’s
+<code>PROBE.md</code> single-file orchestration contract; NousResearch’s
+<code>autonovel</code> <span class="citation"
+data-cites="nousresearch2025autonovel">(NousResearch 2025)</span> is the
+antecedent for the multi-stage critique-and-cut pipeline and the
+explicit anti-slop forbidden-phrase discipline; <code>feynman</code>
+<span class="citation"
+data-cites="companion2025feynman">(getcompanion-ai 2025)</span> is the
+closest design sibling on provenance, with every claim link-grounded to
+source URLs. Probe differs from all three by targeting HCI study design
+rather than novels, ML experiments, or literature reviews, and by
+enforcing capture-risk audits as a first-class stage rather than a
+post-hoc evaluation.</p>
+<h2
+id="autonomy-by-design-and-capture-risk-frameworks">Autonomy-by-design
+and capture-risk frameworks</h2>
+<p>Probe’s four-axis capture-risk audit (Capacity, Agency, Exit,
+Legibility) and its 16 named patterns inherit from a theoretical stack
+that runs from Illich’s conviviality <span class="citation"
+data-cites="illich1973conviviality">(Illich 1973)</span> through Kafer’s
+political-relational disability model <span class="citation"
+data-cites="kafer2013feminist">(Kafer 2013)</span> to Buijsman, Carter,
+and Bermúdez’s domain-specific-autonomy framework <span class="citation"
+data-cites="buijsman2025autonomy">(Buijsman, Carter, and Bermúdez
+2025)</span>. Illich’s argument that tools past a scale threshold
+reverse from serving human purposes to conditioning humans to serve the
+tool is the Exit axis: Probe asks, for every study design it triages,
+whether the intervention reduces the researcher’s or participant’s space
+of available action once use stops. Kafer’s critique of the curative
+imaginary is encoded in the <code>agency.paternalistic_default</code>
+pattern and in the accessibility-advocate reviewer persona, which flags
+extractive framings even when the agents themselves produce them.
+Buijsman et al.’s analysis of AI decision-support as eroding “skilled
+competence and authentic value-formation” via absent failure indicators
+is the direct warrant for the audit’s structure: each of the 16 patterns
+specifies a quoted-evidence template and a defeater mechanism, matching
+the design moves Buijsman et al. propose <span class="citation"
+data-cites="buijsman2025autonomy">(Buijsman, Carter, and Bermúdez
+2025)</span>.</p>
+<p>Adjacent work in 2023–2025 extends this stack. Costanza-Chock’s
+<em>Design Justice</em> <span class="citation"
+data-cites="costanzachock2020designjustice">(Costanza-Chock 2020)</span>
+supplies the structural framing — “Nothing About Us Without Us” as
+design constraint — that motivates Probe’s insistence on the
+<code>[HUMAN_REQUIRED]</code> tag and on running a dedicated
+accessibility-advocate reviewer persona. The open question Probe
+positions itself against is stated most sharply in Buijsman et al.: how
+do we get the productivity benefits of AI decision-support without the
+erosion of domain-specific autonomy? Probe’s answer is not to claim the
+erosion can be eliminated but to make it legible — to produce, for every
+run, a provenance trail a researcher can inspect to see where the
+machine’s framing shaped the guidebook.</p>
+<h2 id="direct-overlap-check">Direct-overlap check</h2>
+<p>Among 2024–2025 work, the closest architectural sibling is
+ResearchAgent <span class="citation"
+data-cites="baek2025researchagent">(Baek et al. 2025)</span>; the
+closest venue-and-domain sibling is CoQuest <span class="citation"
+data-cites="liu2024coquest">(Liu et al. 2024)</span>; the closest
+fuller-pipeline analogues are AI-Scientist and Agent Laboratory <span
+class="citation"
+data-cites="lu2024aiscientist schmidgall2025agentlab">(Lu et al. 2024;
+Schmidgall et al. 2025)</span>. None of them (a) generates divergent HCI
+study guidebooks, (b) runs multi-persona adversarial review with
+blocking verdicts, (c) enforces provenance-labeled claims with a
+forbidden-phrase linter, and (d) applies an autonomy-by-design
+capture-risk audit. Probe appears to be the first system to combine
+these four elements. We flag this as a claim about scope and
+architectural combination rather than about individual-component
+novelty: each element has precedent in the literature; the combination
+does not.</p>
+<h1 id="sec:system">System description</h1>
+<p>Probe runs eight stages in sequence. Stages 1 and 2 are single-call;
+stages 3 through 7 fan out across three branches running in parallel via
+<code>Promise.all</code> and real git worktrees; stage 8 synthesizes the
+single surviving branch. Every stage reads inputs from files on disk and
+writes outputs to files on disk; no conversation context is shared
+across stages. Every output that crosses a stage boundary validates
+against a JSON schema; failure triggers a repair pass, and a second
+failure throws.</p>
+<h2 id="model-routing">Model routing</h2>
+<p>The routing rule is: Opus 4.7 for stages that require skeptical
+judgment, evidence-span selection, sustained role-separated stance, or
+long-context synthesis under provenance constraints; Sonnet 4.6 for
+retrieval over a small curated corpus and for schema-enforced
+templating. Table <a href="#tab:routing" data-reference-type="ref"
+data-reference="tab:routing">1</a> lists the stages and the reason each
+is routed where it is.</p>
+<div id="tab:routing">
+<table>
+<caption>Model routing by stage. Per-run cost figures are the median
+across three benchmark runs.</caption>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Stage</th>
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Premise interrogation</td>
+<td style="text-align: left;">Opus 4.7</td>
+<td style="text-align: left;">Skeptical PI voice, flattery
+resistance</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Solution ideation</td>
+<td style="text-align: left;">Opus 4.7</td>
+<td style="text-align: left;">Divergence constraints across four
+axes</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Literature grounding</td>
+<td style="text-align: left;">Sonnet 4.6</td>
+<td style="text-align: left;">Corpus retrieval with a fixed
+allow-list</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Prototype specification</td>
+<td style="text-align: left;">Sonnet 4.6</td>
+<td style="text-align: left;">Structured templating with schema
+enums</td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Simulated walkthrough</td>
+<td style="text-align: left;">Opus 4.7</td>
+<td style="text-align: left;">Hedged rehearsal voice, discipline on
+“evidence”</td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">Capture-risk audit</td>
+<td style="text-align: left;">Opus 4.7</td>
+<td style="text-align: left;">Normative reasoning, evidence-span
+selection</td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">Adversarial review (×3 + meta)</td>
+<td style="text-align: left;">Opus 4.7</td>
+<td style="text-align: left;">Sustained role-separation, refuse
+consensus</td>
+</tr>
+<tr>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">Guidebook assembly</td>
+<td style="text-align: left;">Opus 4.7</td>
+<td style="text-align: left;">Long-context synthesis, provenance
+discipline</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="capture-risk-audit">Capture-risk audit</h2>
+<p>The capture-risk auditor is the project’s load-bearing normative
+step. It fires sixteen patterns across four axes: Capacity, Agency,
+Exit, and Legibility. The axes come from Buijsman, Carter, and
+Bermúdez’s framing of domain-specific autonomy <span class="citation"
+data-cites="buijsman2025autonomy">(Buijsman, Carter, and Bermúdez
+2025)</span> and from Illich’s distinction between convivial and
+industrial tools <span class="citation"
+data-cites="illich1973conviviality">(Illich 1973)</span>. Each pattern
+has a trigger heuristic, an evidence template, and a default score on
+the scale <span class="math inline">{−2, −1, 0, +1, +2}</span>:
+minus-two is “capture,” minus-one is “drift,” zero is “neutral,”
+plus-one is “scaffold,” plus-two is “cultivate.”</p>
+<p>The verdict rule is strict: any minus-two finding produces
+<code>BLOCKED</code>; two or more minus-ones produce
+<code>REVISION_REQUIRED</code>; otherwise <code>PASSED</code>. The
+orchestrator, not the model, computes this verdict from the findings.
+This is because the auditor’s own arithmetic proved inconsistent in
+roughly one in three trials during development. The model’s contribution
+is pattern judgment and evidence-span selection; the orchestrator’s
+contribution is the deterministic scoring.</p>
+<p>A minus-two finding triggers a
+<code>WORKSHOP_NOT_RECOMMENDED.md</code> report that names the fired
+pattern, quotes the evidence span, lists the findings that together
+carried the verdict, and suggests what specific revision would unblock
+the branch. The report ends with a <code>[HUMAN_REQUIRED]</code> block
+asking the researcher to confirm the pattern fired correctly rather than
+flagged a manipulation-under-test as paternalism.</p>
+<h2 id="adversarial-review-panel">Adversarial review panel</h2>
+<p>Stage 7 runs three reviewer agents in sequence against the same
+branch context. Each agent operates under a system prompt that forbids
+preamble, requires a first-line “decisive weakness,” and lists specific
+generic critiques that are banned unless attached to a quoted evidence
+span.</p>
+<p>The methodologist audits validity, confounds, recruitment adequacy,
+IRB framing, and the match between claim and method. The accessibility
+advocate applies the Kafer political-relational model of disability
+<span class="citation" data-cites="kafer2013feminist">(Kafer
+2013)</span>, catching paternalistic defaults, extractive recruitment
+framings, and curative imaginary language. The novelty hawk
+cross-references the source-card corpus and identifies adjacent
+literature the proposal does not cite; it may name papers outside the
+corpus, but only inside a dedicated
+<code>uncited_adjacent_literature</code> output field that the guidebook
+assembler renders as <code>[UNCITED_ADJACENT]</code> elements the
+researcher must verify before grounding.</p>
+<p>The meta-reviewer reads the three reviewer findings and produces a
+disagreement matrix classified as one of: <code>consensus</code>,
+<code>legitimate_methodological_split</code>,
+<code>legitimate_normative_split</code>,
+<code>spurious_surface_disagreement</code>, or
+<code>single_reviewer_outlier</code>. The meta-reviewer is explicitly
+forbidden from classifying a legitimate split as consensus. Its final
+verdict is one of <code>accept_revise</code>, <code>reject</code>, or
+<code>human_judgment_required</code>. The last of these is not a failure
+state; it is an honest outcome when the three reviewers identify
+substantive, non-reducible objections.</p>
+<h2 id="provenance-discipline">Provenance discipline</h2>
+<p>Every paragraph, bullet, blockquote, list item, and table row in a
+generated guidebook ends with exactly one provenance tag. Eight tags are
+valid: <code>RESEARCHER_INPUT</code>,
+<code>SOURCE_CARD:&lt;id&gt;</code>, <code>SIMULATION_REHEARSAL</code>,
+<code>AGENT_INFERENCE</code>, <code>UNCITED_ADJACENT</code>,
+<code>HUMAN_REQUIRED</code>, <code>DO_NOT_CLAIM</code>, and
+<code>TOOL_VERIFIED</code> (the last used only by the Managed Agents
+deep-audit command).</p>
+<p>The linter walks the markdown AST via remark <span class="citation"
+data-cites="remark">(unified-js contributors 2025)</span>. It requires a
+tag on every content-bearing node; rejects any
+<code>[SIMULATION_REHEARSAL]</code> element that uses evidence language
+from a fixed list (“users preferred,” “participants found,” “findings
+show,” “significant,” “validated,” “proved,” “demonstrated that,”
+“evidence suggests,” “data indicates”); rejects any
+<code>[SOURCE_CARD:id]</code> that references an id not present in
+<code>corpus/source_cards/</code>; rejects any
+<code>[AGENT_INFERENCE]</code> element containing predictive-outcome
+claims (“condition X produces higher Y”); rejects headings containing
+evidence language or anti-pattern titles like “Expected outcomes,”
+“Results,” or “Findings” even if the paragraphs below are correctly
+tagged; and requires at least one <code>[HUMAN_REQUIRED]</code> element
+per document. The document-level check is the last of these: a guidebook
+without a human handoff fails the lint and does not leave the run
+directory.</p>
+<h2 id="managed-agents-deep-audit">Managed Agents deep audit</h2>
+<p>The shallow capture-risk audit in Stage 6 is a single Messages-API
+call. It reasons over the prototype spec and the simulated walkthrough,
+fires the sixteen patterns, and produces evidence spans. It cannot run
+computations.</p>
+<p>The <code>probe audit-deep</code> command spawns a Claude Managed
+Agent (Opus 4.7 with the <code>agent_toolset_20260401</code> that
+exposes bash, file operations, web search, and grep) inside a managed
+cloud container with the branch artifacts loaded as files. The agent’s
+task is to take the shallow audit’s findings and measure them rather
+than reason about them.</p>
+<p>On branch B of the demo run, the managed agent ran twenty-one tool
+calls in one session. It computed the announcement-duration delta the
+shallow audit had described qualitatively (“substantially longer”): the
+AI-disclosure string is ninety-six characters, sixteen words, about 5.3
+seconds of speech at 180 words per minute; the human-framed string is
+twenty-nine characters, five words, about 1.7 seconds; the delta is 3.67
+seconds. It grepped the prototype spec for mechanisms the shallow audit
+was uncertain about: zero matches for “byline,” “model card,” “source
+link,” “editorial policy,” “inspect,” or “tell me more,” which confirms
+two separate Legibility findings with a measured zero. It ran a
+Friedman-test minimum-detectable-effect-size calculation at <span
+class="math inline"><em>n</em> = 8, <em>k</em> = 3, <em>α</em> = 0.05</span>
+and produced Kendall’s <span
+class="math inline"><em>W</em> = 0.374</span>, which is between medium
+and large. It checked whether the axe-core WCAG gate the study proposes
+covers the debrief card and the credibility form; it did not. The
+agent’s final summary reported five shallow-audit findings verified with
+measurements, zero challenged, and nine new findings the shallow audit
+had missed.</p>
+<p>This is the specific value-add of Managed Agents over direct API
+calls: the agent measured claims that a single-prompt audit could only
+paraphrase.</p>
+<h1 id="sec:demo">Demo case study</h1>
+<p>The demo run takes a deliberately under-specified premise: “design a
+short study to understand how BLV screen-reader users interpret page
+hierarchy on AI-generated news articles.” The sentence bundles a
+population, a stimulus property, and a cognitive claim without
+operationalizing any of them. This is the kind of premise a senior PI
+sees on day one of a new collaboration.</p>
+<h2 id="stage-1-the-sharpest-question">Stage 1: the sharpest
+question</h2>
+<p>The premise agent’s first line is:</p>
+<blockquote>
+<p>What does “AI-generated” do to the page hierarchy that a
+conventionally-authored news article would not — and if the answer is
+“nothing structural,” why is this a study about AI at all rather than a
+study about news-article hierarchy?</p>
+</blockquote>
+<p>The nearest template the agent names is the WebAIM survey tradition
+of screen-reader think-alouds on web content <span class="citation"
+data-cites="webaim2023survey">(WebAIM 2023)</span>. The four sharpened
+options it produces fall along different axes: an audit-first study that
+corpus-analyzes heading structure across AI-generated and human-authored
+articles before any user study runs; a disclosure study that holds
+hierarchy constant and varies whether participants are told the article
+is AI-generated; a repair-tool formative study that observes breakdowns
+and specifies an accessibility-repair layer for LLM news pipelines; and
+a mental-model study that compares hierarchical summaries BLV users
+construct across conditions. The differentia the researcher has not
+supplied is named directly: no mechanism linking AI generation to
+hierarchy structure, no comparator, no definition of “interpret,” no
+specification of whether participants know.</p>
+<h2 id="stage-2-three-divergent-branches">Stage 2: three divergent
+branches</h2>
+<p>The ideator produces three research programs that differ on all four
+axes the system prompt enforces:</p>
+<ul>
+<li><p><strong>Branch A</strong> is a formative corpus audit of
+hierarchy structure across AI-generated and human-authored articles,
+infrastructural in human–system relationship.</p></li>
+<li><p><strong>Branch B</strong> is an evaluative Wizard-of-Oz study of
+auditory AI-provenance disclosure via ARIA-live banners, with an
+adversarial-check framing: does disclosure shift BLV users’ navigation
+strategies and credibility judgments?</p></li>
+<li><p><strong>Branch C</strong> is a longitudinal peer-collaborative
+co-design of an in-browser accessibility-repair overlay that detects
+hallucinated headings in AI-generated articles and rewrites them before
+screen-reader announcement.</p></li>
+</ul>
+<p>The three branches differ on research question, intervention
+primitive, human–system relationship, and method family. Branch B’s
+ARIA-live-banner framing is the one we did not consider before running
+Probe. We flag this as the “useful surprise” criterion the plan
+explicitly targeted, acknowledging that a single-run observation is not
+a capability proof.</p>
+<h2 id="stages-35-grounding-specification-rehearsal">Stages 3–5:
+grounding, specification, rehearsal</h2>
+<p>The literature agent restricts each branch’s grounding to IDs present
+in <code>corpus/source_cards/</code>. The initial corpus contained seven
+cards, verified against DOIs on kickoff day. Before the demo’s final
+assembly, three additional cards were added to address the novelty
+hawk’s later finding: <span class="citation"
+data-cites="jakesch2023cowriting">Jakesch et al. (2023)</span> on
+AI-text disclosure effects; <span class="citation"
+data-cites="longoni2019medical">Longoni, Bonezzi, and Morewedge
+(2019)</span> on algorithm aversion; and <span class="citation"
+data-cites="sundar2008main">Sundar (2008)</span> on credibility
+heuristics triggered by technology affordances. The updated corpus
+contains ten cards.</p>
+<p>The prototype specification for branch B is a within-subjects
+Wizard-of-Oz design with three conditions assigned via Latin square:
+AI-disclosed-early, AI-disclosed-late, and human-framed. The wizard
+injects an ARIA-live provenance announcement at a condition-specified
+moment relative to the participant’s heading navigation. Observable
+signals include heading-navigation keystrokes, think-aloud in a
+20-second post-injection window, and a seven-item credibility rating.
+The spec is detailed enough that a different researcher could run the
+session without asking clarifying questions.</p>
+<p>The simulated walkthrough is a five-section structured rehearsal
+where every paragraph ends with <code>[SIMULATION_REHEARSAL]</code>. Two
+findings from the rehearsal become load-bearing in later stages: fast
+H-key navigators can traverse all three H2 headings in under four
+seconds, giving the wizard almost no window to fire the late-condition
+banner between H2 #2 and H2 #3; and the announcement-duration difference
+between conditions (approximately six seconds for the AI string versus
+two for the human string) would mechanically contaminate any
+time-bounded behavioral measure.</p>
+<h2 id="stage-6-two-branches-blocked">Stage 6: two branches blocked</h2>
+<p>The capture-risk audit fired sixteen pattern findings per branch.
+Branch A’s audit fired <code>legibility.no_failure_signal</code> at
+minus-two, alongside minus-one findings on three agency patterns
+(<code>auto_decides_consequential_step</code>,
+<code>weak_override</code>, <code>paternalistic_default</code>) and one
+additional legibility pattern
+(<code>no_rationale_at_point_of_action</code>). The model’s reasoning on
+the minus-two: the branch’s live-DOM injection of ARIA landmarks and
+heading-annotation overlays can silently fail — a mode switch, a
+Braille-only configuration, or a network drop — and the participant has
+no in-flow indication that the injection was attempted and did not land.
+Research data becomes contaminated without a participant-visible failure
+indication. Verdict: <code>BLOCKED</code>. The branch emits
+<code>WORKSHOP_NOT_RECOMMENDED.md</code> and does not advance.</p>
+<p>Branch C is blocked for a different reason: the repair overlay
+rewrites markup before the screen reader announces it, and the prototype
+spec does not distinguish “this participant’s personal overlay” from “an
+institutional default.” The auditor flagged this as a workflow-lock-in
+concern that the prototype spec does not resolve. Verdict:
+<code>BLOCKED</code>.</p>
+<p>Branch B’s audit returned <code>REVISION_REQUIRED</code>: three
+minus-one findings on legibility patterns
+(<code>no_failure_signal</code> on silent think-aloud-coding failures;
+<code>no_rationale_at_point_of_action</code> on the disclosure string
+lacking inspectable backing; <code>unverifiable_summary</code> on the
+credibility rating scheme), and no minus-two. The branch advances to
+adversarial review.</p>
+<h2 id="stage-7-three-reviewers-with-three-distinct-objections">Stage 7:
+three reviewers with three distinct objections</h2>
+<p>The methodologist reviewer’s first line is the announcement-duration
+confound. From the reviewer’s JSON output:</p>
+<blockquote>
+<p>The announcement-duration confound is uncontrolled and fatal to the
+core claim. The AI disclosure string is roughly 4–5<span
+class="math inline">×</span> longer in spoken duration than the
+human-framed string. Any condition difference in dwell-onset latency,
+heading-jump counts, or post-banner navigation could be fully explained
+by the extra seconds of speech interrupting the participant’s flow,
+rather than by the semantic content of the disclosure.</p>
+</blockquote>
+<p>The managed-agent deep audit later quantifies this exactly: the AI
+string is 96 characters / 16 words / <span
+class="math inline">∼</span>5.3 seconds of speech at 180 words per
+minute; the human-framed string is 29 characters / 5 words / <span
+class="math inline">∼</span>1.7 seconds. Delta: 3.67 seconds. We did not
+see this when reading the prototype spec. Neither did the capture-risk
+auditor. The reviewer’s recommendation is <code>major_revision</code>.
+Six total criticisms, each attached to a quoted evidence span from the
+prototype spec or the simulated walkthrough.</p>
+<p>The accessibility advocate applies the Kafer political-relational
+lens <span class="citation" data-cites="kafer2013feminist">(Kafer
+2013)</span>: BLV users are recruited as <em>subjects</em> of the study
+but not as <em>co-designers</em> of the intervention. The disclosure
+phrasing, placement, and the premise that an ARIA-live banner is the
+right intervention were all decided by sighted researchers before any
+BLV consultation. The recommendation is <code>major_revision</code> with
+a required co-design phase preceding the evaluation phase.</p>
+<p>The novelty hawk identifies adjacent literature the source-card
+corpus does not contain: Jakesch et al. on AI-text labeling; Longoni et
+al. on medical AI resistance; Sundar’s MAIN model of
+technology-triggered credibility heuristics. The recommendation is
+<code>major_revision</code>. In the system as originally shipped, the
+novelty hawk named these papers in free-text paragraphs tagged
+<code>[AGENT_INFERENCE]</code>. After review wave one, the reviewer JSON
+schema now includes an <code>uncited_adjacent_literature</code> array,
+and the guidebook assembler renders each entry as a
+<code>[UNCITED_ADJACENT]</code> element the researcher must verify
+before grounding. The three named papers have since been added to the
+corpus.</p>
+<p>The meta-reviewer classifies the disagreement pattern as
+<code>legitimate_methodological_split</code>: the three reviewers’
+decisive weaknesses do not reduce to one another. Fixing the confound
+does not supply a differential novelty prediction; co-designing the
+artifact with BLV users may invalidate the stimulus set the
+methodologist wants length-matched. The meta-reviewer’s verdict is
+<code>human_judgment_required</code>, which is not a failure: it is the
+honest output when the reviewers have found real, non-reducible
+objections.</p>
+<h2 id="stage-8-the-guidebook-absorbs-the-critique">Stage 8: the
+guidebook absorbs the critique</h2>
+<p>The guidebook is a six-section document: Premise, Background,
+Prototype, Study protocol, Failure hypotheses to test, and Risks and
+failure modes. The heading “Expected outcomes” is explicitly banned by
+the linter because it implies findings; the replacement “Failure
+hypotheses to test” captures the rehearsal-not-evidence framing more
+honestly.</p>
+<p>Every paragraph carries a provenance tag. The study-protocol section
+includes a co-design phase before the evaluation phase, absorbing the
+accessibility advocate’s blocking objection. The risks-and-failure-modes
+section includes the announcement-duration confound as a named
+<code>[DO_NOT_CLAIM]</code> constraint. The next-steps section at the
+end of the document is a <code>[HUMAN_REQUIRED]</code> block listing six
+concrete items the researcher must complete before running the
+study.</p>
+<p>The final artifact passes both linters: every content-bearing element
+carries a provenance tag, and no forbidden phrase appears in Probe’s own
+voice outside quoted context.</p>
+<h2 id="cost-and-latency">Cost and latency</h2>
+<p>The demo run completed in approximately twenty-five minutes of
+wall-clock time and cost five dollars and ninety-three cents in API
+credit across forty-two Claude calls (including repair passes from
+earlier development iterations). The per-stage cost breakdown is
+reported in the project’s <code>PROBE.md</code> file. The managed-agents
+deep audit on the surviving branch added one dollar and twenty cents and
+produced the twenty-one-tool-call measurement session described in §<a
+href="#sec:system" data-reference-type="ref"
+data-reference="sec:system">3</a>.</p>
+<h1 id="sec:eval">Evaluation</h1>
+<p>Probe is not a benchmark system. It produces one structured artifact
+per research premise, and the most honest evaluation asks whether that
+artifact is the one a researcher would actually use as a starting point.
+We report three partial evaluations, each explicit about what it does
+and does not support.</p>
+<h2
+id="model-ablation-methodologist-reviewer-opus-4.7-vs.-sonnet-4.6">Model
+ablation: methodologist reviewer, Opus 4.7 vs. Sonnet 4.6</h2>
+<p>The methodologist reviewer is the adversarial stage Probe reserves
+for Opus 4.7. To test whether this is justified, we re-ran the stage
+against Branch B of the demo run with Sonnet 4.6 substituted for Opus,
+holding everything else identical: same system prompt, same input
+context, same schema, same repair-loop logic.</p>
+<p>Both models caught the announcement-duration confound. Opus produced
+six criticisms with quantified evidence spans (“roughly 4-5<span
+class="math inline">×</span> longer in spoken duration”); Sonnet
+produced five criticisms with a less-precise but still-correct framing
+(“the AI condition announces [long string] while the human condition
+announces only [short string]”). Opus recommended
+<code>major_revision</code>; <strong>Sonnet recommended
+<code>reject</code></strong>, which is arguably the more
+methodologically honest call at <span
+class="math inline"><em>n</em> = 8</span> with Friedman tests. Sonnet’s
+run cost $0.08 and took 56 seconds; Opus’s run cost $0.18 and took 56
+seconds.</p>
+<p>The honest reading is that Opus delivered more precise evidence
+quantification; Sonnet delivered a slightly harder recommendation at
+2.4<span class="math inline">×</span> lower cost. The initial project
+plan routed this stage to Opus on the assumption that only Opus would
+catch the confound at all. That assumption does not survive a
+single-trial ablation. The project status document was revised
+accordingly: the claim is now “Opus provides more specific evidence
+spans at higher cost; Sonnet is substantively capable on the same
+prompt.”</p>
+<h2 id="hallucination-test-planted-fabricated-reference">Hallucination
+test: planted fabricated reference</h2>
+<p>We injected a fabricated citation into the guidebook-assembly stage’s
+context, framed as “researcher notes” the assembler might plausibly
+receive:</p>
+<blockquote>
+<p>Smithson, M. J., &amp; Watanabe, R. (2024). Auditory provenance cues
+and BLV user navigation strategies. ACM Transactions on Accessible
+Computing, 17(3), 14:1–14:28. doi:10.1145/3612345.3612346.</p>
+</blockquote>
+<p>The paper does not exist. The DOI does not resolve. The test’s single
+pass criterion is: the assembler must not produce a
+<code>[SOURCE_CARD:smithson_watanabe_2024]</code> tag or any
+<code>[SOURCE_CARD:&lt;id&gt;]</code> referencing a corpus ID that does
+not exist.</p>
+<p>The result: zero fabricated <code>[SOURCE_CARD]</code> tags. The
+assembler wrote the reference into a <code>[HUMAN_REQUIRED]</code>
+paragraph that explicitly instructs the researcher to verify the
+citation before grounding any claim on it. An initial version of the
+test’s scoring rubric did not count <code>[HUMAN_REQUIRED]</code> as an
+honest wrapper and returned <code>AMBIGUOUS</code>; we rewrote the
+rubric after reviewing the actual output, since
+<code>[HUMAN_REQUIRED]</code> is strictly stronger than
+<code>[AGENT_INFERENCE]</code> or <code>[UNCITED_ADJACENT]</code> — it
+makes verification a mandatory next step.</p>
+<p>This is a single trial. A stronger evaluation would run ten or more
+planted fakes alongside matched real-but-absent controls with blind
+scoring; we name this explicitly as future work §<a
+href="#sec:limitations" data-reference-type="ref"
+data-reference="sec:limitations">7</a>.</p>
+<h2
+id="second-domain-benchmark-out-of-accessibility-transfer">Second-domain
+benchmark: out-of-accessibility transfer</h2>
+<p>The demo premise lives in BLV accessibility, which is the author’s
+primary domain and the area the project’s patterns and reviewer personas
+were tuned against. To test whether the system’s behavior is coherent
+outside that domain, we ran the full pipeline on a premise in a
+different area: “design a study to evaluate an AI-assisted code review
+tool for mid-level engineers working on legacy codebases.”</p>
+<p>The pipeline produced three branches that differ on the expected four
+axes. Two were blocked at the capture-risk audit on different patterns;
+one failed at the accessibility reviewer stage on a schema-validation
+error where the reviewer returned a recommendation value outside the
+schema’s enum. The blocking patterns were substantively defensible
+(auto-remediation of code-review findings without engineer confirmation;
+opacity of the ranking that determines which reviews the tool
+prioritizes); the infrastructure failure is an honest infrastructure
+failure, not a substantive finding, and the run summary makes the
+distinction.</p>
+<p>We also attempted a third benchmark in a creativity-support domain (a
+tool that offers poets alternative line endings during drafting) as a
+stress test of the out-of-domain pattern-firing behavior. That run’s
+results are discussed inline where they are available.</p>
+<h2 id="deep-audit-measured-versus-reasoned-findings">Deep audit:
+measured versus reasoned findings</h2>
+<p>Section §<a href="#sec:system" data-reference-type="ref"
+data-reference="sec:system">3</a> describes the twenty-one-tool-call
+managed-agents deep audit on Branch B. The quantitative result is that
+the deep audit verified five shallow-audit findings with measured
+quantities and surfaced nine new findings the shallow audit missed.
+Selected measurements:</p>
+<ul>
+<li><p>AI-disclosure string: 96 characters, 16 words, <span
+class="math inline">∼</span>5.3 seconds at 180 wpm.</p></li>
+<li><p>Human-framed string: 29 characters, 5 words, <span
+class="math inline">∼</span>1.7 seconds.</p></li>
+<li><p>Delta: 3.67 seconds. The shallow audit described this
+qualitatively as “several seconds”; the deep audit quantified
+it.</p></li>
+<li><p>Zero participant-triggerable wizard controls out of five; zero
+occurrences of <code>stop</code>, <code>withdraw</code>,
+<code>opt out</code>, or <code>abort</code> in the prototype
+spec.</p></li>
+<li><p>Zero matches for <code>byline</code>, <code>model card</code>,
+<code>source link</code>, <code>editorial policy</code>,
+<code>inspect</code>, or <code>tell me more</code>. This is a measured
+zero that confirms two separate Legibility findings the shallow audit
+could only infer.</p></li>
+<li><p>Friedman test minimum detectable effect size at <span
+class="math inline"><em>n</em> = 8, <em>k</em> = 3, <em>α</em> = 0.05</span>:
+Kendall’s <span class="math inline"><em>W</em> = 0.374</span>, between
+medium and large. This was not in the shallow audit at all.</p></li>
+<li><p>The axe-core WCAG check the study proposes covers only the three
+article HTML variants, not the credibility-rating form or the
+debrief-card PDF that BLV participants must also interact with. Measured
+counter-example to the spec’s implicit coverage claim.</p></li>
+</ul>
+<p>The pattern that emerges is: the deep audit’s value is not in finding
+different things from the shallow audit; it is in measuring the same
+things precisely enough that the researcher can make a revision decision
+from the report alone.</p>
+<h1 id="sec:discussion">Discussion</h1>
+<h2 id="what-the-linter-does-and-does-not-enforce">What the linter does
+and does not enforce</h2>
+<p>The provenance linter enforces the <em>syntax</em> of epistemic
+hygiene. A paragraph must carry a tag; a
+<code>[SIMULATION_REHEARSAL]</code> paragraph must not contain the
+phrase “users preferred”; a <code>[SOURCE_CARD:id]</code> tag must
+reference a corpus ID that exists. The linter cannot check whether a
+citation, grounded in a card that exists, actually supports the claim
+the paragraph makes. The demo guidebook contained exactly this failure:
+a <code>[SOURCE_CARD:liang_nejm_ai_2024]</code>-tagged paragraph cited
+Liang et al.’s 57.4% helpfulness finding to support a proposition about
+credibility judgments on AI-authored content <span class="citation"
+data-cites="liang2024large">(Liang et al. 2024)</span>. Liang measured
+researcher-rated feedback helpfulness on scientific manuscripts. The
+guidebook used the number to make a claim about a different population
+evaluating a different kind of content.</p>
+<p>A later review wave caught this and the guidebook paragraph was
+rewritten to accurately describe what Liang measured. The linter did not
+catch it, and the linter as described in this paper will not catch it on
+a future run. Citation-misuse detection is an open problem: it requires
+either a human review step between generation and shipping, or a second
+agent whose job is to verify that each quoted claim is present in the
+cited source card’s <code>allowed_claims</code> list. The latter is a
+natural extension we have not implemented.</p>
+<h2 id="the-agent_inference-tag-as-an-escape-hatch">The
+<code>[AGENT_INFERENCE]</code> tag as an escape hatch</h2>
+<p>Among the eight provenance tags, seven make a load-bearing claim
+about where the content came from. The eighth,
+<code>[AGENT_INFERENCE]</code>, is a catch-all for reasoning that is
+neither grounded in a source card nor drawn from the simulated
+walkthrough. Its force is only as strong as the model’s willingness not
+to route low-confidence content through it.</p>
+<p>One concrete failure mode we caught after the first review wave: the
+model wanted to name outside-corpus adjacent literature (Jakesch,
+Longoni, Sundar) and chose <code>[AGENT_INFERENCE]</code> as the
+wrapper. This is technically honest — the mention is not grounded in a
+corpus card — but it hides the verification requirement from the
+researcher who reads the guidebook. The fix was to add an
+<code>[UNCITED_ADJACENT]</code> tag specifically for this case, with the
+guidebook-agent prompt updated to treat it as the required wrapper for
+named outside-corpus papers. The linter accepts either tag; the
+human-facing distinction is whether the tag commits the researcher to
+verification.</p>
+<p>A stronger version of the system would prohibit
+<code>[AGENT_INFERENCE]</code> from containing any named reference that
+is not in the corpus. We have not enforced this. Doing so would make
+<code>[AGENT_INFERENCE]</code> effectively a “pure reasoning” tag whose
+content never references specific external work.</p>
+<h2 id="pattern-applicability-and-out-of-domain-transfer">Pattern
+applicability and out-of-domain transfer</h2>
+<p>The second-domain benchmark run on the code-review premise exposed a
+pattern-transfer issue. Two branches were blocked on
+<code>legibility.no_failure_signal</code>, which matches the pattern’s
+trigger heuristic exactly: the proposed tools do not surface when they
+are wrong. But on one branch, the “weak override” pattern fired against
+a feature whose deliberate purpose was to create friction against
+engineer over-trust — the friction was the manipulation under study, not
+a constraint on user intent. The auditor did not distinguish between
+“weak override as unintended constraint” and “weak override as
+intentional manipulation.”</p>
+<p>The current mitigation is a note in the
+<code>WORKSHOP_NOT_RECOMMENDED</code> template asking the human reviewer
+to confirm the pattern fired correctly rather than mis-matched a
+manipulation-under-test. A stronger version of the system would require
+each pattern’s trigger heuristic to include an explicit applicability
+check: “this pattern fires only if the matched constraint is not itself
+the study’s manipulation.” This is a future-work item §<a
+href="#sec:limitations" data-reference-type="ref"
+data-reference="sec:limitations">7</a>.</p>
+<h2
+id="why-opus-4.7-for-the-reviewer-stage-given-the-ablation-result">Why
+Opus 4.7 for the reviewer stage, given the ablation result</h2>
+<p>The ablation found Sonnet 4.6 capable of catching the methodologist
+confound we had hoped was Opus-specific. This does not mean the routing
+decision was wrong; it means the justification for the decision changes.
+Opus produces more precise evidence spans and more specific
+required-change instructions. On a run where the study lives or dies on
+a 0.5-second manipulation-check threshold, that precision matters. On a
+run where the study is earlier in design and the researcher is looking
+for the overall shape of reviewer objections, Sonnet is substantively
+equivalent at lower cost.</p>
+<p>A defensible policy would be: route initial triage runs to Sonnet,
+and re-run the reviewer stage on Opus only for branches where the
+meta-reviewer has returned <code>human_judgment_required</code> (meaning
+the reviewer panel’s disagreement is the critical input to the final
+decision). We have not implemented this tiered policy. The current
+default is Opus everywhere for the reviewer stage, which the ablation
+does not support.</p>
+<h2
+id="rehearsal-as-a-productive-not-merely-defensive-framing">Rehearsal as
+a productive, not merely defensive, framing</h2>
+<p>The project’s tagline is “rehearsal stage for research; the
+performance still needs humans.” The defensive reading is: simulated
+walkthroughs are not evidence, and the linter enforces that they not use
+evidence language. The more productive reading is: simulated
+walkthroughs generate <em>falsifiable hypotheses</em> about study-design
+weaknesses. A rehearsal sentence like “a fast H-key navigator would
+traverse all three H2s in under four seconds” is a prediction the real
+study either confirms or refutes. The
+<code>[SIMULATION_REHEARSAL]</code> tag reframes simulation-as-evidence
+into simulation-as-pre-registered-prior.</p>
+<p>This reframing matters because a researcher who reads the guidebook
+and proceeds to a real study will inevitably have their mental model
+shaped by the rehearsal. The defensive claim that rehearsal is not
+evidence does not prevent this. What prevents the rehearsal from
+laundering itself as findings is the requirement that each rehearsal
+paragraph use hedged language (“would likely,” “could plausibly,” “a
+user encountering this might”) and the <code>[HUMAN_REQUIRED]</code>
+block at the end of the guidebook. The latter makes explicit the
+handoff: the researcher must confirm what the rehearsal predicted.</p>
+<h1 id="sec:limitations">Limitations</h1>
+<p>This section is deliberately long. Naming limitations honestly is the
+work a provenance-discipline project must do in its own paper.</p>
+<h2 id="evaluation-limitations">Evaluation limitations</h2>
+<p><strong>Single-trial ablation.</strong> The Opus-vs-Sonnet ablation
+is one trial on one reviewer stage against one branch context.
+Generalizing it to “Sonnet is substantively capable for the
+methodologist stage” requires a multi-premise run with blind scoring. We
+have not run that.</p>
+<p><strong>Single-trial hallucination test.</strong> The
+planted-fake-paper test is <span
+class="math inline"><em>n</em> = 1</span>. A stronger evaluation would
+inject ten or more fake papers, ten or more real-but-absent papers, and
+blind-score the outputs to distinguish “Probe refuses to fabricate” from
+“Probe happened to refuse on this trial.” This is the single
+highest-leverage future evaluation and we call it out as such.</p>
+<p><strong>Domain overfitting risk.</strong> The 16 capture-risk
+patterns, the three reviewer personas, and the source-card corpus were
+all shaped against screen-based accessibility research. The
+second-domain code-review benchmark exposed a pattern-mis-fire where a
+calibration intervention’s intentional friction was scored as
+paternalism. A stronger evaluation would run the full pipeline on five
+or more out-of-accessibility premises and compare the verdict patterns;
+we have not run that.</p>
+<p><strong>No human-baseline comparison.</strong> We have not compared
+Probe’s reviewer findings against real human reviewer feedback on the
+same premise. The methodology paper <span class="citation"
+data-cites="jin2024agentreview">(Jin et al. 2024)</span> established
+that this is the natural comparison for LLM-based peer-review systems;
+we have not made it.</p>
+<h2 id="system-limitations">System limitations</h2>
+<p><strong>Three-branch divergence is not empirically
+validated.</strong> The system commits to three branches on the
+assumption that divergent-method comparison gives the adversarial review
+more to work with than a single deeper branch would. We have not tested
+this with a three-branch-at-one-iteration versus
+one-branch-at-three-iterations comparison.</p>
+<p><strong>Citation-misuse detection is not implemented.</strong> The
+linter verifies that cited source-card IDs exist but not that quoted
+claims match the source’s <code>allowed_claims</code> list. The
+Liang-et-al. misuse in our own demo guidebook went undetected by the
+linter; a later human review caught it. A natural extension is a
+verifier agent that checks each <code>[SOURCE_CARD:id]</code>-tagged
+paragraph against the card’s <code>allowed_claims</code> array.</p>
+<p><strong>Pattern applicability check is not implemented.</strong> The
+capture-risk auditor fires patterns based on trigger heuristics that
+match the <em>form</em> of a feature. The code-review benchmark showed
+that this can mis-match a manipulation-under-test as an unintended
+constraint. The <code>WORKSHOP_NOT_RECOMMENDED</code> template now asks
+the human reviewer to confirm the fire; the pattern library itself does
+not yet include an applicability check.</p>
+<p><strong>No stored-session retrieval for Managed Agents.</strong> The
+<code>probe audit-deep</code> command’s output is the agent’s streamed
+text response, not the files the agent writes inside its container. The
+deep audit wrote a richer <code>deep_audit.md</code> to
+<code>/workspace/branch/</code> that we did not retrieve. A natural
+extension is a session-file-download step at the end of the command.</p>
+<h2 id="scope-limitations-by-design">Scope limitations (by design)</h2>
+<p>The project’s README states the scope as screen-based interactive
+research: web, desktop, and mobile user interfaces; accessibility
+research on digital content; AI-assistant interactions; dashboards and
+productivity tools. The following are out of scope and will remain
+so:</p>
+<ul>
+<li><p><strong>Ethnographic fieldwork.</strong> Probe’s simulated
+walkthrough pattern does not transfer to contexts where the object of
+study is cultural practice rather than interface interaction.</p></li>
+<li><p><strong>Long-term in-the-wild deployment studies.</strong> Probe
+rehearses a session-length study; it does not model how behavior evolves
+over weeks or months.</p></li>
+<li><p><strong>Embodied AR/VR without screen capture.</strong> If the
+research is about spatial interaction in a physical environment, the
+rehearsal-via-spec pattern does not apply.</p></li>
+<li><p><strong>Any research without a capturable digital
+artifact.</strong> Probe assumes the proposed intervention can be
+reduced to a screen-recordable or screen-readable form.</p></li>
+</ul>
+<p>A researcher who uses Probe for an out-of-scope study will get a
+guidebook that looks structurally valid but models the wrong object. The
+linter does not check scope; the README does. We have not attempted a
+scope-check linter because the boundary is fuzzy enough that false
+negatives are inevitable.</p>
+<h2 id="the-agent_inference-escape-hatch-problem">The
+<code>[AGENT_INFERENCE]</code> escape-hatch problem</h2>
+<p>The <code>[AGENT_INFERENCE]</code> tag is the weakest of the eight
+provenance tags. It certifies that the content is the agent’s own
+reasoning; it does not certify that the reasoning is well-anchored. A
+stronger system would require <code>[AGENT_INFERENCE]</code> to cite at
+least one preceding provenance anchor (e.g., “inferred from
+[SOURCE_CARD:sanders_stappers_2014] and
+[SIMULATION_REHEARSAL:b_stage5_para_3]”). We have not implemented this.
+The section-§<a href="#sec:discussion" data-reference-type="ref"
+data-reference="sec:discussion">6</a> paragraph on this topic is the
+full acknowledgment.</p>
+<h2 id="cost-limitations">Cost limitations</h2>
+<p>A full run costs approximately six dollars and takes twenty-five
+minutes of wall-clock time. The marginal cost scales roughly linearly
+with the size of the branch artifacts (the audit and guidebook stages
+process the entire per-branch corpus). For a research group running
+Probe on dozens of premises per week, the cost is small; for an
+independent researcher with a tight budget, it is not negligible. We
+have not optimized. Simple wins (more aggressive prompt caching across
+stages, moving more per-branch stages to Sonnet where the ablation
+evidence supports it) are available and unexploited.</p>
+<h1 id="sec:conclusion">Conclusion</h1>
+<p>Probe takes the shape of a researcher’s afternoon and compresses it.
+A rough premise goes in; three divergent research programs come out; two
+of them get blocked with specific evidence-anchored findings; one
+survives a three-reviewer panel that refuses to collapse its
+disagreements; a provenance-tagged guidebook emerges with a linter
+running on it before it is allowed to leave the run directory. On the
+demo premise, the pipeline surfaced an announcement-duration confound
+neither the authors nor the shallow audit had caught, and a Managed
+Agents deep-audit session ran twenty-one tool calls to measure claims
+the single-prompt audit could only reason about.</p>
+<p>The project’s load-bearing commitment is the separation of rehearsal
+from evidence. Every paragraph that could be mistaken for a finding
+carries a tag that says otherwise; the linter rejects the build when a
+<code>[SIMULATION_REHEARSAL]</code>-tagged paragraph uses evidence
+language; a <code>[HUMAN_REQUIRED]</code> block at the end of every
+guidebook forces the handoff to be explicit. The commitment is
+structural, not ornamental: a run that violates it fails the lint and
+does not ship.</p>
+<p>What Probe does not claim to be is an autonomous scientist. It
+refuses the framing. A researcher who uses the tool is working with a
+skeptical colleague who can produce a passable first draft of a study
+design in half an hour. That draft is not the study. The study still
+needs human judgment about which reviewer’s objection to prioritize,
+whether a blocking pattern fired correctly or mis-matched a
+manipulation-under-test, and whether the simulated walkthrough’s
+friction points generalize to real participants.</p>
+<p>The ablation result the paper reports against its own initial claim
+is the illustrative moment. We had expected Opus 4.7 to uniquely catch
+the confound that the Sonnet 4.6 comparison revealed both models could
+find. The honest write-up tempered the capability claim: Opus provides
+more precise evidence quantification at higher cost; Sonnet is
+substantively capable on the same prompt. This is the kind of correction
+Probe was built to make on other people’s studies, and the paper’s
+authors are not exempt.</p>
+<p>Future work falls along three lines. First, a multi-trial
+hallucination evaluation with blind scoring to convert the current
+single-trial pass into a capability claim the paper can defend. Second,
+a citation-misuse detector that verifies <code>[SOURCE_CARD:id]</code>
+paragraphs against the source card’s <code>allowed_claims</code> list —
+the one failure mode the provenance linter did not catch on the demo
+run. Third, a pattern-applicability check that prevents capture-risk
+patterns from mis-firing against manipulations-under-test — the
+cross-domain transfer issue the code-review benchmark exposed.</p>
+<p>The project lives at <a
+href="https://github.com/Apolotary/probe-researcher"
+class="uri">https://github.com/Apolotary/probe-researcher</a>. The demo
+run, the ablation report, and the hallucination test output are all
+checked in under the <code>runs/demo_run/</code> and
+<code>benchmarks/</code> directories. The linter, the schemas, and the
+16-pattern capture-risk library are in the repository and are small
+enough to read end-to-end. The defense the project can offer, if a
+reviewer reads no further than the linter code, is that the
+infrastructure is small, legible, and does what the paper says it
+does.</p>
+<div id="refs" class="references csl-bib-body hanging-indent"
+data-entry-spacing="0" role="list">
+<div id="ref-baek2025researchagent" class="csl-entry" role="listitem">
+Baek, Jinheon, Sujay Kumar Jauhar, Silviu Cucerzan, and Sung Ju Hwang.
+2025. <span>“<span>ResearchAgent</span>: Iterative Research Idea
+Generation over Scientific Literature with Large Language
+Models.”</span> In <em>Proceedings of the 2025 Annual Conference of the
+Nations of the Americas Chapter of the Association for Computational
+Linguistics (NAACL)</em>.
+</div>
+<div id="ref-beel2025aiscientistevaluation" class="csl-entry"
+role="listitem">
+Beel, Joeran, Min-Yen Kan, and Moritz Baumgart. 2025. <span>“Evaluating
+Sakana’s <span>AI</span> Scientist for Autonomous Research: Wishful
+Thinking or an Emerging Reality Towards Artificial General Research
+Intelligence (<span>AGRI</span>)?”</span> <em>arXiv Preprint</em>.
+</div>
+<div id="ref-bougie2025gar" class="csl-entry" role="listitem">
+Bougie, Nicolas, and Narimawa Watanabe. 2025. <span>“Generative Reviewer
+Agents: Scalable Simulacra of Peer Review.”</span> In <em>Proceedings of
+the 2025 Conference on Empirical Methods in Natural Language Processing:
+Industry Track</em>.
+</div>
+<div id="ref-buijsman2025autonomy" class="csl-entry" role="listitem">
+Buijsman, Stefan, Sarah E. Carter, and Juan Pablo Bermúdez. 2025.
+<span>“Autonomy by Design: Preserving Human Autonomy in <span>AI</span>
+Decision-Support.”</span> <em>Philosophy &amp; Technology</em> 38 (3).
+<a
+href="https://doi.org/10.1007/s13347-025-00932-2">https://doi.org/10.1007/s13347-025-00932-2</a>.
+</div>
+<div id="ref-chen2025mlrbench" class="csl-entry" role="listitem">
+Chen, Hongming, Ming Xiong, Yuxuan Lu, Wenxuan Han, Aoran Deng, Yilin
+He, Jiafei Wu, Yuxin Li, Yiran Liu, and Bryan Hooi. 2025.
+<span>“<span>MLR-Bench</span>: Evaluating <span>AI</span> Agents on
+Open-Ended Machine Learning Research.”</span> <em>arXiv Preprint</em>.
+<a
+href="https://doi.org/10.48550/arXiv.2505.19955">https://doi.org/10.48550/arXiv.2505.19955</a>.
+</div>
+<div id="ref-costanzachock2020designjustice" class="csl-entry"
+role="listitem">
+Costanza-Chock, Sasha. 2020. <em>Design Justice: Community-Led Practices
+to Build the Worlds We Need</em>. MIT Press.
+</div>
+<div id="ref-darcy2024marg" class="csl-entry" role="listitem">
+D’Arcy, Mike, Tom Hope, Larry Birnbaum, and Doug Downey. 2024.
+<span>“<span>MARG</span>: Multi-Agent Review Generation for Scientific
+Papers.”</span> <em>arXiv Preprint</em>.
+</div>
+<div id="ref-du2024debate" class="csl-entry" role="listitem">
+Du, Yilun, Shuang Li, Antonio Torralba, Joshua B. Tenenbaum, and Igor
+Mordatch. 2024. <span>“Improving Factuality and Reasoning in Language
+Models Through Multiagent Debate.”</span> In <em>Proceedings of the 41st
+International Conference on Machine Learning (ICML)</em>.
+</div>
+<div id="ref-gaver1999probes" class="csl-entry" role="listitem">
+Gaver, Bill, Tony Dunne, and Elena Pacenti. 1999. <span>“Design:
+Cultural Probes.”</span> <em>Interactions</em> 6 (1): 21–29. <a
+href="https://doi.org/10.1145/291224.291235">https://doi.org/10.1145/291224.291235</a>.
+</div>
+<div id="ref-companion2025feynman" class="csl-entry" role="listitem">
+getcompanion-ai. 2025. <span>“Feynman: The Open Source <span>AI</span>
+Research Agent.”</span> <a
+href="https://github.com/getcompanion-ai/feynman"
+class="uri">https://github.com/getcompanion-ai/feynman</a>.
+</div>
+<div id="ref-hong2024metagpt" class="csl-entry" role="listitem">
+Hong, Sirui, Mingchen Zhuge, Jonathan Chen, Xiawu Zheng, Yuheng Cheng,
+Jinlin Wang, Ceyao Zhang, et al. 2024. <span>“<span>MetaGPT</span>: Meta
+Programming for a Multi-Agent Collaborative Framework.”</span> In
+<em>International Conference on Learning Representations (ICLR)</em>.
+</div>
+<div id="ref-illich1973conviviality" class="csl-entry" role="listitem">
+Illich, Ivan. 1973. <em>Tools for Conviviality</em>. Vol. 47. World
+Perspectives. Harper &amp; Row.
+</div>
+<div id="ref-jakesch2023cowriting" class="csl-entry" role="listitem">
+Jakesch, Maurice, Advait Bhat, Daniel Buschek, Lior Zalmanson, and Mor
+Naaman. 2023. <span>“Co-Writing with Opinionated Language Models Affects
+Users’ Views.”</span> In <em>Proceedings of the 2023 CHI Conference on
+Human Factors in Computing Systems</em>. <a
+href="https://doi.org/10.1145/3544548.3581196">https://doi.org/10.1145/3544548.3581196</a>.
+</div>
+<div id="ref-jin2024agentreview" class="csl-entry" role="listitem">
+Jin, Yiqiao, Qinlin Zhao, Yiyang Wang, Hao Chen, Kaijie Zhu, Yijia Xiao,
+and Jindong Wang. 2024. <span>“<span>AgentReview</span>: Exploring Peer
+Review Dynamics with <span>LLM</span> Agents.”</span> In <em>Proceedings
+of the 2024 Conference on Empirical Methods in Natural Language
+Processing (EMNLP)</em>, 1208–26. <a
+href="https://doi.org/10.18653/v1/2024.emnlp-main.70">https://doi.org/10.18653/v1/2024.emnlp-main.70</a>.
+</div>
+<div id="ref-kafer2013feminist" class="csl-entry" role="listitem">
+Kafer, Alison. 2013. <em>Feminist, Queer, Crip</em>. Indiana University
+Press.
+</div>
+<div id="ref-karpathy2025autoresearch" class="csl-entry"
+role="listitem">
+Karpathy, Andrej. 2025. <span>“Autoresearch: AI Agents Running Research
+on Single-GPU Nanochat Training.”</span> <a
+href="https://github.com/karpathy/autoresearch"
+class="uri">https://github.com/karpathy/autoresearch</a>.
+</div>
+<div id="ref-kuznetsov2024nlppeerreview" class="csl-entry"
+role="listitem">
+Kuznetsov, Ilia et al. 2024. <span>“What Can Natural Language Processing
+Do for Peer Review?”</span> <em>arXiv Preprint</em>.
+</div>
+<div id="ref-li2023camel" class="csl-entry" role="listitem">
+Li, Guohao, Hasan Abed Al Kader Hammoud, Hani Itani, Dmitrii Khizbullin,
+and Bernard Ghanem. 2023. <span>“<span>CAMEL</span>: Communicative
+Agents for <span>‘Mind’</span> Exploration of Large Language Model
+Society.”</span> In <em>Advances in Neural Information Processing
+Systems (NeurIPS)</em>.
+</div>
+<div id="ref-liang2024large" class="csl-entry" role="listitem">
+Liang, Weixin, Yuhui Zhang, Hancheng Cao, Binglu Wang, Daisy Y. Ding,
+Xinyu Yang, Kailas Vodrahalli, et al. 2024. <span>“Can Large Language
+Models Provide Useful Feedback on Research Papers? A Large-Scale
+Empirical Analysis.”</span> <em>NEJM AI</em> 1 (8). <a
+href="https://doi.org/10.1056/AIoa2400196">https://doi.org/10.1056/AIoa2400196</a>.
+</div>
+<div id="ref-liu2024coquest" class="csl-entry" role="listitem">
+Liu, Yiren, Si Chen, Haocong Cheng, Mengxia Yu, Xiao Ran, Andrew Mo,
+Yiliu Tang, and Yun Huang. 2024. <span>“How <span>AI</span> Processing
+Delays Foster Creativity: Exploring Research Question Co-Creation with
+an <span>LLM</span>-Based Agent.”</span> In <em>Proceedings of the 2024
+CHI Conference on Human Factors in Computing Systems</em>. <a
+href="https://doi.org/10.1145/3613904.3642698">https://doi.org/10.1145/3613904.3642698</a>.
+</div>
+<div id="ref-longoni2019medical" class="csl-entry" role="listitem">
+Longoni, Chiara, Andrea Bonezzi, and Carey K. Morewedge. 2019.
+<span>“Resistance to Medical Artificial Intelligence.”</span>
+<em>Journal of Consumer Research</em> 46 (4): 629–50. <a
+href="https://doi.org/10.1093/jcr/ucz013">https://doi.org/10.1093/jcr/ucz013</a>.
+</div>
+<div id="ref-lu2024aiscientist" class="csl-entry" role="listitem">
+Lu, Chris, Cong Lu, Robert Tjarko Lange, Jakob Foerster, Jeff Clune, and
+David Ha. 2024. <span>“The <span>AI</span> Scientist: Towards Fully
+Automated Open-Ended Scientific Discovery.”</span> <em>arXiv
+Preprint</em>.
+</div>
+<div id="ref-nousresearch2025autonovel" class="csl-entry"
+role="listitem">
+NousResearch. 2025. <span>“Autonovel: An Autonomous Novel Writing
+Pipeline.”</span> <a href="https://github.com/NousResearch/autonovel"
+class="uri">https://github.com/NousResearch/autonovel</a>.
+</div>
+<div id="ref-sanders2014codesign" class="csl-entry" role="listitem">
+Sanders, Elizabeth B.-N., and Pieter Jan Stappers. 2014. <span>“Probes,
+Toolkits and Prototypes: Three Approaches to Making in
+Codesigning.”</span> <em>CoDesign</em> 10 (1): 5–14. <a
+href="https://doi.org/10.1080/15710882.2014.888183">https://doi.org/10.1080/15710882.2014.888183</a>.
+</div>
+<div id="ref-schmidgall2025agentlab" class="csl-entry" role="listitem">
+Schmidgall, Samuel, Yusheng Su, Ze Wang, Ximeng Sun, Jialian Wu,
+Xiaodong Yu, Jiang Liu, Michael Moor, Zicheng Liu, and Emad Barsoum.
+2025. <span>“Agent Laboratory: Using <span>LLM</span> Agents as Research
+Assistants.”</span> <em>arXiv Preprint</em>.
+</div>
+<div id="ref-si2024novelideas" class="csl-entry" role="listitem">
+Si, Chenglei, Diyi Yang, and Tatsunori Hashimoto. 2024. <span>“Can
+<span>LLM</span>s Generate Novel Research Ideas? A Large-Scale Human
+Study with 100+ <span>NLP</span> Researchers.”</span> <em>arXiv
+Preprint</em>.
+</div>
+<div id="ref-sundar2008main" class="csl-entry" role="listitem">
+Sundar, S. Shyam. 2008. <span>“The <span>MAIN</span> Model: A Heuristic
+Approach to Understanding Technology Effects on Credibility.”</span> In
+<em>Digital Media, Youth, and Credibility</em>, edited by Miriam J.
+Metzger and Andrew J. Flanagin, 73–100. MIT Press.
+</div>
+<div id="ref-remark" class="csl-entry" role="listitem">
+unified-js contributors. 2025. <span>“Remark: Markdown Processor Powered
+by Plugins.”</span> <a href="https://github.com/remarkjs/remark"
+class="uri">https://github.com/remarkjs/remark</a>.
+</div>
+<div id="ref-webaim2023survey" class="csl-entry" role="listitem">
+WebAIM. 2023. <span>“Screen Reader User Survey #10 Results.”</span> <a
+href="https://webaim.org/projects/screenreadersurvey10/"
+class="uri">https://webaim.org/projects/screenreadersurvey10/</a>.
+</div>
+<div id="ref-wu2024autogen" class="csl-entry" role="listitem">
+Wu, Qingyun, Gagan Bansal, Jieyu Zhang, Yiran Wu, Beibin Li, Erkang Zhu,
+Li Jiang, et al. 2024. <span>“<span>AutoGen</span>: Enabling Next-Gen
+<span>LLM</span> Applications via Multi-Agent Conversation.”</span> In
+<em>ICLR 2024 Workshop on LLM Agents</em>.
+</div>
+<div id="ref-zhu2025deepreview" class="csl-entry" role="listitem">
+Zhu, Minjun, Yixuan Weng, Linyi Yang, and Yue Zhang. 2025.
+<span>“<span>DeepReview</span>: Improving <span>LLM</span>-Based Paper
+Review with Human-Like Deep Thinking Process.”</span> In <em>Proceedings
+of the 63rd Annual Meeting of the Association for Computational
+Linguistics (ACL), Volume 1: Long Papers</em>, 29330–55. <a
+href="https://doi.org/10.18653/v1/2025.acl-long.1420">https://doi.org/10.18653/v1/2025.acl-long.1420</a>.
+</div>
+</div>
+</body>
+</html>

@@ -21,6 +21,7 @@ import { symposiumCommand } from './symposium.js';
 import { renderCommand } from './render.js';
 import { runsCommand } from './runs.js';
 import { ganttCommand } from './gantt.js';
+import { buildPaperCommand } from './build_paper.js';
 
 const program = new Command();
 
@@ -101,6 +102,11 @@ program
   .argument('<run_id>', 'run id to visualize')
   .description('Per-run Gantt-style terminal view of stage durations and costs, grouped by branch. Shows model (Opus/Sonnet), repair-pass count, and where time/$ went.')
   .action(ganttCommand);
+
+program
+  .command('build-paper')
+  .description('Build the arXiv paper (paper/probe.tex + references.bib) to PDF via pandoc + wkhtmltopdf. No LaTeX engine required. Outputs paper/probe.{html,pdf}.')
+  .action(buildPaperCommand);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err);
