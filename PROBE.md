@@ -16,6 +16,10 @@ If the code disagrees with this file, update this file OR update the code — do
 | `probe audit-deep <run_id> <branch>` | Managed Agents deep audit with bash/grep/file tools, ~$1 |
 | `probe interview <run_id>` | Managed Agents simulated participant for interview rehearsal |
 | `probe symposium <run_id>...` | convener report across N completed runs |
+| `probe runs` | list view of every run in `runs/` with status, cost, duration, verdict |
+| `probe gantt <run_id>` | per-run horizontal Gantt of stage × branch durations |
+| `probe render <run_id>` | single-file PDF/HTML/markdown report bundling guidebook + reviews + audit + cost log |
+| `probe build-paper` | build `paper/probe.{html,pdf}` via pandoc + wkhtmltopdf |
 
 ## Pipeline shape
 

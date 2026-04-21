@@ -43,23 +43,33 @@ npm run build
 
 export ANTHROPIC_API_KEY="sk-ant-..."
 
-# Run a premise end-to-end
+# Run a premise end-to-end (~25 min, ~$6 API credit)
 npx probe run "your research premise here"
 
-# Replay the pre-recorded demo run
-npx probe replay demo_run
-
-# Lint a guidebook
+# Inspect and diagnose
+npx probe runs                          # Linear-style list of all runs
+npx probe gantt <run_id>                # per-run stage × branch timeline
 npx probe lint runs/<run_id>/PROBE_GUIDEBOOK.md
+npx probe replay <run_id>               # deterministic artifact replay (no API calls)
+
+# Render a report or paper
+npx probe render <run_id>               # PDF/HTML/markdown bundle of the run
+npx probe build-paper                   # build paper/probe.{html,pdf}
+
+# Explore and extend (Managed Agents features)
+npx probe explore <run_id>              # Ink 3-pane worktree-style UI
+npx probe audit-deep <run_id> <branch>  # tool-equipped deep audit (bash/grep/file)
+npx probe interview <run_id>            # simulated participant interview
+npx probe symposium <run_id>...         # N-run convener report
 ```
 
-A pre-populated `runs/demo_run/` ships with the repo so you can browse a full pipeline without running anything.
+A pre-populated `runs/demo_run/` ships with the repo so you can browse a full pipeline without running anything. See [`DEMO_WALKTHROUGH.md`](./DEMO_WALKTHROUGH.md) for a 10-minute tour that uses only shipped artifacts.
 
 ## Architecture
 
 ```
 probe/
-├── cli/                 # probe init | run | replay | lint
+├── cli/                 # probe run | runs | gantt | render | lint | audit-deep | interview | symposium | explore
 ├── agents/              # system prompts, one per stage
 ├── corpus/source_cards/ # hand-curated literature, verifiable DOIs only
 ├── patterns/            # 16 capture-risk patterns (4 axes × 4 each)
@@ -78,19 +88,19 @@ Probe uses Claude **Opus 4.7** for stages that need skeptical judgment, vision, 
 
 ## Benchmarks
 
-*(populated as runs complete; see [`benchmarks/`](./benchmarks) for premise cards)*
+Three benchmark runs ship with the repo, each on a different research domain. `npx probe runs` lists them:
 
-Each benchmark run is scored on:
+| Run | Domain | Verdict |
+|---|---|---|
+| `demo_run` | BLV screen-reader + AI-generated news | 1 surviving (branch B), 2 blocked |
+| `benchmark_code_review` | AI-assisted code review for engineers | 0 surviving, 2 blocked, 1 infra-failed |
+| `benchmark_creativity_support` | creativity-support tool for poets | 1 surviving (branch A), 0 blocked |
 
-- Branch divergence (0–4)
-- Citation hygiene (pass/fail)
-- Prototype specificity (0–3)
-- Audit specificity (0–3)
-- Reviewer usefulness (0–3)
-- Provenance lint (pass/fail)
-- Forbidden-phrase lint (pass/fail)
+The three domains expose different parts of the pattern library. The code-review domain fires `legibility.no_failure_signal` and `legibility.opaque_ranking` heavily; the accessibility domain fires agency and legibility patterns; the creativity-support domain fires almost no capture-risk patterns at all (a useful signal that the pattern library may need a `capacity.narrows_expressive_range` pattern for creative tools — see [`docs/V2_ROADMAP.md`](./docs/V2_ROADMAP.md)).
 
-A benchmark passes only if **citation hygiene + provenance lint + forbidden-phrase lint** all pass.
+Each run has a `PROBE_REPORT.pdf` produced by `probe render` that bundles the guidebook, reviewer panel, audit findings, and lint status for offline review. The `benchmarks/` directory has the Opus-vs-Sonnet ablation on the methodologist reviewer (`model_ablation_methodologist.md`) and the hallucination test with a planted fake citation (`hallucination_test.md`).
+
+A benchmark passes only if **citation hygiene + provenance lint + forbidden-phrase lint** all pass. All three shipped runs pass these checks on their surviving branches.
 
 ## Limitations
 

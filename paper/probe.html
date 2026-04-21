@@ -1047,11 +1047,11 @@ produced the twenty-one-tool-call measurement session described in §<a
 href="#sec:system" data-reference-type="ref"
 data-reference="sec:system">3</a>.</p>
 <h1 id="sec:eval">Evaluation</h1>
-<p>Probe is not a benchmark system. It produces one structured artifact
-per research premise, and the most honest evaluation asks whether that
-artifact is the one a researcher would actually use as a starting point.
-We report three partial evaluations, each explicit about what it does
-and does not support.</p>
+<p>Probe produces one structured artifact per research premise. The most
+honest evaluation asks whether that artifact is the one a researcher
+would actually use as a starting point. We report three partial
+evaluations below, each explicit about what it does and does not
+support.</p>
 <h2
 id="model-ablation-methodologist-reviewer-opus-4.7-vs.-sonnet-4.6">Model
 ablation: methodologist reviewer, Opus 4.7 vs. Sonnet 4.6</h2>
@@ -1130,10 +1130,18 @@ opacity of the ranking that determines which reviews the tool
 prioritizes); the infrastructure failure is an honest infrastructure
 failure, not a substantive finding, and the run summary makes the
 distinction.</p>
-<p>We also attempted a third benchmark in a creativity-support domain (a
-tool that offers poets alternative line endings during drafting) as a
-stress test of the out-of-domain pattern-firing behavior. That run’s
-results are discussed inline where they are available.</p>
+<p>A third benchmark runs on a creativity-support premise: a tool that
+offers poets alternative line endings during drafting. The pipeline
+produced three branches, none of which the audit blocked — two returned
+<code>accept_revise</code> from the meta-reviewer, one returned
+<code>human_judgment_required</code>. Surviving branch A reframed the
+original “evaluate a tool” premise as a mechanism study on
+corpus-personalized divergence, a move we did not anticipate. The
+absence of blocking patterns is itself a signal: the current 16-pattern
+library, tuned against accessibility and code-review domains, does not
+fire heavily on creativity-support research. This points toward a
+missing Capacity axis pattern around narrowed expressive range — we name
+it in the future-work section.</p>
 <h2 id="deep-audit-measured-versus-reasoned-findings">Deep audit:
 measured versus reasoned findings</h2>
 <p>Section §<a href="#sec:system" data-reference-type="ref"
@@ -1168,10 +1176,11 @@ article HTML variants, not the credibility-rating form or the
 debrief-card PDF that BLV participants must also interact with. Measured
 counter-example to the spec’s implicit coverage claim.</p></li>
 </ul>
-<p>The pattern that emerges is: the deep audit’s value is not in finding
-different things from the shallow audit; it is in measuring the same
-things precisely enough that the researcher can make a revision decision
-from the report alone.</p>
+<p>The deep audit measures the same claims the shallow audit described
+qualitatively. What changes is that the researcher can now make a
+revision decision from the report alone — “the delta is 3.67 seconds”
+sits in the paper differently from “substantially longer in spoken
+duration.”</p>
 <h1 id="sec:discussion">Discussion</h1>
 <h2 id="what-the-linter-does-and-does-not-enforce">What the linter does
 and does not enforce</h2>

@@ -1,7 +1,7 @@
 \section{Evaluation}
 \label{sec:eval}
 
-Probe is not a benchmark system. It produces one structured artifact per research premise, and the most honest evaluation asks whether that artifact is the one a researcher would actually use as a starting point. We report three partial evaluations, each explicit about what it does and does not support.
+Probe produces one structured artifact per research premise. The most honest evaluation asks whether that artifact is the one a researcher would actually use as a starting point. We report three partial evaluations below, each explicit about what it does and does not support.
 
 \subsection{Model ablation: methodologist reviewer, Opus 4.7 vs.\ Sonnet 4.6}
 
@@ -31,7 +31,7 @@ The demo premise lives in BLV accessibility, which is the author's primary domai
 
 The pipeline produced three branches that differ on the expected four axes. Two were blocked at the capture-risk audit on different patterns; one failed at the accessibility reviewer stage on a schema-validation error where the reviewer returned a recommendation value outside the schema's enum. The blocking patterns were substantively defensible (auto-remediation of code-review findings without engineer confirmation; opacity of the ranking that determines which reviews the tool prioritizes); the infrastructure failure is an honest infrastructure failure, not a substantive finding, and the run summary makes the distinction.
 
-We also attempted a third benchmark in a creativity-support domain (a tool that offers poets alternative line endings during drafting) as a stress test of the out-of-domain pattern-firing behavior. That run's results are discussed inline where they are available.
+A third benchmark runs on a creativity-support premise: a tool that offers poets alternative line endings during drafting. The pipeline produced three branches, none of which the audit blocked --- two returned \texttt{accept\_revise} from the meta-reviewer, one returned \texttt{human\_judgment\_required}. Surviving branch A reframed the original ``evaluate a tool'' premise as a mechanism study on corpus-personalized divergence, a move we did not anticipate. The absence of blocking patterns is itself a signal: the current 16-pattern library, tuned against accessibility and code-review domains, does not fire heavily on creativity-support research. This points toward a missing Capacity axis pattern around narrowed expressive range --- we name it in the future-work section.
 
 \subsection{Deep audit: measured versus reasoned findings}
 
@@ -47,4 +47,4 @@ Section \S\ref{sec:system} describes the twenty-one-tool-call managed-agents dee
     \item The axe-core WCAG check the study proposes covers only the three article HTML variants, not the credibility-rating form or the debrief-card PDF that BLV participants must also interact with. Measured counter-example to the spec's implicit coverage claim.
 \end{itemize}
 
-The pattern that emerges is: the deep audit's value is not in finding different things from the shallow audit; it is in measuring the same things precisely enough that the researcher can make a revision decision from the report alone.
+The deep audit measures the same claims the shallow audit described qualitatively. What changes is that the researcher can now make a revision decision from the report alone --- ``the delta is 3.67 seconds'' sits in the paper differently from ``substantially longer in spoken duration.''
