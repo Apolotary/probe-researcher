@@ -22,6 +22,7 @@ import { renderCommand } from './render.js';
 import { runsCommand } from './runs.js';
 import { ganttCommand } from './gantt.js';
 import { buildPaperCommand } from './build_paper.js';
+import { panelCommand } from './panel.js';
 
 const program = new Command();
 
@@ -107,6 +108,14 @@ program
   .command('build-paper')
   .description('Build the arXiv paper (paper/probe.tex + references.bib) to PDF via pandoc + wkhtmltopdf. No LaTeX engine required. Outputs paper/probe.{html,pdf}.')
   .action(buildPaperCommand);
+
+program
+  .command('panel')
+  .argument('<run_id>', 'run id')
+  .argument('<branch_id>', 'branch id (a | b | c)')
+  .description('Render a standalone HTML reviewer-disagreement panel for a branch. 3-column layout shows methodologist / accessibility / novelty reviewer findings side-by-side with the meta-reviewer verdict as a banner. Self-contained, no external CSS/JS.')
+  .option('-o, --output <path>', 'output path (default runs/<id>/branches/<branch>/REVIEWER_PANEL.html)')
+  .action(panelCommand);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err);

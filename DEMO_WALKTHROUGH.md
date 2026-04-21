@@ -70,6 +70,15 @@ bat runs/demo_run/PROBE_GUIDEBOOK.md  # or `less`
 
 Look for the three reviewer findings pulled into the Risks section — they ARE the guidebook's risk register, not commentary attached to it.
 
+## Step 5b — Render the reviewer-disagreement HTML panel (15 seconds)
+
+```bash
+npx probe panel demo_run b
+open runs/demo_run/branches/b/REVIEWER_PANEL.html   # macOS
+```
+
+Three-column HTML panel: methodologist (navy) / accessibility advocate (plum) / novelty hawk (amber), each with its decisive weakness, recommendation, and top criticisms with quoted evidence spans. The meta-reviewer verdict (`human_judgment_required`, classified as `legitimate_methodological_split`) banners underneath. Self-contained — no external CSS or JS. This is the artifact that does the demo-video work previously planned for Mode B.
+
 ## Step 6 — See the Opus-vs-Sonnet ablation (2 minutes)
 
 ```bash

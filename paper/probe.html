@@ -652,11 +652,27 @@ does not.</p>
 <p>Probe runs eight stages in sequence. Stages 1 and 2 are single-call;
 stages 3 through 7 fan out across three branches running in parallel via
 <code>Promise.all</code> and real git worktrees; stage 8 synthesizes the
-single surviving branch. Every stage reads inputs from files on disk and
-writes outputs to files on disk; no conversation context is shared
-across stages. Every output that crosses a stage boundary validates
-against a JSON schema; failure triggers a repair pass, and a second
-failure throws.</p>
+single surviving branch (Figure <a href="#fig:pipeline"
+data-reference-type="ref" data-reference="fig:pipeline">1</a>). Every
+stage reads inputs from files on disk and writes outputs to files on
+disk; no conversation context is shared across stages. Every output that
+crosses a stage boundary validates against a JSON schema; failure
+triggers a repair pass, and a second failure throws.</p>
+<figure id="fig:pipeline">
+<img src="figures/pipeline.svg" />
+<figcaption>The Probe pipeline on the demo run. Stage 1 interrogates the
+premise; stage 2 produces three divergent branches; stages 3–7 run
+per-branch in parallel; stage 8 assembles a guidebook from the surviving
+branch. Branches A and C were blocked by the capture-risk audit on
+<code>legibility.no_failure_signal</code>; branch B survived to
+adversarial review and guidebook assembly with meta-reviewer verdict
+<code>human_judgment_required</code>. The two lower panels show the
+reviewer panel (four Opus 4.7 sessions; meta-reviewer preserves
+disagreement) and the <code>probe audit-deep</code> Managed Agents
+extension (21 tool calls on the demo run; measured a 3.67-second
+announcement-duration delta). The right panel names the specific failure
+modes the markdown-AST provenance linter rejects.</figcaption>
+</figure>
 <h2 id="model-routing">Model routing</h2>
 <p>The routing rule is: Opus 4.7 for stages that require skeptical
 judgment, evidence-span selection, sustained role-separated stance, or

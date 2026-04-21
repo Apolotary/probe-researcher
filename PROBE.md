@@ -20,6 +20,7 @@ If the code disagrees with this file, update this file OR update the code — do
 | `probe gantt <run_id>` | per-run horizontal Gantt of stage × branch durations |
 | `probe render <run_id>` | single-file PDF/HTML/markdown report bundling guidebook + reviews + audit + cost log |
 | `probe build-paper` | build `paper/probe.{html,pdf}` via pandoc + wkhtmltopdf |
+| `probe panel <run_id> <branch>` | standalone 3-column reviewer-disagreement HTML panel for one branch |
 
 ## Pipeline shape
 

@@ -1,7 +1,14 @@
 \section{System description}
 \label{sec:system}
 
-Probe runs eight stages in sequence. Stages 1 and 2 are single-call; stages 3 through 7 fan out across three branches running in parallel via \texttt{Promise.all} and real git worktrees; stage 8 synthesizes the single surviving branch. Every stage reads inputs from files on disk and writes outputs to files on disk; no conversation context is shared across stages. Every output that crosses a stage boundary validates against a JSON schema; failure triggers a repair pass, and a second failure throws.
+Probe runs eight stages in sequence. Stages 1 and 2 are single-call; stages 3 through 7 fan out across three branches running in parallel via \texttt{Promise.all} and real git worktrees; stage 8 synthesizes the single surviving branch (Figure \ref{fig:pipeline}). Every stage reads inputs from files on disk and writes outputs to files on disk; no conversation context is shared across stages. Every output that crosses a stage boundary validates against a JSON schema; failure triggers a repair pass, and a second failure throws.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/pipeline.svg}
+\caption{The Probe pipeline on the demo run. Stage 1 interrogates the premise; stage 2 produces three divergent branches; stages 3--7 run per-branch in parallel; stage 8 assembles a guidebook from the surviving branch. Branches A and C were blocked by the capture-risk audit on \texttt{legibility.no\_failure\_signal}; branch B survived to adversarial review and guidebook assembly with meta-reviewer verdict \texttt{human\_judgment\_required}. The two lower panels show the reviewer panel (four Opus 4.7 sessions; meta-reviewer preserves disagreement) and the \texttt{probe audit-deep} Managed Agents extension (21 tool calls on the demo run; measured a 3.67-second announcement-duration delta). The right panel names the specific failure modes the markdown-AST provenance linter rejects.}
+\label{fig:pipeline}
+\end{figure}
 
 \subsection{Model routing}
 

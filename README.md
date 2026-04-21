@@ -54,6 +54,7 @@ npx probe replay <run_id>               # deterministic artifact replay (no API 
 
 # Render a report or paper
 npx probe render <run_id>               # PDF/HTML/markdown bundle of the run
+npx probe panel <run_id> <branch>       # reviewer-disagreement HTML panel
 npx probe build-paper                   # build paper/probe.{html,pdf}
 
 # Explore and extend (Managed Agents features)
