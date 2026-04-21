@@ -1,0 +1,27 @@
+id: sanders_stappers_2014
+title: "Probes, toolkits and prototypes: three approaches to making in codesigning"
+authors:
+  - "Sanders, Elizabeth B.-N."
+  - "Stappers, Pieter Jan"
+venue: "CoDesign: International Journal of CoCreation in Design and the Arts"
+year: 2014
+volume: 10
+issue: 1
+pages: "5-14"
+doi: "10.1080/15710882.2014.888183"
+url: "https://www.tandfonline.com/doi/abs/10.1080/15710882.2014.888183"
+verified: true
+verification_notes: >-
+  DOI resolves via Taylor & Francis on 2026-04-22. Title, authors, venue,
+  volume 10, issue 1, pages 5-14 confirmed via T&F, TU Delft Research Portal,
+  and Semantic Scholar.
+summary: >-
+  A survey paper mapping three 'making' approaches in codesign (probes,
+  generative toolkits, prototypes) against distinctions in mindset, time
+  horizon, and design intent.
+allowed_claims:
+  - "The authors identify three distinct approaches to 'making' in codesign: cultural probes, generative toolkits, and design prototypes."
+  - "They distinguish between a 'designing for people' mindset and a 'designing with people' (participatory) mindset."
+  - "They position each approach along temporal focus (the present, near future, speculative future) and design intent (provoking, engaging, serving)."
+  - "Probes are framed as instruments for inspiration and dialogue rather than for extracting generalizable user data."
+tags: ["codesign", "probes", "methodology", "making"]

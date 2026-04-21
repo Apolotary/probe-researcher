@@ -1,0 +1,84 @@
+axis: capacity
+description: >-
+  Does this intervention expand or contract the participant's capacity to
+  act without the tool? Does it scaffold skill or substitute for it?
+  Drawing on Illich (conviviality) and Buijsman-Carter-Bermúdez (skilled
+  competence as a component of domain-specific autonomy).
+
+patterns:
+  - id: capacity.substitutes_for_practice
+    name: "Substitutes for practice rather than scaffolding it"
+    description: >-
+      The intervention performs the skilled action on behalf of the user
+      in contexts where the skill is the point. The user learns to
+      trigger the tool, not to perform the skill.
+    trigger_heuristic: >-
+      Look for task flows where the user presses one button and the
+      system completes a multi-step task that is itself the object of
+      research (e.g., writing, code reasoning, clinical judgment) without
+      any rehearsal mechanism that builds user competence.
+    evidence_template: >-
+      "Step N: user {action}; system {completes the cognitively
+      substantive work}. No rehearsal or checkpoint where the user is
+      required to do the substantive work unaided."
+    default_score: -1
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+      - illich_1973
+
+  - id: capacity.no_fade_mechanism
+    name: "No fade mechanism for assistance"
+    description: >-
+      The intervention provides assistance at a fixed level throughout
+      use, with no mechanism for the participant to reduce reliance over
+      time. This creates learned helplessness rather than bootstrapped
+      competence.
+    trigger_heuristic: >-
+      Check whether the spec describes any conditional hiding of
+      assistance, confidence thresholds that change behavior, or
+      explicit 'training wheels off' flow. Absence is the fire.
+    evidence_template: >-
+      "The wizard_controls section describes assistance as always-on with
+      no conditional gating on user signal or time."
+    default_score: -1
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+
+  - id: capacity.creates_dependency_loop
+    name: "Creates dependency loop"
+    description: >-
+      The intervention is designed such that each successful use
+      increases the user's reliance on it — e.g., by handling edge
+      cases the user would otherwise learn from, or by shortcutting
+      reflection that would build transferable judgment.
+    trigger_heuristic: >-
+      Look for observable_signals that measure usage growth as a success
+      signal without a corresponding signal for user competence growth
+      in absence of the tool.
+    evidence_template: >-
+      "Observable signals: 'frequency of tool invocation' as success
+      metric. No corresponding measure of unaided performance."
+    default_score: -2
+    grounded_in:
+      - illich_1973
+      - buijsman_carter_bermudez_2025
+
+  - id: capacity.no_rehearsal_space
+    name: "No rehearsal space for skilled action"
+    description: >-
+      The system offers no low-stakes practice environment where users
+      can develop the underlying skill. All interaction is high-stakes
+      or task-coupled, so the user never builds confidence in unaided
+      performance.
+    trigger_heuristic: >-
+      Check context/session_structure for explicit practice rounds,
+      tutorial modes, or spaces where the user can try without
+      consequence. Absence in a skill-building research question is the
+      fire.
+    evidence_template: >-
+      "The session_structure describes only task-coupled interaction
+      without any low-stakes rehearsal phase."
+    default_score: -1
+    grounded_in:
+      - sanders_stappers_2014
+      - buijsman_carter_bermudez_2025

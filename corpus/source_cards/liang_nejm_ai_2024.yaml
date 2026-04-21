@@ -1,0 +1,37 @@
+id: liang_nejm_ai_2024
+title: "Can Large Language Models Provide Useful Feedback on Research Papers? A Large-Scale Empirical Analysis"
+authors:
+  - "Liang, Weixin"
+  - "Zhang, Yuhui"
+  - "Cao, Hancheng"
+  - "Wang, Binglu"
+  - "Ding, Daisy Y."
+  - "Yang, Xinyu"
+  - "Vodrahalli, Kailas"
+  - "He, Siyu"
+  - "Smith, Daniel"
+  - "Yin, Yian"
+  - "McFarland, Daniel"
+  - "Zou, James"
+venue: "NEJM AI"
+year: 2024
+volume: 1
+issue: 8
+doi: "10.1056/AIoa2400196"
+url: "https://ai.nejm.org/doi/10.1056/AIoa2400196"
+preprint_url: "https://arxiv.org/abs/2310.01783"
+verified: true
+verification_notes: >-
+  DOI resolves to ai.nejm.org on 2026-04-22. NEJM AI volume 1, issue 8, published
+  July 25, 2024. Authors confirmed via Duke Scholars publication record and
+  arXiv:2310.01783.
+summary: >-
+  A large-scale empirical study comparing GPT-4-generated feedback on scientific
+  manuscripts to human peer-review feedback, combining retrospective corpus
+  analysis with a prospective user study.
+allowed_claims:
+  - "The authors analyze GPT-4 feedback against human reviews on 3,096 Nature-family papers and 1,709 ICLR papers."
+  - "They report average overlap of points raised between GPT-4 and human reviewers of 30.85% for Nature papers and 39.23% for ICLR papers, comparable to human-human overlap in the same corpora."
+  - "In a prospective user study with 308 researchers across 110 US institutions, 57.4% rated GPT-4 feedback as helpful or very helpful."
+  - "The authors conclude that LLM feedback can complement (but not replace) human expert review, especially when timely expert feedback is unavailable or at early manuscript stages."
+tags: ["LLM_feedback", "peer_review", "empirical_study", "human_AI_collaboration"]

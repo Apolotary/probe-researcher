@@ -1,0 +1,91 @@
+axis: legibility
+description: >-
+  Can the participant form an accurate mental model of what the system
+  is doing and why? Are failures visible? Is the rationale for each
+  action available at the point of action? Drawing on
+  Buijsman-Carter-Bermúdez (absent failure indicators and unconscious
+  value shifts as twin erosions of autonomy).
+
+patterns:
+  - id: legibility.opaque_ranking
+    name: "Opaque ranking or selection"
+    description: >-
+      The system orders or filters options presented to the user
+      without explaining the basis of ordering. The user cannot tell
+      whether the top choice is 'best', 'most popular', 'sponsored',
+      or simply first in a database.
+    trigger_heuristic: >-
+      Look in task_flow for system_response that presents a ranked or
+      filtered list. Flag if the spec does not describe a visible
+      ordering rationale or a wizard_control that exposes ranking
+      criteria to the participant.
+    evidence_template: >-
+      "Step N system_response: presents a ranked list of {options}.
+      No surface in the spec describes how the ordering is justified
+      to the participant at the point of decision."
+    default_score: -1
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+
+  - id: legibility.no_failure_signal
+    name: "No signal when the system is wrong"
+    description: >-
+      The system fails silently. When its recommendation or output is
+      incorrect, there is no in-flow signal — the user discovers the
+      failure only through downstream consequence or not at all.
+    trigger_heuristic: >-
+      Check failure_cases for scenarios where the system is wrong.
+      Flag if the expected_behavior in a wrong-output scenario is
+      'proceeds normally' with no feedback surface, or if
+      observable_signals include no measure of user detection of
+      error.
+    evidence_template: >-
+      "failure_cases describes scenario {X} where the system is
+      incorrect. expected_behavior: '{continues}'. No wizard_control
+      or observable_signal captures whether the participant detects
+      the error."
+    default_score: -2
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+      - liang_nejm_ai_2024
+
+  - id: legibility.no_rationale_at_point_of_action
+    name: "No rationale at the point of action"
+    description: >-
+      The system may offer explanations elsewhere (settings, docs,
+      popups after the fact), but at the moment of user decision the
+      rationale for the system's behavior is not visible. Explanation
+      after commitment is not explanation.
+    trigger_heuristic: >-
+      Trace each consequential task_flow step. Flag steps where the
+      participant_action follows a system_response that lacks an
+      inline rationale surface (e.g., 'why this recommendation?')
+      accessible before commitment.
+    evidence_template: >-
+      "Step N: participant_action is {commitment}. Preceding
+      system_response offers no inline mechanism to inspect the
+      rationale before proceeding."
+    default_score: -1
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+
+  - id: legibility.unverifiable_summary
+    name: "Unverifiable summary presented as ground truth"
+    description: >-
+      The system produces a summary, synthesis, or extract that the
+      user is expected to act on, but provides no mechanism to trace
+      the summary back to the source material it claims to represent.
+      The summary is 'trust me' output with no inspection path.
+    trigger_heuristic: >-
+      Look for system_response in task_flow that produces a
+      synthesis, summary, or distillation. Flag if there is no
+      wizard_control or task_flow step that lets the participant
+      surface the underlying sources for verification before acting.
+    evidence_template: >-
+      "Step N system_response: provides synthesized output. No
+      task_flow step or wizard_control provides a 'show sources' or
+      'verify against source' affordance before participant commits."
+    default_score: -1
+    grounded_in:
+      - liang_nejm_ai_2024
+      - buijsman_carter_bermudez_2025

@@ -1,0 +1,27 @@
+id: kafer_2013
+title: "Feminist, Queer, Crip"
+authors:
+  - "Kafer, Alison"
+venue: "Indiana University Press (Bloomington & Indianapolis)"
+year: 2013
+pages: 276
+isbn_hardcover: "978-0-253-00922-7"
+isbn_paperback: "978-0-253-00934-0"
+isbn_ebook: "978-0-253-00941-8"
+doi: null
+url: "https://iupress.org/9780253009340/feminist-queer-crip/"
+verified: true
+verification_notes: >-
+  Monograph — no DOI assigned. Indiana University Press publisher page confirms
+  title, author, 2013 publication, and ISBNs on 2026-04-22. Publisher canonical
+  URL used as stable reference.
+summary: >-
+  A monograph arguing for a political/relational model of disability that
+  rejects the 'curative imaginary' and builds coalitions across feminist,
+  queer, and disability politics.
+allowed_claims:
+  - "Kafer develops a 'political/relational' model of disability in contrast to both the medical model and the British social model."
+  - "She critiques the 'curative imaginary' — the assumption that disabled futures must be futures without disability."
+  - "She argues that normative constructions of 'the future' are used to naturalize compulsory able-bodiedness and able-mindedness."
+  - "She places disability studies in explicit coalition with feminist, queer, environmental-justice, and reproductive-justice scholarship."
+tags: ["disability_studies", "accessibility", "political_model", "crip_theory"]

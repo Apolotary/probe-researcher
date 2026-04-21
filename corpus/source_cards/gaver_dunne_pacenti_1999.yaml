@@ -1,0 +1,27 @@
+id: gaver_dunne_pacenti_1999
+title: "Design: Cultural probes"
+authors:
+  - "Gaver, Bill"
+  - "Dunne, Tony"
+  - "Pacenti, Elena"
+venue: "Interactions (ACM)"
+year: 1999
+volume: 6
+issue: 1
+pages: "21-29"
+doi: "10.1145/291224.291235"
+url: "https://dl.acm.org/doi/10.1145/291224.291235"
+verified: true
+verification_notes: >-
+  DOI resolves to ACM Digital Library on 2026-04-22. Authors and venue confirmed
+  via ACM DL, Interactions Jan/Feb 1999 archive, and Semantic Scholar.
+summary: >-
+  Introduces 'cultural probes' as a designer-oriented method of provocative
+  artefact packets (maps, postcards, cameras, diaries) given to users to inspire
+  rather than systematically document design work.
+allowed_claims:
+  - "The authors describe cultural probes as packages of artefacts (maps, postcards, disposable cameras, diaries) designed to elicit inspirational fragments from participants."
+  - "The method was developed in the context of an EU-funded project studying elderly people in three European communities (Majorstua/Oslo, Bijlmer/Amsterdam, Peccioli)."
+  - "Probes are framed as tools to build designer empathy and provoke design ideas, not as a data-collection method yielding objective user requirements."
+  - "The approach embraces uncertainty and partial returns rather than seeking comprehensive coverage of user behavior."
+tags: ["probes", "cultural_probes", "methodology", "design_research"]

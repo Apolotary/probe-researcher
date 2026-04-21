@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probe.local/schemas/prototype_spec.schema.json",
+  "title": "Prototype Specification",
+  "description": "Output of Stage 4. A Wizard-of-Oz spec detailed enough that a different researcher could build the prototype without asking clarifying questions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stage",
+    "schema_version",
+    "run_id",
+    "branch_id",
+    "title",
+    "actors",
+    "context",
+    "task_flow",
+    "wizard_controls",
+    "observable_signals",
+    "failure_cases",
+    "materials_needed",
+    "provenance"
+  ],
+  "properties": {
+    "stage": { "const": "4_prototype" },
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "pattern": "^[a-z0-9_-]{3,64}$" },
+    "branch_id": { "type": "string", "enum": ["a", "b", "c"] },
+    "title": { "type": "string", "minLength": 8 },
+    "actors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "description", "count"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["participant", "wizard", "observer", "facilitator", "confederate"]
+          },
+          "description": { "type": "string", "minLength": 10 },
+          "count": { "type": "integer", "minimum": 1, "maximum": 10 }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["setting", "device", "duration_minutes", "session_structure"],
+      "properties": {
+        "setting": { "type": "string", "minLength": 10 },
+        "device": {
+          "type": "string",
+          "description": "Device(s) used by participants. E.g. 'iOS screen reader on iPhone 15' or 'desktop browser, Chrome 130, 1440x900'."
+        },
+        "duration_minutes": { "type": "integer", "minimum": 10, "maximum": 240 },
+        "session_structure": { "type": "string", "minLength": 30 }
+      }
+    },
+    "task_flow": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["step", "participant_action", "system_response", "wizard_decisions"],
+        "properties": {
+          "step": { "type": "integer", "minimum": 1 },
+          "participant_action": { "type": "string", "minLength": 10 },
+          "system_response": { "type": "string", "minLength": 10 },
+          "wizard_decisions": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 5 },
+            "description": "What the wizard (behind the curtain) decides in real time at this step."
+          }
+        }
+      }
+    },
+    "wizard_controls": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["control_name", "triggers", "effect"],
+        "properties": {
+          "control_name": { "type": "string" },
+          "triggers": { "type": "string", "minLength": 10 },
+          "effect": { "type": "string", "minLength": 10 }
+        }
+      }
+    },
+    "observable_signals": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["signal", "capture_method", "analysis_plan"],
+        "properties": {
+          "signal": { "type": "string", "minLength": 5 },
+          "capture_method": {
+            "type": "string",
+            "enum": [
+              "screen_recording",
+              "think_aloud_audio",
+              "self_report_likert",
+              "self_report_open_ended",
+              "task_completion_time",
+              "error_count",
+              "interviewer_notes",
+              "eye_tracking",
+              "log_events"
+            ]
+          },
+          "analysis_plan": { "type": "string", "minLength": 15 }
+        }
+      }
+    },
+    "failure_cases": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scenario", "expected_behavior", "wizard_fallback"],
+        "properties": {
+          "scenario": { "type": "string", "minLength": 15 },
+          "expected_behavior": { "type": "string", "minLength": 10 },
+          "wizard_fallback": { "type": "string", "minLength": 10 }
+        }
+      }
+    },
+    "materials_needed": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 5 }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["specification"],
+      "properties": {
+        "specification": { "const": "AGENT_INFERENCE" }
+      }
+    }
+  }
+}

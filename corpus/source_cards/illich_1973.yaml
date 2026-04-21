@@ -1,0 +1,25 @@
+id: illich_1973
+title: "Tools for Conviviality"
+authors:
+  - "Illich, Ivan"
+venue: "Harper & Row (World Perspectives series, Vol. 47)"
+year: 1973
+pages: "xiii + 110"
+isbn_hardcover: "978-0-06-012138-9"
+doi: null
+url: "https://openlibrary.org/books/OL5289380M/Tools_for_conviviality"
+verified: true
+verification_notes: >-
+  Monograph — no DOI (1973 predates DOI system). First-edition Harper & Row
+  hardcover ISBN 9780060121389 confirmed via Biblio, AbeBooks, and Open Library
+  on 2026-04-22. Open Library record used as stable URL.
+summary: >-
+  A polemical essay introducing 'conviviality' as a criterion for tools that
+  enhance autonomy, and 'radical monopoly' as a critique of dominant technologies
+  that foreclose alternatives.
+allowed_claims:
+  - "Illich defines conviviality as 'autonomous and creative intercourse among persons, and of persons with their environment' enabled by tools that remain responsibly limited."
+  - "He introduces 'radical monopoly' to describe how a dominant technology (his canonical example is the automobile) can reshape society so that non-users become marginalized regardless of consumer choice."
+  - "He argues that tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool."
+  - "He distinguishes convivial tools from industrial tools on the basis of whether they expand or contract the range of autonomous action available to their users."
+tags: ["conviviality", "capture_risk", "autonomy", "philosophy_of_technology", "tool_criticism"]

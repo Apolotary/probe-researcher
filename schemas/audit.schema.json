@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probe.local/schemas/audit.schema.json",
+  "title": "Capture-Risk Audit",
+  "description": "Output of Stage 6. Fires named patterns across the 4 axes (Capacity / Agency / Exit / Legibility) against evidence spans from the prototype spec and simulated walkthrough.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stage",
+    "schema_version",
+    "run_id",
+    "branch_id",
+    "findings",
+    "axis_scores",
+    "verdict",
+    "verdict_rationale",
+    "provenance"
+  ],
+  "properties": {
+    "stage": { "const": "6_audit" },
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "pattern": "^[a-z0-9_-]{3,64}$" },
+    "branch_id": { "type": "string", "enum": ["a", "b", "c"] },
+    "findings": {
+      "type": "array",
+      "description": "One finding per pattern considered. Patterns that don't fire have score 0 and a short rationale; patterns that fire have a negative or positive score and a quoted evidence span.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pattern_id", "axis", "fired", "score", "rationale"],
+        "properties": {
+          "pattern_id": {
+            "type": "string",
+            "description": "Stable ID from patterns/<axis>.yaml. E.g. 'agency.hides_options_before_review'."
+          },
+          "axis": {
+            "type": "string",
+            "enum": ["capacity", "agency", "exit", "legibility"]
+          },
+          "fired": { "type": "boolean" },
+          "score": {
+            "type": "integer",
+            "minimum": -2,
+            "maximum": 2,
+            "description": "-2 capture, -1 drift, 0 neutral, +1 scaffold, +2 cultivate"
+          },
+          "evidence_span": {
+            "type": "object",
+            "description": "Required if fired is true. A quoted span from the prototype_spec or simulated_walkthrough with its source.",
+            "additionalProperties": false,
+            "required": ["source", "quote"],
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": ["prototype_spec", "simulated_walkthrough"]
+              },
+              "quote": { "type": "string", "minLength": 10 },
+              "section": { "type": "string" }
+            }
+          },
+          "rationale": { "type": "string", "minLength": 20 }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "fired": { "const": true } } },
+            "then": { "required": ["evidence_span"] }
+          }
+        ]
+      }
+    },
+    "axis_scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capacity", "agency", "exit", "legibility"],
+      "properties": {
+        "capacity": { "type": "integer" },
+        "agency": { "type": "integer" },
+        "exit": { "type": "integer" },
+        "legibility": { "type": "integer" }
+      }
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["PASSED", "REVISION_REQUIRED", "BLOCKED"],
+      "description": "BLOCKED if any finding scored -2. REVISION_REQUIRED if two or more findings scored -1. Else PASSED."
+    },
+    "verdict_rationale": {
+      "type": "string",
+      "minLength": 30,
+      "description": "Short paragraph naming the patterns that drove the verdict."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["audit"],
+      "properties": {
+        "audit": { "const": "AGENT_INFERENCE" }
+      }
+    }
+  }
+}

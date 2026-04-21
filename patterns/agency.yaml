@@ -1,0 +1,89 @@
+axis: agency
+description: >-
+  Does this intervention preserve the participant's authority over
+  consequential decisions? Does it make options visible before acting?
+  Can the participant override? Drawing on Buijsman-Carter-Bermúdez
+  (authentic value-formation) and Kafer (rejection of paternalistic
+  normative futures imposed on disabled bodies).
+
+patterns:
+  - id: agency.auto_decides_consequential_step
+    name: "Auto-decides a consequential step"
+    description: >-
+      The system makes a decision that materially affects outcome (for
+      the user or a third party) without explicit user authorization
+      at the point of action. Automation crosses into decision
+      authority, not execution.
+    trigger_heuristic: >-
+      In task_flow, look for system_response that commits to an
+      external action (purchase, submit, publish, route to another
+      person) at a step where participant_action is only a trigger or
+      confirmation — not a deliberate choice among visible options.
+    evidence_template: >-
+      "Step N system_response: '{consequential action}'. Preceding
+      participant_action does not describe deliberation over options."
+    default_score: -2
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+      - illich_1973
+
+  - id: agency.hides_options_before_review
+    name: "Hides options before user review"
+    description: >-
+      The system presents a single recommendation or completed
+      artifact without exposing the space of alternatives the user
+      was choosing among. Agency requires visible options, not just
+      the privilege of veto after commitment.
+    trigger_heuristic: >-
+      Look for task_flow steps where system_response is a single
+      output ('generated summary', 'recommended action') with no
+      description of alternatives being shown alongside or available
+      on request.
+    evidence_template: >-
+      "Step N system_response provides a single recommendation. No
+      wizard_control or task_flow step surfaces the options the
+      recommendation was selected from."
+    default_score: -1
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+
+  - id: agency.weak_override
+    name: "Weak or ceremonial override"
+    description: >-
+      The system technically allows the user to override its decision,
+      but the override is effortful, hidden, undoable with difficulty,
+      or framed as the deviant choice. Nominal agency, not substantive
+      agency.
+    trigger_heuristic: >-
+      Check wizard_controls for override provisions. Flag if override
+      requires more steps than accepting, if it is placed behind
+      'advanced' or 'settings' menus, or if the default return path
+      after override is to re-enter the auto-decision flow.
+    evidence_template: >-
+      "Override path: {N clicks / hidden menu / warning dialog}.
+      Accept path: {1 click / prominent button}."
+    default_score: -1
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+
+  - id: agency.paternalistic_default
+    name: "Paternalistic default for a stigmatized population"
+    description: >-
+      The intervention defaults to assistive or protective behavior
+      on behalf of a population assumed to need it, without evidence
+      that members of that population want that behavior and without
+      a frictionless path to turn it off.
+    trigger_heuristic: >-
+      When participants include members of a population historically
+      subject to paternalism (disabled users, elderly users, mental
+      health contexts, children), check whether the intervention
+      defaults to extra assistance/warnings/restrictions and whether
+      these can be disabled without disclosure.
+    evidence_template: >-
+      "Participant population: {stigmatized group}. Default behavior:
+      {extra intervention}. No task_flow step describes the user
+      opting in; no wizard_control describes a frictionless opt-out."
+    default_score: -2
+    grounded_in:
+      - kafer_2013
+      - buijsman_carter_bermudez_2025

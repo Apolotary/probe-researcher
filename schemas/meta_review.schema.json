@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probe.local/schemas/meta_review.schema.json",
+  "title": "Meta-Review",
+  "description": "Output of Stage 7d. The meta-reviewer cannot soften objections — can only classify. Preserves disagreement.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stage",
+    "schema_version",
+    "run_id",
+    "branch_id",
+    "reviewers_read",
+    "disagreement_matrix",
+    "disagreement_classification",
+    "verdict",
+    "verdict_rationale",
+    "provenance"
+  ],
+  "properties": {
+    "stage": { "const": "7d_meta" },
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "pattern": "^[a-z0-9_-]{3,64}$" },
+    "branch_id": { "type": "string", "enum": ["a", "b", "c"] },
+    "reviewers_read": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "string",
+        "enum": ["methodologist", "accessibility_advocate", "novelty_hawk"]
+      }
+    },
+    "disagreement_matrix": {
+      "type": "array",
+      "description": "One entry per reviewer summarizing their position without softening.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["reviewer", "recommendation", "decisive_weakness"],
+        "properties": {
+          "reviewer": {
+            "type": "string",
+            "enum": ["methodologist", "accessibility_advocate", "novelty_hawk"]
+          },
+          "recommendation": {
+            "type": "string",
+            "enum": ["reject", "major_revision", "minor_revision", "accept_revise", "human_judgment_required"]
+          },
+          "decisive_weakness": { "type": "string", "minLength": 10 }
+        }
+      }
+    },
+    "disagreement_classification": {
+      "type": "string",
+      "enum": [
+        "consensus",
+        "legitimate_methodological_split",
+        "legitimate_normative_split",
+        "spurious_surface_disagreement",
+        "single_reviewer_outlier"
+      ],
+      "description": "Classification of the disagreement pattern. The meta-reviewer is forbidden from collapsing legitimate splits to consensus."
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["accept_revise", "reject", "human_judgment_required"]
+    },
+    "verdict_rationale": { "type": "string", "minLength": 30 },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["meta"],
+      "properties": {
+        "meta": { "const": "AGENT_INFERENCE" }
+      }
+    }
+  }
+}

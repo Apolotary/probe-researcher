@@ -1,0 +1,84 @@
+axis: exit
+description: >-
+  If this intervention were adopted and then the participant stopped
+  using it, would they retain the capacity, data, and workflow they
+  had before? Or does use create lock-in? Drawing on Illich (radical
+  monopoly) and Buijsman-Carter-Bermúdez (skilled competence preserved
+  outside the tool).
+
+patterns:
+  - id: exit.data_lock_in
+    name: "Data lock-in"
+    description: >-
+      Content produced during use is stored in a format, schema, or
+      service that makes it impractical to take elsewhere. The user
+      cannot leave with their artifacts.
+    trigger_heuristic: >-
+      Check materials_needed and observable_signals for storage
+      formats, platform bindings, or proprietary schemas. Flag if
+      there is no described export path, or if the only export is to
+      a format that discards structure.
+    evidence_template: >-
+      "Session artifacts stored in {platform/format}. No export
+      mechanism described in wizard_controls or failure_cases."
+    default_score: -1
+    grounded_in:
+      - illich_1973
+
+  - id: exit.workflow_lock_in
+    name: "Workflow lock-in"
+    description: >-
+      The intervention restructures the participant's surrounding
+      workflow (meeting cadence, review process, communication norms)
+      such that exit would require costly re-engineering of processes
+      not owned by the individual user.
+    trigger_heuristic: >-
+      In context/setting, check whether the intervention implicates
+      team or institutional workflows rather than an individual
+      task. Flag if task_flow describes dependencies on other actors
+      or systems adopting the same tool.
+    evidence_template: >-
+      "Task flow requires {other actors / systems} to use the same
+      tool. Exit path would require collective switch-back."
+    default_score: -1
+    grounded_in:
+      - illich_1973
+
+  - id: exit.competence_decay_on_exit
+    name: "Competence decays on exit"
+    description: >-
+      The intervention, through sustained use, predictably degrades
+      the user's unaided skill in the target domain. Exit means
+      operating at a lower capability level than before adoption.
+    trigger_heuristic: >-
+      Check whether any observable_signal tracks unaided performance
+      over time. Flag if the research plan does not include a
+      'without tool' condition at any measurement point.
+    evidence_template: >-
+      "No observable_signal measures unaided performance after
+      prolonged tool use. The risk of competence decay is not
+      surfaced in the analysis_plan."
+    default_score: -2
+    grounded_in:
+      - buijsman_carter_bermudez_2025
+      - illich_1973
+
+  - id: exit.institutional_dependence
+    name: "Institutional dependence created"
+    description: >-
+      The intervention requires or creates a dependency on an
+      institution, vendor, or platform whose continued existence and
+      policies are outside the participant's control, such that exit
+      is not a free choice.
+    trigger_heuristic: >-
+      Check materials_needed for cloud services, platform
+      subscriptions, or institution-specific resources. Flag if the
+      research design does not address participant dependence on a
+      single provider after the study.
+    evidence_template: >-
+      "Participants' use depends on {vendor/institution}. No
+      failure_case addresses what the participant does if the
+      provider changes terms or shuts down."
+    default_score: -1
+    grounded_in:
+      - illich_1973

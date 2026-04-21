@@ -1,0 +1,28 @@
+id: buijsman_carter_bermudez_2025
+title: "Autonomy by Design: Preserving Human Autonomy in AI Decision-Support"
+authors:
+  - "Buijsman, Stefan"
+  - "Carter, Sarah E."
+  - "Bermúdez, Juan Pablo"
+venue: "Philosophy & Technology"
+year: 2025
+volume: 38
+issue: 3
+article_number: 97
+doi: "10.1007/s13347-025-00932-2"
+url: "https://link.springer.com/article/10.1007/s13347-025-00932-2"
+verified: true
+verification_notes: >-
+  DOI resolves to Springer Link on 2026-04-22. Authorship and journal confirmed
+  via Springer, arXiv:2506.23952, and Southampton ePrints (504920). Third author
+  is Sarah E. Carter (NOT Adam Carter).
+summary: >-
+  Develops a design-level account of how AI decision-support can erode
+  domain-specific autonomy and proposes design patterns to preserve users'
+  skilled competence and authentic value-formation.
+allowed_claims:
+  - "The paper analyses 'domain-specific autonomy' as comprising two components: skilled competence and authentic value-formation within a domain of expertise."
+  - "The authors argue that AI decision-support can erode domain-specific autonomy via absent failure indicators and unconscious value shifts."
+  - "They illustrate the argument with cases drawn from medical, financial, and educational decision-support contexts."
+  - "They propose design patterns (e.g., role specification, defeater mechanisms, reflective-practice support) intended to preserve user agency while leveraging AI capabilities."
+tags: ["autonomy", "AI_design", "decision_support", "capture_risk", "philosophy_of_technology"]

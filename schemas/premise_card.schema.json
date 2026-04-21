@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probe.local/schemas/premise_card.schema.json",
+  "title": "Premise Card",
+  "description": "Output of Stage 1 (premise interrogation). Captures the researcher's raw input plus the agent's structured interrogation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stage",
+    "schema_version",
+    "run_id",
+    "raw_premise",
+    "sharpest_question",
+    "claim",
+    "differentia",
+    "nearest_template",
+    "missing_evidence",
+    "sharpened_options",
+    "provenance"
+  ],
+  "properties": {
+    "stage": { "const": "1_premise" },
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "pattern": "^[a-z0-9_-]{3,64}$" },
+    "raw_premise": {
+      "type": "string",
+      "minLength": 8,
+      "description": "Researcher's input, verbatim."
+    },
+    "sharpest_question": {
+      "type": "string",
+      "minLength": 10,
+      "description": "The single question the researcher must answer before proceeding. First thing the agent produces."
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 10,
+      "description": "What the research would contribute if it succeeded."
+    },
+    "differentia": {
+      "type": "string",
+      "minLength": 10,
+      "description": "What makes this not-already-done. Specific, not vague."
+    },
+    "nearest_template": {
+      "type": "string",
+      "description": "Closest existing work pattern (methodology or prior system)."
+    },
+    "missing_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 5 },
+      "description": "Things the researcher has not addressed that the design will have to answer."
+    },
+    "sharpened_options": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "items": { "type": "string", "minLength": 15 },
+      "description": "Between 2 and 5 sharpened versions of the premise the researcher could pursue."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw_premise", "analysis"],
+      "properties": {
+        "raw_premise": { "const": "RESEARCHER_INPUT" },
+        "analysis": { "const": "AGENT_INFERENCE" }
+      }
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probe.local/schemas/branch_card.schema.json",
+  "title": "Branch Card",
+  "description": "Output of Stage 2 (ideation) for a single branch. Each of the three branches produces one of these. Populated/enriched by Stage 3 (literature grounding).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stage",
+    "schema_version",
+    "run_id",
+    "branch_id",
+    "research_question",
+    "intervention_primitive",
+    "human_system_relationship",
+    "method_family",
+    "one_sentence_claim",
+    "why_divergent",
+    "grounding",
+    "provenance"
+  ],
+  "properties": {
+    "stage": {
+      "type": "string",
+      "enum": ["2_ideator", "3_literature"]
+    },
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "pattern": "^[a-z0-9_-]{3,64}$" },
+    "branch_id": {
+      "type": "string",
+      "enum": ["a", "b", "c"]
+    },
+    "research_question": {
+      "type": "string",
+      "minLength": 15,
+      "description": "The specific research question this branch would answer. Not a paraphrase of another branch."
+    },
+    "intervention_primitive": {
+      "type": "string",
+      "minLength": 10,
+      "description": "The core mechanism of the intervention. Must differ in kind from other branches, not merely in UI surface."
+    },
+    "human_system_relationship": {
+      "type": "string",
+      "enum": [
+        "system_augments_human",
+        "system_replaces_human",
+        "human_scaffolds_system",
+        "adversarial_check",
+        "peer_collaboration",
+        "infrastructural_support"
+      ],
+      "description": "Normative stance on who does what."
+    },
+    "method_family": {
+      "type": "string",
+      "enum": ["formative", "generative", "evaluative", "longitudinal"],
+      "description": "The HCI research tradition this branch sits inside."
+    },
+    "one_sentence_claim": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 300,
+      "description": "Single sentence describing the contribution if this research succeeds."
+    },
+    "why_divergent": {
+      "type": "string",
+      "minLength": 30,
+      "description": "Explicit statement of why this branch differs from the other two on the four divergence axes."
+    },
+    "grounding": {
+      "type": "array",
+      "description": "Populated by Stage 3. Empty after Stage 2.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_card", "relevance", "quoted_claim"],
+        "properties": {
+          "source_card": {
+            "type": "string",
+            "description": "Must match a YAML file in corpus/source_cards/<id>.yaml"
+          },
+          "relevance": {
+            "type": "string",
+            "enum": [
+              "methodology_precedent",
+              "theoretical_grounding",
+              "prior_finding",
+              "contrast_case",
+              "capture_risk_theory",
+              "accessibility_lens"
+            ]
+          },
+          "quoted_claim": {
+            "type": "string",
+            "minLength": 15,
+            "description": "A claim drawn from the source card's allowed_claims list."
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ideation", "grounding"],
+      "properties": {
+        "ideation": { "const": "AGENT_INFERENCE" },
+        "grounding": { "const": "SOURCE_CARD" }
+      }
+    }
+  }
+}

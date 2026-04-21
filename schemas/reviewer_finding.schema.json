@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probe.local/schemas/reviewer_finding.schema.json",
+  "title": "Reviewer Finding",
+  "description": "Output of Stage 7 (per-reviewer). Methodologist, accessibility advocate, novelty hawk all produce this schema. Meta-reviewer produces meta_review below.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stage",
+    "schema_version",
+    "run_id",
+    "branch_id",
+    "reviewer_persona",
+    "decisive_weakness",
+    "criticisms",
+    "recommendation",
+    "provenance"
+  ],
+  "properties": {
+    "stage": { "const": "7_review" },
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "pattern": "^[a-z0-9_-]{3,64}$" },
+    "branch_id": { "type": "string", "enum": ["a", "b", "c"] },
+    "reviewer_persona": {
+      "type": "string",
+      "enum": ["methodologist", "accessibility_advocate", "novelty_hawk", "meta_reviewer"]
+    },
+    "decisive_weakness": {
+      "type": "string",
+      "minLength": 20,
+      "description": "First thing the reviewer says. The fatal flaw, or the literal string 'NO DECISIVE WEAKNESS FOUND' with a justification."
+    },
+    "criticisms": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evidence_span", "violated_criterion", "why_matters", "required_change", "severity"],
+        "properties": {
+          "evidence_span": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "quote"],
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": ["branch_card", "prototype_spec", "simulated_walkthrough", "audit"]
+              },
+              "quote": { "type": "string", "minLength": 10 }
+            }
+          },
+          "violated_criterion": { "type": "string", "minLength": 10 },
+          "why_matters": { "type": "string", "minLength": 20 },
+          "required_change": { "type": "string", "minLength": 15 },
+          "severity": {
+            "type": "string",
+            "enum": ["blocking", "major", "minor"]
+          }
+        }
+      }
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": ["reject", "major_revision", "minor_revision", "accept_revise", "human_judgment_required"]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review"],
+      "properties": {
+        "review": { "const": "AGENT_INFERENCE" }
+      }
+    }
+  }
+}

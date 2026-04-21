@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://probe.local/schemas/guidebook_manifest.schema.json",
+  "title": "Guidebook Manifest",
+  "description": "Machine-readable sidecar for PROBE_GUIDEBOOK.md. Records which branch survived, which source cards were cited, provenance tag counts, and the assembly rationale.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "stage",
+    "schema_version",
+    "run_id",
+    "surviving_branch",
+    "blocked_branches",
+    "sections",
+    "source_cards_cited",
+    "provenance_tag_counts",
+    "forbidden_phrase_check",
+    "assembly_rationale",
+    "human_required_next_steps",
+    "provenance"
+  ],
+  "properties": {
+    "stage": { "const": "8_guidebook" },
+    "schema_version": { "const": "1.0.0" },
+    "run_id": { "type": "string", "pattern": "^[a-z0-9_-]{3,64}$" },
+    "surviving_branch": {
+      "type": "string",
+      "enum": ["a", "b", "c"]
+    },
+    "blocked_branches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["branch_id", "reason", "blocking_finding"],
+        "properties": {
+          "branch_id": { "type": "string", "enum": ["a", "b", "c"] },
+          "reason": { "type": "string", "minLength": 15 },
+          "blocking_finding": {
+            "type": "string",
+            "description": "E.g. 'audit:agency.hides_options_before_review' or 'reviewer:methodologist:blocking'."
+          }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 6,
+      "description": "Guidebook section index. Six sections when MVP+stretch; four in fallback cut.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["heading", "anchor", "provenance_dominant"],
+        "properties": {
+          "heading": { "type": "string" },
+          "anchor": { "type": "string" },
+          "provenance_dominant": {
+            "type": "string",
+            "enum": [
+              "RESEARCHER_INPUT",
+              "SOURCE_CARD",
+              "SIMULATION_REHEARSAL",
+              "AGENT_INFERENCE",
+              "HUMAN_REQUIRED",
+              "DO_NOT_CLAIM"
+            ]
+          }
+        }
+      }
+    },
+    "source_cards_cited": {
+      "type": "array",
+      "description": "IDs of source cards cited in the guidebook. Each must match corpus/source_cards/<id>.yaml.",
+      "items": { "type": "string" }
+    },
+    "provenance_tag_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "RESEARCHER_INPUT",
+        "SOURCE_CARD",
+        "SIMULATION_REHEARSAL",
+        "AGENT_INFERENCE",
+        "HUMAN_REQUIRED",
+        "DO_NOT_CLAIM"
+      ],
+      "properties": {
+        "RESEARCHER_INPUT": { "type": "integer", "minimum": 0 },
+        "SOURCE_CARD": { "type": "integer", "minimum": 0 },
+        "SIMULATION_REHEARSAL": { "type": "integer", "minimum": 0 },
+        "AGENT_INFERENCE": { "type": "integer", "minimum": 0 },
+        "HUMAN_REQUIRED": { "type": "integer", "minimum": 1 },
+        "DO_NOT_CLAIM": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "forbidden_phrase_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "violations"],
+      "properties": {
+        "passed": { "type": "boolean" },
+        "violations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["phrase", "location"],
+            "properties": {
+              "phrase": { "type": "string" },
+              "location": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "assembly_rationale": { "type": "string", "minLength": 50 },
+    "human_required_next_steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 15 }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assembly"],
+      "properties": {
+        "assembly": { "const": "AGENT_INFERENCE" }
+      }
+    }
+  }
+}
