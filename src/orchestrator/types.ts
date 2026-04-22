@@ -8,6 +8,10 @@ export interface RunOptions {
 }
 
 export type StageId =
+  // 0_import: probe import classifier output; not part of the canonical
+  // pipeline but reuses the same call/cost infrastructure when warm-starting
+  // a run from a paper draft.
+  | '0_import'
   | '1_premise'
   | '2_ideator'
   | '3_literature'

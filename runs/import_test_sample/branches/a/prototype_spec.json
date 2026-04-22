@@ -1,0 +1,15 @@
+{
+  "stage": "4_prototype",
+  "schema_version": "1.0.0",
+  "run_id": "import_test_sample",
+  "branch_id": "a",
+  "title": "Imported prototype from paper draft",
+  "summary": "See imported_source.md for the full prototype description.",
+  "wizard_controls": [],
+  "failure_cases": "Within-subjects design risks demand characteristics — by trial 3, participants may notice the two-condition structure and adjust behavior. Recruiting 20 professional engineers is resource-intensive; findings won't generalize to junior developers or students. Confidence ratings are self-reported and may reflect social-desirability bias rather than true epistemic state.",
+  "analysis_plan": "Participants: 20 professional software engineers with ≥3 years of experience and active code-review practice, recruited via an institutional participant pool and snowball sampling. Stimuli: Five real pull requests (50–200 lines of diff each) drawn from a public open-source project where PRs were accepted after nontrivial review discussion; each PR is paired with a pre-generated standardized AI response. Procedure: Within-subjects design in which each participant reviews all five PRs. Each PR is randomly assigned to one of two conditions — Condition A (prompt-writing): participant writes a short prompt describing what they want the AI to check, then sees the standardized AI response; Condition B (output-only): participant sees the same standardized AI response without writing a prompt first. Order counterbalanced via Latin square. After each PR, participants record: (1) verdict on a 5-point scale, (2) confidence in verdict on a 7-point scale, (3) free-text reasoning (≥30 seconds). Analysis: Primary — paired t-test on confidence ratings across conditions. Secondary — thematic analysis of free-text reasoning for differences in attended code aspects.",
+  "provenance": {
+    "source": "probe_import",
+    "imported": true
+  }
+}

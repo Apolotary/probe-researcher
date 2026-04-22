@@ -21,6 +21,8 @@ If the code disagrees with this file, update this file OR update the code — do
 | `probe render <run_id>` | single-file PDF/HTML/markdown report bundling guidebook + reviews + audit + cost log |
 | `probe build-paper` | build `paper/probe.{html,pdf}` via pandoc + wkhtmltopdf |
 | `probe panel <run_id> <branch>` | standalone 3-column reviewer-disagreement HTML panel for one branch |
+| `probe import <file>` | warm-start a run from an existing paper draft (md/tex); classifies sections into Probe's schema buckets and emits stage-compatible artifacts with `[IMPORTED_DRAFT]` tags, so `probe audit-deep` + `probe run --skip 1,2,3,4,5` can critique the draft |
+| `probe stats <run_id>` / `probe stats --all` | per-run triage table (verdicts, per-axis pattern fires, reviewer disagreement class, cost, duration, lint, anomalies) + cross-run `RUNS_SUMMARY.md` |
 
 ## Pipeline shape
 

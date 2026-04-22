@@ -41,6 +41,15 @@ export const VALID_TAGS = [
    * disclosure string is 16 words, 96 characters, ~5.3s at 180 wpm").
    */
   'TOOL_VERIFIED',
+  /**
+   * Content ingested from the researcher's own in-progress paper draft via
+   * `probe import`. NOT agent-generated and NOT rehearsal. The text is the
+   * researcher's; the linter preserves it verbatim and marks the origin so
+   * downstream stages (audit, review) know they are critiquing an existing
+   * draft rather than generating one. Optional suffix names the section
+   * type: [IMPORTED_DRAFT:premise], [IMPORTED_DRAFT:method], etc.
+   */
+  'IMPORTED_DRAFT',
 ] as const;
 
 export type ProvenanceTag = (typeof VALID_TAGS)[number];
@@ -110,6 +119,10 @@ const ANCHOR_TAGS: ReadonlySet<ProvenanceTag> = new Set([
   'SIMULATION_REHEARSAL',
   'TOOL_VERIFIED',
   'RESEARCHER_INPUT',
+  // IMPORTED_DRAFT is the researcher's own text lifted verbatim from their
+  // paper draft — it's the strongest anchor available, so it grounds any
+  // [AGENT_INFERENCE] in an import run's generated commentary.
+  'IMPORTED_DRAFT',
 ]);
 
 export function checkProvenance(
@@ -127,6 +140,7 @@ export function checkProvenance(
     DO_NOT_CLAIM: 0,
     UNCITED_ADJACENT: 0,
     TOOL_VERIFIED: 0,
+    IMPORTED_DRAFT: 0,
   };
   const sourceCardsReferenced: string[] = [];
   /**

@@ -1,0 +1,80 @@
+{
+  "stage": "0_import",
+  "schema_version": "1.0.0",
+  "run_id": "import_test_sample",
+  "source_file": "/Users/apolotary/Documents/Github/probe-researcher/examples/sample_imported_paper.md",
+  "source_format": "markdown",
+  "source_word_count": 599,
+  "sections": [
+    {
+      "id": "sec_abstract",
+      "bucket": "premise",
+      "heading": "Abstract",
+      "content": "We investigate whether the act of writing a prompt for an AI code-review assistant, before seeing its output, shifts a developer's attitude toward the eventual review. We propose a within-subjects pre/post study with 20 developers reviewing five real pull requests, each under two conditions: writing a prompt first, or receiving a pre-written prompt's output directly. The primary outcome is the difference in self-reported confidence in the review verdict.",
+      "start_line": 3,
+      "end_line": 7,
+      "rationale": "The abstract frames the research question and study design in brief; the dominant function is premise/framing."
+    },
+    {
+      "id": "sec_introduction",
+      "bucket": "premise",
+      "heading": "1. Introduction",
+      "content": "AI-assisted code review is now common practice in engineering teams, but the mechanism of effect is poorly understood. Does the AI change the reviewer's decision, or does the act of preparing to query the AI change the reviewer's attitude before any output arrives? This project asks the second question.\n\nWe hypothesize that prompt-writing is itself a rehearsal step that shifts which aspects of the code the reviewer attends to. If true, the same AI output would produce different downstream decisions depending on whether the reviewer wrote the prompt themselves or received someone else's.",
+      "start_line": 9,
+      "end_line": 15,
+      "rationale": "Introduces the motivation, research question, and central hypothesis — core premise content."
+    },
+    {
+      "id": "sec_related_work",
+      "bucket": "related_work",
+      "heading": "2. Related work",
+      "content": "Jakesch et al. (2023) showed that co-writing with opinionated language models shifts users' attitudes even when users are unaware of the model's bias. Longoni et al. (2019) documented consumer resistance to AI decision-makers in medical contexts. Neither of these studied the prompt-writing step specifically.\n\nWork by Chen and colleagues on prompt engineering has focused on output quality, not on the prompt-writer's attitudinal shifts.",
+      "start_line": 17,
+      "end_line": 22,
+      "rationale": "Cites and positions prior literature; no original results or method description."
+    },
+    {
+      "id": "sec_method",
+      "bucket": "method",
+      "heading": "3. Method",
+      "content": "### Participants\n\nWe will recruit 20 professional software engineers (not students), each with at least 3 years of experience and current active code-review practice. Recruitment through a participant pool at our institution and snowball sampling.\n\n### Stimuli\n\nFive real pull requests, selected from a public open-source project where the PRs were accepted after nontrivial review discussion. Each PR is 50-200 lines of diff.\n\n### Procedure\n\nEach participant reviews all five PRs in a within-subjects design. For each PR, we randomly assign one of two conditions:\n- Condition A (prompt-writing): participant writes a short prompt describing what they want the AI to check, then sees a pre-generated standardized AI response.\n- Condition B (output-only): participant is shown the same standardized AI response without writing a prompt first.\n\nOrder is counterbalanced via a Latin square across participants.\n\nAfter each PR review, participant records:\n- Verdict (approve / request changes / reject) on a 5-point scale\n- Confidence in verdict on a 7-point scale\n- Free-text reasoning (30 seconds minimum)\n\n### Analysis\n\nPrimary analysis: paired t-test on confidence ratings across conditions. Secondary: thematic analysis of free-text reasoning for differences in attended code aspects.",
+      "start_line": 24,
+      "end_line": 55,
+      "rationale": "Covers participants, stimuli, procedure, measures, and analysis plan — entirely method content. Stimuli description is included here as it is presented within the Method section and describes the study materials rather than an interactive prototype system."
+    },
+    {
+      "id": "sec_anticipated_behavior",
+      "bucket": "rehearsal",
+      "heading": "4. Anticipated behavior",
+      "content": "We anticipate that in Condition A (prompt-writing), participants will report higher confidence regardless of AI output content, because the prompt-writing step creates a sense of agency over the review process.\n\nWe expect free-text reasoning in Condition A to reference specific code aspects the participant asked the AI about, even when the AI response did not address those aspects.",
+      "start_line": 57,
+      "end_line": 62,
+      "rationale": "Explicitly frames expected/anticipated participant behavior before data collection — canonical rehearsal content."
+    },
+    {
+      "id": "sec_limitations",
+      "bucket": "limitations",
+      "heading": "5. Limitations",
+      "content": "Within-subjects design risks demand characteristics — by trial 3, participants may notice the two-condition structure and adjust behavior. Recruiting 20 professional engineers is resource-intensive; findings won't generalize to junior developers or students. Confidence ratings are self-reported and may reflect social-desirability bias rather than true epistemic state.",
+      "start_line": 64,
+      "end_line": 68,
+      "rationale": "The paper's own stated limitations section."
+    },
+    {
+      "id": "sec_expected_contribution",
+      "bucket": "discussion",
+      "heading": "6. Expected contribution",
+      "content": "This study will contribute a clean isolation of the prompt-writing step from the AI-output step, which the existing literature conflates. If our hypothesis is supported, it suggests code-review tool design should treat the input box as a behavioral intervention rather than a neutral query channel.",
+      "start_line": 70,
+      "end_line": 73,
+      "rationale": "Positions anticipated findings against existing literature and states design implications — discussion framing, albeit prospective."
+    }
+  ],
+  "inferred_premise_text": "Does the act of writing a prompt for an AI code-review assistant — prior to seeing any AI output — shift a developer's confidence in their review verdict, independently of the AI output itself?",
+  "inferred_method_summary": "Participants: 20 professional software engineers with ≥3 years of experience and active code-review practice, recruited via an institutional participant pool and snowball sampling. Stimuli: Five real pull requests (50–200 lines of diff each) drawn from a public open-source project where PRs were accepted after nontrivial review discussion; each PR is paired with a pre-generated standardized AI response. Procedure: Within-subjects design in which each participant reviews all five PRs. Each PR is randomly assigned to one of two conditions — Condition A (prompt-writing): participant writes a short prompt describing what they want the AI to check, then sees the standardized AI response; Condition B (output-only): participant sees the same standardized AI response without writing a prompt first. Order counterbalanced via Latin square. After each PR, participants record: (1) verdict on a 5-point scale, (2) confidence in verdict on a 7-point scale, (3) free-text reasoning (≥30 seconds). Analysis: Primary — paired t-test on confidence ratings across conditions. Secondary — thematic analysis of free-text reasoning for differences in attended code aspects.",
+  "contains_real_user_data": false,
+  "provenance": {
+    "classifier_model": "claude-sonnet-4-6",
+    "classifier_run_at": "2026-04-22T06:08:51.639Z"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "import_test_sample",
+  "original_premise": "Does the act of writing a prompt for an AI code-review assistant — prior to seeing any AI output — shift a developer's confidence in their review verdict, independently of the AI output itself?",
+  "sharpened_alternatives": [
+    {
+      "alt_id": "imported_as_is",
+      "one_sentence": "Does the act of writing a prompt for an AI code-review assistant — prior to seeing any AI output — shift a developer's confidence in their review verdict, independently of the AI output itself?",
+      "why_sharper": "Imported verbatim from the researcher's draft; Probe is auditing rather than rewriting.",
+      "falsifiability_gain": "n/a — this is the researcher's existing framing."
+    }
+  ],
+  "provenance": {
+    "source": "probe_import",
+    "imported_from": "/Users/apolotary/Documents/Github/probe-researcher/examples/sample_imported_paper.md",
+    "classifier_model": "claude-sonnet-4-6"
+  }
+}

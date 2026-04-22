@@ -1,0 +1,16 @@
+{
+  "stage": "2_ideator",
+  "schema_version": "1.0.0",
+  "run_id": "import_test_sample",
+  "branch_id": "a",
+  "research_question": "Does the act of writing a prompt for an AI code-review assistant — prior to seeing any AI output — shift a developer's confidence in their review verdict, independently of the AI output itself?",
+  "intervention_primitive": "see imported_manifest.json",
+  "human_system_relationship": "Imported from paper draft — see imported_source.md for the researcher's own framing.",
+  "method_family": "### Participants\n\nWe will recruit 20 professional software engineers (not students), each with at least 3 years of experience and current active code-review practice. Recruitment through a participant pool at our institution and snowball sampling.\n\n### Stimuli\n\nFive real pull requests, selected from",
+  "one_sentence_claim": "Does the act of writing a prompt for an AI code-review assistant — prior to seeing any AI output — shift a developer's confidence in their review verdict, independently of the AI output itself?",
+  "grounding": [],
+  "provenance": {
+    "source": "probe_import",
+    "imported": true
+  }
+}

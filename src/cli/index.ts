@@ -25,6 +25,7 @@ import { buildPaperCommand } from './build_paper.js';
 import { panelCommand } from './panel.js';
 import { doctorCommand } from './doctor.js';
 import { statsCommand } from './stats.js';
+import { importCommand } from './import_paper.js';
 
 const program = new Command();
 
@@ -124,6 +125,13 @@ program
   .command('doctor')
   .description('One-command verification sweep — typecheck, tests, lint shipped guidebooks, PDF backend availability, git cleanliness, corpus/patterns/benchmark inventory. Exits non-zero on failure.')
   .action(doctorCommand);
+
+program
+  .command('import')
+  .argument('<file>', 'paper draft to import (markdown or text; LaTeX as text)')
+  .option('--run-id <id>', 'explicit run id; default: import_YYYY-MM-DD_<filename-slug>')
+  .description('Warm-start a run from an existing paper draft. Classifies sections into Probe\'s schema (premise / prototype / method / rehearsal / findings / etc.), emits stage-compatible artifacts with [IMPORTED_DRAFT] provenance, and lets probe audit-deep + probe run --skip 1,2,3,4,5 critique the draft instead of generating one. Paper text is preserved verbatim — Probe audits, does not rewrite.')
+  .action(importCommand);
 
 program
   .command('stats')
