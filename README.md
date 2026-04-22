@@ -89,13 +89,21 @@ npx probe stats --all                             # cross-run dashboard; writes 
 
 ### First real run
 
-Two workflows — pick whichever fits where you are:
+Easiest — just run `probe` with no arguments to get an interactive menu:
 
 ```bash
-# Cold-start: you have one sentence of research intent (~25 min, ~$6)
+npx probe
+```
+
+This shows a picker with the options available for your current keys (run a new premise, import a paper, explore existing runs, dashboard, doctor). If you have no API keys set, it runs in **demo mode** — offline-only commands stay available so you can still browse shipped runs, render report pages, and run linters.
+
+Or use the direct subcommands:
+
+```bash
+# Cold-start: one sentence of research intent (~25 min, ~$6)
 npx probe run "your research premise here"
 
-# Warm-start: you have an in-progress paper draft (~1 min, ~$0.10)
+# Warm-start: an in-progress paper draft (~1 min, ~$0.10)
 npx probe import path/to/your/paper.md
 npx probe run --run-id <the-import-id> --skip 1,2,3,4,5 "<premise sentence>"
 ```
@@ -121,13 +129,28 @@ npx probe interview <run_id>            # simulated participant interview
 npx probe symposium <run_id>...         # multi-run convener report
 ```
 
+### Providers and keys
+
+Probe prefers Anthropic's Claude models (the paper's capability claims were measured there), but will fall back to OpenAI if you only have an OpenAI key, and into a read-only demo mode if you have neither:
+
+| State | Behavior |
+|---|---|
+| `ANTHROPIC_API_KEY` set | Primary. Opus 4.7 for judgment stages, Sonnet 4.6 for retrieval/templating. |
+| Only `OPENAI_API_KEY` set | Fallback. `gpt-5` stands in for Opus-tier calls; `gpt-4.1-mini` stands in for Sonnet-tier. Override with `PROBE_OPENAI_OPUS_MODEL` / `PROBE_OPENAI_SONNET_MODEL`. The paper's Opus-specific capability claims do NOT generalize under OpenAI — treat outputs as infrastructure-correct but not capability-audited. |
+| No keys | Demo mode. Offline-only commands (`probe runs`, `probe stats`, `probe explore`, `probe lint`, `probe render`, `probe report-page`, `probe doctor`) all still work against shipped runs. |
+| `PROBE_PROVIDER=<name>` | Force `anthropic` / `openai` / `demo` regardless of key detection. |
+
 ### Environment knobs (all optional)
 
 | Variable | Effect |
 |---|---|
-| `ANTHROPIC_API_KEY` | required for any API-backed command |
-| `PROBE_FORCE_SONNET=1` | collapse all Opus calls to Sonnet (~2.4× cheaper; trades some Stage 5/6/7 quality per the ablation) |
-| `PROBE_OPUS_MODEL` / `PROBE_SONNET_MODEL` | override model IDs (default: `claude-opus-4-7` / `claude-sonnet-4-6`) |
+| `ANTHROPIC_API_KEY` | preferred provider |
+| `OPENAI_API_KEY` | fallback provider |
+| `PROBE_PROVIDER` | force `anthropic` / `openai` / `demo` |
+| `PROBE_FORCE_SONNET=1` | collapse all Opus-tier calls to Sonnet-tier (~2.4× cheaper on Anthropic) |
+| `PROBE_OPUS_MODEL` / `PROBE_SONNET_MODEL` | Anthropic model overrides (default: `claude-opus-4-7` / `claude-sonnet-4-6`) |
+| `PROBE_OPENAI_OPUS_MODEL` / `PROBE_OPENAI_SONNET_MODEL` | OpenAI model overrides (default: `gpt-5` / `gpt-4.1-mini`) |
+| `PROBE_OPENAI_OPUS_USD_IN` / `PROBE_OPENAI_OPUS_USD_OUT` / same for sonnet | OpenAI pricing overrides per MTok |
 | `PROBE_NO_BANNER=1` | suppress the ASCII logo (narrow terminals, CI logs) |
 
 ### No LaTeX required

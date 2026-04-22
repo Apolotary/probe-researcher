@@ -1,36 +1,38 @@
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { appendCost } from '../orchestrator/run_dir.js';
 import type { StageCost, StageId } from '../orchestrator/types.js';
+import { detectProvider, resolveModel, NoApiKeysError, type ProviderName } from '../llm/provider.js';
 
 /**
- * Thin wrapper around the Anthropic SDK. Responsibilities:
- * - model routing (opus vs sonnet) per stage
+ * Thin wrapper around the model providers. Responsibilities:
+ * - provider selection (anthropic preferred, openai fallback)
+ * - model routing (opus-tier vs sonnet-tier) per stage
  * - cost estimation using published per-MTok rates
  * - logging every call to runs/<id>/cost.json
- * - NOT response prefilling (Opus 4.7 / Sonnet 4.6 don't support it)
  */
-
-const OPUS_MODEL = process.env.PROBE_OPUS_MODEL ?? 'claude-opus-4-7';
-const SONNET_MODEL = process.env.PROBE_SONNET_MODEL ?? 'claude-sonnet-4-6';
-
-// USD per 1M tokens, verified at kickoff.
-const PRICING: Record<string, { inUsd: number; outUsd: number }> = {
-  [OPUS_MODEL]: { inUsd: 5, outUsd: 25 },
-  [SONNET_MODEL]: { inUsd: 3, outUsd: 15 },
-};
 
 export type ModelChoice = 'opus' | 'sonnet';
 
-let clientInstance: Anthropic | null = null;
-function client(): Anthropic {
-  if (!clientInstance) {
+let anthropicInstance: Anthropic | null = null;
+let openaiInstance: OpenAI | null = null;
+
+function anthropicClient(): Anthropic {
+  if (!anthropicInstance) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      throw new Error('ANTHROPIC_API_KEY not set; see .env.example');
-    }
-    clientInstance = new Anthropic({ apiKey });
+    if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set; see .env.example');
+    anthropicInstance = new Anthropic({ apiKey });
   }
-  return clientInstance;
+  return anthropicInstance;
+}
+
+function openaiClient(): OpenAI {
+  if (!openaiInstance) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) throw new Error('OPENAI_API_KEY not set');
+    openaiInstance = new OpenAI({ apiKey });
+  }
+  return openaiInstance;
 }
 
 export interface CallOptions {
@@ -60,39 +62,32 @@ export async function callClaude(opts: CallOptions): Promise<CallResult> {
   // pressure outweighs the CLAUDE.md hard constraint against downgrading
   // stages 5-7. Flag is opt-in and always logged so the effect is visible
   // in the run's cost.json (model field).
-  let effectiveModel: ModelChoice = opts.model;
+  let effectiveChoice: ModelChoice = opts.model;
   if (process.env.PROBE_FORCE_SONNET === '1' && opts.model === 'opus') {
-    effectiveModel = 'sonnet';
+    effectiveChoice = 'sonnet';
   }
-  const modelId = effectiveModel === 'opus' ? OPUS_MODEL : SONNET_MODEL;
-  const pricing = PRICING[modelId];
-  if (!pricing) throw new Error(`no pricing entry for ${modelId}`);
 
-  // Opus 4.7 does not accept temperature. Sonnet 4.6 still does, but we
-  // keep behavior consistent across models by omitting temperature for all
-  // calls — the agent prompts carry the behavioral direction instead.
+  const provider = detectProvider();
+  if (!provider.canCallApi) throw new NoApiKeysError();
+
+  const modelSpec = resolveModel(provider.name, effectiveChoice);
   const start = Date.now();
-  const response = await client().messages.create({
-    model: modelId,
-    max_tokens: opts.maxTokens ?? 8192,
-    system: opts.system,
-    messages: [{ role: 'user', content: opts.userMessage }],
-  });
+
+  const { text, inputTokens, outputTokens } = await dispatchCall(
+    provider.name,
+    modelSpec.modelId,
+    opts,
+  );
+
   const durationMs = Date.now() - start;
-
-  const text = response.content
-    .filter((c): c is Anthropic.Messages.TextBlock => c.type === 'text')
-    .map((c) => c.text)
-    .join('');
-
-  const inputTokens = response.usage.input_tokens;
-  const outputTokens = response.usage.output_tokens;
-  const usd = (inputTokens / 1_000_000) * pricing.inUsd + (outputTokens / 1_000_000) * pricing.outUsd;
+  const usd =
+    (inputTokens / 1_000_000) * modelSpec.inUsd +
+    (outputTokens / 1_000_000) * modelSpec.outUsd;
 
   const costEntry: StageCost = {
     stage: opts.stage,
     branch_id: opts.branchId,
-    model: modelId,
+    model: modelSpec.modelId,
     input_tokens: inputTokens,
     output_tokens: outputTokens,
     usd,
@@ -100,5 +95,51 @@ export async function callClaude(opts: CallOptions): Promise<CallResult> {
   };
   await appendCost(opts.runId, costEntry);
 
-  return { text, inputTokens, outputTokens, usd, modelId, durationMs };
+  return { text, inputTokens, outputTokens, usd, modelId: modelSpec.modelId, durationMs };
+}
+
+async function dispatchCall(
+  provider: ProviderName,
+  modelId: string,
+  opts: CallOptions,
+): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
+  if (provider === 'anthropic') {
+    const response = await anthropicClient().messages.create({
+      model: modelId,
+      max_tokens: opts.maxTokens ?? 8192,
+      system: opts.system,
+      messages: [{ role: 'user', content: opts.userMessage }],
+    });
+    const text = response.content
+      .filter((c): c is Anthropic.Messages.TextBlock => c.type === 'text')
+      .map((c) => c.text)
+      .join('');
+    return {
+      text,
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+    };
+  }
+
+  if (provider === 'openai') {
+    // OpenAI's Chat Completions API. System message goes in the messages
+    // array rather than as a top-level field. The response text is in
+    // choices[0].message.content. max_completion_tokens caps output.
+    const response = await openaiClient().chat.completions.create({
+      model: modelId,
+      max_completion_tokens: opts.maxTokens ?? 8192,
+      messages: [
+        { role: 'system', content: opts.system },
+        { role: 'user', content: opts.userMessage },
+      ],
+    });
+    const text = response.choices[0]?.message?.content ?? '';
+    return {
+      text,
+      inputTokens: response.usage?.prompt_tokens ?? 0,
+      outputTokens: response.usage?.completion_tokens ?? 0,
+    };
+  }
+
+  throw new NoApiKeysError();
 }

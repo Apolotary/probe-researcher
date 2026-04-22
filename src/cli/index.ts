@@ -27,6 +27,7 @@ import { doctorCommand } from './doctor.js';
 import { statsCommand } from './stats.js';
 import { importCommand } from './import_paper.js';
 import { reportPageCommand } from './report_page.js';
+import { interactiveDefault } from './interactive.js';
 
 const program = new Command();
 
@@ -149,7 +150,20 @@ program
   .description('Per-run triage summary: branch verdicts, axis-level pattern fire counts, reviewer disagreement class, cost, duration, linter status, and anomalies (repair passes, missing artifacts, failed branches). Writes stats.json under the run directory. Use --all to iterate runs/ and produce RUNS_SUMMARY.md.')
   .action((runId, opts) => statsCommand(runId, opts));
 
-program.parseAsync(process.argv).catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Default action: typing `probe` with no subcommand launches the
+// interactive menu. commander triggers this branch when argv has no
+// recognized command. We check length rather than using .action() on
+// the program root because commander's default-command handling
+// swallows subcommand dispatch on some Node versions.
+if (process.argv.length <= 2) {
+  interactiveDefault()
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+} else {
+  program.parseAsync(process.argv).catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
