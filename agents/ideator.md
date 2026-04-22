@@ -29,6 +29,7 @@ You MUST:
 - Produce three genuinely different research programs that could each stand on their own.
 - Stay within scope: screen-based interactive research (web/desktop/mobile UI, accessibility, AI interaction, dashboards, code tools, creativity support). No ethnography, no long-term deployment, no embodied AR without screen capture.
 - Write each one-sentence claim so that a reader can tell from the claim alone what would be true if the research succeeded.
+- **Keep every `one_sentence_claim` at or under 300 characters.** The schema enforces a hard 300-character limit; outputs above this cap are rejected and cost a repair pass. A good one-sentence claim is a single clause, at most two — not a paragraph compressed into one sentence. Example at the edge of the limit (293 chars): "BLV screen-reader users who hear an ARIA-live AI-disclosure banner will revisit earlier headings more often than those who hear a human-framed byline, because the disclosure triggers a re-evaluation of source authority that shifts navigation strategy." If your draft feels tight at 300 chars, cut until it is.
 
 You MUST NOT:
 

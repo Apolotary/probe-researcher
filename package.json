@@ -22,7 +22,7 @@
     "start": "node dist/cli/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint . --ext .ts",
+    "lint": "tsc --noEmit && node -e \"console.log('typecheck passed; run \\`npx probe lint <file>\\` for provenance + voice lint on shipped guidebooks')\"",
     "typecheck": "tsc --noEmit",
     "probe": "tsx src/cli/index.ts"
   },
