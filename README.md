@@ -95,7 +95,7 @@ Easiest — just run `probe` with no arguments to get an interactive menu:
 npx probe
 ```
 
-This shows a picker with the options available for your current keys (run a new premise, import a paper, explore existing runs, dashboard, doctor). If you have no API keys set, it runs in **demo mode** — offline-only commands stay available so you can still browse shipped runs, render report pages, and run linters.
+The menu adapts to your keys (run a new premise, import a paper, explore existing runs, dashboard, doctor). With no API keys set, Probe enters **demo mode** — the offline commands (browse, render, lint, stats) stay available against shipped runs.
 
 Or use the direct subcommands:
 
@@ -131,12 +131,12 @@ npx probe symposium <run_id>...         # multi-run convener report
 
 ### Providers and keys
 
-Probe prefers Anthropic's Claude models (the paper's capability claims were measured there), but will fall back to OpenAI if you only have an OpenAI key, and into a read-only demo mode if you have neither:
+Probe prefers Anthropic's Claude models — the paper's capability claims were measured there. With only an OpenAI key it falls back to OpenAI; with neither it enters a read-only demo mode:
 
 | State | Behavior |
 |---|---|
 | `ANTHROPIC_API_KEY` set | Primary. Opus 4.7 for judgment stages, Sonnet 4.6 for retrieval/templating. |
-| Only `OPENAI_API_KEY` set | Fallback. `gpt-5` stands in for Opus-tier calls; `gpt-4.1-mini` stands in for Sonnet-tier. Override with `PROBE_OPENAI_OPUS_MODEL` / `PROBE_OPENAI_SONNET_MODEL`. The paper's Opus-specific capability claims do NOT generalize under OpenAI — treat outputs as infrastructure-correct but not capability-audited. |
+| Only `OPENAI_API_KEY` set | Fallback. `gpt-5` stands in for Opus-tier calls; `gpt-4.1-mini` for Sonnet-tier. Override with `PROBE_OPENAI_OPUS_MODEL` / `PROBE_OPENAI_SONNET_MODEL`. The paper's Opus-specific capability claims do not carry over — the pipeline still runs, but the comparative findings become Anthropic-specific footnotes rather than live claims. |
 | No keys | Demo mode. Offline-only commands (`probe runs`, `probe stats`, `probe explore`, `probe lint`, `probe render`, `probe report-page`, `probe doctor`) all still work against shipped runs. |
 | `PROBE_PROVIDER=<name>` | Force `anthropic` / `openai` / `demo` regardless of key detection. |
 

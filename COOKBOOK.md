@@ -4,7 +4,7 @@
 
 **Generated**: 2026-04-22 (15 runs; 9 successful pipelines + 3 failed pipelines + 3 prior benchmarks). Sample size is suggestive, not generalizable — single-author, screen-based-HCI premise set.
 
-This is not a user manual. It's an empirical cookbook: what kinds of premises yield what kinds of pipeline behaviors, which reviewers catch what, where the cost sits, what the failure modes look like, and — most important — what the cost/quality tradeoff between Opus and Sonnet actually is once you run it at n=15 rather than n=1.
+An empirical cookbook: which premises produce which pipeline behaviors, which reviewer personas catch what, where the cost sits, what the failure modes look like, and — most important — what the Opus-vs-Sonnet tradeoff actually is once you run it at n=15 rather than n=1.
 
 ---
 
@@ -23,7 +23,7 @@ The cost-per-call advantage of Sonnet (~2.3× cheaper) is illusory for this pipe
 
 The CLAUDE.md rule "never downgrade Stages 5, 6, 7" — originally a judgment call pre-measurement — now has concrete evidence behind it across 27 branch-trials.
 
-**Implication for the paper**: the Opus-vs-Sonnet ablation section should state the n=1 Stage 7 finding (Sonnet substantively capable on the methodologist stage) alongside the n=9 full-pipeline finding (Sonnet produces 0 guidebooks). Both are true; they are about different things. The ablation measured Sonnet's judgment on one stage with fixed inputs. The full-pipeline run measured whether Sonnet can sustain the pipeline end-to-end. The paper should not claim the first result generalizes to the second.
+**Implication for the paper**: the Opus-vs-Sonnet ablation section should state the n=1 Stage 7 finding (Sonnet substantively capable on the methodologist stage) alongside the n=9 full-pipeline finding (Sonnet produces 0 guidebooks). The ablation measured Sonnet's judgment on one stage with fixed inputs; the full-pipeline run measured whether Sonnet can sustain the pipeline end-to-end. These are different tests, and the first result does not generalize to the second.
 
 ---
 
@@ -92,7 +92,7 @@ The earlier `[n=3]` claim that legibility dominated survives at larger n — but
 - **First Exit -2** fired on `backlog_browser_agents` branch C (`exit.data_lock_in`).
 - **First Capacity -2** fired on `backlog_claude_artifacts` branch B (`capacity.substitutes_for_practice`).
 
-Prior to the overnight batch, no -2 blockers existed outside the `legibility.*` axis. The backlog runs produced blockers on three other axes across three different domains. This is the strongest single piece of evidence that the audit library is genuinely cross-axis rather than pattern-library-shaped-like-one-axis.
+Prior to the overnight batch, no -2 blockers existed outside the `legibility.*` axis. The backlog runs produced blockers on three other axes across three different domains. This is the strongest single piece of evidence that the audit library's vocabulary is genuinely cross-axis.
 
 ### Top-fired patterns
 
@@ -169,7 +169,7 @@ The evidence does not distinguish these two readings. It does demonstrate that O
 | repair passes per run | 0 | 4 | 8 |
 | guidebook produced | 0 of 9 runs | | |
 
-Per-run cost savings under Sonnet are real (~2.4× per successful run). Effective cost-per-guidebook is ∞ under Sonnet for this run set.
+Sonnet's per-run cost savings (~2.4× per successful run) are real, but cost-per-guidebook is ∞ in this run set.
 
 ---
 
