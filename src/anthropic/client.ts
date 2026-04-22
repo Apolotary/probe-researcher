@@ -55,7 +55,16 @@ export interface CallResult {
 }
 
 export async function callClaude(opts: CallOptions): Promise<CallResult> {
-  const modelId = opts.model === 'opus' ? OPUS_MODEL : SONNET_MODEL;
+  // PROBE_FORCE_SONNET=1 collapses all Opus calls to Sonnet. Used for the
+  // overnight test batch on user instruction (2026-04-22) when budget
+  // pressure outweighs the CLAUDE.md hard constraint against downgrading
+  // stages 5-7. Flag is opt-in and always logged so the effect is visible
+  // in the run's cost.json (model field).
+  let effectiveModel: ModelChoice = opts.model;
+  if (process.env.PROBE_FORCE_SONNET === '1' && opts.model === 'opus') {
+    effectiveModel = 'sonnet';
+  }
+  const modelId = effectiveModel === 'opus' ? OPUS_MODEL : SONNET_MODEL;
   const pricing = PRICING[modelId];
   if (!pricing) throw new Error(`no pricing entry for ${modelId}`);
 

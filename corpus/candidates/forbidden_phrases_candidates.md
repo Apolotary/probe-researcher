@@ -32,7 +32,13 @@ This is weak evidence. The existing forbidden list was shaped against the demo p
 
 ## Candidates from the backlog batch (Task 4)
 
-*(Populated as backlog_* runs complete. As of this writing: batch in progress, 0 runs completed.)*
+### After `backlog_polymarket_drift` (run 1 of 12)
+
+Scanned for `empirical(ly)?`, `literature/research (shows|indicates|demonstrates)`, `as we can see`, `appears to`, `seems to indicate`, `reliably (detects|produces|shows)`, `consistent(ly)?`. Only hits:
+
+- Line 125, 127 — "empirically derived" and "empirical rule" inside methodologist-objection / mitigation paragraphs. Context: "The 4 genuine and 4 false-alarm labels are researcher-defined rather than **empirically derived**". This is legitimate methodological terminology — a reviewer critiquing researcher-stipulated vs. data-derived ground truth. The word is being used to describe a desirable alternative method, not to claim Probe has empirical evidence. **Not a candidate.**
+
+Noted pattern: "empirical" has both evidence-coding and methodology-description senses. Any future rule matching it would need to distinguish "empirical evidence suggests X" (ban-able) from "empirically-derived labels" (legitimate methodology talk).
 
 ---
 
