@@ -11,6 +11,14 @@ npm run build
 export ANTHROPIC_API_KEY="sk-ant-..."  # only needed for step 7 (optional)
 ```
 
+## Step 0 — One-command health check (10 seconds)
+
+```bash
+npx probe doctor
+```
+
+Expected: 11 checks, all green (or 10 green + 1 warning if you have uncommitted changes). Typecheck, tests, linters on shipped guidebooks, pandoc/wkhtmltopdf availability, git cleanliness, corpus/patterns/benchmark inventory. If anything fails here, the rest of the walkthrough won't work.
+
 ## Step 1 — See what's in flight (15 seconds)
 
 ```bash

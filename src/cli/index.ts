@@ -23,6 +23,7 @@ import { runsCommand } from './runs.js';
 import { ganttCommand } from './gantt.js';
 import { buildPaperCommand } from './build_paper.js';
 import { panelCommand } from './panel.js';
+import { doctorCommand } from './doctor.js';
 
 const program = new Command();
 
@@ -116,6 +117,11 @@ program
   .description('Render a standalone HTML reviewer-disagreement panel for a branch. 3-column layout shows methodologist / accessibility / novelty reviewer findings side-by-side with the meta-reviewer verdict as a banner. Self-contained, no external CSS/JS.')
   .option('-o, --output <path>', 'output path (default runs/<id>/branches/<branch>/REVIEWER_PANEL.html)')
   .action(panelCommand);
+
+program
+  .command('doctor')
+  .description('One-command verification sweep — typecheck, tests, lint shipped guidebooks, PDF backend availability, git cleanliness, corpus/patterns/benchmark inventory. Exits non-zero on failure.')
+  .action(doctorCommand);
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err);
