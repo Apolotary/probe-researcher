@@ -1,6 +1,6 @@
 # Adversarial test battery — partial results
 
-**Status**: 2 of 12 premises completed before the external API credit cap stopped the batch. The remaining 10 premises (2 more trivial, 3 solved-problem, 3 out-of-scope, 3 capture-trap) were not run. What follows is what the completed runs actually tell us, and what we could expect to learn from the ones still queued.
+**Status**: 2 of 12 premises completed before the external API credit cap stopped the batch. The remaining 10 premises (2 more trivial, 3 solved-problem, 3 out-of-scope, 3 capture-trap) were not run. What follows is what the completed runs actually tell us, plus what the unrun categories were designed to test.
 
 The battery was designed to stress-test four specific capability claims in the paper. Each category has its own failure-mode-of-interest:
 
@@ -27,7 +27,7 @@ The premise interrogator did the right thing by the paper's standard: it flagged
 
 But the pipeline DID NOT REFUSE. It proceeded to Stage 2 and generated three branches. Branches A and C then failed at Stage 5 simulator (Sonnet weakness again). Branch B completed through audit — where the findings were only `legibility.no_failure_signal` and `legibility.unverifiable_summary` at -1 each (REVISION_REQUIRED, not blocker). Then meta-review produced `reject`, which blocked the branch. Classification: `legitimate_methodological_split`.
 
-**Finding**: for a trivial premise, the pipeline DOES sharpen at Stage 1 (producing useful output), then DOES progress to a full research plan, then DOES catch real issues at Stage 6 or 7 that would need addressing. The "triviality" of the original doesn't persist visibly past Stage 1. This is defensible but worth naming in the paper: Probe is not a triviality detector. It is a triviality sharpener. The researcher reading the output needs to weigh both the Stage 1 critique AND the downstream capture-risk findings to decide whether the sharpened premise is worth pursuing.
+**Finding**: for a trivial premise, the pipeline sharpens at Stage 1 (producing useful output), progresses to a full research plan, and catches real issues at Stage 6 or 7 that would need addressing. The "triviality" of the original doesn't persist visibly past Stage 1. This is defensible but worth naming in the paper: Probe is a triviality sharpener rather than a triviality detector. The researcher reading the output weighs the Stage 1 critique alongside the downstream capture-risk findings to decide whether the sharpened premise is worth pursuing.
 
 #### `adversarial_trivial_fasterbutton` — "study whether users click faster buttons faster"
 
@@ -61,7 +61,7 @@ Nine premises not attempted. The test designs were:
 
 1. **Move framework is live and working** in the premise interrogator. The `darkmode` run's sharpened_options each open with `Territory: … Niche: …` explicitly. The output is noticeably more structured than the pre-upgrade baseline.
 
-2. **Sonnet meta-reviewer rejects audit-PASSED branches.** The `fasterbutton` branch B had zero fired patterns, PASSED the audit, and was rejected by the meta-reviewer anyway. This strengthens the COOKBOOK's Sonnet-meta-reviewer-collapse-to-reject finding — it's not just that Sonnet finds more problems; it's that Sonnet treats reject as the default verdict even without audit support.
+2. **Sonnet meta-reviewer rejects audit-PASSED branches.** The `fasterbutton` branch B had zero fired patterns, PASSED the audit, and was rejected by the meta-reviewer anyway. This strengthens the COOKBOOK's Sonnet-meta-reviewer-collapse-to-reject finding: Sonnet treats reject as the default verdict even without audit support — the decision is independent of whether the audit surfaced anything structural.
 
 3. **Retry-cleanup fix works.** The adversarial script's worktree-prune-before-retry logic, added after the backlog batch hit the same failure mode twice, was exercised on the `fasterbutton` run and allowed attempt 2 to complete. Real production validation for a 30-line bash change.
 

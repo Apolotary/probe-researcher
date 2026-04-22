@@ -150,7 +150,7 @@ Three paragraphs of related-work text to consider. Write your own; these are ske
 
 ### Paragraph: research-workflow agents
 
-A handful of recent systems automate portions of the research workflow at different scopes. STORM \citep{stanford_storm} generates Wikipedia-style articles via perspective-guided question asking and simulated expert dialogue; it shares Probe's commitment to principled divergence in generation but produces factual prose rather than study designs. karpathy's `autoresearch` \citep{karpathy_autoresearch} automates neural-net hyperparameter search with a modify-evaluate-keep loop; Probe adopts a similar loop at stage-boundary granularity via schema validation and repair, but our domain is study design rather than training optimization. Feynman \citep{companion2025feynman}, closest in architecture, packages a researcher/reviewer/writer/verifier ensemble into a general-purpose research agent; Probe's divergence from Feynman lives not in the agentic pattern but in the scope (screen-based interactive HCI studies specifically) and in the capture-risk audit, which Feynman does not include. Autonovel \citep{nousresearch2025autonovel} provides cross-domain evidence that adversarial review via role-split agents produces better output than single-voice generation.
+A handful of recent systems automate portions of the research workflow at different scopes. STORM \citep{stanford_storm} generates Wikipedia-style articles via perspective-guided question asking and simulated expert dialogue; it shares Probe's commitment to principled divergence in generation but produces factual prose rather than study designs. karpathy's `autoresearch` \citep{karpathy_autoresearch} automates neural-net hyperparameter search with a modify-evaluate-keep loop; Probe adopts a similar loop at stage-boundary granularity via schema validation and repair, applied to study design rather than training optimization. Feynman \citep{companion2025feynman}, closest in architecture, packages a researcher/reviewer/writer/verifier ensemble into a general-purpose research agent; Probe's differentia is scope (screen-based interactive HCI studies) plus the capture-risk audit Feynman does not include. Autonovel \citep{nousresearch2025autonovel} provides cross-domain evidence that adversarial review via role-split agents improves output over single-voice generation.
 
 ### Paragraph: peer-review automation
 
@@ -158,7 +158,7 @@ Existing LLM-based peer-review systems \citep{jin2024agentreview, darcy2024marg,
 
 ### Paragraph: capture-risk literature
 
-The audit's four axes — Capacity, Agency, Exit, Legibility — are grounded in Buijsman, Carter, and Bermúdez's autonomy-by-design framing \citep{buijsman2025autonomy} and Illich's distinction between convivial and industrial tools \citep{illich1973conviviality}. The empirical automation-bias literature — Bainbridge's foundational "Ironies of Automation" \citep{bainbridge1983ironies} and Parasuraman & Manzey's later attentional-integration synthesis \citep{parasuraman2010complacency} — provides ground-truth for the pattern library's capacity-axis claims. These aren't yet in the bibliography; adding them would strengthen the audit library's claim to reflect 40 years of operator-automation research rather than being Probe-internal.
+The audit's four axes — Capacity, Agency, Exit, Legibility — are grounded in Buijsman, Carter, and Bermúdez's autonomy-by-design framing \citep{buijsman2025autonomy} and Illich's distinction between convivial and industrial tools \citep{illich1973conviviality}. The empirical automation-bias literature — Bainbridge's foundational "Ironies of Automation" \citep{bainbridge1983ironies} and Parasuraman & Manzey's later attentional-integration synthesis \citep{parasuraman2010complacency} — provides ground-truth for the pattern library's capacity-axis claims. These aren't yet in the bibliography. Adding them anchors the audit library in 40 years of operator-automation research.
 
 ---
 
@@ -172,6 +172,6 @@ Of Probe's infrastructure commitments, three are genuinely novel against the sib
 
 3. **Rehearsal-not-evidence discipline** — the `[SIMULATION_REHEARSAL]` tag, the forbidden-phrase list that rejects "users preferred" in Probe's voice, the linter check that `[SIMULATION_REHEARSAL]` paragraphs use hedged language — all of these are Probe-specific. No surveyed system enforces this distinction.
 
-Everything else (multi-agent ensemble, adversarial review, directive-markdown files, repair loops) Probe shares with at least one sibling. The paper's contribution claim should center on (1), (2), (3) — not on the agentic architecture, which is table stakes in this space by 2026.
+Everything else (multi-agent ensemble, adversarial review, directive-markdown files, repair loops) Probe shares with at least one sibling. The paper's contribution claim should center on (1), (2), (3); the agentic architecture is table stakes in this space by 2026.
 
 *End of survey.*
