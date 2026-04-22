@@ -124,7 +124,16 @@ function normalize(s: string): string {
 }
 
 async function ensureWorktree(runId: string, branchId: string, dir: string): Promise<void> {
-  const branchName = `run-${runId.slice(-12)}-${branchId}`;
+  // Derive a readable branch name from the run id. Previous version used
+  // `runId.slice(-12)` which took the LAST 12 chars — the suffix is often
+  // the most-identifying part of the id, but for short ids like
+  // "backlog_e2ee_ai" (15 chars) it chopped the first 3 and yielded
+  // "klog_e2ee_ai", which looked like a typo in the branch name. We now
+  // strip common prefixes + truncate from the end instead, so short ids
+  // stay readable and long ids stay git-log-friendly.
+  const stripped = runId.replace(/^(backlog_|adversarial_|benchmark_|import_|_?test_)/, '');
+  const slug = stripped.slice(-16).replace(/^[-_]+/, '');
+  const branchName = `run-${slug}-${branchId}`;
   try {
     await pExecFile('git', ['worktree', 'add', '-B', branchName, dir, 'HEAD']);
   } catch (e) {
