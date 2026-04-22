@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/probe_logo.svg" alt="Probe — rehearsal stage for research" width="560"/>
+</p>
+
 # Probe
 
 **Probe is a research-design triage tool for screen-based interactive research.** Give it a rough study premise; it returns three divergent research programs — each specified, simulated, audited for capture risk, and adversarially reviewed — so you can discover weak premises in an afternoon instead of six months.
@@ -31,40 +35,106 @@ Surviving branches produce `PROBE_GUIDEBOOK.md`. Blocked branches produce `WORKS
 
 A provenance linter fails the build if any element is unlabeled or if a `[SIMULATION_REHEARSAL]` element uses evidence language.
 
-## Quick start
+## Install
 
-Requires Node 20+ and `git` on PATH. Uses the Anthropic API — set `ANTHROPIC_API_KEY`.
+### Prerequisites
+
+| Tool | Version | Needed for |
+|---|---|---|
+| **Node.js** | 20 LTS or newer | everything |
+| **git** | 2.40+ | the real-git-worktree branching pattern |
+| **Anthropic API key** | with access to `claude-opus-4-7` and `claude-sonnet-4-6` | `probe run`, `probe import`, `probe audit-deep`, etc. |
+| pandoc + wkhtmltopdf | *optional* | `probe render` and `probe build-paper` PDF output |
+
+On macOS with Homebrew:
+
+```bash
+brew install node@20 git pandoc wkhtmltopdf
+```
+
+On Debian/Ubuntu:
+
+```bash
+sudo apt install nodejs git pandoc wkhtmltopdf
+# If your distro's node is older than 20, use NodeSource:
+#   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
+```
+
+### Setup
 
 ```bash
 git clone https://github.com/Apolotary/probe-researcher.git
 cd probe-researcher
-npm install
-npm run build
 
-export ANTHROPIC_API_KEY="sk-ant-..."
+npm install          # installs TypeScript, Ink, remark, Ajv, Anthropic SDK, etc.
+npm run build        # compiles src/ to dist/
 
-# Run a premise end-to-end (~25 min, ~$6 API credit)
+export ANTHROPIC_API_KEY="sk-ant-..."        # add to ~/.zshrc or ~/.bashrc for persistence
+```
+
+### Validate the install
+
+```bash
+npx probe doctor
+```
+
+Expected: **10/11 green** checks (typecheck, tests, linters on shipped guidebooks, pandoc/wkhtmltopdf availability, git cleanliness, corpus/pattern/benchmark inventory, paper PDF). A 1-check warning for uncommitted changes is normal. If anything fails, the rest of the tour won't work.
+
+Two more no-API-cost commands confirm the infrastructure is wired up:
+
+```bash
+npx probe lint runs/demo_run/PROBE_GUIDEBOOK.md   # the load-bearing provenance linter on a shipped guidebook
+npx probe stats --all                             # cross-run dashboard; writes RUNS_SUMMARY.md at repo root
+```
+
+### First real run
+
+Two workflows — pick whichever fits where you are:
+
+```bash
+# Cold-start: you have one sentence of research intent (~25 min, ~$6)
 npx probe run "your research premise here"
 
-# Inspect and diagnose
-npx probe runs                          # Linear-style list of all runs
+# Warm-start: you have an in-progress paper draft (~1 min, ~$0.10)
+npx probe import path/to/your/paper.md
+npx probe run --run-id <the-import-id> --skip 1,2,3,4,5 "<premise sentence>"
+```
+
+### Everything else
+
+```bash
+# Inspect
+npx probe runs                          # Linear-style list of every run under runs/
+npx probe stats <run_id>                # per-run triage: verdicts, axis fires, lint, anomalies
 npx probe gantt <run_id>                # per-run stage × branch timeline
-npx probe lint runs/<run_id>/PROBE_GUIDEBOOK.md
 npx probe replay <run_id>               # deterministic artifact replay (no API calls)
 
-# Render a report or paper
+# Render
 npx probe render <run_id>               # PDF/HTML/markdown bundle of the run
 npx probe panel <run_id> <branch>       # reviewer-disagreement HTML panel
 npx probe build-paper                   # build paper/probe.{html,pdf}
 
-# Explore and extend (Managed Agents features)
+# Managed Agents features
 npx probe explore <run_id>              # Ink 3-pane worktree-style UI
-npx probe audit-deep <run_id> <branch>  # tool-equipped deep audit (bash/grep/file)
+npx probe audit-deep <run_id> <branch>  # tool-equipped deep audit (bash / grep / file ops)
 npx probe interview <run_id>            # simulated participant interview
-npx probe symposium <run_id>...         # N-run convener report
+npx probe symposium <run_id>...         # multi-run convener report
 ```
 
-A pre-populated `runs/demo_run/` ships with the repo so you can browse a full pipeline without running anything. See [`DEMO_WALKTHROUGH.md`](./DEMO_WALKTHROUGH.md) for a 10-minute tour that uses only shipped artifacts.
+### Environment knobs (all optional)
+
+| Variable | Effect |
+|---|---|
+| `ANTHROPIC_API_KEY` | required for any API-backed command |
+| `PROBE_FORCE_SONNET=1` | collapse all Opus calls to Sonnet (~2.4× cheaper; trades some Stage 5/6/7 quality per the ablation) |
+| `PROBE_OPUS_MODEL` / `PROBE_SONNET_MODEL` | override model IDs (default: `claude-opus-4-7` / `claude-sonnet-4-6`) |
+| `PROBE_NO_BANNER=1` | suppress the ASCII logo (narrow terminals, CI logs) |
+
+### No LaTeX required
+
+`probe build-paper` uses pandoc + wkhtmltopdf to produce `paper/probe.pdf`. For camera-ready LaTeX, the `paper_acm/` subdirectory ships an ACM `sigconf` (double-column) version — upload `probe_acm_sigconf.zip` (in repo root) via Overleaf's *New Project → Upload Project*.
+
+A pre-populated `runs/demo_run/` ships with the repo so you can browse a full pipeline without spending any API credit. See [`DEMO_WALKTHROUGH.md`](./DEMO_WALKTHROUGH.md) for a 10-minute tour that uses only shipped artifacts.
 
 ## Architecture
 
