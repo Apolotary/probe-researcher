@@ -42,9 +42,22 @@ Noted pattern: "empirical" has both evidence-coding and methodology-description 
 
 ---
 
+### After the full backlog batch (12 attempts, 5 produced guidebooks)
+
+Scanned the full corpus of shipped guidebooks + `WORKSHOP_NOT_RECOMMENDED.md` files across 15 runs, restricting to paragraphs in Probe's own voice (paragraphs ending in `[AGENT_INFERENCE]` / `[HUMAN_REQUIRED]` / `[DO_NOT_CLAIM]` / `[UNCITED_ADJACENT]`; skipping `[SOURCE_CARD:id]` and `[SIMULATION_REHEARSAL]`). Patterns scanned: `seems to (indicate|suggest|show)`, `appears to (be|indicate|show|suggest|demonstrate)`, `implies that`, `(literature|research) (shows|demonstrates|indicates|suggests)`, `(as|from) (we|you) can see`, `would likely produce higher/more/less`, `established that`, `is known to`, `correlat[ion] with`, `strong(ly) support/suggest/predict`, `generally accepted`, `broadly understood`.
+
+**Result**: only 3 hits in the entire corpus, all on `correlat[ion] with`, and all are methodologically legitimate — describing a statistical relationship between study variables in mitigation paragraphs (e.g., "report it as a correlation with pile count"). None of the tested candidates fired as evidence-coding in Probe's voice.
+
+This is stronger evidence than the n=3 pre-backlog scan that the existing forbidden-phrase list is sufficient for the current corpus. Two readings, both possible:
+
+- (a) The linter is working as intended and the assembler's voice discipline is genuinely clean.
+- (b) The assembler learned to avoid forbidden phrases because the repair loop kicks it back into conformance — so the final saved guidebooks are clean by construction, but intermediate outputs before repair may have contained worse voice. Checking `logs/*.log` for pre-repair voice-discipline failures would distinguish these. (Not worth doing tonight.)
+
+No new candidates to add to the pre-existing list from prior review waves (below).
+
 ## Candidates from the adversarial battery (Task 5)
 
-*(Populated as adversarial_* runs complete. As of this writing: batch not yet started.)*
+*(Populated as adversarial_* runs complete. As of this writing: batch in progress, 0 runs completed.)*
 
 ---
 
