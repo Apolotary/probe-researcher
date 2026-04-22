@@ -1,0 +1,27 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_live_coding",
+  "raw_premise": "Design a study to evaluate pair-programming dynamics between a human and an AI coding assistant in live-coding music performance contexts.",
+  "sharpest_question": "What specific breakdown in current live-coding practice does AI pair-programming address, and what would a successful pairing look like that a skilled solo performer could not achieve?",
+  "claim": "Unclear — the premise does not state what would be true about human-AI pair-programming in live coding if the study worked; it describes an evaluation activity without naming an evaluative criterion or a theoretical stake.",
+  "differentia": "Not visible in the premise. Live-coding has an established research community (TOPLAP, ICLC proceedings); HCI has studied AI pair-programming in software engineering contexts; the intersection is unstudied at the level of specific dynamics, but the premise does not name which dynamic is the object of study or why it would differ from non-performance programming contexts.",
+  "nearest_template": "AI pair-programming evaluation studies in software engineering (e.g., GitHub Copilot studies measuring task completion, code quality, and cognitive load); and live-coding performance studies measuring performer agency, audience perception, and improvisation strategies. This premise sits at their intersection but inherits the weaknesses of both: it does not specify whether the dependent variable is performance quality, performer experience, audience reception, or something else.",
+  "missing_evidence": [
+    "No identification of which 'dynamics' are under study — cognitive load, turn-taking, creative agency, error recovery, timing latency, audience legibility of AI contribution; each implies a different study design.",
+    "No account of what counts as a 'successful' or 'unsuccessful' pairing in this context — live coding has aesthetic stakes, not just task-completion stakes, and the premise does not acknowledge this.",
+    "No boundary condition stated: is the AI generating code in real time, suggesting completions, or operating as a co-performer with its own generative thread? These are substantively different setups.",
+    "No niche established relative to existing live-coding studies — the premise does not cite or characterize what prior work on live-coding improvisation or human-AI music co-creation has already shown.",
+    "No participant model — who are the performers (novice, expert, TOPLAP community), and does the study claim something about performer skill level moderating the dynamics?"
+  ],
+  "sharpened_options": [
+    "Territory: Live coders must balance expressive improvisation with real-time debugging under audience scrutiny — a dual-task load that limits musical complexity. Niche: Existing AI coding assistants are evaluated for software-engineering throughput, not for whether their suggestion latency and interruption patterns disrupt or enhance flow states in performance. Occupation: AI coding assistants whose suggestion latency exceeds 800ms during live performance will measurably increase performer error rate and self-reported loss of flow, compared to assistants operating below that threshold, as measured via think-aloud protocols and EEG during structured live-coding performances.",
+    "Territory: Live-coding performances are evaluated by audiences partly on the visible process — the code on screen is part of the aesthetic. Niche: No study has examined how audiences perceive and attribute creative agency when AI-generated code is visually indistinguishable from human-generated code in a live setting. Occupation: Audience members exposed to human-AI pair-coded performances will attribute significantly less creative agency to the performer than audiences viewing equivalent solo performances, even when musical output is matched — and this attribution will shift performer reputation scores in post-show surveys.",
+    "Territory: Pair programming in software engineering improves error detection through role division (driver/navigator). Niche: Live coding collapses this division — the performer is simultaneously author, debugger, and performer, with no time for deliberate role-switching. Occupation: Structuring AI assistance as navigator-only (no auto-completion, only error flagging) will produce fewer mid-performance crashes and higher self-reported performer confidence than unstructured AI assistance, in a within-subjects counterbalanced study using identical musical tasks.",
+    "Territory: Novice live coders are excluded from performance contexts because the cognitive overhead of real-time debugging crowds out musical decision-making. Niche: AI scaffolding studies in music education focus on composition, not performance; no study has tested whether AI error-recovery assistance lowers the skill threshold for live-coding stage performance. Occupation: Novice performers (fewer than 20 hours live-coding experience) given AI error-recovery assistance will complete a structured 10-minute live performance at rates comparable to intermediate performers without assistance, as measured by task completion and musical coherence ratings from expert judges."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

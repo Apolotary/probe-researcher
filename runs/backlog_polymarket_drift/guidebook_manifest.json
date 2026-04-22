@@ -1,0 +1,72 @@
+{
+  "stage": "8_guidebook",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_polymarket_drift",
+  "surviving_branch": "a",
+  "blocked_branches": [
+    {
+      "branch_id": "b",
+      "reason": "Capture-risk audit fired a -2 finding.",
+      "blocking_finding": "audit:capture_risk:-2"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Premise",
+      "anchor": "premise",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Background",
+      "anchor": "background",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Prototype",
+      "anchor": "prototype",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Study protocol",
+      "anchor": "study-protocol",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Failure hypotheses to test",
+      "anchor": "failure-hypotheses-to-test",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Risks and failure modes",
+      "anchor": "risks-and-failure-modes",
+      "provenance_dominant": "AGENT_INFERENCE"
+    }
+  ],
+  "source_cards_cited": [
+    "buijsman_carter_bermudez_2025",
+    "sundar_2008_main_model",
+    "longoni_2019_medical_ai_resistance",
+    "jakesch_2023_cowriting"
+  ],
+  "provenance_tag_counts": {
+    "RESEARCHER_INPUT": 1,
+    "SOURCE_CARD": 4,
+    "SIMULATION_REHEARSAL": 9,
+    "AGENT_INFERENCE": 47,
+    "HUMAN_REQUIRED": 1,
+    "DO_NOT_CLAIM": 6,
+    "UNCITED_ADJACENT": 6,
+    "TOOL_VERIFIED": 0
+  },
+  "forbidden_phrase_check": {
+    "passed": true,
+    "violations": []
+  },
+  "assembly_rationale": "Branch a survived capture-risk audit and meta-review; it provides the sole basis for this guidebook. Blocked branches: b.",
+  "human_required_next_steps": [
+    "Before this study can be run, the researcher must resolve several decisions that Probe cannot resolve on behalf of the research program. Specifically: (1) decide whether to add a third (and fourth) experimental arm to isolate argument content from modal interruption, or instead to narrow the claim to \"adversarial modal intervention\" without a mechanistic attribution; (2) derive the 8 trial labels from a documented empirical back-test or reframe the DV away from calibration; (3) complete a power analysis tied to a pre-specified minimum effect of interest and adjust sample size or analysis unit accordingly; (4) build the shape-coded/pattern-coded slippage indicator as the default prototype affordance and pilot it with colour-blind traders before recruitment proceeds; (5) specify compensation, recruitment channel, and operational trading-frequency thresholds in writing; (6) author the interview codebook with exemplars and inter-rater reliability procedure; (7) pre-register the full analysis plan including trial-1 handling, rapid-dismiss post-hoc coding, and any covariates introduced by indicator-version piloting; (8) consult with an IRB or equivalent ethics body on the revised consent language, debrief distress protocol, and deception structure. The meta-review explicitly declined to resolve the ordering of these fixes because the methodology and accessibility blockers interact and the trade-offs are a research-program decision, not a Probe decision."
+  ],
+  "provenance": {
+    "assembly": "AGENT_INFERENCE"
+  }
+}

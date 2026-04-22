@@ -1,0 +1,124 @@
+{
+  "runId": "backlog_mochi_proactive",
+  "premise": "Design a study to understand when an AI assistant's proactive reminders feel supportive vs. paternalistic in ADHD-adjacent knowledge worker contexts.",
+  "premiseTruncated": "Design a study to understand when an AI assistant's proactive reminders feel supportive vs. pater...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [
+          "agency.weak_override",
+          "agency.paternalistic_default"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 2,
+        "exit": 0,
+        "legibility": 1
+      },
+      "metaReviewVerdict": "human_judgment_required",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED) [human_judgment_required]"
+    },
+    {
+      "branchId": "b",
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "accept_revise",
+      "disagreementClass": "consensus",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED)"
+    },
+    {
+      "branchId": "c",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit fired a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2",
+      "auditVerdict": "BLOCKED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [
+          "agency.weak_override",
+          "agency.paternalistic_default"
+        ],
+        "exit": [
+          "exit.institutional_dependence"
+        ],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 2,
+        "exit": 1,
+        "legibility": 3
+      },
+      "verdictLabel": "BLOCKED:legibility.no_failure_signal"
+    }
+  ],
+  "totalUsd": 3.7629539999999997,
+  "totalInputTokens": 363073,
+  "totalOutputTokens": 90269,
+  "durationMs": 1655709,
+  "costEntryCount": 23,
+  "repairPasses": [
+    {
+      "stage": "6_audit",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "8_guidebook",
+      "branchId": null,
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": true,
+    "provenancePassed": true,
+    "voicePassed": true,
+    "provenanceViolationCount": 0,
+    "voiceViolationCount": 0
+  },
+  "anomalies": [
+    "repair pass on 6_audit [branch b]",
+    "repair pass on 8_guidebook"
+  ],
+  "generatedAt": "2026-04-22T07:39:23.355Z"
+}

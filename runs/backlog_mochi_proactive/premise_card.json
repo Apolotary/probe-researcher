@@ -1,0 +1,29 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_mochi_proactive",
+  "raw_premise": "Design a study to understand when an AI assistant's proactive reminders feel supportive vs. paternalistic in ADHD-adjacent knowledge worker contexts.",
+  "sharpest_question": "What is 'ADHD-adjacent' doing in this sentence — is it a recruitment criterion, a design target, or a way to avoid committing to a clinical population?",
+  "claim": "Proactive AI reminders have identifiable contextual features (timing, framing, frequency, content-source) that predict whether users with attention-regulation difficulties experience them as scaffolding or as surveillance/control.",
+  "differentia": "Not visible in the premise. The supportive-vs-paternalistic axis is a well-worn frame in persuasive technology, behavior-change tech, and assistive technology literature. Nothing here tells me what ADHD-adjacent knowledge work specifically reveals that a generic study of proactive notifications would not.",
+  "nearest_template": "Vignette or diary studies of notification/interruption acceptability (Mark, Iqbal, Czerwinski lineage) crossed with autonomy-supportive vs. controlling framings from self-determination theory applied to behavior-change apps (e.g., Calvo, Peters on wellbeing-supportive design).",
+  "missing_evidence": [
+    "No definition of 'ADHD-adjacent' — diagnosed, self-identified, trait-measured (e.g., ASRS), or just 'people who feel scattered'? These recruit different populations with different results.",
+    "No specification of what the reminders are about — deadlines, hydration, meeting prep, refocusing after distraction? Supportiveness is domain-dependent.",
+    "No theoretical commitment. 'Supportive vs. paternalistic' is a dichotomy the researcher should be decomposing into constructs (autonomy, competence, legibility, agency) before running a study.",
+    "No decision under study. Is the participant judging a reminder post-hoc, choosing to configure one, or living with one over time? These are three different studies.",
+    "No articulation of why AI matters here versus a scheduled reminder. If the finding would be identical for a dumb timer, the AI framing is decoration.",
+    "No stance on individual variability — is the claim that there is a population-level pattern, or that the same person shifts across contexts? The study design diverges sharply."
+  ],
+  "sharpened_options": [
+    "Reframe as a construct-decomposition study: take the supportive/paternalistic folk dichotomy and, via think-aloud vignette sorting with adults scoring high on ASRS-v1.1, recover the dimensions people actually use (e.g., legibility of the AI's model of them, reversibility, timing relative to self-initiated focus states). Output is a coding scheme, not a design recommendation.",
+    "Reframe as a mechanism study tied to one behavior: task re-engagement after distraction. Compare reminders that cite the user's own stated goal vs. infer a goal vs. issue a generic nudge, in an experience-sampling deployment over 2 weeks with diagnosed-ADHD knowledge workers. Primary outcome is perceived agency (validated scale) + return-to-task rate.",
+    "Reframe as a longitudinal acceptability-drift study: reminders that feel supportive in week 1 may feel paternalistic in week 4 (or vice versa). The contribution is temporal, not cross-sectional — identifying the trajectory and what predicts it (reminder accuracy, user effort to configure, life-context change).",
+    "Reframe as a design-probe study: co-design reminder behaviors with ADHD knowledge workers, then extract the design principles they articulate and the ones they enact-but-don't-articulate. Drops the supportive/paternalistic framing entirely as researcher-imposed and lets participants name the axis that matters.",
+    "Narrow to a specific paternalism failure mode: reminders that correctly identify a real need but are experienced as controlling anyway. Study when accuracy is insufficient for acceptability — this is the non-obvious finding and it separates the work from generic notification-timing research."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

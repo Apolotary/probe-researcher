@@ -1,0 +1,128 @@
+{
+  "runId": "backlog_divination_ui",
+  "premise": "Design a study to understand how users interpret probabilistic/ambiguous outputs in decision-support tools, using divination-app affordances as a test case.",
+  "premiseTruncated": "Design a study to understand how users interpret probabilistic/ambiguous outputs in decision-supp...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"",
+      "blockingFinding": null,
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "verdictLabel": "FAILED:5_simulator"
+    },
+    {
+      "branchId": "b",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"",
+      "blockingFinding": null,
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "verdictLabel": "FAILED:5_simulator"
+    },
+    {
+      "branchId": "c",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "PASSED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [
+          "agency.paternalistic_default"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED"
+    }
+  ],
+  "totalUsd": 1.6750110000000002,
+  "totalInputTokens": 206047,
+  "totalOutputTokens": 70458,
+  "durationMs": 1606870,
+  "costEntryCount": 20,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "c",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": false,
+    "provenancePassed": null,
+    "voicePassed": null,
+    "provenanceViolationCount": null,
+    "voiceViolationCount": null
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 5_simulator [branch a]",
+    "repair pass on 5_simulator [branch b]",
+    "repair pass on 5_simulator [branch c]",
+    "repair pass on 7b_accessibility [branch c]",
+    "branch a: missing simulated_walkthrough.md (status=failed)",
+    "branch a: missing audit.json (status=failed)",
+    "branch b: missing simulated_walkthrough.md (status=failed)",
+    "branch b: missing audit.json (status=failed)"
+  ],
+  "generatedAt": "2026-04-22T07:39:23.319Z"
+}

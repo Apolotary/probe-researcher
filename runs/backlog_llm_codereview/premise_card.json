@@ -1,0 +1,28 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_llm_codereview",
+  "raw_premise": "Design a study to evaluate whether LLM code review comments change reviewer behavior in cases where the reviewer disagrees with the LLM.",
+  "sharpest_question": "What operationalizes 'change reviewer behavior' — is the claim about the final accept/reject decision, the content of the reviewer's written comment, the time spent, the confidence rating, or something else, because each implies a different study design and a different mechanism?",
+  "claim": "Exposure to LLM code review comments shifts human reviewer behavior even when the reviewer's initial judgment conflicts with the LLM's judgment, implying that LLMs exert an anchoring or authority effect on technically trained humans.",
+  "differentia": "The premise restricts attention to disagreement cases, which would isolate anchoring/automation bias from simple agreement amplification — but the premise does not state what theory of behavior change is being tested, so the restriction is currently unmotivated rather than analytically sharp.",
+  "nearest_template": "Automation bias / algorithm aversion studies in decision-support systems (the Dietvorst/Logg/Larrick line of work); human-AI collaboration studies in code review (e.g., GitHub Copilot impact studies); anchoring studies in expert judgment.",
+  "missing_evidence": [
+    "No operationalization of 'reviewer behavior' — the dependent variable is undefined.",
+    "No specification of what counts as 'disagreement' — is it measured before LLM exposure, by a separate calibration task, or inferred post-hoc?",
+    "No mechanism claim — is the hypothesized effect automation bias, social conformity pressure, legitimate Bayesian updating, or lack of reviewer confidence? Each predicts different moderators.",
+    "No ecological validity argument — the study needs to specify whether reviewers see LLM comments as a tool they chose to use or as an imposed system, since that framing is known to shift automation bias effects.",
+    "No baseline condition design — without a condition where reviewers see a non-LLM source (e.g., peer comment, static analysis tool) making the same comment, you cannot attribute effects to LLM-ness specifically.",
+    "No account of how 'disagreement cases' will be sampled or constructed without tipping off participants to the manipulation."
+  ],
+  "sharpened_options": [
+    "Measure whether LLM code review comments cause reviewers to revise their written feedback in the direction of the LLM on disagreement trials, using a within-subjects design where reviewers score code snippets before and after seeing LLM output, with a peer-comment control arm to isolate the LLM source effect.",
+    "Test whether the effect of LLM disagreement on reviewer final verdicts (approve / request changes / reject) is moderated by reviewer expertise level, using code defects pre-validated for difficulty, to determine whether automation bias in code review is a novice problem or a universal one.",
+    "Study whether reviewers who disagree with LLM comments change their behavior differently depending on whether the LLM provides a rationale versus a bare verdict, to test whether the mechanism is authority deference or argument quality — this distinguishes the LLM-specific claim from a general persuasion claim.",
+    "Conduct a field study in a real pull-request environment where LLM review is opt-in versus mandatory, measuring longitudinal reviewer comment patterns to test whether repeated LLM disagreement exposure produces behavioral drift or reactance over time rather than a one-shot anchoring effect."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

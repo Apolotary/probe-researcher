@@ -1,0 +1,128 @@
+{
+  "runId": "backlog_screenreader_llm",
+  "premise": "Design a study to evaluate whether LLM-generated image descriptions for screen-reader users improve comprehension of complex data visualizations vs. simpler alt-text.",
+  "premiseTruncated": "Design a study to evaluate whether LLM-generated image descriptions for screen-reader users impro...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"",
+      "blockingFinding": null,
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "verdictLabel": "FAILED:5_simulator"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.substitutes_for_practice",
+          "capacity.no_fade_mechanism",
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [
+          "agency.hides_options_before_review",
+          "agency.paternalistic_default"
+        ],
+        "exit": [
+          "exit.data_lock_in"
+        ],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 3,
+        "agency": 2,
+        "exit": 1,
+        "legibility": 3
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED:capacity.substitutes_for_practice"
+    },
+    {
+      "branchId": "c",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nevidence language \"significantly faster\" in: \"The highest-probability friction point in this protocol would plausibly be the non-pausable ground-t\"",
+      "blockingFinding": null,
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "verdictLabel": "FAILED:5_simulator"
+    }
+  ],
+  "totalUsd": 1.455144,
+  "totalInputTokens": 169023,
+  "totalOutputTokens": 63205,
+  "durationMs": 1408855,
+  "costEntryCount": 19,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "b",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": false,
+    "provenancePassed": null,
+    "voicePassed": null,
+    "provenanceViolationCount": null,
+    "voiceViolationCount": null
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 5_simulator [branch c]",
+    "repair pass on 5_simulator [branch a]",
+    "repair pass on 5_simulator [branch b]",
+    "branch a: missing simulated_walkthrough.md (status=failed)",
+    "branch a: missing audit.json (status=failed)",
+    "branch c: missing simulated_walkthrough.md (status=failed)",
+    "branch c: missing audit.json (status=failed)"
+  ],
+  "generatedAt": "2026-04-22T07:39:23.383Z"
+}

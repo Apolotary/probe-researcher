@@ -1,0 +1,52 @@
+██████╗ ██████╗  ██████╗ ██████╗ ███████╗
+██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██████╔╝██████╔╝██║   ██║██████╔╝█████╗  
+██╔═══╝ ██╔══██╗██║   ██║██╔══██╗██╔══╝  
+██║     ██║  ██║╚██████╔╝██████╔╝███████╗
+╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝
+                                         
+🔬 rehearsal stage for research  ·  the performance still needs humans
+
+🔬 probe · backlog_browser_agents · "Design a study to understand how users form trust in brow..."
+
+
+  ○ ❓ ─ ○ 🧭 ─ ○ 📚 ─ ○ 🛠 ─ ○ 🎭 ─ ○ ⚖️ ─ ○ 🗯 ─ ○ 🗯 ─ ○ 🗯 ─ ○ 📘
+
+- ❓  interrogating the premise…
+✔ ❓  stage 1_premise · runs/backlog_browser_agents/premise_card.json
+- 🧭  ideating divergent branches…
+✔ 🧭  stage 2_ideator · 3 divergent branches spawned
+   │ A  runs/backlog_browser_agents/branches/a/branch_card.json
+   │ B  runs/backlog_browser_agents/branches/b/branch_card.json
+   │ C  runs/backlog_browser_agents/branches/c/branch_card.json
+- 📚  grounding in the corpus…
+✔ 📚  stage 3_literature · 3 branches
+   │ A  ok
+   │ B  ok
+   │ C  ok
+- 🛠  specifying the prototype…
+✔ 🛠  stage 4_prototype · 3 branches
+   │ A  ok
+   │ B  ok
+   │ C  ok
+- 🎭  rehearsing the walkthrough…
+✔ 🎭  stage 5_simulator · 3 branches
+   │ A  failed  5_simulator lint failed after repair:
+paragraph missing [SIMULATION_REHEARSAL]: "---"
+paragraph missing [SIMULATION_REHE
+   │ B  ok
+   │ C  ok
+- ⚖️  auditing capture risk…
+✔ ⚖️  stage 6_audit · 2 branches audited
+   │ B  REVISION_REQUIRED
+   │ C  REVISION_REQUIRED
+- 🗯  preserving disagreement…
+✔ 🗯  stage 7d_meta · 2 branches reviewed
+   │ B  reject ⛔ WORKSHOP_NOT_RECOMMENDED.md
+   │ C  reject ⛔ WORKSHOP_NOT_RECOMMENDED.md
+
+  ✓ ❓ ─ ✓ 🧭 ─ ✓ 📚 ─ ✓ 🛠 ─ ✓ 🎭 ─ ✓ ⚖️ ─ ○ 🗯 ─ ○ 🗯 ─ ✓ 🗯 ─ ○ 📘
+
+⛔ all branches blocked — no guidebook assembled (b, c)
+
+⛔  all branches blocked — see runs/backlog_browser_agents/branches/*/WORKSHOP_NOT_RECOMMENDED.md

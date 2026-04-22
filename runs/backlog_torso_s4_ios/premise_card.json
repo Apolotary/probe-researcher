@@ -1,0 +1,28 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_torso_s4_ios",
+  "raw_premise": "Design a study to evaluate a mobile recreation of a hardware MPC-style sampler interface, where the constraint is that mobile UX expectations conflict with the hardware's tactile affordances.",
+  "sharpest_question": "What is the dependent variable — are you measuring performance on a sampling task, learnability for novices, expressive range for experienced MPC users, or subjective fidelity of the experience, because each implies a different study and a different interface?",
+  "claim": "A mobile reimplementation of the MPC pad-grid workflow can be evaluated against a tension between touchscreen interaction conventions (scroll, long-press, modal sheets) and the hardware's velocity-sensitive, eyes-free, two-handed tactile loop.",
+  "differentia": "Not visible in the premise. Touchscreen drum-pad apps have existed for over a decade (iMaschine, Koala, MPC Beats iOS, GarageBand Smart Drums, countless clones). The premise does not name what specifically about the hardware→mobile translation is being studied that those products have not already resolved by convention.",
+  "nearest_template": "Tangible-to-touch interface translation studies — e.g., work on finger-drumming on touchscreens vs. pads (Wanderley, Tahiroğlu), NIME-style evaluations of DMIs, and HCI studies on loss of passive haptic feedback when porting physical instruments to glass.",
+  "missing_evidence": [
+    "No user population specified — MPC-literate producers, novices, or mobile-native beatmakers are three incompatible study populations",
+    "No task defined — finger-drumming accuracy, beat construction from scratch, sample chopping, and live performance each stress different affordances",
+    "No specification of which tactile affordances are claimed to conflict with which mobile conventions — velocity? eyes-free pad location? simultaneous multi-finger press? shift-button chording?",
+    "No baseline comparator — is this compared to hardware MPC, to existing mobile samplers, or to a within-subjects alternative mobile design?",
+    "No outcome measures — timing accuracy, velocity expressivity, workflow completion time, SUS, or qualitative flow reports?",
+    "No position on whether the goal is fidelity to MPC workflow or discovery of a mobile-native equivalent — these lead to opposite designs"
+  ],
+  "sharpened_options": [
+    "A controlled finger-drumming study with MPC-experienced producers comparing timing and velocity accuracy across three conditions (hardware MPC, faithful mobile recreation with velocity-via-touch-area, mobile-native redesign with discrete velocity zones), isolating the cost of losing passive haptic pad boundaries.",
+    "A qualitative workflow study of novice beatmakers completing a beat-construction task on a mobile MPC-style app, surfacing which hardware-derived interaction patterns (banks, shift-chording, step sequencer modes) collide with expected mobile conventions (swipe navigation, bottom sheets, single-touch focus) and how users repair the mismatch.",
+    "A design-research study that enumerates MPC tactile affordances, maps each to a mobile convention that conflicts with it, and evaluates two or three interface prototypes embodying different resolution strategies (mimetic, translational, mobile-native) against expressivity and learnability for a fixed performance task.",
+    "A longitudinal diary study of producers adopting a mobile MPC-style app over four weeks, characterizing which hardware workflows they abandon, adapt, or demand, yielding a taxonomy of transfer-resistant vs. transfer-tolerant interaction patterns."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_claude_artifacts",
+  "raw_premise": "Design a study to understand how developers reason about AI-generated single-file HTML artifacts vs. multi-file projects when deciding what to trust.",
+  "sharpest_question": "What is the trust decision actually about — correctness of the code, provenance of the AI, maintainability, or security risk — because each implies a different dependent variable and the premise treats them as one thing?",
+  "claim": "If the study worked, it would produce a model of how artifact structure (single-file vs. multi-file) changes developers' trust reasoning when the artifact is AI-generated, enabling designers of AI coding tools to make predictions about when developers will accept, reject, or audit AI output.",
+  "differentia": "The specific comparison of single-file vs. multi-file as a structural variable on trust is not visible in existing code trust or AI verification literature — but this absence may be because the variable is too shallow to carry the weight of trust reasoning alone, not because the work is novel.",
+  "nearest_template": "Source code trust / AI-generated code acceptance studies (e.g., Copilot acceptance behavior research, security-of-AI-code audit studies, and the broader 'appropriate reliance' paradigm in AI-assisted decision-making). The multi-file vs. single-file axis maps onto artifact legibility, which has analogs in program comprehension research.",
+  "missing_evidence": [
+    "No operational definition of 'trust' — whether it means willingness to deploy, willingness to ship without review, subjective confidence, or behavioral verification actions.",
+    "No claim about why file structure would mechanistically affect trust rather than being a proxy for some underlying variable (complexity, inspectability, perceived AI effort, familiarity with the artifact type).",
+    "No evidence that developers encounter a genuine decision point around single-file HTML artifacts specifically — the population-task pairing is asserted, not motivated.",
+    "No specification of what 'AI-generated' means to participants in context: does it mean disclosed provenance, inferred provenance, or are both conditions studied?",
+    "No baseline: what do we already know about how developers trust any generated artifact, such that this study changes the state of knowledge rather than redocumenting it?"
+  ],
+  "sharpened_options": [
+    "Study how disclosed AI provenance (vs. undisclosed) changes developers' audit behavior on single-file HTML artifacts, holding content constant — isolating provenance disclosure as the causal variable rather than file structure.",
+    "Study whether single-file containment increases or decreases developers' perceived inspectability of AI-generated code, and whether perceived inspectability predicts actual security-flaw detection rates in a controlled audit task.",
+    "Study the threshold at which file-count complexity causes developers to shift from full-inspection to sampling strategies when auditing AI-generated projects, producing a behavioral model of audit coverage as a function of structural complexity.",
+    "Study how developers' mental models of AI capability differ for single-file artifacts (typically UI prototypes, demos) vs. multi-file projects (typically production code), and whether that mental model difference — not the structure itself — drives trust calibration."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

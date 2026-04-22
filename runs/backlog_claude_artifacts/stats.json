@@ -1,0 +1,153 @@
+{
+  "runId": "backlog_claude_artifacts",
+  "premise": "Design a study to understand how developers reason about AI-generated single-file HTML artifacts vs. multi-file projects when deciding what to trust.",
+  "premiseTruncated": "Design a study to understand how developers reason about AI-generated single-file HTML artifacts ...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "PASSED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED:legibility.no_rationale_at_point_of_action"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.substitutes_for_practice",
+          "capacity.no_fade_mechanism",
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [
+          "agency.hides_options_before_review"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.opaque_ranking",
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 3,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 4
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "single_reviewer_outlier",
+      "verdictLabel": "BLOCKED:capacity.substitutes_for_practice"
+    },
+    {
+      "branchId": "c",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [
+          "agency.hides_options_before_review"
+        ],
+        "exit": [
+          "exit.data_lock_in"
+        ],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 1,
+        "exit": 1,
+        "legibility": 3
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED:agency.hides_options_before_review"
+    }
+  ],
+  "totalUsd": 2.2980960000000006,
+  "totalInputTokens": 303882,
+  "totalOutputTokens": 92430,
+  "durationMs": 2070234,
+  "costEntryCount": 29,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "4_prototype",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "a",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": false,
+    "provenancePassed": null,
+    "voicePassed": null,
+    "provenanceViolationCount": null,
+    "voiceViolationCount": null
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 4_prototype [branch a]",
+    "repair pass on 5_simulator [branch a]",
+    "repair pass on 5_simulator [branch b]",
+    "repair pass on 5_simulator [branch c]",
+    "repair pass on 7b_accessibility [branch a]"
+  ],
+  "generatedAt": "2026-04-22T07:39:23.317Z"
+}

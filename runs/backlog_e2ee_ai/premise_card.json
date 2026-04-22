@@ -1,0 +1,27 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_e2ee_ai",
+  "raw_premise": "Design a study to understand user mental models of AI features running on end-to-end encrypted messaging platforms.",
+  "sharpest_question": "What specific contradiction or behavioral failure in users' current mental models do you expect to expose — because without a predicted gap between user belief and system reality, you have an interview study with no falsifiable outcome?",
+  "claim": "If the study worked, it would establish which aspects of E2EE mental models transfer incorrectly to AI-augmented contexts, producing a taxonomy of misconception types that predicts privacy-relevant user decisions.",
+  "differentia": "Existing mental models work covers E2EE in isolation or AI assistants in isolation; the specific tension arises when users believe E2EE guarantees privacy while an AI feature necessarily violates the cryptographic boundary — that collision point is not addressed in either body of work, but the premise does not yet commit to studying the collision rather than general comprehension.",
+  "nearest_template": "Wash & Felt (2008)-style mental models elicitation for security systems, combined with Liao et al.-style AI transparency studies — both are well-established; the combination has likely appeared in post-2022 work on on-device vs. cloud AI that the researcher should locate before proceeding.",
+  "missing_evidence": [
+    "No specification of which AI features are in scope — on-device inference, cloud-side summarization, and operator-accessible AI have radically different cryptographic properties and will produce different mental model errors; treating them as interchangeable collapses the niche.",
+    "No articulated mechanism: is the study claiming users have wrong beliefs about where AI computation occurs, wrong beliefs about who can read AI outputs, wrong beliefs about data retention, or some combination? Each implies a different instrument.",
+    "No population boundary: Signal power users, WhatsApp general population, and enterprise Teams users have different baseline literacy and different actual system properties — pooling them yields an uninterpretable variance structure.",
+    "No behavioral dependent variable: mental models research that stops at elicitation without connecting to a decision (e.g., whether to enable an AI feature, what to disclose) cannot support actionable design recommendations.",
+    "No account of whether the target misconception already has a known corrective — if prior literacy interventions already work, the study is redundant; if they don't, that's the niche, and it needs to be stated."
+  ],
+  "sharpened_options": [
+    "Territory: Users of E2EE platforms are adopting AI summarization features without understanding that these features require plaintext access at some point in the pipeline, undermining the privacy guarantee they believe they have. Niche: Existing mental models work treats E2EE and AI transparency as separate domains; no study has characterized the specific misconceptions that arise at their intersection. Occupation: Participants who correctly understand E2EE will systematically misattribute the AI computation as occurring within the encrypted channel, and this misconception will predict elevated willingness to disclose sensitive content — testable via a think-aloud elicitation followed by a behavioral disclosure task.",
+    "Territory: Platform designers adding AI features to E2EE products face a design tension: surfacing AI capabilities may require communicating system architecture that users currently do not need to understand. Niche: HCI work on AI transparency has not been applied to contexts where the transparency obligation conflicts with an existing security guarantee users already hold. Occupation: Mental model interventions that correctly explain AI data flow in an E2EE context will reduce perceived trustworthiness of the platform relative to a control condition — establishing a trust-transparency tradeoff that design guidelines currently ignore.",
+    "Territory: On-device AI (e.g., Pixel call screening, on-device summarization) and server-side AI have different implications for E2EE integrity, but both are marketed under the same privacy framing. Niche: No study has compared user mental models across these two architectural variants to determine whether users distinguish them. Occupation: Users presented with on-device vs. server-side AI feature descriptions under identical E2EE branding will produce indistinguishable mental model maps, demonstrating that current UI framing fails to convey architecturally meaningful distinctions — a testable null with design implications either way.",
+    "Territory: Regulatory and platform policy discourse assumes users can make meaningful consent decisions about AI features in encrypted messaging. Niche: Mental models research has not tested whether users can operationalize E2EE-plus-AI consent choices — i.e., whether their stated preferences correspond to actual feature configurations. Occupation: Users who report preferring 'maximum privacy' will enable AI features at the same rate as users with no stated preference, because their mental model does not connect AI feature activation to a privacy cost — testable via a consent-simulation task with comprehension probe."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

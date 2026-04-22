@@ -34,17 +34,22 @@ Root-cause hypothesis: the Stage 2 system prompt or user message does not reinfo
 **Why it needs your judgment**: The fix is a small prompt change in `agents/stage2_ideator.md` or the schema-repair prompt in `src/orchestrator/stages/stage2_ideator.ts` — could be a one-line "respect the 300-char limit" reinforcement, or a post-validate helper that truncates at the boundary and lets the model explain. Hard constraint says don't modify `src/orchestrator/` beyond bug fixes; this arguably IS a bug fix, but the fix is a prompt change, not a code change, so I'm leaving it for your call.
 **Severity**: medium (happens on ~1/4 of runs so far; wastes one stage-2 call worth of budget each time, ~$0.10)
 
-## 2026-04-22 15:37 GMT+9 — voice_agents Stage 8 guidebook-lint failure
+## 2026-04-22 15:37 GMT+9 — Stage 8 guidebook-lint failures (voice_agents, e2ee_ai)
 
-**Source**: `runs/backlog_voice_agents/`, `logs/backlog_voice_agents.log` + `.attempt2`
-**Observation**: Run 8 of 12 failed twice. Attempt 1 reached Stage 8 successfully (all prior stages green: premise → ideation → literature → prototype → simulator → audit → 2 branches reviewed) but the Stage 8 assembler produced a guidebook that failed the provenance + forbidden-phrase linter AFTER the one repair pass, so the pipeline threw. Attempt 2 hit the known git-worktree-collision (same as llm_codereview, same root cause: the retry doesn't run `git branch -D run-<slug>-{a,b,c}` before re-attempting).
+**Source**: `runs/backlog_voice_agents/` + `runs/backlog_e2ee_ai/`; logs in each
+**Observation**: Two of 10 Sonnet runs failed at Stage 8 the same way: pipeline reached Stage 8 successfully, the assembler produced a guidebook that failed the provenance + forbidden-phrase linter, the one repair pass did not fix it, the pipeline threw. Both attempt 1s had green status through Stage 7 (all branches reviewed, meta-review produced a verdict).
 
-The attempt-1 failure is the substantive one. Stage 8 repairing-into-linter-rejection twice is rare — in the Opus runs we had 0 documented cases; under Sonnet this is the second voice-agents-class failure (Sonnet also required 3 Stage 5 repairs on browser_agents). This is consistent with the earlier finding that Sonnet is substantively weaker on the judgment-heavy stages. The voice-agents premise (multilingual-household codeswitching) may have pushed Sonnet past the linter's tolerance for voice discipline.
+Under Sonnet, this is now a **20% Stage-8 failure rate** (2 out of 10 runs that reached Stage 8). Under Opus, across the three shipped runs, we had 0 Stage-8 failures. This is the second named Sonnet-weakness axis after Stage 5 simulator failures (4 branch-level failures across 3 Sonnet runs).
 
-Post-hoc cleanup performed: `git branch -D run-voice_agents-{a,b,c}` so future re-attempts of this specific run_id work cleanly.
+Both retry attempts hit the git-worktree-collision scripting issue — the retry does not `git branch -D run-<slug>-{a,b,c}` before re-attempting, so the stale worktree registration blocks the new worktree creation. Both batches of stale branches (`run-voice_agents-{a,b,c}`, `run-klog_e2ee_ai-{a,b,c}`) cleaned up post-hoc. Note that the slug generator produces `klog_e2ee_ai` from `backlog_e2ee_ai` — the first three characters of the run-id get eaten somewhere in the name derivation. That's a separate bug worth logging and fixing when the retry path is revisited.
 
-**Why it needs your judgment**: This is the second concrete data point that Sonnet's weakness on judgment stages costs pipeline completions, not just Stage 5 quality. If the Sonnet-for-remaining-batch experiment continues to hit rate ~1 Stage-8 failure per 4 runs, the cost/quality math tips back toward Opus. Worth a sentence in the paper's cost-tradeoff discussion.
-**Severity**: medium (capacity to complete the pipeline under Sonnet is visibly lower)
+**Why it needs your judgment**: The paper's cost-tradeoff story needs to be honest about BOTH Sonnet weaknesses: Stage 5 simulator (rehearsal quality) and Stage 8 assembly (linter-discipline). Combined, ~2 of 10 Sonnet runs fail to produce a guidebook. Opus costs ~2× as much but produces a guidebook from every comparable run. The straight budget comparison ($3 vs $6 per run) underweights the assembly-failure cost, because a failed run spends most of its budget anyway — the agent runs through 7 of 8 stages before the lint rejection.
+
+Fix recommendations:
+- Sonnet's voice-discipline prompt in `agents/guidebook.md` could be tightened with concrete before/after examples of forbidden vs acceptable phrasing. This would not address all cases but should help.
+- The retry path in `scripts/run_backlog.sh` should run `git worktree remove --force` + `git branch -D` before re-attempting. 5 lines of bash.
+- Paper evaluation section should add a one-paragraph "Sonnet weaknesses" summary alongside the "Sonnet strengths" note from the Stage 7 ablation.
+**Severity**: medium (affects the paper's claim about routing)
 
 ## 2026-04-22 15:16 GMT+9 — three-different-patterns-block-three-branches
 
@@ -75,13 +80,27 @@ This is strong evidence against the earlier hypothesis that `legibility.no_failu
 
 ## 2026-04-22 14:50 GMT+9 — Sonnet weaker than Opus at Stage 5 simulator
 
-**Source**: `runs/backlog_browser_agents/` (first Sonnet-only run)
-**Observation**: Stage 5 (simulated walkthrough) required a repair pass on ALL THREE branches, and branch A failed outright after repair. This is new behavior — across the three Opus runs, Stage 5 repair passes were rare (median 0 per run, max 1). The ablation study had only tested Sonnet at Stage 7 (methodologist reviewer); this is the first evidence that Sonnet is substantively weaker at Stage 5. The CLAUDE.md constraint "Never downgrade Stages 5, 6, 7" now has concrete evidence behind it.
+**Source**: `runs/backlog_browser_agents/` (first Sonnet-only run), updated through 15:58 GMT+9
+**Observation (initial)**: Stage 5 (simulated walkthrough) required a repair pass on ALL THREE branches of the first Sonnet run, and branch A failed outright after repair. This is new behavior — across the three Opus runs, Stage 5 repair passes were rare (median 0 per run, max 1). The ablation study had only tested Sonnet at Stage 7 (methodologist reviewer); this is the first evidence that Sonnet is substantively weaker at Stage 5. The CLAUDE.md constraint "Never downgrade Stages 5, 6, 7" now has concrete evidence behind it.
 
-User override is still in effect by your explicit request for the test batch. The weaker Stage 5 output may affect the subsequent audit / review stages (worse rehearsal → thinner evidence spans for the auditor to anchor on). Watching whether the Sonnet runs produce fewer -2 verdicts than Opus would have on comparable premises.
+**UPDATE 15:58 GMT+9**: after three more Sonnet runs the Stage-5 failure rate is now concrete. Across 6 Sonnet backlog runs completed so far:
 
-**Why it needs your judgment**: After this batch, a lightweight Stage-5-only ablation on one saved branch card would pin the cost/quality tradeoff precisely for Stage 5. That's a paper-strengthening data point.
-**Severity**: medium (affects the budget-vs-quality tradeoff story; also a potential paper addition)
+| Run | Stage 5 failures | Outcome |
+| --- | --- | --- |
+| backlog_llm_codereview | n/a — failed at Stage 2 | both attempts failed |
+| backlog_browser_agents | 1 (branch A) + 3 repair passes | 2 blocked |
+| backlog_screenreader_llm | 0 | (not yet analyzed) |
+| backlog_claude_artifacts | 0 | 3 blocked |
+| backlog_voice_agents | 0 (failed at Stage 8 lint instead) | both attempts failed |
+| backlog_live_coding | 1 (branch C) | 2 blocked |
+| backlog_divination_ui | **2 (branches A + B)** | 1 blocked, 2 failed |
+
+Total: **4 Stage-5 failures across 6 Sonnet runs**, versus **0 Stage-5 failures across 3 Opus runs** in the shipped corpus. This is no longer a single-trial observation; Stage 5 is materially less reliable under Sonnet, and in the `divination_ui` run the failure rate reached 2-of-3 branches on a single run, which is likely the floor for pipeline usefulness (with only one surviving branch reaching Stage 6, the divergent-branch comparison Probe is built around collapses).
+
+Budget win is real: ~$2-3 per Sonnet run vs ~$5-6 per Opus run. Quality loss on Stage 5 is also real: ~1 Stage 5 branch fails per 1.5 runs under Sonnet.
+
+**Why it needs your judgment**: The paper's cost-tradeoff section currently reads "Sonnet is substantively capable on the methodologist stage" (from the n=1 Stage 7 ablation). The new evidence is the opposite shape on Stage 5 — Sonnet is substantively LESS capable. Neither claim generalizes beyond the stage it was tested on; the paper should distinguish. Concrete suggestion: add a Stage 5 ablation line to the evaluation — on one saved branch card that succeeded under Opus, re-run Stage 5 under Sonnet and report what breaks.
+**Severity**: medium (affects budget/quality tradeoff story; CLAUDE.md constraint is now load-bearing rather than hypothetical)
 
 ## 2026-04-22 13:58 GMT+9 — new meta-reviewer disagreement class appeared
 
@@ -116,5 +135,11 @@ User override is still in effect by your explicit request for the test batch. Th
 ## 2026-04-22T06:37:04Z — run backlog_voice_agents failed twice
 **Source**: scripts/run_backlog.sh (Task 4)
 **Observation**: Two attempts at `probe run --run-id backlog_voice_agents` failed. Log: `logs/backlog_voice_agents.log`, `logs/backlog_voice_agents.log.attempt2`.
+**Why it needs your judgment**: User rule — skip after second failure; do not spend 30+ min debugging.
+**Severity**: medium (reduces Task 4 coverage by one premise)
+
+## 2026-04-22T07:24:53Z — run backlog_e2ee_ai failed twice
+**Source**: scripts/run_backlog.sh (Task 4)
+**Observation**: Two attempts at `probe run --run-id backlog_e2ee_ai` failed. Log: `logs/backlog_e2ee_ai.log`, `logs/backlog_e2ee_ai.log.attempt2`.
 **Why it needs your judgment**: User rule — skip after second failure; do not spend 30+ min debugging.
 **Severity**: medium (reduces Task 4 coverage by one premise)

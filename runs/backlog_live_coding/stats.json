@@ -1,0 +1,149 @@
+{
+  "runId": "backlog_live_coding",
+  "premise": "Design a study to evaluate pair-programming dynamics between a human and an AI coding assistant in live-coding music performance contexts.",
+  "premiseTruncated": "Design a study to evaluate pair-programming dynamics between a human and an AI coding assistant i...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [
+          "agency.hides_options_before_review"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED:agency.hides_options_before_review"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [
+          "agency.auto_decides_consequential_step",
+          "agency.weak_override"
+        ],
+        "exit": [
+          "exit.data_lock_in"
+        ],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 2,
+        "exit": 1,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED:agency.auto_decides_consequential_step"
+    },
+    {
+      "branchId": "c",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nparagraph missing [SIMULATION_REHEARSAL]: \"<!-- Section intentionally consolidated above; risks are enumerated in the four paragraphs preceding\"",
+      "blockingFinding": null,
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "verdictLabel": "FAILED:5_simulator"
+    }
+  ],
+  "totalUsd": 2.20212,
+  "totalInputTokens": 304185,
+  "totalOutputTokens": 85971,
+  "durationMs": 1935139,
+  "costEntryCount": 26,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "7a_methodologist",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "b",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": false,
+    "provenancePassed": null,
+    "voicePassed": null,
+    "provenanceViolationCount": null,
+    "voiceViolationCount": null
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 5_simulator [branch c]",
+    "repair pass on 5_simulator [branch a]",
+    "repair pass on 5_simulator [branch b]",
+    "repair pass on 7a_methodologist [branch b]",
+    "repair pass on 7b_accessibility [branch a]",
+    "repair pass on 7b_accessibility [branch b]",
+    "branch c: missing simulated_walkthrough.md (status=failed)",
+    "branch c: missing audit.json (status=failed)"
+  ],
+  "generatedAt": "2026-04-22T07:39:23.323Z"
+}

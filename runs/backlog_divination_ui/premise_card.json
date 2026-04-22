@@ -1,0 +1,27 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_divination_ui",
+  "raw_premise": "Design a study to understand how users interpret probabilistic/ambiguous outputs in decision-support tools, using divination-app affordances as a test case.",
+  "sharpest_question": "What specific interpretive failure mode does a divination-app interface produce that a standard confidence-interval display does not — and why would that difference be theoretically meaningful rather than merely exotic?",
+  "claim": "If this worked, it would establish that a specific affordance pattern drawn from divination UX (e.g., vague symbolic language, ritual framing, user-projection prompts) systematically shifts how users calibrate uncertainty in decision-support contexts — in a direction that existing ambiguity-display research has not characterized.",
+  "differentia": "The differentia is not visible in the premise. 'Divination-app affordances as a test case' is a vehicle choice, not a research contribution. The premise does not say what property of divination UI is doing theoretical work, nor whether the claim is about calibration accuracy, decision confidence, over-reliance, or something else.",
+  "nearest_template": "Ambiguity aversion and uncertainty communication in decision-support UI (Lipkus & Peters on numeric risk comprehension; Hullman et al. on uncertainty visualization; Cai et al. on AI confidence displays). The specific sub-pattern is: manipulate display format of probabilistic output → measure user interpretation accuracy or reliance behavior → compare conditions. This is a well-worn two-by-two.",
+  "missing_evidence": [
+    "What decision is under study? The premise names a domain (decision-support tools) but not a choice being made — without this, you cannot operationalize 'interpretation.'",
+    "What is the specific affordance from divination apps being isolated? Symbolic ambiguity? Ritual interaction sequence? Personalization language? Without isolating one mechanism, the divination framing is decoration.",
+    "Who is the population? Divination apps attract specific demographics; if the study depends on prior divination familiarity, that is a confound not yet acknowledged.",
+    "What outcome variable distinguishes 'interprets well' from 'interprets poorly'? Calibration? Decision quality? Expressed uncertainty? Over-reliance on the tool?",
+    "What is the niche in existing uncertainty-display literature? The premise does not cite a gap — it implies one by novelty of context, which is not the same thing."
+  ],
+  "sharpened_options": [
+    "Territory: Users systematically over-rely on AI decision-support outputs when displays project false precision. Niche: Existing work tests numeric vs. visual uncertainty formats but has not tested whether ambiguity-preserving language (the operational logic of horoscope-style framing) reduces over-reliance compared to probability displays. Occupation: Users shown horoscope-style ambiguous output for an AI hiring recommendation will show lower over-reliance (measured by deviation from tool output when given contradicting evidence) than users shown a percentage-confidence display, because ambiguous language forces active interpretation rather than anchoring.",
+    "Territory: Uncertainty displays in AI tools presuppose users have calibrated probabilistic intuitions. Niche: Prior work has not examined whether interactive ritual framing — the sequence of input, reflection prompt, and symbolic output common in divination apps — produces better subjective calibration than passive probability display by forcing users to articulate their prior before seeing the output. Occupation: A within-subjects study comparing a ritual-sequence uncertainty display to a standard confidence bar will show higher post-decision calibration accuracy and lower surprise ratings when outcomes are revealed, because the ritual sequence externalizes the user's prior expectation.",
+    "Territory: AI decision-support tools are adopted or rejected partly on the basis of perceived legitimacy of their uncertainty communication. Niche: Existing adoption studies compare expert vs. lay numeracy but have not tested whether symbolic/vague output framing increases perceived legitimacy among users with low numeracy — the population most vulnerable to miscalibration. Occupation: Low-numeracy users rate a divination-styled uncertainty display as more trustworthy and make decisions more aligned with their stated values than when shown a numeric probability, revealing a trust-calibration tradeoff that standard displays obscure.",
+    "Territory: Over-reliance on AI recommendations is a known failure mode, but interface-level mitigations remain underspecified. Niche: Prompting users to self-generate meaning before receiving a recommendation (a structural feature of divination UI) has not been tested as an over-reliance intervention against standard displays. Occupation: Users who generate a personal interpretation prompt before seeing an AI recommendation defer to the AI recommendation less often in adversarial cases — establishing projection-first sequencing as a candidate over-reliance mitigation independent of the divination aesthetic."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

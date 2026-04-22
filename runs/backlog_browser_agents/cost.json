@@ -1,0 +1,214 @@
+{
+  "run_id": "backlog_browser_agents",
+  "stages": [
+    {
+      "stage": "1_premise",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 975,
+      "output_tokens": 989,
+      "usd": 0.01776,
+      "duration_ms": 24215
+    },
+    {
+      "stage": "2_ideator",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 2233,
+      "output_tokens": 1134,
+      "usd": 0.023709,
+      "duration_ms": 16540
+    },
+    {
+      "stage": "2_ideator",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 2510,
+      "output_tokens": 995,
+      "usd": 0.022455000000000003,
+      "duration_ms": 12162
+    },
+    {
+      "stage": "3_literature",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 7992,
+      "output_tokens": 690,
+      "usd": 0.034326,
+      "duration_ms": 13491
+    },
+    {
+      "stage": "3_literature",
+      "branch_id": "a",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 7989,
+      "output_tokens": 712,
+      "usd": 0.034647,
+      "duration_ms": 14577
+    },
+    {
+      "stage": "3_literature",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 7991,
+      "output_tokens": 719,
+      "usd": 0.034758,
+      "duration_ms": 16550
+    },
+    {
+      "stage": "4_prototype",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 3370,
+      "output_tokens": 6118,
+      "usd": 0.10188,
+      "duration_ms": 138673
+    },
+    {
+      "stage": "4_prototype",
+      "branch_id": "a",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 3363,
+      "output_tokens": 7592,
+      "usd": 0.123969,
+      "duration_ms": 162889
+    },
+    {
+      "stage": "4_prototype",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 3341,
+      "output_tokens": 7928,
+      "usd": 0.12894299999999997,
+      "duration_ms": 173684
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 16047,
+      "output_tokens": 5718,
+      "usd": 0.133911,
+      "duration_ms": 129121
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "a",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 15487,
+      "output_tokens": 5627,
+      "usd": 0.130866,
+      "duration_ms": 133810
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 12559,
+      "output_tokens": 5148,
+      "usd": 0.114897,
+      "duration_ms": 173511
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 16136,
+      "output_tokens": 4931,
+      "usd": 0.122373,
+      "duration_ms": 115790
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "a",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 15617,
+      "output_tokens": 5902,
+      "usd": 0.135381,
+      "duration_ms": 135448
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 12690,
+      "output_tokens": 4529,
+      "usd": 0.10600499999999999,
+      "duration_ms": 104988
+    },
+    {
+      "stage": "6_audit",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 16050,
+      "output_tokens": 3420,
+      "usd": 0.09945,
+      "duration_ms": 74662
+    },
+    {
+      "stage": "6_audit",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 18262,
+      "output_tokens": 3880,
+      "usd": 0.112986,
+      "duration_ms": 83845
+    },
+    {
+      "stage": "7a_methodologist",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 15867,
+      "output_tokens": 2734,
+      "usd": 0.088611,
+      "duration_ms": 62432
+    },
+    {
+      "stage": "7a_methodologist",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 18518,
+      "output_tokens": 3403,
+      "usd": 0.106599,
+      "duration_ms": 77054
+    },
+    {
+      "stage": "7b_accessibility",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 16005,
+      "output_tokens": 3167,
+      "usd": 0.09552,
+      "duration_ms": 73750
+    },
+    {
+      "stage": "7b_accessibility",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 18656,
+      "output_tokens": 2899,
+      "usd": 0.099453,
+      "duration_ms": 68673
+    },
+    {
+      "stage": "7d_meta",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 6878,
+      "output_tokens": 630,
+      "usd": 0.030084,
+      "duration_ms": 15681
+    },
+    {
+      "stage": "7d_meta",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 7279,
+      "output_tokens": 691,
+      "usd": 0.032201999999999995,
+      "duration_ms": 16939
+    }
+  ],
+  "totals": {
+    "input_tokens": 245815,
+    "output_tokens": 79556,
+    "usd": 1.930785
+  }
+}

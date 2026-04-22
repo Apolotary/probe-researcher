@@ -1,0 +1,22 @@
+{
+  "run_id": "backlog_torso_s4_ios",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject"
+    },
+    {
+      "branchId": "b",
+      "status": "surviving",
+      "stage": "8_guidebook"
+    },
+    {
+      "branchId": "c",
+      "status": "surviving",
+      "stage": "8_guidebook"
+    }
+  ]
+}

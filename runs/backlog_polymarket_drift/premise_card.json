@@ -1,0 +1,29 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_polymarket_drift",
+  "raw_premise": "Design a study to understand how semi-automated trading agents should surface execution drift to users monitoring multiple markets simultaneously.",
+  "sharpest_question": "What decision is the user making when they see the drift notification, and what does a wrong decision cost them?",
+  "claim": "Surfacing execution drift from semi-automated trading agents can be designed in ways that meaningfully change whether users catch agent misbehavior in time to intervene across concurrent markets.",
+  "differentia": "Not visible in the premise. The framing ('how should agents surface X to users monitoring multiple Y') is the generic shape of every notification-design study in finance, ops, and autonomous systems from the last fifteen years. Nothing in the premise distinguishes trading agents from air-traffic alerts, nothing distinguishes execution drift from any other divergence signal, and nothing distinguishes multi-market monitoring from any other multi-stream supervisory task.",
+  "nearest_template": "Supervisory-control notification studies: operator monitors N autonomous processes, system surfaces anomalies with varying salience/aggregation/explanation, DV is detection latency and intervention accuracy. See the long lineage from Parasuraman's automation-trust work through algorithmic trading dashboards and, more recently, LLM-agent oversight UIs.",
+  "missing_evidence": [
+    "Definition of 'execution drift' — is this price slippage, strategy deviation from user intent, parameter drift in the agent's model, or divergence between intended and filled orders?",
+    "Who the user is: retail trader with 3 positions, prop-shop operator with 50, or something else — the ceiling on concurrent attention drives every design choice.",
+    "What action the user can take when drift is surfaced, and on what timescale — if intervention windows are seconds, this is an alarm design problem; if minutes-to-hours, it is a review-workflow problem.",
+    "Base rate of drift events and base rate of false alarms — without this, no notification design can be evaluated.",
+    "Why semi-automated specifically matters here, rather than fully-automated-with-review or fully-manual — the human-in-the-loop role needs to be pinned down.",
+    "What failure in current tools motivates the study — is there evidence users are missing drift, over-intervening, or suffering alarm fatigue?"
+  ],
+  "sharpened_options": [
+    "Narrow to a defined drift type and a defined decision: study how traders decide whether to override an agent when realized slippage exceeds the agent's declared tolerance, across 5–20 concurrent prediction markets, with intervention windows of 30–120 seconds. Claim is about the calibration of override decisions, not notification aesthetics.",
+    "Reframe as a trust-calibration study: manipulate whether the agent surfaces drift proactively vs. on-demand vs. only post-hoc, and measure whether users develop accurate mental models of when their agents are misbehaving. Outcome is mental-model accuracy at 1 and 4 weeks, not immediate detection.",
+    "Reframe as an attention-allocation study: given that users cannot monitor N markets equally, study how drift signals should compete with other demands for foveal attention. Borrow from multiple-resource theory and measure which markets users actually look at vs. which ones were drifting.",
+    "Reframe as an accountability study: when a semi-automated agent drifts and the user does not intervene, who is responsible, and how does the surfacing design shift users' felt responsibility? This is a normative/perceptual study, not a performance study, and is the version most likely to produce a non-obvious finding.",
+    "Abandon the study-design framing and first do a contextual inquiry: shadow 8–12 users of existing semi-automated trading tools (Polymarket bots, algo-trading dashboards) for a week each, catalog the drift events that actually occur and what users currently do about them. The controlled study is premature until this exists."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

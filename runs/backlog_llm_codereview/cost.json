@@ -1,0 +1,26 @@
+{
+  "run_id": "backlog_llm_codereview",
+  "stages": [
+    {
+      "stage": "1_premise",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 980,
+      "output_tokens": 880,
+      "usd": 0.01614,
+      "duration_ms": 21403
+    },
+    {
+      "stage": "2_ideator",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 2127,
+      "output_tokens": 1192,
+      "usd": 0.024260999999999998,
+      "duration_ms": 19224
+    }
+  ],
+  "totals": {
+    "input_tokens": 3107,
+    "output_tokens": 2072,
+    "usd": 0.040401
+  }
+}

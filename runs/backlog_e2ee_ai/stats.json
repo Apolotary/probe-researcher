@@ -1,0 +1,52 @@
+{
+  "runId": "backlog_e2ee_ai",
+  "premise": "Design a study to understand user mental models of AI features running on end-to-end encrypted messaging platforms.",
+  "premiseTruncated": "Design a study to understand user mental models of AI features running on end-to-end encrypted me...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "unknown",
+      "blockingFinding": null,
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "verdictLabel": "UNKNOWN"
+    }
+  ],
+  "totalUsd": 0.067428,
+  "totalInputTokens": 6376,
+  "totalOutputTokens": 3220,
+  "durationMs": 56998,
+  "costEntryCount": 3,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": false,
+    "provenancePassed": null,
+    "voicePassed": null,
+    "provenanceViolationCount": null,
+    "voiceViolationCount": null
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "branch a: missing branch_card.json (status=unknown)",
+    "branch a: missing prototype_spec.json (status=unknown)",
+    "branch a: missing simulated_walkthrough.md (status=unknown)",
+    "branch a: missing audit.json (status=unknown)"
+  ],
+  "generatedAt": "2026-04-22T07:39:23.320Z"
+}

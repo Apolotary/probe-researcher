@@ -1,0 +1,73 @@
+{
+  "stage": "8_guidebook",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_mochi_proactive",
+  "surviving_branch": "a",
+  "blocked_branches": [
+    {
+      "branch_id": "c",
+      "reason": "Capture-risk audit fired a -2 finding.",
+      "blocking_finding": "audit:capture_risk:-2"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Premise",
+      "anchor": "premise",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Background",
+      "anchor": "background",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Prototype",
+      "anchor": "prototype",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Study protocol",
+      "anchor": "study-protocol",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Failure hypotheses to test",
+      "anchor": "failure-hypotheses-to-test",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Risks and failure modes",
+      "anchor": "risks-and-failure-modes",
+      "provenance_dominant": "AGENT_INFERENCE"
+    }
+  ],
+  "source_cards_cited": [
+    "gaver_dunne_pacenti_1999",
+    "sanders_stappers_2014",
+    "buijsman_carter_bermudez_2025",
+    "longoni_2019_medical_ai_resistance",
+    "illich_1973"
+  ],
+  "provenance_tag_counts": {
+    "RESEARCHER_INPUT": 1,
+    "SOURCE_CARD": 5,
+    "SIMULATION_REHEARSAL": 9,
+    "AGENT_INFERENCE": 67,
+    "HUMAN_REQUIRED": 1,
+    "DO_NOT_CLAIM": 6,
+    "UNCITED_ADJACENT": 1,
+    "TOOL_VERIFIED": 0
+  },
+  "forbidden_phrase_check": {
+    "passed": true,
+    "violations": []
+  },
+  "assembly_rationale": "Branch a survived capture-risk audit and meta-review; it provides the sole basis for this guidebook. Blocked branches: c.",
+  "human_required_next_steps": [
+    "Before running this study, the researcher must: (1) decide the sequencing question between co-design-first (which may reshape corpus, session structure, and sample size justification) versus methodology-lock-then-accommodate (which preserves the current analytic plan but leaves the instrument miscalibrated); (2) decide whether the contribution is descriptive (drop predictive language from the claim) or predictive (add a per-vignette acceptability DV and rebuild the analysis around it); (3) run at least 3 paid co-design sessions with ADHD adults and document changes; (4) obtain IRB approval for the compensation structure, accommodation options, and participant-initiated break channel; (5) pre-register the coding protocol, the saturation stopping rule (or N justification), the thematic consolidation step, and the clustering sensitivity analyses; (6) specify the recruitment matrix (diagnosis, medication, gender, comorbidity, recruitment source) and the stratified reporting plan."
+  ],
+  "provenance": {
+    "assembly": "AGENT_INFERENCE"
+  }
+}

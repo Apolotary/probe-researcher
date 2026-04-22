@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe report — backlog_e2ee_ai</title>
+<style>
+:root {
+  --bg: #f7f5ef;
+  --bg-card: #ffffff;
+  --bg-pre: #1a1d2c;
+  --fg-pre: #e8e3d4;
+  --fg: #1a1a1a;
+  --fg-dim: #555;
+  --fg-faint: #888;
+  --border: #d0cbb8;
+  --border-soft: #e8e3d4;
+  --accent: #1B365D;
+  --accent-warm: #9e2e22;
+  --accent-amber: #b47b2a;
+  --accent-green: #1f6b1e;
+  --accent-plum: #7a2d5a;
+  --code-bg: #ede9dc;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Newsreader', 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+h1, h2, h3, .topnav-brand, .topnav-links a, .hero-eyebrow, .hero-meta, .provtag, .card-tag,
+.pipeline-figure, .capture-findings, .meta-review, .footer-links, .footer-tagline {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #10121e;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 48px 0 16px;
+  color: #10121e;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 6px;
+}
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 28px 0 8px;
+  color: #20232e;
+}
+
+p, li, blockquote { font-size: 17px; }
+p { margin: 0 0 14px; }
+
+/* Top nav */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247, 245, 239, 0.92);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.topnav-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.topnav-brand {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.topnav-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.topnav-links a {
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 13px;
+}
+.topnav-links a:hover { color: var(--accent); }
+
+/* Hero */
+.hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 24px 24px;
+}
+.hero-eyebrow {
+  font-size: 13px;
+  color: var(--fg-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-meta {
+  font-size: 13px;
+  color: var(--fg-dim);
+  margin-top: 10px;
+}
+.hero-meta .run-id {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.hero-meta .dot { margin: 0 8px; color: #bbb; }
+.hero-tagline {
+  font-style: italic;
+  color: var(--fg-dim);
+  font-size: 16px;
+  margin-top: 24px;
+}
+
+/* Section lede */
+.section-lede {
+  font-size: 16px;
+  color: var(--fg-dim);
+  border-left: 3px solid var(--border);
+  padding: 4px 0 4px 14px;
+  margin: 0 0 20px;
+}
+
+/* Teaser figure */
+.teaser {
+  margin: 0 0 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+}
+.teaser figcaption {
+  font-size: 14px;
+  color: var(--fg-dim);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.pipeline-figure {
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.pipeline-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--fg-dim);
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 16px;
+}
+.pipeline-stage {
+  background: var(--code-bg);
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+.pipeline-stages .arrow { color: var(--fg-faint); }
+.pipeline-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pipeline-branch {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 12px;
+}
+.pipeline-branch-label { font-size: 12px; color: var(--fg-dim); margin-bottom: 6px; }
+.pipeline-verdict {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.glyph-survived { background: #dff5df; color: var(--accent-green); }
+.glyph-blocked { background: #ffe3e0; color: var(--accent-warm); }
+.glyph-failed { background: #f0e0e0; color: #555; }
+.glyph-unknown { background: #e8e3d4; color: var(--fg-dim); }
+.pipeline-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.pipeline-detail code {
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Rehearsal cards */
+.rehearsal-cards {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.rehearsal-card {
+  background: #faf7ee;
+  border-left: 3px solid var(--accent-amber);
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 0 3px 3px 0;
+}
+.rehearsal-card p { margin: 0; font-style: italic; color: #3a3a3a; }
+.card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent-amber);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Capture findings */
+.capture-findings {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.capture-finding {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-warm);
+  border-radius: 3px;
+  padding: 14px 18px;
+}
+.capture-finding.finding-drift { border-left-color: var(--accent-amber); }
+.capture-finding.finding-info { border-left-color: var(--fg-faint); }
+.finding-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.finding-pattern code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #222;
+}
+.finding-axis {
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.finding-score {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-warm);
+  font-weight: 700;
+}
+.finding-branch {
+  color: var(--fg-faint);
+  font-size: 12px;
+  margin-left: auto;
+}
+.finding-evidence {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 15px;
+  color: #2a2a2a;
+  background: var(--code-bg);
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent-amber);
+  border-radius: 0 3px 3px 0;
+}
+.evidence-source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--fg-faint);
+  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+}
+.finding-rationale {
+  font-size: 14px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+/* Meta review */
+.meta-review {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+.meta-verdict { font-size: 14px; margin-bottom: 12px; }
+.meta-verdict-label { color: var(--fg-dim); }
+.meta-verdict-value code {
+  font-family: 'JetBrains Mono', monospace;
+  background: #e1f5e0;
+  color: var(--accent-green);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.meta-class code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  color: var(--fg-dim);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.meta-rationale {
+  font-size: 15px;
+  color: #333;
+  margin: 10px 0;
+  line-height: 1.55;
+}
+.mx-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+}
+.mx-table th, .mx-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+.mx-table th { font-size: 11px; color: var(--fg-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+.mx-table code { font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+
+/* Inline content */
+code {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--bg-pre);
+  color: var(--fg-pre);
+  padding: 16px 20px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+blockquote {
+  margin: 14px 0;
+  padding: 8px 16px;
+  border-left: 3px solid var(--border);
+  color: #2a2a2a;
+}
+
+ul { padding-left: 22px; }
+li { margin: 4px 0; }
+
+/* Provenance tag badges */
+.provtag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: 2px;
+  background: var(--code-bg);
+  color: var(--fg-faint);
+  vertical-align: baseline;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.provtag.tag-source_card { background: #dfeaff; color: #1B365D; }
+.provtag.tag-simulation_rehearsal { background: #faf0dc; color: var(--accent-amber); }
+.provtag.tag-agent_inference { background: #ede9dc; color: #5a5547; }
+.provtag.tag-researcher_input { background: #dff5df; color: var(--accent-green); }
+.provtag.tag-human_required { background: #dff5e6; color: #135a3b; }
+.provtag.tag-do_not_claim { background: #ffe3e0; color: var(--accent-warm); }
+.provtag.tag-uncited_adjacent { background: #f3e0ee; color: var(--accent-plum); }
+.provtag.tag-tool_verified { background: #e1f5e0; color: var(--accent-green); }
+.provtag.tag-imported_draft { background: #e6ecf5; color: #34456b; }
+
+.provenance-legend dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  margin: 14px 0 4px;
+}
+.provenance-legend dd {
+  font-size: 15px;
+  color: var(--fg-dim);
+  margin: 0 0 8px;
+}
+
+/* Footer */
+.footer {
+  max-width: 760px;
+  margin: 64px auto 0;
+  padding: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-dim);
+}
+.footer h3 { font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); margin: 0 0 12px; }
+.footer-intro { font-size: 14px; margin-bottom: 10px; }
+.bibtex { font-size: 12px; line-height: 1.5; padding: 14px 16px; }
+.footer-links { font-size: 13px; margin-top: 16px; }
+.footer-links a { color: var(--accent); text-decoration: none; margin-right: 4px; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-tagline { font-size: 12px; color: var(--fg-faint); margin-top: 20px; font-style: italic; }
+
+.missing-section {
+  font-style: italic;
+  color: var(--fg-faint);
+  padding: 12px 16px;
+  background: var(--code-bg);
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .topnav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .topnav-links { gap: 12px; }
+  h1 { font-size: 28px; }
+  .hero { padding: 36px 18px 12px; }
+  main { padding: 0 18px 60px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#premise" class="topnav-brand">Probe</a>
+    <div class="topnav-links">
+      <a href="#premise">Premise</a>
+      <a href="#method">Method</a>
+      <a href="#rehearsal">Rehearsal</a>
+      <a href="#safety">Capture-risk</a>
+      <a href="#panel">Reviewer panel</a>
+      <a href="#handoff">Humans must decide</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">A Probe simulation run · 2026-04-22</div>
+  <h1>Design a study to understand user mental models of AI features running on end-to-end encrypted messaging platforms.</h1>
+  <div class="hero-meta">
+    <span class="run-id">backlog_e2ee_ai</span>
+    <span class="dot">·</span>
+    <span>branch A surviving</span>
+    <span class="dot">·</span>
+    <span>$0.07</span>
+    <span class="dot">·</span>
+    <span>57s wall</span>
+  </div>
+  <p class="hero-tagline">Rehearsal stage for research. The performance still needs humans.</p>
+</header>
+
+<main>
+
+<section id="teaser">
+  <figure class="teaser">
+    <div class="pipeline-figure">
+  <div class="pipeline-stages"><span class="pipeline-stage">1. premise</span><span class="arrow">→</span><span class="pipeline-stage">2. ideation</span><span class="arrow">→</span><span class="pipeline-stage">3. literature</span><span class="arrow">→</span><span class="pipeline-stage">4. prototype</span><span class="arrow">→</span><span class="pipeline-stage">5. simulator</span><span class="arrow">→</span><span class="pipeline-stage">6. audit</span><span class="arrow">→</span><span class="pipeline-stage">7. review</span><span class="arrow">→</span><span class="pipeline-stage">8. guidebook</span></div>
+  <div class="pipeline-branches"><div class="pipeline-detail">run_summary.json not found</div></div>
+</div>
+    <figcaption>
+      Figure 1. Pipeline outcome for this run. Eight stages, three branches, one guidebook. Branch
+      A survived capture-risk audit and adversarial review; other
+      branches stopped at the named stage. Verdicts below each branch were produced by the orchestrator from
+      the audit and meta-review outputs — not self-reported by the agents.
+    </figcaption>
+  </figure>
+</section>
+
+<section id="premise">
+  <h2>Premise</h2>
+  <p class="missing-section">No <code>Premise</code> section in this run's guidebook.</p>
+</section>
+
+<section id="background">
+  <h2>Background</h2>
+  <p class="missing-section">No <code>Background</code> section in this run's guidebook.</p>
+</section>
+
+<section id="method">
+  <h2>Method</h2>
+  <p class="section-lede">
+    Probe does not run a study. It writes one, rehearses it, and audits the rehearsal. This section restates
+    the prototype specification — the artifact a different researcher could build from without asking
+    clarifying questions — and the study protocol.
+  </p>
+  <p class="missing-section">No <code>Prototype</code> section in this run's guidebook.</p>
+  <p class="missing-section">No <code>Study protocol</code> section in this run's guidebook.</p>
+</section>
+
+<section id="rehearsal">
+  <h2>What the rehearsal surfaced</h2>
+  <p class="section-lede">
+    These are <strong>not participant quotes</strong>. They are the simulator's rehearsed observations, each
+    tagged <code>[SIMULATION_REHEARSAL]</code> in the underlying guidebook. They are priors to test, not
+    evidence the study has produced.
+  </p>
+  <p class="missing-section">No <code>[SIMULATION_REHEARSAL]</code> paragraphs surfaced for this run.</p>
+  <p class="missing-section">No <code>Failure hypotheses to test</code> section in this run's guidebook.</p>
+</section>
+
+<section id="safety">
+  <h2>Capture-risk audit</h2>
+  <p class="section-lede">
+    Probe fires sixteen named patterns across four axes — Capacity, Agency, Exit, Legibility — against every
+    branch's prototype spec and simulated walkthrough. A pattern is only reported when the auditor can quote
+    an evidence span from the rehearsed artifact; patterns that cannot be grounded in a specific passage are
+    not reported. A <code>-2</code> score blocks the branch.
+  </p>
+  <p class="missing-section">No fired capture-risk patterns in this run.</p>
+</section>
+
+<section id="panel">
+  <h2>Reviewer panel</h2>
+  <p class="section-lede">
+    Three Opus 4.7 agents review the surviving branch in sequence — a methodologist, an accessibility
+    advocate, and (optionally) a novelty hawk. A meta-reviewer reads their outputs and classifies the
+    disagreement without collapsing it to consensus.
+  </p>
+  <p class="missing-section">No meta-review on file for this run.</p>
+  <p class="section-lede">
+    The interactive side-by-side panel is rendered separately — see
+    <code>runs/backlog_e2ee_ai/branches/a/REVIEWER_PANEL.html</code>
+    (generate with <code>probe panel backlog_e2ee_ai a</code>).
+  </p>
+</section>
+
+<section id="handoff">
+  <h2>What humans must decide</h2>
+  <p class="section-lede">
+    Every Probe guidebook ends with a <code>[HUMAN_REQUIRED]</code> block. This is not a closing
+    pleasantry — it is the set of decisions the pipeline is not authorized to make on the researcher's
+    behalf.
+  </p>
+  <p class="missing-section">No <code>Next steps</code> section in this run's guidebook.</p>
+</section>
+
+<section id="provenance">
+  <h2>Provenance legend</h2>
+  <p>Every content-bearing element in the underlying guidebook ends with exactly one of these tags. A markdown-AST linter fails the build if any element is untagged.</p>
+  <dl class="provenance-legend">
+    <dt>[RESEARCHER_INPUT]</dt><dd>The researcher's original premise, verbatim or lightly restated.</dd>
+    <dt>[SOURCE_CARD:&lt;id&gt;]</dt><dd>Grounded in a specific hand-curated source card. The id resolves to a file in <code>corpus/source_cards/</code>.</dd>
+    <dt>[SIMULATION_REHEARSAL]</dt><dd>Content from the rehearsal. <strong>Not evidence.</strong> Required to use hedged language.</dd>
+    <dt>[AGENT_INFERENCE]</dt><dd>Reasoning by an agent, not grounded in a source or simulation.</dd>
+    <dt>[UNCITED_ADJACENT]</dt><dd>Adjacent literature a reviewer named; the researcher must verify before grounding.</dd>
+    <dt>[TOOL_VERIFIED]</dt><dd>Measured by a Managed Agents tool-equipped session (bash/grep/file ops).</dd>
+    <dt>[IMPORTED_DRAFT]</dt><dd>Researcher's own text lifted verbatim from an imported paper draft (via <code>probe import</code>).</dd>
+    <dt>[HUMAN_REQUIRED]</dt><dd>Explicit handoff. Every guidebook must have at least one.</dd>
+    <dt>[DO_NOT_CLAIM]</dt><dd>Content the guidebook explicitly flags as unclaimable.</dd>
+  </dl>
+</section>
+
+<footer class="footer">
+  <h3>Cite</h3>
+  <p class="footer-intro">If you use Probe in research or teaching, please cite the arXiv paper:</p>
+  <pre class="bibtex"><code>@article{ryskeldiev2026probe,
+  title   = {Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research},
+  author  = {Ryskeldiev, Bektur},
+  year    = {2026},
+  journal = {arXiv preprint},
+  note    = {Built at the Cerebral Valley Claude Opus 4.7 hackathon}
+}</code></pre>
+  <p class="footer-links">
+    <a href="https://github.com/Apolotary/probe-researcher">Source code</a> ·
+    <a href="paper/probe.pdf">Paper PDF</a> ·
+    <a href="DEMO_WALKTHROUGH.md">Demo walkthrough</a>
+  </p>
+  <p class="footer-tagline">Built at the Cerebral Valley Claude Opus 4.7 hackathon, April 2026.</p>
+</footer>
+
+</main>
+</body>
+</html>

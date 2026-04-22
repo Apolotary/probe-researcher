@@ -1,0 +1,159 @@
+{
+  "runId": "backlog_torso_s4_ios",
+  "premise": "Design a study to evaluate a mobile recreation of a hardware MPC-style sampler interface, where the constraint is that mobile UX expectations conflict with the hardware's tactile affordances.",
+  "premiseTruncated": "Design a study to evaluate a mobile recreation of a hardware MPC-style sampler interface, where t...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "single_reviewer_outlier",
+      "verdictLabel": "BLOCKED:legibility.no_failure_signal"
+    },
+    {
+      "branchId": "b",
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [
+          "agency.hides_options_before_review"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "accept_revise",
+      "disagreementClass": "consensus",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED)"
+    },
+    {
+      "branchId": "c",
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [],
+        "exit": [
+          "exit.data_lock_in",
+          "exit.institutional_dependence"
+        ],
+        "legibility": [
+          "legibility.no_rationale_at_point_of_action",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 0,
+        "exit": 2,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "human_judgment_required",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED) [human_judgment_required]"
+    }
+  ],
+  "totalUsd": 4.563003000000001,
+  "totalInputTokens": 472266,
+  "totalOutputTokens": 106525,
+  "durationMs": 2046632,
+  "costEntryCount": 32,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "4_prototype",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "4_prototype",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "7a_methodologist",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "7d_meta",
+      "branchId": "c",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": true,
+    "provenancePassed": true,
+    "voicePassed": true,
+    "provenanceViolationCount": 0,
+    "voiceViolationCount": 0
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 4_prototype [branch c]",
+    "repair pass on 4_prototype [branch a]",
+    "repair pass on 7a_methodologist [branch b]",
+    "repair pass on 7b_accessibility [branch a]",
+    "repair pass on 7b_accessibility [branch c]",
+    "repair pass on 7b_accessibility [branch b]",
+    "repair pass on 7d_meta [branch c]"
+  ],
+  "generatedAt": "2026-04-22T07:39:23.398Z"
+}

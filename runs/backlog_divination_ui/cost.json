@@ -1,0 +1,187 @@
+{
+  "run_id": "backlog_divination_ui",
+  "stages": [
+    {
+      "stage": "1_premise",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 1295,
+      "output_tokens": 1157,
+      "usd": 0.021240000000000002,
+      "duration_ms": 25628
+    },
+    {
+      "stage": "2_ideator",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 2402,
+      "output_tokens": 1310,
+      "usd": 0.026856,
+      "duration_ms": 25483
+    },
+    {
+      "stage": "2_ideator",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 2699,
+      "output_tokens": 971,
+      "usd": 0.022662,
+      "duration_ms": 12136
+    },
+    {
+      "stage": "3_literature",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 7988,
+      "output_tokens": 651,
+      "usd": 0.033728999999999995,
+      "duration_ms": 13394
+    },
+    {
+      "stage": "3_literature",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 7983,
+      "output_tokens": 640,
+      "usd": 0.033549,
+      "duration_ms": 13672
+    },
+    {
+      "stage": "3_literature",
+      "branch_id": "a",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 7980,
+      "output_tokens": 729,
+      "usd": 0.034874999999999996,
+      "duration_ms": 15727
+    },
+    {
+      "stage": "4_prototype",
+      "branch_id": "a",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 3381,
+      "output_tokens": 6231,
+      "usd": 0.103608,
+      "duration_ms": 138876
+    },
+    {
+      "stage": "4_prototype",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 3303,
+      "output_tokens": 7401,
+      "usd": 0.12092399999999999,
+      "duration_ms": 167071
+    },
+    {
+      "stage": "4_prototype",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 3292,
+      "output_tokens": 7638,
+      "usd": 0.12444599999999999,
+      "duration_ms": 171337
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "a",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 12762,
+      "output_tokens": 4493,
+      "usd": 0.105681,
+      "duration_ms": 106925
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 15099,
+      "output_tokens": 5798,
+      "usd": 0.132267,
+      "duration_ms": 132797
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 15595,
+      "output_tokens": 5861,
+      "usd": 0.1347,
+      "duration_ms": 143989
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "a",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 12851,
+      "output_tokens": 5054,
+      "usd": 0.11436299999999999,
+      "duration_ms": 118669
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "b",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 15188,
+      "output_tokens": 5237,
+      "usd": 0.12411900000000001,
+      "duration_ms": 125429
+    },
+    {
+      "stage": "5_simulator",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 15684,
+      "output_tokens": 5362,
+      "usd": 0.12748199999999998,
+      "duration_ms": 128613
+    },
+    {
+      "stage": "6_audit",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 18404,
+      "output_tokens": 3191,
+      "usd": 0.103077,
+      "duration_ms": 64622
+    },
+    {
+      "stage": "7a_methodologist",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 17918,
+      "output_tokens": 2877,
+      "usd": 0.096909,
+      "duration_ms": 67918
+    },
+    {
+      "stage": "7b_accessibility",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 18056,
+      "output_tokens": 2911,
+      "usd": 0.097833,
+      "duration_ms": 68370
+    },
+    {
+      "stage": "7b_accessibility",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 18094,
+      "output_tokens": 2218,
+      "usd": 0.08755199999999999,
+      "duration_ms": 48991
+    },
+    {
+      "stage": "7d_meta",
+      "branch_id": "c",
+      "model": "claude-sonnet-4-6",
+      "input_tokens": 6073,
+      "output_tokens": 728,
+      "usd": 0.029138999999999998,
+      "duration_ms": 17223
+    }
+  ],
+  "totals": {
+    "input_tokens": 206047,
+    "output_tokens": 70458,
+    "usd": 1.6750110000000002
+  }
+}

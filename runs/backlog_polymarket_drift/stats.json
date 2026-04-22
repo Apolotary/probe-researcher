@@ -1,0 +1,126 @@
+{
+  "runId": "backlog_polymarket_drift",
+  "premise": "Design a study to understand how semi-automated trading agents should surface execution drift to users monitoring multiple markets simultaneously.",
+  "premiseTruncated": "Design a study to understand how semi-automated trading agents should surface execution drift to ...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [
+          "agency.hides_options_before_review"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.opaque_ranking",
+          "legibility.no_failure_signal",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 3
+      },
+      "metaReviewVerdict": "human_judgment_required",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED) [human_judgment_required]"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit fired a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2",
+      "auditVerdict": "BLOCKED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [
+          "agency.auto_decides_consequential_step"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 2
+      },
+      "verdictLabel": "BLOCKED:legibility.no_failure_signal"
+    },
+    {
+      "branchId": "c",
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [
+          "agency.weak_override"
+        ],
+        "exit": [
+          "exit.data_lock_in",
+          "exit.competence_decay_on_exit"
+        ],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 2,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "human_judgment_required",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED) [human_judgment_required]"
+    }
+  ],
+  "totalUsd": 3.4295430000000002,
+  "totalInputTokens": 318161,
+  "totalOutputTokens": 89434,
+  "durationMs": 1677932,
+  "costEntryCount": 23,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "4_prototype",
+      "branchId": "b",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": true,
+    "provenancePassed": true,
+    "voicePassed": true,
+    "provenanceViolationCount": 0,
+    "voiceViolationCount": 0
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 4_prototype [branch b]"
+  ],
+  "generatedAt": "2026-04-22T07:39:23.377Z"
+}

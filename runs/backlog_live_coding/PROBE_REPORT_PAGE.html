@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe report — backlog_live_coding</title>
+<style>
+:root {
+  --bg: #f7f5ef;
+  --bg-card: #ffffff;
+  --bg-pre: #1a1d2c;
+  --fg-pre: #e8e3d4;
+  --fg: #1a1a1a;
+  --fg-dim: #555;
+  --fg-faint: #888;
+  --border: #d0cbb8;
+  --border-soft: #e8e3d4;
+  --accent: #1B365D;
+  --accent-warm: #9e2e22;
+  --accent-amber: #b47b2a;
+  --accent-green: #1f6b1e;
+  --accent-plum: #7a2d5a;
+  --code-bg: #ede9dc;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Newsreader', 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+h1, h2, h3, .topnav-brand, .topnav-links a, .hero-eyebrow, .hero-meta, .provtag, .card-tag,
+.pipeline-figure, .capture-findings, .meta-review, .footer-links, .footer-tagline {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #10121e;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 48px 0 16px;
+  color: #10121e;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 6px;
+}
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 28px 0 8px;
+  color: #20232e;
+}
+
+p, li, blockquote { font-size: 17px; }
+p { margin: 0 0 14px; }
+
+/* Top nav */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247, 245, 239, 0.92);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.topnav-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.topnav-brand {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.topnav-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.topnav-links a {
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 13px;
+}
+.topnav-links a:hover { color: var(--accent); }
+
+/* Hero */
+.hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 24px 24px;
+}
+.hero-eyebrow {
+  font-size: 13px;
+  color: var(--fg-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-meta {
+  font-size: 13px;
+  color: var(--fg-dim);
+  margin-top: 10px;
+}
+.hero-meta .run-id {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.hero-meta .dot { margin: 0 8px; color: #bbb; }
+.hero-tagline {
+  font-style: italic;
+  color: var(--fg-dim);
+  font-size: 16px;
+  margin-top: 24px;
+}
+
+/* Section lede */
+.section-lede {
+  font-size: 16px;
+  color: var(--fg-dim);
+  border-left: 3px solid var(--border);
+  padding: 4px 0 4px 14px;
+  margin: 0 0 20px;
+}
+
+/* Teaser figure */
+.teaser {
+  margin: 0 0 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+}
+.teaser figcaption {
+  font-size: 14px;
+  color: var(--fg-dim);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.pipeline-figure {
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.pipeline-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--fg-dim);
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 16px;
+}
+.pipeline-stage {
+  background: var(--code-bg);
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+.pipeline-stages .arrow { color: var(--fg-faint); }
+.pipeline-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pipeline-branch {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 12px;
+}
+.pipeline-branch-label { font-size: 12px; color: var(--fg-dim); margin-bottom: 6px; }
+.pipeline-verdict {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.glyph-survived { background: #dff5df; color: var(--accent-green); }
+.glyph-blocked { background: #ffe3e0; color: var(--accent-warm); }
+.glyph-failed { background: #f0e0e0; color: #555; }
+.glyph-unknown { background: #e8e3d4; color: var(--fg-dim); }
+.pipeline-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.pipeline-detail code {
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Rehearsal cards */
+.rehearsal-cards {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.rehearsal-card {
+  background: #faf7ee;
+  border-left: 3px solid var(--accent-amber);
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 0 3px 3px 0;
+}
+.rehearsal-card p { margin: 0; font-style: italic; color: #3a3a3a; }
+.card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent-amber);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Capture findings */
+.capture-findings {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.capture-finding {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-warm);
+  border-radius: 3px;
+  padding: 14px 18px;
+}
+.capture-finding.finding-drift { border-left-color: var(--accent-amber); }
+.capture-finding.finding-info { border-left-color: var(--fg-faint); }
+.finding-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.finding-pattern code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #222;
+}
+.finding-axis {
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.finding-score {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-warm);
+  font-weight: 700;
+}
+.finding-branch {
+  color: var(--fg-faint);
+  font-size: 12px;
+  margin-left: auto;
+}
+.finding-evidence {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 15px;
+  color: #2a2a2a;
+  background: var(--code-bg);
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent-amber);
+  border-radius: 0 3px 3px 0;
+}
+.evidence-source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--fg-faint);
+  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+}
+.finding-rationale {
+  font-size: 14px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+/* Meta review */
+.meta-review {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+.meta-verdict { font-size: 14px; margin-bottom: 12px; }
+.meta-verdict-label { color: var(--fg-dim); }
+.meta-verdict-value code {
+  font-family: 'JetBrains Mono', monospace;
+  background: #e1f5e0;
+  color: var(--accent-green);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.meta-class code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  color: var(--fg-dim);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.meta-rationale {
+  font-size: 15px;
+  color: #333;
+  margin: 10px 0;
+  line-height: 1.55;
+}
+.mx-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+}
+.mx-table th, .mx-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+.mx-table th { font-size: 11px; color: var(--fg-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+.mx-table code { font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+
+/* Inline content */
+code {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--bg-pre);
+  color: var(--fg-pre);
+  padding: 16px 20px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+blockquote {
+  margin: 14px 0;
+  padding: 8px 16px;
+  border-left: 3px solid var(--border);
+  color: #2a2a2a;
+}
+
+ul { padding-left: 22px; }
+li { margin: 4px 0; }
+
+/* Provenance tag badges */
+.provtag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: 2px;
+  background: var(--code-bg);
+  color: var(--fg-faint);
+  vertical-align: baseline;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.provtag.tag-source_card { background: #dfeaff; color: #1B365D; }
+.provtag.tag-simulation_rehearsal { background: #faf0dc; color: var(--accent-amber); }
+.provtag.tag-agent_inference { background: #ede9dc; color: #5a5547; }
+.provtag.tag-researcher_input { background: #dff5df; color: var(--accent-green); }
+.provtag.tag-human_required { background: #dff5e6; color: #135a3b; }
+.provtag.tag-do_not_claim { background: #ffe3e0; color: var(--accent-warm); }
+.provtag.tag-uncited_adjacent { background: #f3e0ee; color: var(--accent-plum); }
+.provtag.tag-tool_verified { background: #e1f5e0; color: var(--accent-green); }
+.provtag.tag-imported_draft { background: #e6ecf5; color: #34456b; }
+
+.provenance-legend dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  margin: 14px 0 4px;
+}
+.provenance-legend dd {
+  font-size: 15px;
+  color: var(--fg-dim);
+  margin: 0 0 8px;
+}
+
+/* Footer */
+.footer {
+  max-width: 760px;
+  margin: 64px auto 0;
+  padding: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-dim);
+}
+.footer h3 { font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); margin: 0 0 12px; }
+.footer-intro { font-size: 14px; margin-bottom: 10px; }
+.bibtex { font-size: 12px; line-height: 1.5; padding: 14px 16px; }
+.footer-links { font-size: 13px; margin-top: 16px; }
+.footer-links a { color: var(--accent); text-decoration: none; margin-right: 4px; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-tagline { font-size: 12px; color: var(--fg-faint); margin-top: 20px; font-style: italic; }
+
+.missing-section {
+  font-style: italic;
+  color: var(--fg-faint);
+  padding: 12px 16px;
+  background: var(--code-bg);
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .topnav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .topnav-links { gap: 12px; }
+  h1 { font-size: 28px; }
+  .hero { padding: 36px 18px 12px; }
+  main { padding: 0 18px 60px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#premise" class="topnav-brand">Probe</a>
+    <div class="topnav-links">
+      <a href="#premise">Premise</a>
+      <a href="#method">Method</a>
+      <a href="#rehearsal">Rehearsal</a>
+      <a href="#safety">Capture-risk</a>
+      <a href="#panel">Reviewer panel</a>
+      <a href="#handoff">Humans must decide</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">A Probe simulation run · 2026-04-22</div>
+  <h1>Design a study to evaluate pair-programming dynamics between a human and an AI coding assistant in live-coding music performance contexts.</h1>
+  <div class="hero-meta">
+    <span class="run-id">backlog_live_coding</span>
+    <span class="dot">·</span>
+    <span>branch A surviving</span>
+    <span class="dot">·</span>
+    <span>$2.20</span>
+    <span class="dot">·</span>
+    <span>32m15s wall</span>
+  </div>
+  <p class="hero-tagline">Rehearsal stage for research. The performance still needs humans.</p>
+</header>
+
+<main>
+
+<section id="teaser">
+  <figure class="teaser">
+    <div class="pipeline-figure">
+  <div class="pipeline-stages"><span class="pipeline-stage">1. premise</span><span class="arrow">→</span><span class="pipeline-stage">2. ideation</span><span class="arrow">→</span><span class="pipeline-stage">3. literature</span><span class="arrow">→</span><span class="pipeline-stage">4. prototype</span><span class="arrow">→</span><span class="pipeline-stage">5. simulator</span><span class="arrow">→</span><span class="pipeline-stage">6. audit</span><span class="arrow">→</span><span class="pipeline-stage">7. review</span><span class="arrow">→</span><span class="pipeline-stage">8. guidebook</span></div>
+  <div class="pipeline-branches"><div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch A</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>meta_review:reject</code></div>
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch B</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>meta_review:reject</code></div>
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch C</div>
+        <div class="pipeline-verdict glyph-failed">FAILED</div>
+        <div class="pipeline-detail"><code>5_simulator</code></div>
+      </div></div>
+</div>
+    <figcaption>
+      Figure 1. Pipeline outcome for this run. Eight stages, three branches, one guidebook. Branch
+      A survived capture-risk audit and adversarial review; other
+      branches stopped at the named stage. Verdicts below each branch were produced by the orchestrator from
+      the audit and meta-review outputs — not self-reported by the agents.
+    </figcaption>
+  </figure>
+</section>
+
+<section id="premise">
+  <h2>Premise</h2>
+  <p class="missing-section">No <code>Premise</code> section in this run's guidebook.</p>
+</section>
+
+<section id="background">
+  <h2>Background</h2>
+  <p class="missing-section">No <code>Background</code> section in this run's guidebook.</p>
+</section>
+
+<section id="method">
+  <h2>Method</h2>
+  <p class="section-lede">
+    Probe does not run a study. It writes one, rehearses it, and audits the rehearsal. This section restates
+    the prototype specification — the artifact a different researcher could build from without asking
+    clarifying questions — and the study protocol.
+  </p>
+  <p class="missing-section">No <code>Prototype</code> section in this run's guidebook.</p>
+  <p class="missing-section">No <code>Study protocol</code> section in this run's guidebook.</p>
+</section>
+
+<section id="rehearsal">
+  <h2>What the rehearsal surfaced</h2>
+  <p class="section-lede">
+    These are <strong>not participant quotes</strong>. They are the simulator's rehearsed observations, each
+    tagged <code>[SIMULATION_REHEARSAL]</code> in the underlying guidebook. They are priors to test, not
+    evidence the study has produced.
+  </p>
+  <p class="missing-section">No <code>[SIMULATION_REHEARSAL]</code> paragraphs surfaced for this run.</p>
+  <p class="missing-section">No <code>Failure hypotheses to test</code> section in this run's guidebook.</p>
+</section>
+
+<section id="safety">
+  <h2>Capture-risk audit</h2>
+  <p class="section-lede">
+    Probe fires sixteen named patterns across four axes — Capacity, Agency, Exit, Legibility — against every
+    branch's prototype spec and simulated walkthrough. A pattern is only reported when the auditor can quote
+    an evidence span from the rehearsed artifact; patterns that cannot be grounded in a specific passage are
+    not reported. A <code>-2</code> score blocks the branch.
+  </p>
+  <div class="capture-findings">
+  <div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.hides_options_before_review</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          After the wizard-controlled delay elapses, the panel renders the first suggestion payload (a 3-line Tidal snippet) with Accept / Dismiss buttons.
+        </blockquote>
+      <p class="finding-rationale">The system presents a single suggestion payload selected by the wizard from a pool of 12 pre-authored snippets, with no mechanism exposing the alternative payloads to the participant. The participant sees one suggestion and must accept or dismiss it without visibility into what other suggestions were available or why this one was chosen. The wizard_controls description confirms the wizard selects from a dropdown, but this selection process is entirely opaque to the participant. While this is characteristic of AI code-completion interfaces being studied, the participant&#039;s agency is genuinely constrained to a binary choice on a single option rather than a choice among visible alternatives.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          force_error_suggestion... Injects a pre-authored payload that contains a deliberate but plausible Tidal Cycles syntax error (a missing closing parenthesis in a nested pattern) at the current latency. If the participant accepts the suggestion and evaluates the audio output, the error should produce a GHC runtime error message in the Tidal console pane.
+        </blockquote>
+      <p class="finding-rationale">The force_error_suggestion control injects a deliberately incorrect payload that appears syntactically plausible to the participant at the point of acceptance. The participant receives no in-panel signal that this suggestion contains an error before committing to Accept; the failure becomes visible only after acceptance when the GHC runtime error appears in the console pane. The simulated walkthrough also notes: &#039;a participant performing under cognitive load may accept the suggestion based on a partial visual scan rather than a full syntax check, producing a GHC error that arrives as a surprise.&#039; The suggestion panel presents the erroneous code identically to valid suggestions, providing no pre-acceptance failure signal distinguishing it from correct payloads.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          After the wizard-controlled delay elapses, the panel renders the first suggestion payload (a 3-line Tidal snippet) with Accept / Dismiss buttons.
+        </blockquote>
+      <p class="finding-rationale">At the moment the participant decides whether to accept or dismiss a suggestion, no rationale is provided for why this particular snippet was selected. The participant sees a 3-line code snippet and two buttons; there is no &#039;why this suggestion?&#039;, no explanation of what triggered it, no indication of what the snippet is intended to achieve musically or structurally. The simulated walkthrough reinforces this: &#039;A participant encountering the Accept/Dismiss decision in a live performance context would likely experience this as a higher-stakes interruption than typical code-completion UI, because accepting inserts code that immediately changes the audible output.&#039; The participant must decide to commit to a code change whose rationale is entirely opaque at the decision point.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.auto_decides_consequential_step</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Qualtrics advances automatically to the cover story page after all mandatory screener fields are completed. No adaptive branching occurs at this step; the page transition is immediate.
+        </blockquote>
+      <p class="finding-rationale">The system automatically advances the participant to the cover story — a step that determines the interpretive frame for the entire session — without the participant making a deliberate choice to proceed. However, this is a mild instance because the auto-advance is a navigation convenience rather than a high-stakes external commitment such as a purchase or submission affecting third parties. The participant has no option to pause between screener completion and cover story exposure.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.weak_override</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          A small &#039;Do not pause&#039; reminder text is visible below the video player frame. The Qualtrics Next button is locked by JavaScript until the video&#039;s ended event fires, preventing premature advancement. The participant is instructed not to pause or rewind.
+        </blockquote>
+      <p class="finding-rationale">Participants are explicitly prohibited from pausing or rewinding the stimulus video, and the Next button is locked by JavaScript until playback ends. There is no override path described for a participant who needs to pause for any reason — illness, distraction, accessibility need — making the constraint absolute rather than nominal. The override is not merely effortful; it is architecturally absent.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>exit.data_lock_in</code></span>
+        <span class="finding-axis">exit</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          After both surveys are submitted, immediately download both response records from the Qualtrics admin panel and save them to the session folder (named by session ID and date) before ending the session, as a data integrity backup.
+        </blockquote>
+      <p class="finding-rationale">Participant response data is stored in Qualtrics, a commercial platform, with download to a researcher-controlled session folder as a backup. No export mechanism is described that gives participants access to their own data in a portable format. The debriefing document describes a data deletion request process, but portability for the participant&#039;s own records is not addressed. This is a mild instance because the data belongs to researchers, not to participants as a workflow artifact.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          A small colored dot (green = Solo condition; orange = Pair-coded condition) visible in the bottom-right corner at 2px opacity — imperceptible to participants but logged by the observer to confirm correct stimulus was served.
+        </blockquote>
+      <p class="finding-rationale">The mechanism for confirming correct stimulus delivery — a 2px-opacity colored dot — is explicitly imperceptible to participants and relies entirely on the observer&#039;s ability to distinguish it. The simulated walkthrough explicitly notes this &#039;would plausibly fail silently if the monitor&#039;s color profile or brightness setting has shifted.&#039; A participant exposed to the wrong stimulus video would have no in-session signal of this error, and the SWAP_STIMULUS control depends on wizard detection before Play is clicked, not after. If a wrong-stimulus error occurs post-Play, the participant proceeds through the full protocol unaware.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Minutes 5–10: Facilitator reads the cover story aloud from script (&#039;You are about to watch a short excerpt of a live-coding performance. Live-coding is a practice where a performer writes computer code in real time to generate music. Please watch as you would a normal performance.&#039;); no mention of AI or co-authorship.
+        </blockquote>
+      <p class="finding-rationale">At the moment participants are asked to form and record attributions — the primary consequential action in this study — the cover story deliberately withholds the rationale for the study&#039;s design and the nature of the manipulation. Participants commit to ratings without access to information that would be material to their judgment. This is an inherent feature of deception paradigms, but the pattern fires because no inline mechanism exists at the point of action to inspect the study&#039;s actual purpose, and the rationale is only available at Step 7 after all primary measures are collected.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_fade_mechanism</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score 0</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          The wizard_controls section describes assistance as always-on with no conditional gating on user signal or time... suggestion_injector: Wizard presses this button within 2 seconds of the participant making any keystroke... In all cases the panel resets and begins the next suggestion cycle when the participant types again.
+        </blockquote>
+      <p class="finding-rationale">Suggestions are injected at a fixed protocol-assigned rate throughout each 15-minute condition block with no mechanism to reduce assistance based on participant skill signal or time elapsed. However, this is precisely the study&#039;s independent variable: the fixed latency conditions L and H are the manipulation under test. Any fade mechanism would directly confound the experimental design. The absence of a fade mechanism is therefore a structural feature of the WoZ evaluative design, not an inadvertent autonomy constraint. The study is a bounded single-session evaluation, not a longitudinal skill-building intervention. The pattern technically fires on the always-on assistance structure, but the score is neutral because the fixed-assistance structure is the manipulation-under-test, not a harm to participant capacity during the study&#039;s short duration.</p>
+    </div>
+</div>
+</section>
+
+<section id="panel">
+  <h2>Reviewer panel</h2>
+  <p class="section-lede">
+    Three Opus 4.7 agents review the surviving branch in sequence — a methodologist, an accessibility
+    advocate, and (optionally) a novelty hawk. A meta-reviewer reads their outputs and classifies the
+    disagreement without collapsing it to consensus.
+  </p>
+  <div class="meta-review">
+  <div class="meta-verdict">
+    <span class="meta-verdict-label">Meta-reviewer verdict:</span>
+    <span class="meta-verdict-value"><code>reject</code></span>
+    <span class="meta-class">(<code>legitimate_methodological_split</code>)</span>
+  </div>
+  <p class="meta-rationale">The methodologist raises two blocking criticisms — the force_error_suggestion confound architecture and the wizard-injection regression-to-the-mean artifact — that the accessibility advocate does not address or refute. These blocking criticisms concern the fundamental validity of the primary outcome measure: the dependent variable (error count per block) is a composite of latency-caused errors, wizard-injected errors, and downstream cascade errors that cannot be analytically separated in the event log as currently designed. No revision to the accessibility framework resolves this; the study cannot produce a defensible causal inference about latency and error rate under the current wizard protocol. Because at least one reviewer has identified blocking criticisms that the other reviewer has not refuted, the verdict is reject. The accessibility advocate&#039;s blocking criticism — absence of disability-relevant screening, accommodation pathways, and sensorimotor assumptions embedded in recruitment — is also unrebutted by the methodologist and would independently require major redesign before IRB submission. The disagreement is classified as a legitimate methodological split because the methodologist contests whether the method can answer the research question at all (the outcome measure is contaminated), while the accessibility advocate accepts the method&#039;s basic structure but contests whether the design is appropriate for the target population as broadly conceived. Resolving one critique does not resolve the other.</p>
+  <table class="mx-table">
+          <thead><tr><th>Reviewer</th><th>Recommendation</th><th>Decisive weakness</th></tr></thead>
+          <tbody>
+            <tr>
+                    <td>methodologist</td>
+                    <td><code>reject</code></td>
+                    <td>The force_error_suggestion control is a wizard-decided contamination of the primary outcome measure: error rate is directly manipulated by a wizard decision independent of the independent variable, producing unseparable composite counts of latency-caused, wizard-injected, and cascade errors. The causal claim cannot be sustained.</td>
+                  </tr><tr>
+                    <td>accessibility_advocate</td>
+                    <td><code>major_revision</code></td>
+                    <td>The study recruits &#039;experienced live-coders&#039; without specifying any axes of disability variation relevant to the research question, and the entire protocol assumes a participant who can read a sidebar panel, hear audio output, and type on a mechanical keyboard without accommodation — yet no accessibility screening, consent adaptation, or accommodation pathway is described anywhere in the materials.</td>
+                  </tr>
+          </tbody>
+        </table>
+</div>
+  <p class="section-lede">
+    The interactive side-by-side panel is rendered separately — see
+    <code>runs/backlog_live_coding/branches/a/REVIEWER_PANEL.html</code>
+    (generate with <code>probe panel backlog_live_coding a</code>).
+  </p>
+</section>
+
+<section id="handoff">
+  <h2>What humans must decide</h2>
+  <p class="section-lede">
+    Every Probe guidebook ends with a <code>[HUMAN_REQUIRED]</code> block. This is not a closing
+    pleasantry — it is the set of decisions the pipeline is not authorized to make on the researcher's
+    behalf.
+  </p>
+  <p class="missing-section">No <code>Next steps</code> section in this run's guidebook.</p>
+</section>
+
+<section id="provenance">
+  <h2>Provenance legend</h2>
+  <p>Every content-bearing element in the underlying guidebook ends with exactly one of these tags. A markdown-AST linter fails the build if any element is untagged.</p>
+  <dl class="provenance-legend">
+    <dt>[RESEARCHER_INPUT]</dt><dd>The researcher's original premise, verbatim or lightly restated.</dd>
+    <dt>[SOURCE_CARD:&lt;id&gt;]</dt><dd>Grounded in a specific hand-curated source card. The id resolves to a file in <code>corpus/source_cards/</code>.</dd>
+    <dt>[SIMULATION_REHEARSAL]</dt><dd>Content from the rehearsal. <strong>Not evidence.</strong> Required to use hedged language.</dd>
+    <dt>[AGENT_INFERENCE]</dt><dd>Reasoning by an agent, not grounded in a source or simulation.</dd>
+    <dt>[UNCITED_ADJACENT]</dt><dd>Adjacent literature a reviewer named; the researcher must verify before grounding.</dd>
+    <dt>[TOOL_VERIFIED]</dt><dd>Measured by a Managed Agents tool-equipped session (bash/grep/file ops).</dd>
+    <dt>[IMPORTED_DRAFT]</dt><dd>Researcher's own text lifted verbatim from an imported paper draft (via <code>probe import</code>).</dd>
+    <dt>[HUMAN_REQUIRED]</dt><dd>Explicit handoff. Every guidebook must have at least one.</dd>
+    <dt>[DO_NOT_CLAIM]</dt><dd>Content the guidebook explicitly flags as unclaimable.</dd>
+  </dl>
+</section>
+
+<footer class="footer">
+  <h3>Cite</h3>
+  <p class="footer-intro">If you use Probe in research or teaching, please cite the arXiv paper:</p>
+  <pre class="bibtex"><code>@article{ryskeldiev2026probe,
+  title   = {Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research},
+  author  = {Ryskeldiev, Bektur},
+  year    = {2026},
+  journal = {arXiv preprint},
+  note    = {Built at the Cerebral Valley Claude Opus 4.7 hackathon}
+}</code></pre>
+  <p class="footer-links">
+    <a href="https://github.com/Apolotary/probe-researcher">Source code</a> ·
+    <a href="paper/probe.pdf">Paper PDF</a> ·
+    <a href="DEMO_WALKTHROUGH.md">Demo walkthrough</a>
+  </p>
+  <p class="footer-tagline">Built at the Cerebral Valley Claude Opus 4.7 hackathon, April 2026.</p>
+</footer>
+
+</main>
+</body>
+</html>

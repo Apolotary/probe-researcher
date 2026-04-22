@@ -1,0 +1,29 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_screenreader_llm",
+  "raw_premise": "Design a study to evaluate whether LLM-generated image descriptions for screen-reader users improve comprehension of complex data visualizations vs. simpler alt-text.",
+  "sharpest_question": "What specific failure mode of existing alt-text are you claiming LLM-generated descriptions fix — verbosity, structural ambiguity, missing data values, missing trend language — and how does your study design isolate that mechanism from the general effect of longer text?",
+  "claim": "LLM-generated descriptions produce higher comprehension of complex data visualizations among screen-reader users than conventional short alt-text, implying LLM generation is the causally relevant factor.",
+  "differentia": "Not visible in the premise — the premise does not distinguish between the effect of LLM generation specifically versus longer/richer descriptions generally, nor does it specify what 'complex' means or how comprehension is operationalized for non-visual data access.",
+  "nearest_template": "Accessible visualization description evaluation studies (e.g., screen-reader user studies comparing auto-generated versus manually authored chart descriptions, work in the CHI/ASSETS accessibility track on natural language summaries of charts).",
+  "missing_evidence": [
+    "Operationalization of 'comprehension': recall of specific values, inference of trends, answering novel questions, or something else — these are not interchangeable and yield different conclusions.",
+    "Baseline specification: 'simpler alt-text' is underspecified — does it mean a one-sentence human-authored description, the figure caption, an empty alt attribute, or something else?",
+    "Control for length and detail confound: LLM descriptions are almost certainly longer; without length-matched conditions, you cannot attribute any effect to generation method.",
+    "Population characterization: screen-reader users vary substantially in experience, assistive technology, and domain expertise — the premise treats them as a homogeneous group.",
+    "Visualization type scope: 'complex data visualizations' spans scatter plots, network graphs, choropleth maps, multi-panel figures — comprehension dynamics differ and a single study cannot generalize across all.",
+    "Prior existence check: multiple research groups have already run screen-reader user studies on automated chart description; the premise does not position against that work."
+  ],
+  "sharpened_options": [
+    "Isolate the mechanism: run a three-condition study (standard alt-text / length-matched human-authored description / LLM-generated description) on a single, well-defined visualization type (e.g., multi-series line charts) to determine whether LLM generation adds comprehension benefit beyond text length and detail alone.",
+    "Shift the outcome from comprehension to task: study whether LLM-generated descriptions support screen-reader users in completing a specific downstream decision task (e.g., identifying the outlier, choosing the better-performing condition) rather than measuring comprehension as an abstract construct.",
+    "Invert the framing — study failure rather than improvement: recruit experienced screen-reader users and identify which structural features of complex visualizations are systematically misrepresented or omitted by LLM-generated descriptions, producing a taxonomy of failure modes rather than a mean-difference result.",
+    "Study the interaction effect of user expertise: test whether the comprehension benefit of LLM descriptions (if any) is moderated by the user's familiarity with data visualization conventions, since expert users may find verbose LLM descriptions slower to navigate than terse alt-text.",
+    "Target a specific LLM description design parameter: instead of evaluating LLM-generated versus not, fix the generation pipeline and manipulate a single design variable (e.g., presence versus absence of explicit trend summary sentences) to produce actionable design guidance rather than a binary better/worse verdict."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

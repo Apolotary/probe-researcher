@@ -1,0 +1,53 @@
+██████╗ ██████╗  ██████╗ ██████╗ ███████╗
+██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██████╔╝██████╔╝██║   ██║██████╔╝█████╗  
+██╔═══╝ ██╔══██╗██║   ██║██╔══██╗██╔══╝  
+██║     ██║  ██║╚██████╔╝██████╔╝███████╗
+╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝
+                                         
+🔬 rehearsal stage for research  ·  the performance still needs humans
+
+🔬 probe · backlog_voice_agents · "Design a study to understand failure modes of voice agent..."
+
+
+  ○ ❓ ─ ○ 🧭 ─ ○ 📚 ─ ○ 🛠 ─ ○ 🎭 ─ ○ ⚖️ ─ ○ 🗯 ─ ○ 🗯 ─ ○ 🗯 ─ ○ 📘
+
+- ❓  interrogating the premise…
+✔ ❓  stage 1_premise · runs/backlog_voice_agents/premise_card.json
+- 🧭  ideating divergent branches…
+✔ 🧭  stage 2_ideator · 3 divergent branches spawned
+   │ A  runs/backlog_voice_agents/branches/a/branch_card.json
+   │ B  runs/backlog_voice_agents/branches/b/branch_card.json
+   │ C  runs/backlog_voice_agents/branches/c/branch_card.json
+- 📚  grounding in the corpus…
+✔ 📚  stage 3_literature · 3 branches
+   │ A  ok
+   │ B  ok
+   │ C  ok
+- 🛠  specifying the prototype…
+✔ 🛠  stage 4_prototype · 3 branches
+   │ A  ok
+   │ B  ok
+   │ C  ok
+- 🎭  rehearsing the walkthrough…
+✔ 🎭  stage 5_simulator · 3 branches
+   │ A  ok
+   │ B  ok
+   │ C  ok
+- ⚖️  auditing capture risk…
+✔ ⚖️  stage 6_audit · 3 branches audited
+   │ A  REVISION_REQUIRED
+   │ B  REVISION_REQUIRED
+   │ C  FAILED
+- 🗯  preserving disagreement…
+✔ 🗯  stage 7d_meta · 2 branches reviewed
+   │ A  reject ⛔ WORKSHOP_NOT_RECOMMENDED.md
+   │ B  human_judgment_required
+- 📘  synthesizing the guidebook…
+✖ guidebook assembly failed: 8_guidebook lint failed after repair:
+paragraph missing provenance tag: "The following works were flagged by the novelty review as relevant outside-corpus literature that the researcher must ve"
+parag
+
+  ✓ ❓ ─ ✓ 🧭 ─ ✓ 📚 ─ ✓ 🛠 ─ ✓ 🎭 ─ ✓ ⚖️ ─ ○ 🗯 ─ ○ 🗯 ─ ✓ 🗯 ─ ✗ 📘
+
+✗ pipeline failed at stage 8_guidebook

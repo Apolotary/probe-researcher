@@ -1,0 +1,71 @@
+{
+  "stage": "8_guidebook",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_torso_s4_ios",
+  "surviving_branch": "b",
+  "blocked_branches": [
+    {
+      "branch_id": "a",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blocking_finding": "meta_review:reject"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Premise",
+      "anchor": "premise",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Background",
+      "anchor": "background",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Prototype",
+      "anchor": "prototype",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Study protocol",
+      "anchor": "study-protocol",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Failure hypotheses to test",
+      "anchor": "failure-hypotheses-to-test",
+      "provenance_dominant": "AGENT_INFERENCE"
+    },
+    {
+      "heading": "Risks and failure modes",
+      "anchor": "risks-and-failure-modes",
+      "provenance_dominant": "AGENT_INFERENCE"
+    }
+  ],
+  "source_cards_cited": [
+    "sanders_stappers_2014",
+    "gaver_dunne_pacenti_1999",
+    "illich_1973"
+  ],
+  "provenance_tag_counts": {
+    "RESEARCHER_INPUT": 1,
+    "SOURCE_CARD": 5,
+    "SIMULATION_REHEARSAL": 8,
+    "AGENT_INFERENCE": 62,
+    "HUMAN_REQUIRED": 1,
+    "DO_NOT_CLAIM": 3,
+    "UNCITED_ADJACENT": 7,
+    "TOOL_VERIFIED": 0
+  },
+  "forbidden_phrase_check": {
+    "passed": true,
+    "violations": []
+  },
+  "assembly_rationale": "Branch b survived capture-risk audit and meta-review; it provides the sole basis for this guidebook. Blocked branches: a.",
+  "human_required_next_steps": [
+    "Before running this study, the researcher must: (1) decide and document the orientation-phase framing choice (drop the hardware video or reframe the research question) and revise all study materials to match; (2) audit the Figma prototype for assistive-technology compatibility or explicitly narrow the population claim; (3) finalize the operationalized MPC-exclusion screener items and the borderline-exposure decision rule; (4) prepare the two-coder blinded post-hoc classification protocol including the codebook and kappa reporting plan; (5) name the compensation amount and justify it against 120 minutes of generative design labor; (6) pilot the full protocol including the pre-enactment verbalization step with at least one participant who meets the screener, and revise the hand-signal vocabulary and wizard variant-selection rules based on pilot findings; (7) obtain IRB approval covering the revised consent language, break protocol, and compensation rate; (8) independently verify and ground the uncited adjacent literatures flagged in the Background section before citing them in any write-up."
+  ],
+  "provenance": {
+    "assembly": "AGENT_INFERENCE"
+  }
+}

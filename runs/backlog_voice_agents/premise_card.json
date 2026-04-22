@@ -1,0 +1,28 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_voice_agents",
+  "raw_premise": "Design a study to understand failure modes of voice agents in multilingual households when codeswitching occurs mid-utterance.",
+  "sharpest_question": "What decision, action, or user outcome is impaired by these failure modes — without specifying that, you have a taxonomy study, not a research contribution?",
+  "claim": "If this works, the study would produce a characterization of failure modes — but 'failure mode taxonomy' is not a claim unless it is tied to a causal mechanism, a design implication that is not already derivable from ASR benchmarks, or a prediction about which household configurations produce which failures.",
+  "differentia": "Not visible in the premise. Codeswitching and voice agents is not virgin territory — what this study would add over existing ASR robustness work, bilingual NLP corpora, or prior HCI studies of multilingual households is unspecified.",
+  "nearest_template": "Formative user study generating a taxonomy of breakdowns — the same shape as studies of voice agent failures in accented speech, elderly users, or noisy environments. These studies enumerate error types without modeling the mechanism that produces them or the household negotiation strategies that follow.",
+  "missing_evidence": [
+    "No research territory: multilingual household communication and voice agent use are each large literatures — the premise does not say which intersection is uncharted or why existing ASR error analyses do not already answer the question.",
+    "No niche: 'failure modes' could mean ASR transcription errors, intent misclassification, language-model context collapse, or user-attributed failures — the premise treats these as equivalent and has not identified which level is underspecified in existing work.",
+    "No occupation: 'understand failure modes' is exploration framed as a study goal, not a testable proposition — there is no claim that could be confirmed or disconfirmed.",
+    "No account of codeswitching type: intrasentential vs. intersentential switching, matrix language, borrowing vs. full switch — these produce different failure signatures and the premise collapses them.",
+    "No population specification: which language pairs, which agents, which household roles (parent/child, dominant-language asymmetry) — without this the study cannot be bounded or replicated.",
+    "No unit of analysis: is the study measuring agent behavior, user repair strategies, household negotiation, or perceived trust degradation?"
+  ],
+  "sharpened_options": [
+    "Territory: Multilingual households rely on voice agents designed for monolingual interaction, creating friction at codeswitching boundaries. Niche: Existing ASR robustness studies test codeswitching at the corpus level but do not account for in-situ household social context — specifically, who issues the command and whether the switch is addressee-directed or ambient. Occupation: Households with Spanish-English intrasentential codeswitching will show a higher rate of agent-attributed (not user-attributed) failure when the matrix language is Spanish, because current commercial agents default to English-dominant language models on ambiguous input — testable by logging agent responses and administering attribution probes post-failure.",
+    "Territory: Voice agent design assumes a single-language interaction model, but multilingual households distribute agent use across members with different dominant languages. Niche: Prior work on household voice agent use does not distinguish codeswitching as a communicative act from codeswitching as an accidental trigger — conflating them obscures what users actually want the agent to do at the switch point. Occupation: A diary-plus-interview study will show that users develop household-level workarounds (simplified registers, task partitioning by language) that are functionally equivalent to agent repair strategies — implying that failure mode counts underestimate actual friction because adaptation has already occurred.",
+    "Territory: Codeswitching mid-utterance produces partial utterances in each language that cross agent language-detection boundaries. Niche: NLP work on codeswitching detection uses read-aloud corpora; spontaneous household codeswitching has different prosodic and syntactic properties that those models are not trained on. Occupation: A Wizard-of-Oz study varying the switch point position (clause-initial vs. clause-final) within matched utterance pairs will isolate whether failure rate is driven by language-ID latency or by intent-slot filling across the switch boundary — producing a mechanistic claim rather than a descriptive taxonomy.",
+    "Territory: Commercial voice agents are evaluated on monolingual benchmarks, leaving multilingual household users systematically underserved. Niche: Failure mode studies in this space exist for Mandarin-English and Hindi-English pairs but not for lower-resource language combinations; it is unknown whether failure patterns are pair-specific or structural. Occupation: A controlled elicitation study across three typologically distinct language pairs (e.g., Spanish-English, Tagalog-English, Arabic-English) will test whether failure mode distribution is predicted by language-pair structural distance from English rather than by user behavior — a finding that constrains agent architecture rather than just interaction design."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

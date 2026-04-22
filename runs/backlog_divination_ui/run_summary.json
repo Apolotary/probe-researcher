@@ -1,0 +1,24 @@
+{
+  "run_id": "backlog_divination_ui",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\""
+    },
+    {
+      "branchId": "b",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\""
+    },
+    {
+      "branchId": "c",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject"
+    }
+  ]
+}

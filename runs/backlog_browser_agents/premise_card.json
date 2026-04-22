@@ -1,0 +1,28 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "backlog_browser_agents",
+  "raw_premise": "Design a study to understand how users form trust in browser-use agents when the agent makes consequential web actions on their behalf.",
+  "sharpest_question": "What specific consequential action type and what specific trust failure mode are you studying — because 'trust formation in agents' without a defined action class and a defined error condition is not a study, it is a survey instrument fishing for a hypothesis?",
+  "claim": "If it worked, this research would produce a model of how users calibrate trust in browser-based autonomous agents under consequential action conditions — informing agent design to reduce both overtrust and undertrust.",
+  "differentia": "The differentia is not visible in the premise: the study of trust in agentic systems acting on live web infrastructure is underspecified relative to existing automation trust literature — it is unclear whether the claim is about trust formation dynamics, trust calibration after failure, trust transfer from prior agent exposure, or something else entirely.",
+  "nearest_template": "Automation trust literature (Muir 1994 trajectory; Lee & See 2004 framework): trust as a function of reliability, predictability, and faith — applied repeatedly to in-vehicle automation, industrial control, and more recently conversational AI agents. The Wizard-of-Oz study with confederate agents making mistakes is the methodological template. More specifically, the 'agent-mediated task delegation' paradigm used in RPA and intelligent assistant research is the closest structural ancestor.",
+  "missing_evidence": [
+    "No action class is specified — purchasing, form submission, account deletion, and file sharing are all 'consequential' but activate different trust mechanisms and risk perceptions; the study cannot be designed without this.",
+    "No trust model is nominated — without committing to a trust construct (behavioral trust, reported trust, calibration accuracy, reliance rate), the DV is undefined and the study is not designable.",
+    "No failure mode is specified — trust formation studies only become informative when they include conditions where the agent errs; without a failure taxonomy the study likely produces ceiling-effect self-report data.",
+    "No participant population with relevant prior exposure is specified — trust formation differs substantially between users who have and have not delegated consequential tasks to software before.",
+    "No account of reversibility — consequential actions vary in reversibility (undo vs. irrecoverable) which is likely the primary moderator of trust dynamics, yet it is absent from the premise."
+  ],
+  "sharpened_options": [
+    "Study how users' reliance behavior (measured behaviorally, not by self-report) changes across sequential trials of an agent completing a class of irrecoverable web actions (e.g., form submissions with real-world consequences), with error rate as a within-subjects manipulation, to test whether calibration follows reliability tracking or an anchoring-and-adjustment model.",
+    "Study how the modality of agent explanation (action preview, post-hoc rationale, or none) affects overtrust — operationalized as the rate at which users approve agent actions without reading them — for a specific high-stakes action class such as financial transactions, with experienced vs. novice automation users as a between-subjects factor.",
+    "Study trust repair: after a browser agent commits a recoverable vs. irrecoverable consequential error, what communication strategies (apology, causal explanation, competence signaling) restore user reliance to baseline, and does initial trust level moderate recovery trajectory?",
+    "Study trust transfer: do users who have formed a trust model for one browser agent (e.g., booking a flight) transfer that calibration appropriately or inappropriately to a second agent in a different consequential domain (e.g., executing a financial transfer), and what interface features attenuate inappropriate transfer?",
+    "Study the decision to delegate: rather than trust formation during agent use, study the upstream question of which action attributes (reversibility, financial magnitude, identity exposure, social visibility) predict whether users will delegate to an agent at all — using a conjoint or vignette design to isolate attribute weights before any trust formation process begins."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

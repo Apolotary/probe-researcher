@@ -1,0 +1,25 @@
+{
+  "run_id": "backlog_browser_agents",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nevidence language \"validated\" in: \"The WoZ design's reliance on the wizard's real-time judgment for logging inspection events introduce\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\""
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject"
+    },
+    {
+      "branchId": "c",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject"
+    }
+  ]
+}

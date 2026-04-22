@@ -1,0 +1,37 @@
+██████╗ ██████╗  ██████╗ ██████╗ ███████╗
+██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██╔════╝
+██████╔╝██████╔╝██║   ██║██████╔╝█████╗  
+██╔═══╝ ██╔══██╗██║   ██║██╔══██╗██╔══╝  
+██║     ██║  ██║╚██████╔╝██████╔╝███████╗
+╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝
+                                         
+🔬 rehearsal stage for research  ·  the performance still needs humans
+
+🔬 probe · backlog_llm_codereview · "Design a study to evaluate whether LLM code review commen..."
+
+
+  ○ ❓ ─ ○ 🧭 ─ ○ 📚 ─ ○ 🛠 ─ ○ 🎭 ─ ○ ⚖️ ─ ○ 🗯 ─ ○ 🗯 ─ ○ 🗯 ─ ○ 📘
+
+- ❓  interrogating the premise…
+✔ ❓  stage 1_premise · runs/backlog_llm_codereview/premise_card.json
+- 🧭  ideating divergent branches…
+✖ 2_ideator failed: Command failed: git worktree add -B run-m_codereview-a /Users/apolotary/Documents/Github/probe-researcher/runs/backlog_llm_codereview/branches/a HEAD
+fatal: 'run-m_codereview-a' is already used by wor
+Error: Command failed: git worktree add -B run-m_codereview-a /Users/apolotary/Documents/Github/probe-researcher/runs/backlog_llm_codereview/branches/a HEAD
+fatal: 'run-m_codereview-a' is already used by worktree at '/Users/apolotary/Documents/Github/probe-researcher/runs/backlog_llm_codereview/branches/a'
+
+    at genericNodeError (node:internal/errors:998:15)
+    at wrappedFn (node:internal/errors:543:14)
+    at ChildProcess.exithandler (node:child_process:417:12)
+    at ChildProcess.emit (node:events:508:20)
+    at maybeClose (node:internal/child_process:1108:16)
+    at Socket.<anonymous> (node:internal/child_process:480:11)
+    at Socket.emit (node:events:508:20)
+    at Pipe.<anonymous> (node:net:350:12) {
+  code: 128,
+  killed: false,
+  signal: null,
+  cmd: 'git worktree add -B run-m_codereview-a /Users/apolotary/Documents/Github/probe-researcher/runs/backlog_llm_codereview/branches/a HEAD',
+  stdout: '',
+  stderr: "fatal: 'run-m_codereview-a' is already used by worktree at '/Users/apolotary/Documents/Github/probe-researcher/runs/backlog_llm_codereview/branches/a'\n"
+}

@@ -1,0 +1,22 @@
+{
+  "run_id": "backlog_polymarket_drift",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "surviving",
+      "stage": "8_guidebook"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit fired a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2"
+    },
+    {
+      "branchId": "c",
+      "status": "surviving",
+      "stage": "8_guidebook"
+    }
+  ]
+}

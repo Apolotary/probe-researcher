@@ -33,6 +33,10 @@ Thumbs.db
 coverage/
 .nyc_output/
 
+# Failed/killed run artifacts — kept locally for post-hoc debugging, not
+# tracked (contains embedded worktrees and redundant pipeline state).
+logs/failed_run_artifacts/
+
 # Probe-specific — runs are tracked, but working state and markers are not
 runs/*/branches/*/DONE.marker
 runs/*/branches/*/FAILED.marker

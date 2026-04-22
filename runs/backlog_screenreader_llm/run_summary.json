@@ -1,0 +1,24 @@
+{
+  "run_id": "backlog_screenreader_llm",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\"\nparagraph missing [SIMULATION_REHEARSAL]: \"---\""
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject"
+    },
+    {
+      "branchId": "c",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nevidence language \"significantly faster\" in: \"The highest-probability friction point in this protocol would plausibly be the non-pausable ground-t\""
+    }
+  ]
+}
