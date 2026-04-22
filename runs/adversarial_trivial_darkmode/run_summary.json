@@ -1,0 +1,24 @@
+{
+  "run_id": "adversarial_trivial_darkmode",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nevidence language \"validated\" in: \"The second questionnaire item — asking how bright the environment felt — is intended as a validity c\""
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject"
+    },
+    {
+      "branchId": "c",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nevidence language \"validate\" in: \"The think-aloud data collected in Step 2 and the elicitation data collected in Step 1 are intended t\""
+    }
+  ]
+}

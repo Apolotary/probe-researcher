@@ -125,7 +125,13 @@ program
 
 program
   .command('doctor')
-  .description('One-command verification sweep — typecheck, tests, lint shipped guidebooks, PDF backend availability, git cleanliness, corpus/patterns/benchmark inventory. Exits non-zero on failure.')
+  .option('--once', 'exit immediately after printing (CI-friendly, old default behavior)')
+  .option('--watch [seconds]', 're-run the checks every N seconds (default 30) until Ctrl+C', (v) => {
+    if (v === undefined || v === '') return true;
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? n : 30;
+  })
+  .description('One-command verification sweep — typecheck, tests, lint shipped guidebooks, PDF backend availability, git cleanliness, corpus/patterns/benchmark inventory. Stays open until Ctrl+C so the output remains visible. Pass --once for the old exit-immediately behavior (CI/scripts); pass --watch [N] to re-run every N seconds as a live status page.')
   .action(doctorCommand);
 
 program

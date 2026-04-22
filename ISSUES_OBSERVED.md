@@ -102,6 +102,22 @@ Budget win is real: ~$2-3 per Sonnet run vs ~$5-6 per Opus run. Quality loss on 
 **Why it needs your judgment**: The paper's cost-tradeoff section currently reads "Sonnet is substantively capable on the methodologist stage" (from the n=1 Stage 7 ablation). The new evidence is the opposite shape on Stage 5 — Sonnet is substantively LESS capable. Neither claim generalizes beyond the stage it was tested on; the paper should distinguish. Concrete suggestion: add a Stage 5 ablation line to the evaluation — on one saved branch card that succeeded under Opus, re-run Stage 5 under Sonnet and report what breaks.
 **Severity**: medium (affects budget/quality tradeoff story; CLAUDE.md constraint is now load-bearing rather than hypothetical)
 
+## 2026-04-22 17:04 GMT+9 — adversarial run 1: Move framework is live in the premise interrogator
+
+**Source**: `runs/adversarial_trivial_darkmode/premise_card.json`
+**Observation**: First adversarial battery run just completed. The premise was the literal sentence "study whether users prefer dark mode" — Category A (should-die-at-Stage-1). Stage 1 did NOT refuse (Probe's design is that Stage 1 sharpens rather than rejects), but the output shows the Move-framework prompt upgrade shipped earlier tonight is alive and doing work:
+
+- `sharpest_question`: "Prefer dark mode for what — under what conditions, on what tasks, measured against what outcome, in what population — because without any of those constraints this is not a study, it is a survey question that has already been run thousands of times by every major platform vendor?"
+- `missing_evidence`: 6-item structured list explicitly flagging "No niche", "No mechanism", "No testable proposition", "No population with a reason to be studied". These align 1:1 with the Move framework's three moves (territory / niche / occupation).
+- `sharpened_options`: each begins "Territory: … Niche: … [option]" — the three-move template is visibly shaping every option.
+
+The premise interrogator was already good. The Move framework didn't replace it; it gave the agent a structured checklist that shows up in the outputs as specifically-named deficiencies.
+
+The downstream stages proceeded (Sonnet weakness again: 2 of 3 branches failed at Stage 5 simulator, 1 blocked at audit). Expected.
+
+**Why it needs your judgment**: None — positive. Flagged because it's the first empirical evidence the Move-framework prompt edit is working as intended.
+**Severity**: low (positive)
+
 ## 2026-04-22 13:58 GMT+9 — new meta-reviewer disagreement class appeared
 
 **Source**: `runs/backlog_torso_s4_ios/branches/a/meta_review.json`

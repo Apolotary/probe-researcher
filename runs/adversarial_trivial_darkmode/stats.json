@@ -1,0 +1,118 @@
+{
+  "runId": "adversarial_trivial_darkmode",
+  "premise": "study whether users prefer dark mode",
+  "premiseTruncated": "study whether users prefer dark mode",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nevidence language \"validated\" in: \"The second questionnaire item — asking how bright the environment felt — is intended as a validity c\"",
+      "blockingFinding": null,
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "verdictLabel": "FAILED:5_simulator"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED:legibility.no_failure_signal"
+    },
+    {
+      "branchId": "c",
+      "status": "failed",
+      "stage": "5_simulator",
+      "reason": "5_simulator lint failed after repair:\nevidence language \"validate\" in: \"The think-aloud data collected in Step 2 and the elicitation data collected in Step 1 are intended t\"",
+      "blockingFinding": null,
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "verdictLabel": "FAILED:5_simulator"
+    }
+  ],
+  "totalUsd": 1.4571089999999998,
+  "totalInputTokens": 175468,
+  "totalOutputTokens": 62047,
+  "durationMs": 1395434,
+  "costEntryCount": 19,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "c",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": false,
+    "provenancePassed": null,
+    "voicePassed": null,
+    "provenanceViolationCount": null,
+    "voiceViolationCount": null
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 5_simulator [branch b]",
+    "repair pass on 5_simulator [branch a]",
+    "repair pass on 5_simulator [branch c]",
+    "branch a: missing simulated_walkthrough.md (status=failed)",
+    "branch a: missing audit.json (status=failed)",
+    "branch c: missing simulated_walkthrough.md (status=failed)",
+    "branch c: missing audit.json (status=failed)"
+  ],
+  "generatedAt": "2026-04-22T08:03:53.570Z"
+}

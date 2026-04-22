@@ -1,0 +1,28 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "adversarial_trivial_darkmode",
+  "raw_premise": "study whether users prefer dark mode",
+  "sharpest_question": "Prefer dark mode for what — under what conditions, on what tasks, measured against what outcome, in what population — because without any of those constraints this is not a study, it is a survey question that has already been run thousands of times by every major platform vendor?",
+  "claim": "No claim is derivable from the premise as stated; it reduces to a descriptive frequency count of a preference that has already been reported in industry telemetry at scale.",
+  "differentia": "None visible. The premise contains no population specification, no task, no outcome variable, no mechanism, and no gap in prior work. There is nothing here that distinguishes it from a 2019 Twitter poll.",
+  "nearest_template": "Platform preference survey — the most exhausted template in HCI: recruit participants, show them two conditions, ask which they prefer, report percentages. This template has been applied to dark mode specifically by Apple, Google, and independent researchers since at least 2018.",
+  "missing_evidence": [
+    "A specific outcome variable: preference as reported attitude, task performance, reading accuracy, fatigue, eye strain, or something else — these are not interchangeable.",
+    "A boundary condition: the premise implies a universal answer exists; the researcher has not acknowledged that preference is known to interact with ambient lighting, display type, content type, and individual photosensitivity.",
+    "A niche: what does existing platform telemetry and prior academic work on polarity preference NOT answer that this study would answer?",
+    "A population with a reason to be studied: 'users' is not a population.",
+    "Any mechanism: even if a preference difference is found, the premise contains no causal account of why, which means the result would be uninterpretable and ungeneralizable.",
+    "A testable proposition: the premise is framed as open exploration ('study whether'), not as a claim that could be falsified."
+  ],
+  "sharpened_options": [
+    "Territory: display polarity preference is known to vary with ambient lighting, but most studies test under controlled lab lighting. Niche: field studies measuring dark-mode preference and reading performance under naturalistic lighting conditions (bright outdoor, dim indoor, nighttime) are absent from the literature. Occupation: participants who switch to dark mode under high-ambient-light conditions will show slower word-recognition latency than those who remain in light mode, because contrast reversal interacts with glare in a way that offsets perceived comfort — tested via a within-subjects field experiment using a diary-triggered performance probe.",
+    "Territory: approximately 8% of males have some form of color vision deficiency, and display polarity affects chromatic contrast differently for this group. Niche: dark-mode preference and legibility studies have used color-typical samples, leaving color-deficient users uncharacterized. Occupation: among users with deuteranopia, dark mode will reduce error rates on color-coded UI elements (e.g., status indicators, charts) relative to light mode, due to improved luminance contrast for hues that are perceptually conflated in light polarity — tested via a controlled reading-accuracy task with a CVD-confirmed sample.",
+    "Territory: OLED displays extinguish pixels for true black, making dark mode an energy-saving mechanism, but user awareness of this varies. Niche: no study has examined whether instrumentally accurate mental models of OLED power consumption moderate dark-mode adoption behavior. Occupation: users with accurate mental models of display power draw will show higher dark-mode retention rates at two-week follow-up than users with inaccurate models, after controlling for stated aesthetic preference — tested via a longitudinal survey with a validated mental-model probe administered at enrollment.",
+    "Territory: dark mode is frequently recommended for users with migraines or photophobia, but clinical evidence for this recommendation is thin. Niche: existing photophobia studies measure acute light-sensitivity thresholds, not naturalistic display polarity choices or their effect on migraine frequency. Occupation: among diagnosed migraineurs, switching to system-wide dark mode will not reduce self-reported migraine frequency over a four-week period compared to a control group maintaining light mode — framed as a registered null-result test of a widely circulated clinical claim, using a pre-registered crossover design with headache diary as primary outcome."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

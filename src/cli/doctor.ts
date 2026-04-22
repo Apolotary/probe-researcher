@@ -30,48 +30,97 @@ interface CheckResult {
   warning?: boolean;
 }
 
-export async function doctorCommand(): Promise<void> {
+interface DoctorOptions {
+  /** `--once` makes the command exit immediately after printing, for CI/scripts. */
+  once?: boolean;
+  /** `--watch` re-runs the checks every N seconds (default 30). */
+  watch?: number | boolean;
+}
+
+export async function doctorCommand(opts: DoctorOptions = {}): Promise<void> {
+  const runChecks = async (): Promise<{ failures: number; warnings: number; total: number }> => {
+    const results: CheckResult[] = [];
+    const root = projectRoot();
+
+    results.push(await checkTypecheck(root));
+    results.push(await checkTests(root));
+    results.push(...(await checkGuidebooks(root)));
+    results.push(await checkCommand('pandoc', 'pandoc --version'));
+    results.push(await checkCommand('wkhtmltopdf', 'wkhtmltopdf --version'));
+    results.push(await checkGit(root));
+    results.push(...(await checkInventory(root)));
+
+    const longest = Math.max(...results.map((r) => r.name.length));
+    for (const r of results) {
+      const marker = r.passed
+        ? chalk.hex(palette.passed)('✓')
+        : r.warning
+          ? chalk.hex(palette.revision)('⚠')
+          : chalk.hex(palette.blocked)('✗');
+      const label = chalk.hex(palette.stage)(r.name.padEnd(longest + 2));
+      const detailColor = r.passed ? palette.dim : r.warning ? palette.revision : palette.blocked;
+      console.log(`  ${marker}  ${label}${chalk.hex(detailColor)(r.detail)}`);
+    }
+
+    console.log('');
+    const failures = results.filter((r) => !r.passed && !r.warning);
+    const warnings = results.filter((r) => r.warning);
+    if (failures.length === 0 && warnings.length === 0) {
+      console.log(chalk.hex(palette.passed).bold(`✓ all ${results.length} checks passed — repo is demo-ready`));
+    } else if (failures.length === 0) {
+      console.log(chalk.hex(palette.revision)(`⚠ ${warnings.length} warning${warnings.length === 1 ? '' : 's'}, ${results.length - warnings.length} passed — not blocking, but worth reviewing`));
+    } else {
+      console.log(chalk.hex(palette.blocked).bold(`✗ ${failures.length} check${failures.length === 1 ? '' : 's'} failed`));
+    }
+    return { failures: failures.length, warnings: warnings.length, total: results.length };
+  };
+
+  const renderHeader = (): void => {
+    console.log('');
+    console.log(brand.header('🩺 probe doctor'));
+    console.log(chalk.hex(palette.dim)(`pre-demo verification sweep · ${new Date().toLocaleTimeString()}`));
+    console.log('');
+  };
+
+  renderHeader();
+  const first = await runChecks();
   console.log('');
-  console.log(brand.header('🩺 probe doctor'));
-  console.log(chalk.hex(palette.dim)('pre-demo verification sweep'));
-  console.log('');
 
-  const results: CheckResult[] = [];
-  const root = projectRoot();
-
-  results.push(await checkTypecheck(root));
-  results.push(await checkTests(root));
-  results.push(...(await checkGuidebooks(root)));
-  results.push(await checkCommand('pandoc', 'pandoc --version'));
-  results.push(await checkCommand('wkhtmltopdf', 'wkhtmltopdf --version'));
-  results.push(await checkGit(root));
-  results.push(...(await checkInventory(root)));
-
-  // Render results
-  const longest = Math.max(...results.map((r) => r.name.length));
-  for (const r of results) {
-    const marker = r.passed
-      ? chalk.hex(palette.passed)('✓')
-      : r.warning
-        ? chalk.hex(palette.revision)('⚠')
-        : chalk.hex(palette.blocked)('✗');
-    const label = chalk.hex(palette.stage)(r.name.padEnd(longest + 2));
-    const detailColor = r.passed ? palette.dim : r.warning ? palette.revision : palette.blocked;
-    console.log(`  ${marker}  ${label}${chalk.hex(detailColor)(r.detail)}`);
+  // --once exits immediately. This is the CI-friendly / script-friendly
+  // behavior; preserved as an opt-in because the previous default.
+  if (opts.once) {
+    if (first.failures > 0) process.exitCode = 1;
+    return;
   }
 
-  console.log('');
-  const failures = results.filter((r) => !r.passed && !r.warning);
-  const warnings = results.filter((r) => r.warning);
-  if (failures.length === 0 && warnings.length === 0) {
-    console.log(chalk.hex(palette.passed).bold(`✓ all ${results.length} checks passed — repo is demo-ready`));
-  } else if (failures.length === 0) {
-    console.log(chalk.hex(palette.revision)(`⚠ ${warnings.length} warning${warnings.length === 1 ? '' : 's'}, ${results.length - warnings.length} passed — not blocking, but worth reviewing`));
-  } else {
-    console.log(chalk.hex(palette.blocked).bold(`✗ ${failures.length} check${failures.length === 1 ? '' : 's'} failed`));
-    process.exitCode = 1;
+  // Default: stay open until the user Ctrl+Cs. This is the terminal-
+  // friendly behavior — the output stays visible rather than being
+  // swallowed by the shell's next prompt. A single-line "press Ctrl+C"
+  // hint makes the expectation explicit.
+  const watchInterval =
+    typeof opts.watch === 'number' ? opts.watch : opts.watch ? 30 : null;
+
+  if (watchInterval === null) {
+    console.log(chalk.hex(palette.dim)('Press Ctrl+C to exit. Pass --once to exit immediately (CI-friendly). Pass --watch [N] to re-run every N seconds.'));
+    // Block on a never-resolving promise until SIGINT. Exit code is
+    // carried over from the first check result.
+    if (first.failures > 0) process.exitCode = 1;
+    await new Promise(() => {
+      /* intentionally blocks forever; Ctrl+C terminates the process */
+    });
+    return;
   }
-  console.log('');
+
+  // --watch mode: re-run every N seconds until Ctrl+C.
+  console.log(chalk.hex(palette.dim)(`Watching every ${watchInterval}s. Press Ctrl+C to exit.`));
+  while (true) {
+    await new Promise((resolve) => setTimeout(resolve, watchInterval * 1000));
+    console.log('');
+    console.log(chalk.hex(palette.dim)(`—— re-checking at ${new Date().toLocaleTimeString()} ——`));
+    console.log('');
+    await runChecks();
+    console.log('');
+  }
 }
 
 async function checkTypecheck(root: string): Promise<CheckResult> {
