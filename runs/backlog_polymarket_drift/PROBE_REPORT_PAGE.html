@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe report — backlog_polymarket_drift</title>
+<style>
+:root {
+  --bg: #f7f5ef;
+  --bg-card: #ffffff;
+  --bg-pre: #1a1d2c;
+  --fg-pre: #e8e3d4;
+  --fg: #1a1a1a;
+  --fg-dim: #555;
+  --fg-faint: #888;
+  --border: #d0cbb8;
+  --border-soft: #e8e3d4;
+  --accent: #1B365D;
+  --accent-warm: #9e2e22;
+  --accent-amber: #b47b2a;
+  --accent-green: #1f6b1e;
+  --accent-plum: #7a2d5a;
+  --code-bg: #ede9dc;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Newsreader', 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+h1, h2, h3, .topnav-brand, .topnav-links a, .hero-eyebrow, .hero-meta, .provtag, .card-tag,
+.pipeline-figure, .capture-findings, .meta-review, .footer-links, .footer-tagline {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #10121e;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 48px 0 16px;
+  color: #10121e;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 6px;
+}
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 28px 0 8px;
+  color: #20232e;
+}
+
+p, li, blockquote { font-size: 17px; }
+p { margin: 0 0 14px; }
+
+/* Top nav */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247, 245, 239, 0.92);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.topnav-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.topnav-brand {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.topnav-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.topnav-links a {
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 13px;
+}
+.topnav-links a:hover { color: var(--accent); }
+
+/* Hero */
+.hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 24px 24px;
+}
+.hero-eyebrow {
+  font-size: 13px;
+  color: var(--fg-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-meta {
+  font-size: 13px;
+  color: var(--fg-dim);
+  margin-top: 10px;
+}
+.hero-meta .run-id {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.hero-meta .dot { margin: 0 8px; color: #bbb; }
+.hero-tagline {
+  font-style: italic;
+  color: var(--fg-dim);
+  font-size: 16px;
+  margin-top: 24px;
+}
+
+/* Section lede */
+.section-lede {
+  font-size: 16px;
+  color: var(--fg-dim);
+  border-left: 3px solid var(--border);
+  padding: 4px 0 4px 14px;
+  margin: 0 0 20px;
+}
+
+/* Teaser figure */
+.teaser {
+  margin: 0 0 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+}
+.teaser figcaption {
+  font-size: 14px;
+  color: var(--fg-dim);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.pipeline-figure {
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.pipeline-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--fg-dim);
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 16px;
+}
+.pipeline-stage {
+  background: var(--code-bg);
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+.pipeline-stages .arrow { color: var(--fg-faint); }
+.pipeline-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pipeline-branch {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 12px;
+}
+.pipeline-branch-label { font-size: 12px; color: var(--fg-dim); margin-bottom: 6px; }
+.pipeline-verdict {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.glyph-survived { background: #dff5df; color: var(--accent-green); }
+.glyph-blocked { background: #ffe3e0; color: var(--accent-warm); }
+.glyph-failed { background: #f0e0e0; color: #555; }
+.glyph-unknown { background: #e8e3d4; color: var(--fg-dim); }
+.pipeline-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.pipeline-detail code {
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Rehearsal cards */
+.rehearsal-cards {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.rehearsal-card {
+  background: #faf7ee;
+  border-left: 3px solid var(--accent-amber);
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 0 3px 3px 0;
+}
+.rehearsal-card p { margin: 0; font-style: italic; color: #3a3a3a; }
+.card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent-amber);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Capture findings */
+.capture-findings {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.capture-finding {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-warm);
+  border-radius: 3px;
+  padding: 14px 18px;
+}
+.capture-finding.finding-drift { border-left-color: var(--accent-amber); }
+.capture-finding.finding-info { border-left-color: var(--fg-faint); }
+.finding-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.finding-pattern code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #222;
+}
+.finding-axis {
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.finding-score {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-warm);
+  font-weight: 700;
+}
+.finding-branch {
+  color: var(--fg-faint);
+  font-size: 12px;
+  margin-left: auto;
+}
+.finding-evidence {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 15px;
+  color: #2a2a2a;
+  background: var(--code-bg);
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent-amber);
+  border-radius: 0 3px 3px 0;
+}
+.evidence-source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--fg-faint);
+  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+}
+.finding-rationale {
+  font-size: 14px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+/* Meta review */
+.meta-review {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+.meta-verdict { font-size: 14px; margin-bottom: 12px; }
+.meta-verdict-label { color: var(--fg-dim); }
+.meta-verdict-value code {
+  font-family: 'JetBrains Mono', monospace;
+  background: #e1f5e0;
+  color: var(--accent-green);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.meta-class code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  color: var(--fg-dim);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.meta-rationale {
+  font-size: 15px;
+  color: #333;
+  margin: 10px 0;
+  line-height: 1.55;
+}
+.mx-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+}
+.mx-table th, .mx-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+.mx-table th { font-size: 11px; color: var(--fg-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+.mx-table code { font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+
+/* Inline content */
+code {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--bg-pre);
+  color: var(--fg-pre);
+  padding: 16px 20px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+blockquote {
+  margin: 14px 0;
+  padding: 8px 16px;
+  border-left: 3px solid var(--border);
+  color: #2a2a2a;
+}
+
+ul { padding-left: 22px; }
+li { margin: 4px 0; }
+
+/* Provenance tag badges */
+.provtag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: 2px;
+  background: var(--code-bg);
+  color: var(--fg-faint);
+  vertical-align: baseline;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.provtag.tag-source_card { background: #dfeaff; color: #1B365D; }
+.provtag.tag-simulation_rehearsal { background: #faf0dc; color: var(--accent-amber); }
+.provtag.tag-agent_inference { background: #ede9dc; color: #5a5547; }
+.provtag.tag-researcher_input { background: #dff5df; color: var(--accent-green); }
+.provtag.tag-human_required { background: #dff5e6; color: #135a3b; }
+.provtag.tag-do_not_claim { background: #ffe3e0; color: var(--accent-warm); }
+.provtag.tag-uncited_adjacent { background: #f3e0ee; color: var(--accent-plum); }
+.provtag.tag-tool_verified { background: #e1f5e0; color: var(--accent-green); }
+.provtag.tag-imported_draft { background: #e6ecf5; color: #34456b; }
+
+.provenance-legend dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  margin: 14px 0 4px;
+}
+.provenance-legend dd {
+  font-size: 15px;
+  color: var(--fg-dim);
+  margin: 0 0 8px;
+}
+
+/* Footer */
+.footer {
+  max-width: 760px;
+  margin: 64px auto 0;
+  padding: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-dim);
+}
+.footer h3 { font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); margin: 0 0 12px; }
+.footer-intro { font-size: 14px; margin-bottom: 10px; }
+.bibtex { font-size: 12px; line-height: 1.5; padding: 14px 16px; }
+.footer-links { font-size: 13px; margin-top: 16px; }
+.footer-links a { color: var(--accent); text-decoration: none; margin-right: 4px; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-tagline { font-size: 12px; color: var(--fg-faint); margin-top: 20px; font-style: italic; }
+
+.missing-section {
+  font-style: italic;
+  color: var(--fg-faint);
+  padding: 12px 16px;
+  background: var(--code-bg);
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .topnav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .topnav-links { gap: 12px; }
+  h1 { font-size: 28px; }
+  .hero { padding: 36px 18px 12px; }
+  main { padding: 0 18px 60px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#premise" class="topnav-brand">Probe</a>
+    <div class="topnav-links">
+      <a href="#premise">Premise</a>
+      <a href="#method">Method</a>
+      <a href="#rehearsal">Rehearsal</a>
+      <a href="#safety">Capture-risk</a>
+      <a href="#panel">Reviewer panel</a>
+      <a href="#handoff">Humans must decide</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">A Probe simulation run · 2026-04-22</div>
+  <h1>Design a study to understand how semi-automated trading agents should surface execution drift to users monitoring multiple markets simultaneously.</h1>
+  <div class="hero-meta">
+    <span class="run-id">backlog_polymarket_drift</span>
+    <span class="dot">·</span>
+    <span>branch A surviving</span>
+    <span class="dot">·</span>
+    <span>$3.43</span>
+    <span class="dot">·</span>
+    <span>27m58s wall</span>
+  </div>
+  <p class="hero-tagline">Rehearsal stage for research. The performance still needs humans.</p>
+</header>
+
+<main>
+
+<section id="teaser">
+  <figure class="teaser">
+    <div class="pipeline-figure">
+  <div class="pipeline-stages"><span class="pipeline-stage">1. premise</span><span class="arrow">→</span><span class="pipeline-stage">2. ideation</span><span class="arrow">→</span><span class="pipeline-stage">3. literature</span><span class="arrow">→</span><span class="pipeline-stage">4. prototype</span><span class="arrow">→</span><span class="pipeline-stage">5. simulator</span><span class="arrow">→</span><span class="pipeline-stage">6. audit</span><span class="arrow">→</span><span class="pipeline-stage">7. review</span><span class="arrow">→</span><span class="pipeline-stage">8. guidebook</span></div>
+  <div class="pipeline-branches"><div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch A</div>
+        <div class="pipeline-verdict glyph-survived">SURVIVED</div>
+        
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch B</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>audit:capture_risk:-2</code></div>
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch C</div>
+        <div class="pipeline-verdict glyph-survived">SURVIVED</div>
+        
+      </div></div>
+</div>
+    <figcaption>
+      Figure 1. Pipeline outcome for this run. Eight stages, three branches, one guidebook. Branch
+      A survived capture-risk audit and adversarial review; other
+      branches stopped at the named stage. Verdicts below each branch were produced by the orchestrator from
+      the audit and meta-review outputs — not self-reported by the agents.
+    </figcaption>
+  </figure>
+</section>
+
+<section id="premise">
+  <h2>Premise</h2>
+  <p>The researcher&#039;s original question asked how semi-automated trading agents should surface execution drift to users monitoring multiple markets simultaneously. <span class="provtag tag-researcher_input">[RESEARCHER_INPUT]</span></p>
+<p>That question was sharpened during Probe to focus on a specific decision point: when a semi-automated agent exceeds its declared slippage tolerance on one of several concurrent prediction markets, does requiring the agent to present a structured counter-argument (reasons the user should NOT override) change whether override decisions are better calibrated than presenting drift evidence alone? <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>This guidebook plans a formative evaluative study of a wizard-of-oz (WoZ) prototype that simulates the counter-argument mechanism. The study is designed to characterize override-decision behavior under a single, bounded manipulation; it is not designed to evaluate a deployable product nor to produce performance benchmarks. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>This study can support claims about how override decisions are made in a single laboratory session under the specific scripted conditions tested. <span class="provtag tag-do_not_claim">[DO_NOT_CLAIM]</span></p>
+<p>This study cannot support claims about long-term trader behavior, real-money decision-making, general trust in trading agents, or the effectiveness of counter-argument framing outside the tested drift magnitudes and market types. <span class="provtag tag-do_not_claim">[DO_NOT_CLAIM]</span></p>
+<p>This study cannot, in its current two-cell form, support causal claims about adversarial <em>argumentation</em> as the active ingredient, because the adversarial condition bundles modal interruption, argument structure, and adversarial framing into a single manipulation. This is a known unresolved design issue flagged in meta-review. <span class="provtag tag-do_not_claim">[DO_NOT_CLAIM]</span></p>
+</section>
+
+<section id="background">
+  <h2>Background</h2>
+  <p>Buijsman, Carter, and Bermúdez argue that AI decision-support can erode domain-specific autonomy through absent failure indicators and unconscious value shifts, and that design patterns such as defeater mechanisms are one way to preserve user agency at the point of action. <span class="provtag tag-source_card">[SOURCE_CARD:buijsman_carter_bermudez_2025]</span></p>
+<p>Sundar&#039;s MAIN model describes how agency cues in a digital interface can invoke an authority heuristic or a &quot;machine heuristic&quot; that changes perceived trustworthiness independently of actual source quality, biasing credibility judgments in ways users do not notice. This framing motivates the study&#039;s concern that a structured counter-argument may produce deference rather than deliberation. <span class="provtag tag-source_card">[SOURCE_CARD:sundar_2008_main_model]</span></p>
+<p>Longoni and colleagues found that resistance to AI recommendations is attenuated when the AI serves a supporting role to a human decision-maker rather than replacing one, suggesting that framing agent output as advisory rather than authoritative affects how users engage with it. The counter-argument framing tested here sits within this advisory space. <span class="provtag tag-source_card">[SOURCE_CARD:longoni_2019_medical_ai_resistance]</span></p>
+<p>Jakesch and colleagues showed that built-in opinions of AI language technologies can shift users&#039; views at scale even when users are unaware they are being influenced, underscoring the need to engineer the directional framing of AI-generated arguments carefully. The adversarial-framing condition in this study is precisely such a directional framing, and its effects should be interpreted against this capture-risk background. <span class="provtag tag-source_card">[SOURCE_CARD:jakesch_2023_cowriting]</span></p>
+<p>The following outside-corpus literature was flagged during review as potentially adjacent but is NOT present in the Probe corpus. The researcher must verify each of these independently before grounding any design choice on them: <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<ul>
+<li>Parasuraman&#039;s work on automation trust and supervisory control, cited in the premise-stage analysis as the nearest template for notification-design studies in multi-stream monitoring. <span class="provtag tag-uncited_adjacent">[UNCITED_ADJACENT]</span></li>
+<li>Jian, Bisantz, and Drury (2000) Trust in Automation scale, referenced in the prototype&#039;s questionnaire materials but not present as a source card. <span class="provtag tag-uncited_adjacent">[UNCITED_ADJACENT]</span></li>
+<li>NASA-TLX cognitive load subscale, referenced in the questionnaire but not present as a source card. <span class="provtag tag-uncited_adjacent">[UNCITED_ADJACENT]</span></li>
+</ul>
+</section>
+
+<section id="method">
+  <h2>Method</h2>
+  <p class="section-lede">
+    Probe does not run a study. It writes one, rehearses it, and audits the rehearsal. This section restates
+    the prototype specification — the artifact a different researcher could build from without asking
+    clarifying questions — and the study protocol.
+  </p>
+  <p>The prototype is a wizard-of-oz (WoZ) simulation of a semi-automated trading assistant monitoring six concurrent prediction markets. A single participant sits at a workstation and watches a 2x3 grid of market panels, each showing position size, entry price, current price, and a slippage indicator. A researcher in an adjacent room (the wizard) triggers scripted drift events at pre-set times. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>In the adversarial condition, when a drift alert fires, a modal dialogue overlays the affected market panel within 4 seconds. The modal header reads &quot;Agent argues against override&quot; and contains three structured components: a base rate reminder (&quot;in X% of historical cases, drift at this magnitude reverted within Y hours&quot;), a risk asymmetry note (what an unnecessary exit costs), and a confidence qualifier (how many comparable events support the estimate). Two buttons are available: &quot;Override anyway&quot; and &quot;Accept agent recommendation.&quot; <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>In the neutral condition, the same drift alert fires, but no modal appears. The alert banner shows the raw drift percentage, the threshold, and the same back-test base rate number with no framing or argument structure. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>Each session runs for 75 minutes: a 10-minute briefing and consent block, a 10-minute practice block on a stable 4-market dashboard, a 40-minute main task block with 8 scripted drift events (4 genuine drift, 4 false-alarm), a 10-minute post-task questionnaire, and a 5-minute debrief including the WoZ reveal. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>The wizard has five controls: InjectDriftAlert, InjectCounterArgumentTemplate (selecting from a 12-template library indexed by market type × drift magnitude), PauseCountdownTimer, ResumeCountdownTimer, and ForceResetMarketPanel. The counter-argument templates are pre-authored and selected in real time rather than generated. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>Observable signals include: override decision accuracy per trial (against scripted ground truth), decision latency from alert to click, think-aloud references to argument components, post-task Trust-in-Automation Likert ratings, post-session semi-structured interview responses, and wizard/observer logs of rapid-dismiss events and technical errors. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+  <p class="missing-section">No <code>Study protocol</code> section in this run's guidebook.</p>
+</section>
+
+<section id="rehearsal">
+  <h2>What the rehearsal surfaced</h2>
+  <p class="section-lede">
+    These are <strong>not participant quotes</strong>. They are the simulator's rehearsed observations, each
+    tagged <code>[SIMULATION_REHEARSAL]</code> in the underlying guidebook. They are priors to test, not
+    evidence the study has produced.
+  </p>
+  <div class="rehearsal-cards">
+  <blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>A participant in the adversarial condition would plausibly take longer on each alert trial than a participant in the neutral condition, and the additional time would plausibly correlate with think-aloud references to specific counter-argument components. If decision latency does…</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>Rapid-dismiss events would plausibly concentrate in specific drift-magnitude bands or market types, suggesting certain counter-argument templates feel more dismissible than others.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>A counter-argument effect on calibration, if present, would plausibly differ between commission errors (unnecessary overrides on false-alarm trials) and omission errors (missed genuine drift events), and asymmetry would carry implications for the cognitive mechanism at work.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>Participants in the adversarial condition who report lower trustworthiness on the Likert scale would plausibly either exhibit more override behavior (consistent with reactance) or disengage from the modal entirely (consistent with rapid-dismiss). These two patterns would differ i…</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>Cross-checking behavior (participants looking from the modal&#039;s base-rate claim to the market panel&#039;s sparkline) would plausibly predict calibration score independently of condition assignment. If observable in screen-recording gaze, it would distinguish a &quot;careful reader&quot; trait f…</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>Within-participant strategy drift across the 8 trials would plausibly manifest as a systematic shift from override-preference to hold-preference (or vice versa) after specific trial sequences; whether such drift differs between conditions is open.</p>
+    </blockquote>
+</div>
+  <p>The hypotheses below are phrased as falsifiable statements the real study can answer. Language is hedged because outcomes are not yet evidence; these are rehearsal-informed anticipations, not predictions. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>A participant in the adversarial condition would plausibly take longer on each alert trial than a participant in the neutral condition, and the additional time would plausibly correlate with think-aloud references to specific counter-argument components. If decision latency does not differ, the modal is likely not being read. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>Rapid-dismiss events would plausibly concentrate in specific drift-magnitude bands or market types, suggesting certain counter-argument templates feel more dismissible than others. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>A counter-argument effect on calibration, if present, would plausibly differ between commission errors (unnecessary overrides on false-alarm trials) and omission errors (missed genuine drift events), and asymmetry would carry implications for the cognitive mechanism at work. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>Participants in the adversarial condition who report lower trustworthiness on the Likert scale would plausibly either exhibit more override behavior (consistent with reactance) or disengage from the modal entirely (consistent with rapid-dismiss). These two patterns would differ in their think-aloud and rapid-dismiss signatures. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>Cross-checking behavior (participants looking from the modal&#039;s base-rate claim to the market panel&#039;s sparkline) would plausibly predict calibration score independently of condition assignment. If observable in screen-recording gaze, it would distinguish a &quot;careful reader&quot; trait from an argument-content effect. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>Within-participant strategy drift across the 8 trials would plausibly manifest as a systematic shift from override-preference to hold-preference (or vice versa) after specific trial sequences; whether such drift differs between conditions is open. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>Interview codes would plausibly co-occur in patterns — for example, &quot;calibrated engagement&quot; co-occurring with &quot;autonomy concern&quot; more often than chance — suggesting composite stances toward the agent rather than discrete responses. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>For participants flagged as &quot;non-engagers&quot; based on rapid-dismiss counts, calibration scores would plausibly either differ from engagers in the same condition (suggesting the argument works only when read) or not differ (suggesting the modal functions as friction regardless of reading). <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>The adversarial-condition NASA-TLX mental-demand scores would plausibly be higher than neutral-condition scores almost by construction, since the modal adds reading load. Such a difference should be interpreted as a manipulation check, not as a substantive result. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+</section>
+
+<section id="safety">
+  <h2>Capture-risk audit</h2>
+  <p class="section-lede">
+    Probe fires sixteen named patterns across four axes — Capacity, Agency, Exit, Legibility — against every
+    branch's prototype spec and simulated walkthrough. A pattern is only reported when the auditor can quote
+    an evidence span from the rehearsed artifact; patterns that cannot be grounded in a specific passage are
+    not reported. A <code>-2</code> score blocks the branch.
+  </p>
+  <div class="capture-findings">
+  <div class="capture-finding finding-blocker">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -2</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          A participant whose calibration is marginal but accepted would plausibly experience dwell-triggered promotions that feel mistimed, and would have no way to attribute this to calibration rather than to the rule logic.
+        </blockquote>
+      <p class="finding-rationale">When the gaze-tracking or wizard judgment is wrong (missed dwell, mistimed promotion, wizard-serialization lag under high load, calibration drift), there is no in-flow signal to the participant that anything has failed. The walkthrough identifies this explicitly as contamination of the Likert trust item. No observable_signal or wizard_control captures participant detection of escalation errors; errors are silently absorbed into the rule-endorsement signal the study is trying to measure.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_fade_mechanism</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          In the ADVERSARIAL CONDITION: within 4 seconds of the alert appearing, a modal dialogue box overlays the market panel... Two buttons remain available: &#039;Override anyway&#039; and &#039;Accept agent recommendation&#039;.
+        </blockquote>
+      <p class="finding-rationale">The counter-argument modal fires at a fixed intensity across all 4 adversarial trials with no mechanism to reduce assistance as the participant demonstrates calibrated judgement. A participant who makes two correct decisions in a row still receives the full three-part structured argument on trial three. This is acceptable within a 75-minute evaluative session but would be a capture risk at scale.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.hides_options_before_review</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Two buttons remain available: &#039;Override anyway&#039; and &#039;Accept agent recommendation&#039;.
+        </blockquote>
+      <p class="finding-rationale">The modal presents a single framed recommendation (&#039;Agent argues against override&#039;) with no exposure of the decision space the agent itself considered — the space of alternative market states, the templates not selected, or the evidence weighted against the recommendation. The participant sees the agent&#039;s conclusion and its rhetoric but not the alternatives the agent ranked below its recommendation.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.opaque_ranking</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Wizard selects a template from a dropdown in the wizard control panel after clicking &#039;Fire&#039; on InjectDriftAlert but before the modal renders... the auto-selection algorithm matches event market type and drift band to the closest template.
+        </blockquote>
+      <p class="finding-rationale">The counter-argument template shown to the participant is selected from a 12-template library by an auto-selection algorithm (with wizard override), but the participant is shown only the chosen template with no indication that selection occurred or on what basis. The argument is presented as if it were the agent&#039;s unique response to this specific event, when in fact it is a match from a small library, and this selection logic is invisible at the point of decision.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          The wizard selects the wrong counter-argument template for the current event&#039;s market type or drift band... causing the argument content shown to the participant to be factually inconsistent with the scenario&#039;s back-test statistics displayed elsewhere on the dashboard.
+        </blockquote>
+      <p class="finding-rationale">The failure_case anticipates template-mismatch scenarios where the agent&#039;s argument is factually wrong relative to the sparkline, but there is no in-dashboard signal to flag the agent as unreliable — detection depends on the participant cross-checking the sparkline. The simulated walkthrough explicitly flags that sparkline-checkers are a self-selected subset. Additionally, in the 4 false-alarm trials the agent&#039;s confidence framing gives no indication that this event-class has historically fewer than 20 comparable cases beyond the &#039;confidence qualifier&#039; sentence, which is itself part of the manipulation.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.unverifiable_summary</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          In 73% of historical cases where slippage reached 7–8% on binary election markets, the price reverted within 2 hours without intervention
+        </blockquote>
+      <p class="finding-rationale">The base rate claim is presented as a summarised statistic without an inline mechanism to inspect the underlying 41-event corpus. The sparkline on the market panel offers partial verification but the walkthrough flags that cross-checking is optional, effortful, and unlikely within the 90-second window. The participant is expected to act on a synthesised number with no &#039;show me the 41 cases&#039; affordance at the point of action.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_fade_mechanism</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          wizard_controls: ESCALATE ... FORCE_FOVEAL ... triggers ... rulebook specifies trigger FORCE_FOVEAL only if severity has crossed 85.
+        </blockquote>
+      <p class="finding-rationale">Escalation assistance fires at fixed rule thresholds throughout the 45-minute main task with no mechanism to attenuate assistance as the participant demonstrates competence (e.g., if they are successfully scanning a market, the ESCALATE rule does not back off). The assistance level is constant rather than adaptive to demonstrated user skill.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.auto_decides_consequential_step</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          FORCE_FOVEAL ... opens immediately without requiring gaze dwell ... with an additional header label in 11pt orange text: &#039;Urgent: drift threshold exceeded.&#039;
+        </blockquote>
+      <p class="finding-rationale">FORCE_FOVEAL commits the system to overlaying the participant&#039;s foveal visual field without their gaze-mediated consent, overriding the dwell-confirmation protocol established elsewhere. The walkthrough flags this as participants experiencing it as the system &#039;taking over.&#039; Within the study this is low-consequence (a UI overlay, not an external action), so the score is −1 rather than −2.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          showing: market title in 18pt bold, current probability in 32pt, drift magnitude labeled &#039;Drift since checkpoint: +X pp&#039; in 14pt, a 40-tick sparkline chart, and two buttons: &#039;Acknowledge&#039; ... and &#039;Dismiss without action&#039;.
+        </blockquote>
+      <p class="finding-rationale">When the foveal panel opens, the participant sees market data but no explanation of why this market was escalated — e.g., &#039;severity exceeded 70 and unvisited for 90s&#039; or &#039;drift rate spiked 10+ points this tick&#039;. The rule basis lives in the wizard&#039;s rulebook, not on the participant&#039;s screen at the moment of the Acknowledge/Dismiss decision. The debrief surfaces rules retrospectively, but rationale-after-commitment is not rationale.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>exit.data_lock_in</code></span>
+        <span class="finding-axis">exit</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          WoZ control panel: a password-protected admin page ... a log_events table showing the last 20 events with timestamps, and an annotation text field for wizard notes that writes to a separate Google Sheet. ... Wizard active rules sheet: a per-participant Google Sheet tab maintained by the wizard
+        </blockquote>
+      <p class="finding-rationale">Participant-authored contracts, revision history, reflection-prompt responses, and wizard-operationalization rules all reside in the study&#039;s custom web application plus researcher-controlled Google Sheets. No export mechanism is described in wizard_controls, failure_cases, or materials_needed through which the participant could take their four weeks of authored artifacts with them after the study ends.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          The Suppress Alert (Hold) control depends on participants noticing an *absence*, which is a weaker signal than noticing a presence; the weekly reflection prompts are the main capture mechanism, and a participant who simply doesn&#039;t mention the non-alert produces ambiguous data
+        </blockquote>
+      <p class="finding-rationale">When the system (via wizard) fails to flag a market move the participant&#039;s contract should have caught — or conversely over-flags — there is no in-flow signal surfacing the mismatch. Participants are expected to detect absences of alerts through their own inspection, and the analysis acknowledges this absence-detection is weaker than presence-detection. Error detection is deferred to offline vignette tasks, leaving real-time failures silent.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_rehearsal_space</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Week 0 onboarding session (90 min in-person): ... 30 min guided contract authoring for 2 assigned synthetic markets, 15 min think-aloud baseline drift-prediction task on 3 held-out episodes
+        </blockquote>
+      <p class="finding-rationale">The onboarding session explicitly includes a 30-minute guided authoring phase on assigned synthetic markets and a 15-minute baseline drift-prediction task on held-out episodes before the four-week live phase begins. This is a low-stakes rehearsal space where participants can develop the contract-authoring skill before any consequential monitoring begins, scaffolding rather than suppressing capacity.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>exit.competence_decay_on_exit</code></span>
+        <span class="finding-axis">exit</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          15 min drift-prediction accuracy task on 8 held-out episodes (primary outcome measure) ... static printed vignettes ... participants are shown 5 held-out episode vignettes (brief text + probability chart excerpt, no agent status shown) and asked to predict, for each, whether their agent would have flagged it
+        </blockquote>
+      <p class="finding-rationale">The primary outcome measure is explicitly an unaided-performance task: participants predict drift classifications on static printed vignettes without access to the dashboard or agent status, isolating their own declarative understanding of their rules. The vignette and card-sort tasks are a direct measurement of what the participant retains when the tool is removed, actively scaffolding exit-capacity assessment.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.weak_override</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score 2</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Participant edits their drift contract for at least one market after observing one or more agent alerts over the preceding days. The participant navigates to the contract editor, reads their prior version in the history panel, and modifies one or more fields.
+        </blockquote>
+      <p class="finding-rationale">Override here is substantive, not ceremonial: the participant can rewrite the governing rules at any time through a prominent editor, with versioned history and diff-highlighting available for reference. The revision path is not buried behind warnings or advanced menus, and the system does not frame revision as deviant — it is the central expected behavior of the protocol, making this a cultivation of agency.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score 2</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          If wizard triggers &#039;Drift Detected,&#039; the badge turns amber, a timestamped alert appears in the notification drawer listing the specific rule from the contract that was triggered, and the chart highlights the triggering price window in yellow.
+        </blockquote>
+      <p class="finding-rationale">At the point of action — when a drift alert fires — the notification drawer inline cites the specific contract clause that was triggered and the chart highlights the price window that triggered it. The participant can see the rationale for the agent&#039;s behavior at the moment they are deciding whether to acknowledge, revise, or ignore, satisfying the requirement for rationale before commitment. This is an explicit cultivation of legibility.</p>
+    </div>
+</div>
+</section>
+
+<section id="panel">
+  <h2>Reviewer panel</h2>
+  <p class="section-lede">
+    Three Opus 4.7 agents review the surviving branch in sequence — a methodologist, an accessibility
+    advocate, and (optionally) a novelty hawk. A meta-reviewer reads their outputs and classifies the
+    disagreement without collapsing it to consensus.
+  </p>
+  <div class="meta-review">
+  <div class="meta-verdict">
+    <span class="meta-verdict-label">Meta-reviewer verdict:</span>
+    <span class="meta-verdict-value"><code>human_judgment_required</code></span>
+    <span class="meta-class">(<code>legitimate_methodological_split</code>)</span>
+  </div>
+  <p class="meta-rationale">Both reviewers converge on major_revision as a recommendation, but their decisive blockers target non-overlapping parts of the design. The methodologist&#039;s blockers (design confounding, power, ground-truth construction) go to whether the study can test its stated claim at all. The accessibility advocate&#039;s blocker (colour-only slippage indicator with no built alternative) goes to whether the measurement apparatus itself validly captures decisions for the full trader population. Resolving the methodologist&#039;s confound (adding arms, specifying power, deriving ground truth empirically) does not fix the indicator; rebuilding the indicator does not address the 2-cell confound. Neither reviewer refutes the other, and the fixes interact (e.g., adding arms multiplies the accessibility cost of not fixing the indicator first, and indicator-version may need to enter the power calculation as a covariate). The ordering and scope of these fixes is a design decision that should not be delegated.</p>
+  <table class="mx-table">
+          <thead><tr><th>Reviewer</th><th>Recommendation</th><th>Decisive weakness</th></tr></thead>
+          <tbody>
+            <tr>
+                    <td>methodologist</td>
+                    <td><code>major_revision</code></td>
+                    <td>The two-cell design confounds modal interruption, argument structure, and adversarial framing, so no outcome can be attributed to the counter-argument mechanism the claim names. Compounded by absent power analysis, researcher-stipulated calibration ground truth, and wizard intrusion on a key secondary DV.</td>
+                  </tr><tr>
+                    <td>accessibility_advocate</td>
+                    <td><code>major_revision</code></td>
+                    <td>The primary slippage indicator is encoded entirely in red/green, and the only mitigation for colour-blind participants is an unspecified &#039;flag for facilitator&#039; workaround. The accessibility alternative is not built into the prototype, producing either silent exclusion or confounded decision data for ~8% of male traders.</td>
+                  </tr>
+          </tbody>
+        </table>
+</div>
+  <p class="section-lede">
+    The interactive side-by-side panel is rendered separately — see
+    <code>runs/backlog_polymarket_drift/branches/a/REVIEWER_PANEL.html</code>
+    (generate with <code>probe panel backlog_polymarket_drift a</code>).
+  </p>
+</section>
+
+<section id="handoff">
+  <h2>What humans must decide</h2>
+  <p class="section-lede">
+    Every Probe guidebook ends with a <code>[HUMAN_REQUIRED]</code> block. This is not a closing
+    pleasantry — it is the set of decisions the pipeline is not authorized to make on the researcher's
+    behalf.
+  </p>
+  <p>Before this study can be run, the researcher must resolve several decisions that Probe cannot resolve on behalf of the research program. Specifically: (1) decide whether to add a third (and fourth) experimental arm to isolate argument content from modal interruption, or instead to narrow the claim to &quot;adversarial modal intervention&quot; without a mechanistic attribution; (2) derive the 8 trial labels from a documented empirical back-test or reframe the DV away from calibration; (3) complete a power analysis tied to a pre-specified minimum effect of interest and adjust sample size or analysis unit accordingly; (4) build the shape-coded/pattern-coded slippage indicator as the default prototype affordance and pilot it with colour-blind traders before recruitment proceeds; (5) specify compensation, recruitment channel, and operational trading-frequency thresholds in writing; (6) author the interview codebook with exemplars and inter-rater reliability procedure; (7) pre-register the full analysis plan including trial-1 handling, rapid-dismiss post-hoc coding, and any covariates introduced by indicator-version piloting; (8) consult with an IRB or equivalent ethics body on the revised consent language, debrief distress protocol, and deception structure. The meta-review explicitly declined to resolve the ordering of these fixes because the methodology and accessibility blockers interact and the trade-offs are a research-program decision, not a Probe decision. <span class="provtag tag-human_required">[HUMAN_REQUIRED]</span></p>
+</section>
+
+<section id="provenance">
+  <h2>Provenance legend</h2>
+  <p>Every content-bearing element in the underlying guidebook ends with exactly one of these tags. A markdown-AST linter fails the build if any element is untagged.</p>
+  <dl class="provenance-legend">
+    <dt>[RESEARCHER_INPUT]</dt><dd>The researcher's original premise, verbatim or lightly restated.</dd>
+    <dt>[SOURCE_CARD:&lt;id&gt;]</dt><dd>Grounded in a specific hand-curated source card. The id resolves to a file in <code>corpus/source_cards/</code>.</dd>
+    <dt>[SIMULATION_REHEARSAL]</dt><dd>Content from the rehearsal. <strong>Not evidence.</strong> Required to use hedged language.</dd>
+    <dt>[AGENT_INFERENCE]</dt><dd>Reasoning by an agent, not grounded in a source or simulation.</dd>
+    <dt>[UNCITED_ADJACENT]</dt><dd>Adjacent literature a reviewer named; the researcher must verify before grounding.</dd>
+    <dt>[TOOL_VERIFIED]</dt><dd>Measured by a Managed Agents tool-equipped session (bash/grep/file ops).</dd>
+    <dt>[IMPORTED_DRAFT]</dt><dd>Researcher's own text lifted verbatim from an imported paper draft (via <code>probe import</code>).</dd>
+    <dt>[HUMAN_REQUIRED]</dt><dd>Explicit handoff. Every guidebook must have at least one.</dd>
+    <dt>[DO_NOT_CLAIM]</dt><dd>Content the guidebook explicitly flags as unclaimable.</dd>
+  </dl>
+</section>
+
+<footer class="footer">
+  <h3>Cite</h3>
+  <p class="footer-intro">If you use Probe in research or teaching, please cite the arXiv paper:</p>
+  <pre class="bibtex"><code>@article{ryskeldiev2026probe,
+  title   = {Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research},
+  author  = {Ryskeldiev, Bektur},
+  year    = {2026},
+  journal = {arXiv preprint},
+  note    = {Built at the Cerebral Valley Claude Opus 4.7 hackathon}
+}</code></pre>
+  <p class="footer-links">
+    <a href="https://github.com/Apolotary/probe-researcher">Source code</a> ·
+    <a href="paper/probe.pdf">Paper PDF</a> ·
+    <a href="DEMO_WALKTHROUGH.md">Demo walkthrough</a>
+  </p>
+  <p class="footer-tagline">Built at the Cerebral Valley Claude Opus 4.7 hackathon, April 2026.</p>
+</footer>
+
+</main>
+</body>
+</html>

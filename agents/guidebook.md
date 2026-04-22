@@ -20,7 +20,7 @@ If more than one branch survived, the researcher has chosen which branch the gui
 
 The guidebook has exactly these H2 sections, in order:
 
-1. `## Premise` — the sharpened research question and the claim the study will (and will not) support
+1. `## Premise` — the sharpened research question and the claim the study will (and will not) support. The last paragraph of this section categorizes the study's contribution as exactly one of **Insight** (explaining something already observed), **Performance** (doing a known task better), or **Capability** (enabling something previously impossible). The three categories are from the AI-paper writing convention; they force the researcher to state which kind of paper this is, rather than leaving the contribution implicit. Use the literal heading form: "**Contribution category:** Insight / Performance / Capability — <one-sentence justification>".
 2. `## Background` — citations from source cards, one paragraph per relevant source, positioning the question against prior art
 3. `## Prototype` — a readable prose rendering of the prototype_spec
 4. `## Study protocol` — recruitment criteria, procedure, materials list, ethics framing, explicit scope of claims the method can and cannot support

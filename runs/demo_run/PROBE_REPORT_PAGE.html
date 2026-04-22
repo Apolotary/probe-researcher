@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe report — demo_run</title>
+<style>
+:root {
+  --bg: #f7f5ef;
+  --bg-card: #ffffff;
+  --bg-pre: #1a1d2c;
+  --fg-pre: #e8e3d4;
+  --fg: #1a1a1a;
+  --fg-dim: #555;
+  --fg-faint: #888;
+  --border: #d0cbb8;
+  --border-soft: #e8e3d4;
+  --accent: #1B365D;
+  --accent-warm: #9e2e22;
+  --accent-amber: #b47b2a;
+  --accent-green: #1f6b1e;
+  --accent-plum: #7a2d5a;
+  --code-bg: #ede9dc;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Newsreader', 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+h1, h2, h3, .topnav-brand, .topnav-links a, .hero-eyebrow, .hero-meta, .provtag, .card-tag,
+.pipeline-figure, .capture-findings, .meta-review, .footer-links, .footer-tagline {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #10121e;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 48px 0 16px;
+  color: #10121e;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 6px;
+}
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 28px 0 8px;
+  color: #20232e;
+}
+
+p, li, blockquote { font-size: 17px; }
+p { margin: 0 0 14px; }
+
+/* Top nav */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247, 245, 239, 0.92);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.topnav-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.topnav-brand {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.topnav-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.topnav-links a {
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 13px;
+}
+.topnav-links a:hover { color: var(--accent); }
+
+/* Hero */
+.hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 24px 24px;
+}
+.hero-eyebrow {
+  font-size: 13px;
+  color: var(--fg-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-meta {
+  font-size: 13px;
+  color: var(--fg-dim);
+  margin-top: 10px;
+}
+.hero-meta .run-id {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.hero-meta .dot { margin: 0 8px; color: #bbb; }
+.hero-tagline {
+  font-style: italic;
+  color: var(--fg-dim);
+  font-size: 16px;
+  margin-top: 24px;
+}
+
+/* Section lede */
+.section-lede {
+  font-size: 16px;
+  color: var(--fg-dim);
+  border-left: 3px solid var(--border);
+  padding: 4px 0 4px 14px;
+  margin: 0 0 20px;
+}
+
+/* Teaser figure */
+.teaser {
+  margin: 0 0 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+}
+.teaser figcaption {
+  font-size: 14px;
+  color: var(--fg-dim);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.pipeline-figure {
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.pipeline-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--fg-dim);
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 16px;
+}
+.pipeline-stage {
+  background: var(--code-bg);
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+.pipeline-stages .arrow { color: var(--fg-faint); }
+.pipeline-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pipeline-branch {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 12px;
+}
+.pipeline-branch-label { font-size: 12px; color: var(--fg-dim); margin-bottom: 6px; }
+.pipeline-verdict {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.glyph-survived { background: #dff5df; color: var(--accent-green); }
+.glyph-blocked { background: #ffe3e0; color: var(--accent-warm); }
+.glyph-failed { background: #f0e0e0; color: #555; }
+.glyph-unknown { background: #e8e3d4; color: var(--fg-dim); }
+.pipeline-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.pipeline-detail code {
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Rehearsal cards */
+.rehearsal-cards {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.rehearsal-card {
+  background: #faf7ee;
+  border-left: 3px solid var(--accent-amber);
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 0 3px 3px 0;
+}
+.rehearsal-card p { margin: 0; font-style: italic; color: #3a3a3a; }
+.card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent-amber);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Capture findings */
+.capture-findings {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.capture-finding {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-warm);
+  border-radius: 3px;
+  padding: 14px 18px;
+}
+.capture-finding.finding-drift { border-left-color: var(--accent-amber); }
+.capture-finding.finding-info { border-left-color: var(--fg-faint); }
+.finding-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.finding-pattern code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #222;
+}
+.finding-axis {
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.finding-score {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-warm);
+  font-weight: 700;
+}
+.finding-branch {
+  color: var(--fg-faint);
+  font-size: 12px;
+  margin-left: auto;
+}
+.finding-evidence {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 15px;
+  color: #2a2a2a;
+  background: var(--code-bg);
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent-amber);
+  border-radius: 0 3px 3px 0;
+}
+.evidence-source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--fg-faint);
+  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+}
+.finding-rationale {
+  font-size: 14px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+/* Meta review */
+.meta-review {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+.meta-verdict { font-size: 14px; margin-bottom: 12px; }
+.meta-verdict-label { color: var(--fg-dim); }
+.meta-verdict-value code {
+  font-family: 'JetBrains Mono', monospace;
+  background: #e1f5e0;
+  color: var(--accent-green);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.meta-class code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  color: var(--fg-dim);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.meta-rationale {
+  font-size: 15px;
+  color: #333;
+  margin: 10px 0;
+  line-height: 1.55;
+}
+.mx-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+}
+.mx-table th, .mx-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+.mx-table th { font-size: 11px; color: var(--fg-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+.mx-table code { font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+
+/* Inline content */
+code {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--bg-pre);
+  color: var(--fg-pre);
+  padding: 16px 20px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+blockquote {
+  margin: 14px 0;
+  padding: 8px 16px;
+  border-left: 3px solid var(--border);
+  color: #2a2a2a;
+}
+
+ul { padding-left: 22px; }
+li { margin: 4px 0; }
+
+/* Provenance tag badges */
+.provtag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: 2px;
+  background: var(--code-bg);
+  color: var(--fg-faint);
+  vertical-align: baseline;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.provtag.tag-source_card { background: #dfeaff; color: #1B365D; }
+.provtag.tag-simulation_rehearsal { background: #faf0dc; color: var(--accent-amber); }
+.provtag.tag-agent_inference { background: #ede9dc; color: #5a5547; }
+.provtag.tag-researcher_input { background: #dff5df; color: var(--accent-green); }
+.provtag.tag-human_required { background: #dff5e6; color: #135a3b; }
+.provtag.tag-do_not_claim { background: #ffe3e0; color: var(--accent-warm); }
+.provtag.tag-uncited_adjacent { background: #f3e0ee; color: var(--accent-plum); }
+.provtag.tag-tool_verified { background: #e1f5e0; color: var(--accent-green); }
+.provtag.tag-imported_draft { background: #e6ecf5; color: #34456b; }
+
+.provenance-legend dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  margin: 14px 0 4px;
+}
+.provenance-legend dd {
+  font-size: 15px;
+  color: var(--fg-dim);
+  margin: 0 0 8px;
+}
+
+/* Footer */
+.footer {
+  max-width: 760px;
+  margin: 64px auto 0;
+  padding: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-dim);
+}
+.footer h3 { font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); margin: 0 0 12px; }
+.footer-intro { font-size: 14px; margin-bottom: 10px; }
+.bibtex { font-size: 12px; line-height: 1.5; padding: 14px 16px; }
+.footer-links { font-size: 13px; margin-top: 16px; }
+.footer-links a { color: var(--accent); text-decoration: none; margin-right: 4px; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-tagline { font-size: 12px; color: var(--fg-faint); margin-top: 20px; font-style: italic; }
+
+.missing-section {
+  font-style: italic;
+  color: var(--fg-faint);
+  padding: 12px 16px;
+  background: var(--code-bg);
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .topnav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .topnav-links { gap: 12px; }
+  h1 { font-size: 28px; }
+  .hero { padding: 36px 18px 12px; }
+  main { padding: 0 18px 60px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#premise" class="topnav-brand">Probe</a>
+    <div class="topnav-links">
+      <a href="#premise">Premise</a>
+      <a href="#method">Method</a>
+      <a href="#rehearsal">Rehearsal</a>
+      <a href="#safety">Capture-risk</a>
+      <a href="#panel">Reviewer panel</a>
+      <a href="#handoff">Humans must decide</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">A Probe simulation run · 2026-04-22</div>
+  <h1>design a short study to understand how BLV screen-reader users interpret page hierarchy on AI-generated news articles</h1>
+  <div class="hero-meta">
+    <span class="run-id">demo_run</span>
+    <span class="dot">·</span>
+    <span>branch B surviving</span>
+    <span class="dot">·</span>
+    <span>$5.93</span>
+    <span class="dot">·</span>
+    <span>54m50s wall</span>
+  </div>
+  <p class="hero-tagline">Rehearsal stage for research. The performance still needs humans.</p>
+</header>
+
+<main>
+
+<section id="teaser">
+  <figure class="teaser">
+    <div class="pipeline-figure">
+  <div class="pipeline-stages"><span class="pipeline-stage">1. premise</span><span class="arrow">→</span><span class="pipeline-stage">2. ideation</span><span class="arrow">→</span><span class="pipeline-stage">3. literature</span><span class="arrow">→</span><span class="pipeline-stage">4. prototype</span><span class="arrow">→</span><span class="pipeline-stage">5. simulator</span><span class="arrow">→</span><span class="pipeline-stage">6. audit</span><span class="arrow">→</span><span class="pipeline-stage">7. review</span><span class="arrow">→</span><span class="pipeline-stage">8. guidebook</span></div>
+  <div class="pipeline-branches"><div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch A</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>audit:legibility.no_failure_signal:-2</code></div>
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch B</div>
+        <div class="pipeline-verdict glyph-survived">SURVIVED</div>
+        
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch C</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>audit:legibility.no_failure_signal:-2</code></div>
+      </div></div>
+</div>
+    <figcaption>
+      Figure 1. Pipeline outcome for this run. Eight stages, three branches, one guidebook. Branch
+      B survived capture-risk audit and adversarial review; other
+      branches stopped at the named stage. Verdicts below each branch were produced by the orchestrator from
+      the audit and meta-review outputs — not self-reported by the agents.
+    </figcaption>
+  </figure>
+</section>
+
+<section id="premise">
+  <h2>Premise</h2>
+  <p>The researcher&#039;s original premise was to design a short study to understand how BLV screen-reader users interpret page hierarchy on AI-generated news articles. <span class="provtag tag-researcher_input">[RESEARCHER_INPUT]</span></p>
+<p>Through Probe&#039;s sharpening process, this was narrowed to a specific sub-question: when hierarchy is held constant, does disclosing AI authorship via an ARIA-live provenance banner shift BLV screen-reader users&#039; navigation strategies and credibility judgments compared to undisclosed or human-authored framing? <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>This guidebook plans a formative study of auditory AI-provenance disclosure for BLV screen-reader users. Its purpose is to characterize how a disclosure artifact interacts with screen-reader navigation, not to establish population-level effects of AI disclosure on credibility. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>This study can support claims about how specific disclosure phrasings and placements interact with heading navigation under the tested conditions. <span class="provtag tag-do_not_claim">[DO_NOT_CLAIM]</span></p>
+<p>This study cannot support claims that AI disclosures generally shift BLV users&#039; trust, that BLV users are more or less susceptible to disclosure effects than sighted users, or that ARIA-live banners are the right intervention for provenance communication. <span class="provtag tag-do_not_claim">[DO_NOT_CLAIM]</span></p>
+</section>
+
+<section id="background">
+  <h2>Background</h2>
+  <p>Kafer develops a political/relational model of disability that situates access needs within social and structural arrangements rather than locating the deficit solely in the individual user, which frames how this study treats BLV participants as expert users of their own tooling rather than as subjects of a corrective intervention. <span class="provtag tag-source_card">[SOURCE_CARD:kafer_2013]</span></p>
+<p>Buijsman, Carter, and Bermúdez argue that AI decision-support can erode domain-specific autonomy through absent failure indicators, which motivates examining whether provenance disclosure mechanisms interact with users&#039; capacity for critical evaluation of AI-authored content. <span class="provtag tag-source_card">[SOURCE_CARD:buijsman_carter_bermudez_2025]</span></p>
+<p>Liang et al. reported in a prospective user study that 57.4% of researchers rated GPT-4 feedback on scientific manuscripts as helpful or very helpful; this finding concerns the helpfulness of AI-authored critique, not AI-authored content more broadly, and this study cannot extend that finding to BLV readers of AI-generated news without additional evidence. <span class="provtag tag-source_card">[SOURCE_CARD:liang_nejm_ai_2024]</span></p>
+<p>Illich argues that tools past a certain threshold of scale and complexity reverse from serving human purposes to conditioning humans to serve the tool, which foregrounds the question of whether undisclosed AI authorship could silently reshape reader trust and navigation behavior. <span class="provtag tag-source_card">[SOURCE_CARD:illich_1973]</span></p>
+<p>Since this guidebook was first assembled, three directly adjacent papers have been added to the source corpus (Jakesch et al. 2023 on co-writing with opinionated language models; Longoni et al. 2019 on resistance to medical AI; Sundar&#039;s 2008 MAIN model of technology effects on credibility). A regeneration of the guidebook against the updated corpus will ground the grounding section against these references rather than flag them as uncited. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>The ARIA-live announcement and live-region interaction literature remains adjacent and uncited in the current source corpus; prior work on how live-region announcements interact with heading navigation is not yet incorporated. <span class="provtag tag-uncited_adjacent">[UNCITED_ADJACENT]</span></p>
+</section>
+
+<section id="method">
+  <h2>Method</h2>
+  <p class="section-lede">
+    Probe does not run a study. It writes one, rehearses it, and audits the rehearsal. This section restates
+    the prototype specification — the artifact a different researcher could build from without asking
+    clarifying questions — and the study protocol.
+  </p>
+  <p>The prototype is a Wizard-of-Oz evaluation in which a researcher (the &quot;wizard&quot;) triggers ARIA-live provenance announcements on prototype news-article pages while a BLV screen-reader participant navigates them. The probes-framework tradition treats such rehearsal instruments as tools for inspiration and dialogue rather than for extracting generalizable user data, which fits the formative scope of this study. <span class="provtag tag-source_card">[SOURCE_CARD:sanders_stappers_2014]</span></p>
+<p>The study uses three article variants of approximately 800 words each, all structured identically with one H1 title and three H2 section headings, presented via a Node.js localhost server tunneled through ngrok so the wizard can inject disclosure text remotely. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>Three disclosure conditions are assigned within-subjects via Latin square: (1) AI-disclosed-early, where the banner fires immediately after the H1 announcement completes; (2) AI-disclosed-late, where the banner fires after the participant&#039;s cursor passes the second H2 heading; and (3) human-framed, where a shorter byline-style string fires at the early position. The AI-vs-human framing parallels prior work on co-writing with language models, where the disclosure of AI involvement interacts with users&#039; opinions even when those users are not told the assistant holds a viewpoint [SOURCE_CARD:jakesch_2023_cowriting]. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>The disclosure strings are: &quot;Disclosure: this article was generated by an AI writing assistant and reviewed by a human editor&quot; for AI conditions, and &quot;Written by a staff journalist&quot; for the human-framed condition. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>A rehearsal of the session flow would help surface whether the structural length mismatch between these two strings produces a condition-specific dwell-onset latency independent of the disclosure&#039;s semantic content — the issue is not that the strings differ, but whether the study&#039;s analysis can separate duration from meaning. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>Five wizard controls manage the session: inject_early_banner, inject_late_banner, inject_human_banner, clear_banner (for runaway announcements), and log_heading_navigation_event (for timestamping observed keystrokes). <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>Observable signals captured per trial include heading-navigation keystroke sequences and dwell times, think-aloud verbalization in a 20-second post-injection window, a 7-item credibility rating scale, section-selection behavior on a trustworthiness probe, and time from page-load to first body-text dwell. Credibility as a dependent variable is shaped by technological affordances that cue cognitive heuristics automatically, according to the MAIN framework — modality, agency, interactivity, and navigability each carry their own heuristic signature [SOURCE_CARD:sundar_2008_main_model]. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>Documented failure modes include ARIA-live suppression when the participant is in forms mode at the moment of injection, ngrok tunnel drops mid-trial, and undetectable delivery when a participant uses a refreshable Braille display with speech muted; wizard-side fallback protocols are specified for each. Buijsman, Carter, and Bermúdez argue that absent failure indicators are one of the specific ways AI decision-support erodes domain-specific autonomy [SOURCE_CARD:buijsman_carter_bermudez_2025], which is why these failure modes must be made participant-visible rather than silently handled by the wizard. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>A rehearsal pass suggests the late-banner condition would be difficult to fire reliably for fast H-key navigators, because a participant traversing all three H2s in under 4 seconds would leave almost no window for the wizard to trigger between the second and third heading. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>A rehearsal also suggests the announcement-duration difference between conditions (approximately 6 seconds for the AI string versus 2 seconds for the human string) would plausibly contaminate any time-bounded behavioral measure, because a longer interruption would mechanically produce longer dwell-onset latency regardless of disclosure content. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+  <p class="missing-section">No <code>Study protocol</code> section in this run's guidebook.</p>
+</section>
+
+<section id="rehearsal">
+  <h2>What the rehearsal surfaced</h2>
+  <p class="section-lede">
+    These are <strong>not participant quotes</strong>. They are the simulator's rehearsed observations, each
+    tagged <code>[SIMULATION_REHEARSAL]</code> in the underlying guidebook. They are priors to test, not
+    evidence the study has produced.
+  </p>
+  <div class="rehearsal-cards">
+  <blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>A rehearsal of the session flow would help surface whether the structural length mismatch between these two strings produces a condition-specific dwell-onset latency independent of the disclosure&#039;s semantic content — the issue is not that the strings differ, but whether the study…</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>A rehearsal pass suggests the late-banner condition would be difficult to fire reliably for fast H-key navigators, because a participant traversing all three H2s in under 4 seconds would leave almost no window for the wizard to trigger between the second and third heading.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>A rehearsal also suggests the announcement-duration difference between conditions (approximately 6 seconds for the AI string versus 2 seconds for the human string) would plausibly contaminate any time-bounded behavioral measure, because a longer interruption would mechanically pr…</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>A rehearsal of a session under the current budget suggests the warm-up article is load-bearing: it establishes the participant&#039;s baseline heading-navigation pattern before any condition fires, and dropping it to save time would cost the analysis its within-participant baseline.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>A rehearsal suggests the 75-minute duration budget is tight and would likely overrun when the credibility form takes longer for screen-reader users than sighted users, and that fatigue would concentrate in the third trial; the researcher should either extend the budget to 90–100…</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>A rehearsal of the consent delivery suggests the facilitator-read-aloud channel is the brittleness point: a participant pausing to re-read a clause loses parity with sighted readers of the same form, and the wizard&#039;s real-time pace-setting becomes the consent experience rather than the form itself.</p>
+    </blockquote>
+</div>
+  <p>Liang et al.&#039;s finding that 57.4% of sighted researchers rated GPT-4 feedback as helpful suggests that authorship framing does shift credibility judgments in at least some expert populations, though whether and how this generalizes to auditory disclosure in BLV screen-reader contexts is unestablished. <span class="provtag tag-source_card">[SOURCE_CARD:liang_nejm_ai_2024]</span></p>
+<p>Buijsman, Carter, and Bermúdez&#039;s argument that absent failure indicators erode domain-specific autonomy would predict that disclosure (as a failure indicator for authorship) supports critical evaluation, though their argument is theoretical rather than empirical and does not specify modality. <span class="provtag tag-source_card">[SOURCE_CARD:buijsman_carter_bermudez_2025]</span></p>
+<p>A rehearsal suggests that if the announcement-duration confound is uncontrolled, any condition difference in dwell-onset latency or post-banner heading-jump counts would be interpretable as a length effect rather than a content effect, and the expected behavioral pattern cannot be cleanly predicted from the current design. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>A rehearsal also suggests participants coded as category A in the think-aloud scheme (no verbal acknowledgment) could nonetheless show condition-differentiated credibility ratings, which would suggest silent uptake of the banner that the verbal-coding method alone would fail to detect. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>Under the adversarial-check framing from the branch card, a rehearsal would anticipate that AI-disclosed conditions could plausibly shift think-aloud category D frequencies and section-selection patterns, though whether this rehearsal-level anticipation survives the probe-wording priming concern is not a matter this design resolves. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+</section>
+
+<section id="safety">
+  <h2>Capture-risk audit</h2>
+  <p class="section-lede">
+    Probe fires sixteen named patterns across four axes — Capacity, Agency, Exit, Legibility — against every
+    branch's prototype spec and simulated walkthrough. A pattern is only reported when the auditor can quote
+    an evidence span from the rehearsed artifact; patterns that cannot be grounded in a specific passage are
+    not reported. A <code>-2</code> score blocks the branch.
+  </p>
+  <div class="capture-findings">
+  <div class="capture-finding finding-blocker">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -2</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          The wizard should detect this when the dashboard shows zero violations for an article but the participant&#039;s navigation trace shows repeated backward heading navigations (Shift+H) indicating unexpected heading order, which contradicts the clean audit score. This is the most likely way the audit pipeline produces false-negative structural assessments.
+        </blockquote>
+      <p class="finding-rationale">The spec explicitly acknowledges that the axe-core audit pipeline produces false-negative structural assessments (the aria-level mismatch scenario) and that two structurally very different articles can receive identical clean audit scores. The primary instrument on which the AI-vs-human analysis depends fails silently, and the participant — whose navigation is the ground truth — has no channel to flag these failures during the session. The wizard is asked to catch these via judgment, but the analysis_plan treats axe-core counts as a first-class quantitative variable in permutation tests and correlations. A silent failure mode in the central measurement instrument, acknowledged in failure_cases but not resolved, is the canonical fire for this pattern.</p>
+    </div>
+<div class="capture-finding finding-blocker">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -2</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          The &#039;apparent resolution rate&#039; metric (proportion of repairs followed within 10 seconds by a CONFIRM code or absence of DISCONFIRM) treats the absence of disconfirmation as evidence of resolution. Rehearsing this, one would note that silence after a repair could also mean the participant did not hear the repair (the NVDA verbosity case), did not connect the repair to their task, or was still processing.
+        </blockquote>
+      <p class="finding-rationale">The failure_cases section describes scenarios where the overlay fires repairs the participant never hears (suppressed landmark announcements), repairs misaligned with semantic confabulations, and late repairs producing double-announcements. In the silent-injection case the expected_behavior is that the wizard may interpret absence of disorientation as successful repair, with no in-flow signal to the participant that something was injected. The participant has no reliable way to detect when the system has acted incorrectly on their document, and the quantitative scheme itself conflates silence with success. This is an active capture of the participant&#039;s ability to form accurate beliefs about what the tool did.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.auto_decides_consequential_step</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          A WebSocket-triggered JavaScript snippet adds role=&#039;region&#039; and aria-label=&#039;Comments section&#039; (or the appropriate section name) to the target container&#039;s outermost div in the live DOM without altering visual rendering. NVDA will announce the new landmark on the participant&#039;s next D-key landmark navigation press.
+        </blockquote>
+      <p class="finding-rationale">The wizard unilaterally modifies the live DOM that the participant is navigating, materially altering the stimulus mid-task without the participant&#039;s authorization or knowledge. While this is research-internal rather than externally consequential, it crosses into decision authority over the participant&#039;s sensory environment — the participant cannot deliberate over whether the injection happens. This is partially mitigated by the threshold-gating but remains a covert intervention.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.weak_override</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          The overlay intervention (inject_heading_annotation_overlay) causes NVDA to announce text that would not appear on any real website (&quot;[H2]&quot; spoken aloud), which would likely be noticed by any proficient screen-reader user as an artifact rather than accepted as part of the page.
+        </blockquote>
+      <p class="finding-rationale">The participant has no described mechanism to refuse or dismiss wizard-triggered overlays or landmark injections during the task. Because the cover story withholds the fact that injections occur, the participant cannot even identify what would need to be overridden. Override in this protocol is effectively impossible without breaking the study frame, making the participant&#039;s agency over their own sensory input nominal rather than substantive.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.paternalistic_default</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          If the participant cannot locate the target within 45 seconds, the wizard may activate the &#039;inject landmark breadcrumb&#039; control to add an ARIA-label to the comments container visible only in the accessibility tree (not visually), which NVDA will then announce on the next D-key landmark press.
+        </blockquote>
+      <p class="finding-rationale">The participant population is screen-reader-using blind and low-vision adults — a population historically subject to paternalistic &#039;help&#039; from sighted researchers. The default behavior at the 45-second threshold is for the wizard to intervene by augmenting the page on the participant&#039;s behalf, without participant consent at the point of action. The simulated walkthrough notes the intervention could interrupt an in-progress successful workaround, instantiating exactly the paternalism Kafer critiques. The threshold-gating prevents this from reaching -2, but the default disposition is to intervene rather than wait.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          The injected landmark breadcrumb, once activated, would likely resolve the blockage within one or two D-key presses as the spec anticipates, but a participant hearing a landmark announce itself where none existed seconds earlier would plausibly remark on the anomaly verbally.
+        </blockquote>
+      <p class="finding-rationale">When wizard controls modify the DOM the participant is navigating, the participant receives no rationale at the point where that modification affects their experience. They hear a new landmark announcement or a &#039;[H2]&#039; badge with no explanation, and the cover story actively prevents rationale disclosure until debrief. The participant is making navigation decisions against a surface whose behavior has been silently altered, and rationale after commitment (at debrief, 75+ minutes later) is explicitly what this pattern names as insufficient.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          The think-aloud coding scheme treats verbal acknowledgment of the disclosure as the primary evidence of banner uptake, but a participant who hears the banner and silently updates their credibility judgment without verbalizing it would be coded as category A (no acknowledgment) and thereby appear identical to a participant for whom the banner was suppressed entirely.
+        </blockquote>
+      <p class="finding-rationale">When the ARIA-live injection fails silently (mode-suppression, Braille-only output, network drop), the participant has no in-flow signal that a disclosure was intended to reach them. The failure_cases describe wizard-side recovery protocols but provide no surface by which the participant themselves detects that the system attempted and failed to communicate something. Research data becomes contaminated without participant-visible failure indication.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          the ARIA-live region to announce &#039;Disclosure: this article was generated by an AI writing assistant and reviewed by a human editor&#039; before the participant reaches the first H2
+        </blockquote>
+      <p class="finding-rationale">The disclosure string itself contains no inline mechanism for the participant to inspect what &#039;generated by an AI writing assistant&#039; or &#039;reviewed by a human editor&#039; concretely means at the point of encountering it. Participants must make credibility judgments immediately following the announcement without any affordance to query what model was used, what review entailed, or what source materials underlie the article. The rationale behind the provenance claim is absent at the point where it would shape the participant&#039;s judgment.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.unverifiable_summary</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Sets the ARIA-live region textContent to &#039;Written by a staff journalist.&#039; so that the announcement latency and structural position are identical to the early AI disclosure condition, isolating phrasing as the only variable.
+        </blockquote>
+      <p class="finding-rationale">The disclosure banners function as a condensed provenance claim that participants are expected to factor into a trustworthiness judgment, yet there is no task_flow step or affordance allowing participants to trace the claim back to verifiable evidence — no byline link, no model card, no editorial policy page. Participants are asked to update credibility on the basis of an unverifiable authorship summary, which is precisely the &#039;trust me&#039; output pattern the heuristic targets.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.auto_decides_consequential_step</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Decide whether landmark nesting anomalies (e.g., a &lt;nav&gt; inside an &lt;article&gt; with no label) should be repaired silently or replaced with an ARIA label announcement — the default is silent repair unless the participant&#039;s Session 1 co-design notes indicated they want audible confirmation of repairs.
+        </blockquote>
+      <p class="finding-rationale">The wizard silently alters the document the participant is reasoning about, by default without announcement. While the participant is not making external commitments, the structural terrain of the participant&#039;s sensemaking task is being modified on their behalf without in-the-moment authorization. The co-design process partially mitigates this after Session 1, but the default-silent posture still places a consequential interpretive decision outside the participant&#039;s authority at point of action.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.hides_options_before_review</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Executes a pre-scripted DOM rewrite that promotes or demotes the affected heading tags to reflect the implied hierarchy, based on the rule set co-designed with the participant. The rewrite is applied to all affected headings simultaneously (batch, not one at a time) so the outline is consistent before the participant navigates through the section.
+        </blockquote>
+      <p class="finding-rationale">At the moment of navigation the participant receives only the repaired structure, with no surfaced alternatives — the original hierarchy and the space of plausible repairs are not announced alongside. Review occurs retrospectively in the debrief via a DOM diff, but by then commitment has already been made. This is a drift rather than capture because the co-design loop does eventually expose the repair space, just not before action.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Decide whether to show the participant a visual diff of the original vs. repaired DOM (rendered as an indented plain-text tree read aloud by the screen reader) during the post-article debrief, or to describe changes verbally via the facilitator — the default is verbal description unless the participant requested DOM-tree review in a prior session.
+        </blockquote>
+      <p class="finding-rationale">Rationale for each specific repair is available only post-hoc in the debrief, and even there the default is a verbal summary rather than a structural diff. At the point of action — when the participant is navigating and encountering the repaired structure — there is no inline mechanism to ask &#039;what was changed here and why.&#039; The co-design loop eventually surfaces rationale at the ruleset level, but not per-action, which is what this pattern targets.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.unverifiable_summary</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          In the debrief, a participant is asked to reconstruct &#039;what did you hear, what did you expect to hear&#039; from a timestamped excerpt the observer has selected. Rehearsing this, one would reasonably expect the selection itself to shape the co-design output: excerpts chosen by the observer are the moments the observer noticed, which skews toward breakdowns that were audible or verbalised and away from silent breakdowns
+        </blockquote>
+      <p class="finding-rationale">The co-design debrief hands the participant a curated selection of speech excerpts drawn from the session log, and the participant reasons about repair rules from that summary without an affordance to surface the full session record for comparison. The selection is an observer-generated synthesis presented as the evidentiary base for rule-making, with no described mechanism for the participant to inspect unselected moments before committing to rule changes.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_rehearsal_space</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          10–20 min: facilitator gives a warm-up task (navigating a neutral practice article unrelated to the study) to acclimate participant to the think-aloud protocol and confirm screen-share is working for the wizard.
+        </blockquote>
+      <p class="finding-rationale">The session structure explicitly builds in a low-stakes warm-up phase with a neutral practice article before experimental trials begin. This gives participants space to rehearse the think-aloud protocol and navigation patterns without trial data being collected, which scaffolds participant comfort rather than coupling all interaction to high-stakes measured tasks.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.paternalistic_default</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          A blind or low-vision adult who uses a screen reader as their primary means of web access, recruited from a disability-led community organization; must have at least 6 months of daily screen-reader use.
+        </blockquote>
+      <p class="finding-rationale">The population includes a group historically subject to paternalistic design. However, the spec recruits through a disability-led organization and requires participants to use their own personal device and preferred screen reader with their existing configurations, rather than imposing researcher-chosen assistive defaults. The study examines whether disclosures help BLV users without forcing additional assistance, which treats participants as expert users of their own tooling.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_fade_mechanism</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Wizard activates this control at any point to suppress all automatic overlay mutations for 60 seconds — used when the participant appears to be navigating successfully without overlay assistance
+        </blockquote>
+      <p class="finding-rationale">The repair_hold control provides an explicit mechanism for assistance to recede when the participant is navigating successfully, and Session 1 operates with the overlay disabled entirely as a baseline. This constitutes a scaffold-level positive: assistance is conditionally gated on observed success rather than always-on, so the pattern fires but in the cultivate direction.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_rehearsal_space</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          30 min baseline navigation tasks on 4 AI-generated articles with repair overlay disabled (wizard observes only)
+        </blockquote>
+      <p class="finding-rationale">Session 1 is an explicit low-stakes unaided baseline in which the participant navigates the same article class without any overlay intervention. This functions as a rehearsal and calibration space for the participant&#039;s own unaided skill before overlay-active sessions begin, meeting the pattern in its positive form.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.paternalistic_default</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          20 min co-design discussion — participant annotates problem moments on printed article DOM tree diagrams and proposes repair rules verbally; 10 min facilitator summarises agreed repair rules and reads them back to participant for confirmation.
+        </blockquote>
+      <p class="finding-rationale">The participant population (BLV screen-reader users) is historically subject to paternalistic accessibility interventions, and the design actively counters this by making participants the authors of the repair ruleset, reading back agreed rules for confirmation, and including an explicit retrospective question about whether the overlay made things worse. The default is participant-authored behavior, not institution-imposed protection, so this pattern fires positively.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>exit.competence_decay_on_exit</code></span>
+        <span class="finding-axis">exit</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Across sessions, the change in event-type counts from Session 1 (baseline, no overlay) to Sessions 2 and 3 (overlay active) is computed to identify which event types decreased, which persisted, and which appeared only in overlay-active sessions (potential overlay-introduced confusions).
+        </blockquote>
+      <p class="finding-rationale">The Session 1 unaided baseline provides a measurement of unaided navigation performance, and the analysis explicitly looks for overlay-introduced confusions as a tracked outcome. While the three-session arc is short and no post-exit unaided measurement is scheduled, the design does keep unaided competence visible as a reference point, which partially addresses the decay concern in the scaffold direction.</p>
+    </div>
+</div>
+</section>
+
+<section id="panel">
+  <h2>Reviewer panel</h2>
+  <p class="section-lede">
+    Three Opus 4.7 agents review the surviving branch in sequence — a methodologist, an accessibility
+    advocate, and (optionally) a novelty hawk. A meta-reviewer reads their outputs and classifies the
+    disagreement without collapsing it to consensus.
+  </p>
+  <div class="meta-review">
+  <div class="meta-verdict">
+    <span class="meta-verdict-label">Meta-reviewer verdict:</span>
+    <span class="meta-verdict-value"><code>human_judgment_required</code></span>
+    <span class="meta-class">(<code>legitimate_methodological_split</code>)</span>
+  </div>
+  <p class="meta-rationale">All three reviewers converge on &#039;major_revision,&#039; but their decisive weaknesses are non-overlapping and in tension on what the project IS. The methodologist treats the study as a quantitative disclosure-effects experiment and demands confound control, power, and manipulation fidelity — fixes that would push toward a larger, more controlled between-subjects study. The accessibility advocate rejects the premise that sighted-researcher-designed stimuli can validly be evaluated at all and demands an upstream co-design phase that may change or eliminate the intervention before any evaluation runs. The novelty hawk says the study&#039;s contribution is undefined relative to a large prior literature the proposal does not cite, and that the BLV population swap alone is not a differential prediction. These are not reducible to one another: fixing the confound does not supply a differential prediction; co-designing the artifact with BLV users may invalidate the stimulus set the methodologist wants length-matched; establishing novelty against Jakesch/Sundar does not address whether the intervention is wanted by the target population. The design decision — whether this is a confound-controlled replication in a new population, a participatory co-design study, or a theoretically differentiated extension — is a scoping choice for a human, not a synthesis an agent should make.</p>
+  <table class="mx-table">
+          <thead><tr><th>Reviewer</th><th>Recommendation</th><th>Decisive weakness</th></tr></thead>
+          <tbody>
+            <tr>
+                    <td>methodologist</td>
+                    <td><code>major_revision</code></td>
+                    <td>Announcement-duration confound (AI disclosure is 18 words/~6s, human framing is 5 words/~2s) mechanically contaminates every time-bounded behavioral DV; combined with n=8 inadequate for Friedman/Wilcoxon hypothesis testing and unreliable wizard-gated late-injection timing, the design cannot support its quantitative claims.</td>
+                  </tr><tr>
+                    <td>accessibility_advocate</td>
+                    <td><code>major_revision</code></td>
+                    <td>BLV users are recruited as subjects but not as co-designers; the disclosure phrasing, placement, and the premise that an ARIA-live banner is the right intervention were all decided by sighted researchers before any BLV consultation, reproducing the extractive pattern the research gestures at critiquing.</td>
+                  </tr><tr>
+                    <td>novelty_hawk</td>
+                    <td><code>major_revision</code></td>
+                    <td>The proposal replicates the AI-disclosure-effects paradigm (Jakesch, Longoni, Sundar&#039;s MAIN model, etc.) in a new population without citing that literature or stating a differential prediction; &#039;measurable ways&#039; is not a falsifiable novelty claim, and ARIA-live timing research is also uncited.</td>
+                  </tr>
+          </tbody>
+        </table>
+</div>
+  <p class="section-lede">
+    The interactive side-by-side panel is rendered separately — see
+    <code>runs/demo_run/branches/b/REVIEWER_PANEL.html</code>
+    (generate with <code>probe panel demo_run b</code>).
+  </p>
+</section>
+
+<section id="handoff">
+  <h2>What humans must decide</h2>
+  <p class="section-lede">
+    Every Probe guidebook ends with a <code>[HUMAN_REQUIRED]</code> block. This is not a closing
+    pleasantry — it is the set of decisions the pipeline is not authorized to make on the researcher's
+    behalf.
+  </p>
+  <p>Before running this study, the researcher must resolve the scoping question the meta-review flagged as requiring human judgment: decide whether this project is a confound-controlled quantitative replication, a participatory co-design study, or a theoretically differentiated extension — this decision reshapes every downstream element of the protocol and cannot be made by the agent. <span class="provtag tag-human_required">[HUMAN_REQUIRED]</span></p>
+<p>The researcher must then, in order: (1) conduct the co-design phase with BLV collaborators from the recruitment partner before finalizing any stimulus materials; (2) specify the compensation rate for both co-designers and study participants in consultation with that partner; (3) read and cite the AI-disclosure-effects literature (Jakesch et al., Longoni et al., Sundar&#039;s MAIN model) and the ARIA-live announcement literature to establish what differential prediction this study makes; (4) pilot the credibility form and the consent-delivery process with compensated BLV screen-reader users distinct from study participants; (5) replace wizard-gated late injection with programmatic triggering and measure the resulting timing distribution; (6) resolve the announcement-duration confound by length-matching stimulus strings or restricting claims to non-duration-sensitive DVs; and (7) obtain IRB approval for the finalized protocol including the member-check phase. <span class="provtag tag-human_required">[HUMAN_REQUIRED]</span></p>
+</section>
+
+<section id="provenance">
+  <h2>Provenance legend</h2>
+  <p>Every content-bearing element in the underlying guidebook ends with exactly one of these tags. A markdown-AST linter fails the build if any element is untagged.</p>
+  <dl class="provenance-legend">
+    <dt>[RESEARCHER_INPUT]</dt><dd>The researcher's original premise, verbatim or lightly restated.</dd>
+    <dt>[SOURCE_CARD:&lt;id&gt;]</dt><dd>Grounded in a specific hand-curated source card. The id resolves to a file in <code>corpus/source_cards/</code>.</dd>
+    <dt>[SIMULATION_REHEARSAL]</dt><dd>Content from the rehearsal. <strong>Not evidence.</strong> Required to use hedged language.</dd>
+    <dt>[AGENT_INFERENCE]</dt><dd>Reasoning by an agent, not grounded in a source or simulation.</dd>
+    <dt>[UNCITED_ADJACENT]</dt><dd>Adjacent literature a reviewer named; the researcher must verify before grounding.</dd>
+    <dt>[TOOL_VERIFIED]</dt><dd>Measured by a Managed Agents tool-equipped session (bash/grep/file ops).</dd>
+    <dt>[IMPORTED_DRAFT]</dt><dd>Researcher's own text lifted verbatim from an imported paper draft (via <code>probe import</code>).</dd>
+    <dt>[HUMAN_REQUIRED]</dt><dd>Explicit handoff. Every guidebook must have at least one.</dd>
+    <dt>[DO_NOT_CLAIM]</dt><dd>Content the guidebook explicitly flags as unclaimable.</dd>
+  </dl>
+</section>
+
+<footer class="footer">
+  <h3>Cite</h3>
+  <p class="footer-intro">If you use Probe in research or teaching, please cite the arXiv paper:</p>
+  <pre class="bibtex"><code>@article{ryskeldiev2026probe,
+  title   = {Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research},
+  author  = {Ryskeldiev, Bektur},
+  year    = {2026},
+  journal = {arXiv preprint},
+  note    = {Built at the Cerebral Valley Claude Opus 4.7 hackathon}
+}</code></pre>
+  <p class="footer-links">
+    <a href="https://github.com/Apolotary/probe-researcher">Source code</a> ·
+    <a href="paper/probe.pdf">Paper PDF</a> ·
+    <a href="DEMO_WALKTHROUGH.md">Demo walkthrough</a>
+  </p>
+  <p class="footer-tagline">Built at the Cerebral Valley Claude Opus 4.7 hackathon, April 2026.</p>
+</footer>
+
+</main>
+</body>
+</html>

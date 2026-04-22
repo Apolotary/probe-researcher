@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe report — backlog_mochi_proactive</title>
+<style>
+:root {
+  --bg: #f7f5ef;
+  --bg-card: #ffffff;
+  --bg-pre: #1a1d2c;
+  --fg-pre: #e8e3d4;
+  --fg: #1a1a1a;
+  --fg-dim: #555;
+  --fg-faint: #888;
+  --border: #d0cbb8;
+  --border-soft: #e8e3d4;
+  --accent: #1B365D;
+  --accent-warm: #9e2e22;
+  --accent-amber: #b47b2a;
+  --accent-green: #1f6b1e;
+  --accent-plum: #7a2d5a;
+  --code-bg: #ede9dc;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Newsreader', 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+h1, h2, h3, .topnav-brand, .topnav-links a, .hero-eyebrow, .hero-meta, .provtag, .card-tag,
+.pipeline-figure, .capture-findings, .meta-review, .footer-links, .footer-tagline {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #10121e;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 48px 0 16px;
+  color: #10121e;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 6px;
+}
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 28px 0 8px;
+  color: #20232e;
+}
+
+p, li, blockquote { font-size: 17px; }
+p { margin: 0 0 14px; }
+
+/* Top nav */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247, 245, 239, 0.92);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.topnav-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.topnav-brand {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.topnav-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.topnav-links a {
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 13px;
+}
+.topnav-links a:hover { color: var(--accent); }
+
+/* Hero */
+.hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 24px 24px;
+}
+.hero-eyebrow {
+  font-size: 13px;
+  color: var(--fg-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-meta {
+  font-size: 13px;
+  color: var(--fg-dim);
+  margin-top: 10px;
+}
+.hero-meta .run-id {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.hero-meta .dot { margin: 0 8px; color: #bbb; }
+.hero-tagline {
+  font-style: italic;
+  color: var(--fg-dim);
+  font-size: 16px;
+  margin-top: 24px;
+}
+
+/* Section lede */
+.section-lede {
+  font-size: 16px;
+  color: var(--fg-dim);
+  border-left: 3px solid var(--border);
+  padding: 4px 0 4px 14px;
+  margin: 0 0 20px;
+}
+
+/* Teaser figure */
+.teaser {
+  margin: 0 0 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+}
+.teaser figcaption {
+  font-size: 14px;
+  color: var(--fg-dim);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.pipeline-figure {
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.pipeline-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--fg-dim);
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 16px;
+}
+.pipeline-stage {
+  background: var(--code-bg);
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+.pipeline-stages .arrow { color: var(--fg-faint); }
+.pipeline-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pipeline-branch {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 12px;
+}
+.pipeline-branch-label { font-size: 12px; color: var(--fg-dim); margin-bottom: 6px; }
+.pipeline-verdict {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.glyph-survived { background: #dff5df; color: var(--accent-green); }
+.glyph-blocked { background: #ffe3e0; color: var(--accent-warm); }
+.glyph-failed { background: #f0e0e0; color: #555; }
+.glyph-unknown { background: #e8e3d4; color: var(--fg-dim); }
+.pipeline-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.pipeline-detail code {
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Rehearsal cards */
+.rehearsal-cards {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.rehearsal-card {
+  background: #faf7ee;
+  border-left: 3px solid var(--accent-amber);
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 0 3px 3px 0;
+}
+.rehearsal-card p { margin: 0; font-style: italic; color: #3a3a3a; }
+.card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent-amber);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Capture findings */
+.capture-findings {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.capture-finding {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-warm);
+  border-radius: 3px;
+  padding: 14px 18px;
+}
+.capture-finding.finding-drift { border-left-color: var(--accent-amber); }
+.capture-finding.finding-info { border-left-color: var(--fg-faint); }
+.finding-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.finding-pattern code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #222;
+}
+.finding-axis {
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.finding-score {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-warm);
+  font-weight: 700;
+}
+.finding-branch {
+  color: var(--fg-faint);
+  font-size: 12px;
+  margin-left: auto;
+}
+.finding-evidence {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 15px;
+  color: #2a2a2a;
+  background: var(--code-bg);
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent-amber);
+  border-radius: 0 3px 3px 0;
+}
+.evidence-source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--fg-faint);
+  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+}
+.finding-rationale {
+  font-size: 14px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+/* Meta review */
+.meta-review {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+.meta-verdict { font-size: 14px; margin-bottom: 12px; }
+.meta-verdict-label { color: var(--fg-dim); }
+.meta-verdict-value code {
+  font-family: 'JetBrains Mono', monospace;
+  background: #e1f5e0;
+  color: var(--accent-green);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.meta-class code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  color: var(--fg-dim);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.meta-rationale {
+  font-size: 15px;
+  color: #333;
+  margin: 10px 0;
+  line-height: 1.55;
+}
+.mx-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+}
+.mx-table th, .mx-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+.mx-table th { font-size: 11px; color: var(--fg-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+.mx-table code { font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+
+/* Inline content */
+code {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--bg-pre);
+  color: var(--fg-pre);
+  padding: 16px 20px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+blockquote {
+  margin: 14px 0;
+  padding: 8px 16px;
+  border-left: 3px solid var(--border);
+  color: #2a2a2a;
+}
+
+ul { padding-left: 22px; }
+li { margin: 4px 0; }
+
+/* Provenance tag badges */
+.provtag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: 2px;
+  background: var(--code-bg);
+  color: var(--fg-faint);
+  vertical-align: baseline;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.provtag.tag-source_card { background: #dfeaff; color: #1B365D; }
+.provtag.tag-simulation_rehearsal { background: #faf0dc; color: var(--accent-amber); }
+.provtag.tag-agent_inference { background: #ede9dc; color: #5a5547; }
+.provtag.tag-researcher_input { background: #dff5df; color: var(--accent-green); }
+.provtag.tag-human_required { background: #dff5e6; color: #135a3b; }
+.provtag.tag-do_not_claim { background: #ffe3e0; color: var(--accent-warm); }
+.provtag.tag-uncited_adjacent { background: #f3e0ee; color: var(--accent-plum); }
+.provtag.tag-tool_verified { background: #e1f5e0; color: var(--accent-green); }
+.provtag.tag-imported_draft { background: #e6ecf5; color: #34456b; }
+
+.provenance-legend dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  margin: 14px 0 4px;
+}
+.provenance-legend dd {
+  font-size: 15px;
+  color: var(--fg-dim);
+  margin: 0 0 8px;
+}
+
+/* Footer */
+.footer {
+  max-width: 760px;
+  margin: 64px auto 0;
+  padding: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-dim);
+}
+.footer h3 { font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); margin: 0 0 12px; }
+.footer-intro { font-size: 14px; margin-bottom: 10px; }
+.bibtex { font-size: 12px; line-height: 1.5; padding: 14px 16px; }
+.footer-links { font-size: 13px; margin-top: 16px; }
+.footer-links a { color: var(--accent); text-decoration: none; margin-right: 4px; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-tagline { font-size: 12px; color: var(--fg-faint); margin-top: 20px; font-style: italic; }
+
+.missing-section {
+  font-style: italic;
+  color: var(--fg-faint);
+  padding: 12px 16px;
+  background: var(--code-bg);
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .topnav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .topnav-links { gap: 12px; }
+  h1 { font-size: 28px; }
+  .hero { padding: 36px 18px 12px; }
+  main { padding: 0 18px 60px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#premise" class="topnav-brand">Probe</a>
+    <div class="topnav-links">
+      <a href="#premise">Premise</a>
+      <a href="#method">Method</a>
+      <a href="#rehearsal">Rehearsal</a>
+      <a href="#safety">Capture-risk</a>
+      <a href="#panel">Reviewer panel</a>
+      <a href="#handoff">Humans must decide</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">A Probe simulation run · 2026-04-22</div>
+  <h1>Design a study to understand when an AI assistant&#039;s proactive reminders feel supportive vs. paternalistic in ADHD-adjacent knowledge worker contexts.</h1>
+  <div class="hero-meta">
+    <span class="run-id">backlog_mochi_proactive</span>
+    <span class="dot">·</span>
+    <span>branch A surviving</span>
+    <span class="dot">·</span>
+    <span>$3.76</span>
+    <span class="dot">·</span>
+    <span>27m36s wall</span>
+  </div>
+  <p class="hero-tagline">Rehearsal stage for research. The performance still needs humans.</p>
+</header>
+
+<main>
+
+<section id="teaser">
+  <figure class="teaser">
+    <div class="pipeline-figure">
+  <div class="pipeline-stages"><span class="pipeline-stage">1. premise</span><span class="arrow">→</span><span class="pipeline-stage">2. ideation</span><span class="arrow">→</span><span class="pipeline-stage">3. literature</span><span class="arrow">→</span><span class="pipeline-stage">4. prototype</span><span class="arrow">→</span><span class="pipeline-stage">5. simulator</span><span class="arrow">→</span><span class="pipeline-stage">6. audit</span><span class="arrow">→</span><span class="pipeline-stage">7. review</span><span class="arrow">→</span><span class="pipeline-stage">8. guidebook</span></div>
+  <div class="pipeline-branches"><div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch A</div>
+        <div class="pipeline-verdict glyph-survived">SURVIVED</div>
+        
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch B</div>
+        <div class="pipeline-verdict glyph-survived">SURVIVED</div>
+        
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch C</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>audit:capture_risk:-2</code></div>
+      </div></div>
+</div>
+    <figcaption>
+      Figure 1. Pipeline outcome for this run. Eight stages, three branches, one guidebook. Branch
+      A survived capture-risk audit and adversarial review; other
+      branches stopped at the named stage. Verdicts below each branch were produced by the orchestrator from
+      the audit and meta-review outputs — not self-reported by the agents.
+    </figcaption>
+  </figure>
+</section>
+
+<section id="premise">
+  <h2>Premise</h2>
+  <p>The researcher&#039;s starting question asked when an AI assistant&#039;s proactive reminders feel supportive versus paternalistic in ADHD-adjacent knowledge worker contexts. <span class="provtag tag-researcher_input">[RESEARCHER_INPUT]</span></p>
+<p>Sharpening surfaced that &quot;ADHD-adjacent&quot; was doing ambiguous work — recruitment criterion, design target, or hedge against committing to a clinical population — and that the supportive/paternalistic dichotomy is a researcher-imposed frame worth decomposing rather than accepting. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>This guidebook plans a formative elicitation study whose purpose is to recover the dimensions adults scoring at or above the ASRS v1.1 threshold actually use when sorting reminder vignettes, without being primed on the supportive/paternalistic dichotomy. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>The study can support the generation of a candidate taxonomy of participant-named dimensions to be carried into a subsequent evaluative study. <span class="provtag tag-do_not_claim">[DO_NOT_CLAIM]</span></p>
+<p>The study cannot support claims that any recovered dimension predicts acceptability, generalizes to adults with ADHD as a diagnostic population, or represents a population-level pattern across diagnosis status, medication status, gender, or comorbidity. <span class="provtag tag-do_not_claim">[DO_NOT_CLAIM]</span></p>
+</section>
+
+<section id="background">
+  <h2>Background</h2>
+  <p>Gaver, Dunne, and Pacenti framed probes as instruments for inspiration and dialogue, embracing uncertainty and partial returns rather than seeking comprehensive coverage of user behavior. <span class="provtag tag-source_card">[SOURCE_CARD:gaver_dunne_pacenti_1999]</span></p>
+<p>Sanders and Stappers positioned probes alongside generative toolkits and prototypes, arguing that probe-derived material is for inspiration rather than for extracting generalizable user data — a posture this guidebook adopts by treating card-sort output as candidate vocabulary, not as measured effects. <span class="provtag tag-source_card">[SOURCE_CARD:sanders_stappers_2014]</span></p>
+<p>Buijsman, Carter, and Bermúdez distinguish domain-specific autonomy as having two components — skilled competence and authentic value-formation — and argue that AI decision-support can erode these via absent failure indicators and unconscious value shifts; this frames why &quot;supportive vs. controlling&quot; is too coarse for the folk dichotomy the study is trying to decompose. <span class="provtag tag-source_card">[SOURCE_CARD:buijsman_carter_bermudez_2025]</span></p>
+<p>Longoni and colleagues identify &quot;uniqueness neglect&quot; — the belief that AI cannot account for consumers&#039; unique characteristics — as a primary driver of resistance to AI in consequential domains, suggesting that perceived fit between the system&#039;s model of the user and the user&#039;s self-model is a candidate dimension to watch for in sorting behavior. <span class="provtag tag-source_card">[SOURCE_CARD:longoni_2019_medical_ai_resistance]</span></p>
+<p>Illich&#039;s convivial/industrial tool distinction — whether a tool expands or contracts the range of autonomous action — offers a theoretical anchor for why reversibility and user-initiated goal-setting may surface as participant-named dimensions rather than as researcher-imposed ones. <span class="provtag tag-source_card">[SOURCE_CARD:illich_1973]</span></p>
+<p>Named outside-corpus literature the reviewer flagged which the researcher must verify and ground before citing: the Mark, Iqbal, and Czerwinski lineage on notification interruption and acceptability; Calvo and Peters on wellbeing-supportive and autonomy-supportive design in behavior-change apps; Deci and Ryan&#039;s Basic Psychological Needs Scale as the source of the 5-item autonomy-perception adaptation; Nielsen&#039;s and Tullis &amp; Wood&#039;s published card-sort sample-size guidance as comparators for the N=12 justification. <span class="provtag tag-uncited_adjacent">[UNCITED_ADJACENT]</span></p>
+</section>
+
+<section id="method">
+  <h2>Method</h2>
+  <p class="section-lede">
+    Probe does not run a study. It writes one, rehearses it, and audits the rehearsal. This section restates
+    the prototype specification — the artifact a different researcher could build from without asking
+    clarifying questions — and the study protocol.
+  </p>
+  <p>The prototype is a single 90-minute in-person or remote session in which one participant sorts 40 reminder-scenario vignette cards into participant-constructed piles while thinking aloud, supported by a facilitator, a wizard operating the card-display and logging interface, and a silent observer taking timestamped non-verbal notes. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>The 40 vignettes are constructed on a 4-variable fractional factorial (resolution IV minimum) varying timing (immediate / +15 min / +2 hr), framing (informational / directive / collaborative), source of goal (user-initiated / system-inferred / third-party), and reversibility (dismissible / snooze-only / not-dismissible). <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>The session opens with consent, then a 3-card warm-up on an unrelated topic (weather) to rehearse the think-aloud protocol before the reminder-sorting phase begins. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>Core sorting (cards 1–40) proceeds at participant-directed pace with a silence-prompt every 90 seconds; the wizard advances cards only after the participant has finished reading, speaking, and dragging. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>After all cards are placed, the participant reviews each pile, assigns a label in their own words, and provides a 2–3 sentence rationale; the wizard captures the final state as a screenshot and as a JSON export. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>A 10-minute semi-structured debrief covers the hardest-to-place card, the single most important criterion the participant used, and any reminder type they feel belongs in none of their piles. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>A 5-item autonomy-perception questionnaire adapted from the Basic Psychological Needs Scale autonomy subscale is administered at session end, referencing the reminders seen in the study rather than general life contexts. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+<p>Data capture comprises think-aloud audio (transcribed), card-placement event logs (Google Sheet and SQLite fallback), pile labels and rationales, observer non-verbal notes, a final-state screenshot and JSON export, and the autonomy-perception questionnaire. <span class="provtag tag-agent_inference">[AGENT_INFERENCE]</span></p>
+  <p class="missing-section">No <code>Study protocol</code> section in this run's guidebook.</p>
+</section>
+
+<section id="rehearsal">
+  <h2>What the rehearsal surfaced</h2>
+  <p class="section-lede">
+    These are <strong>not participant quotes</strong>. They are the simulator's rehearsed observations, each
+    tagged <code>[SIMULATION_REHEARSAL]</code> in the underlying guidebook. They are priors to test, not
+    evidence the study has produced.
+  </p>
+  <div class="rehearsal-cards">
+  <blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>H1: A participant&#039;s debrief answer to &quot;the single most important criterion&quot; will diverge from their enacted pile structure in the majority of sessions, making the debrief ranking a weaker signal than the log-event cluster analysis.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>H2: Pile labels produced after the Pile Label Prompt (at 60 seconds of cluster stability) will be revised during the labeling phase more often than labels offered spontaneously before any prompt, indicating the prompt catches piles at their most provisional moment.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>H3: Open coding of think-aloud transcripts will fragment a single underlying dimension across 2–3 surface vocabulary codes, such that a ≥50% agreement threshold on raw codes undercounts shared dimensions unless a thematic consolidation step is inserted.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>H4: Cards placed during a masked-fatigue window (rapid placement without verbalization, in participants managing self-presentation) will occur without triggering the wizard&#039;s behavioral criteria for the Rest Break Signal.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>H5: Reconsideration events (cards moved after initial placement) will cluster temporally around specific vignette cards whose arrival triggers restructuring, and those trigger cards will share design-variable levels.</p>
+    </blockquote>
+<blockquote class="rehearsal-card">
+      <div class="card-tag">[SIMULATION_REHEARSAL]</div>
+      <p>H6: Emergent pile labels (mapping to none of the four a priori dimensions by both raters) will concentrate on vignette subsets uncorrelated with the fractional factorial design, making those dimensions visible in labels but under-powered in the co-occurrence clustering.</p>
+    </blockquote>
+</div>
+  <p>H1: A participant&#039;s debrief answer to &quot;the single most important criterion&quot; will diverge from their enacted pile structure in the majority of sessions, making the debrief ranking a weaker signal than the log-event cluster analysis. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>H2: Pile labels produced after the Pile Label Prompt (at 60 seconds of cluster stability) will be revised during the labeling phase more often than labels offered spontaneously before any prompt, indicating the prompt catches piles at their most provisional moment. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>H3: Open coding of think-aloud transcripts will fragment a single underlying dimension across 2–3 surface vocabulary codes, such that a ≥50% agreement threshold on raw codes undercounts shared dimensions unless a thematic consolidation step is inserted. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>H4: Cards placed during a masked-fatigue window (rapid placement without verbalization, in participants managing self-presentation) will occur without triggering the wizard&#039;s behavioral criteria for the Rest Break Signal. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>H5: Reconsideration events (cards moved after initial placement) will cluster temporally around specific vignette cards whose arrival triggers restructuring, and those trigger cards will share design-variable levels. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>H6: Emergent pile labels (mapping to none of the four a priori dimensions by both raters) will concentrate on vignette subsets uncorrelated with the fractional factorial design, making those dimensions visible in labels but under-powered in the co-occurrence clustering. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>H7: Participants recruited from ADHD community forums will produce supportive/paternalistic vocabulary more frequently than participants recruited from university access panels, indicating recruitment-source priming of the dichotomy the study is trying not to prime. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>H8: The information signal in the sort will concentrate in cards 1–15, with cards 30–40 functioning as consistency checks rather than as dimension elicitation. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+<p>H9: Participants will produce a &quot;residual&quot; or &quot;doesn&#039;t fit&quot; pile whose cards reflect session-late encounter order rather than a shared distinctive design-variable profile, indicating the residual pile indexes fatigue rather than a substantive dimension. <span class="provtag tag-simulation_rehearsal">[SIMULATION_REHEARSAL]</span></p>
+</section>
+
+<section id="safety">
+  <h2>Capture-risk audit</h2>
+  <p class="section-lede">
+    Probe fires sixteen named patterns across four axes — Capacity, Agency, Exit, Legibility — against every
+    branch's prototype spec and simulated walkthrough. A pattern is only reported when the auditor can quote
+    an evidence span from the rehearsed artifact; patterns that cannot be grounded in a specific passage are
+    not reported. A <code>-2</code> score blocks the branch.
+  </p>
+  <div class="capture-findings">
+  <div class="capture-finding finding-blocker">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -2</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          by week 3 or 4 a reasonably attentive participant would likely perceive the &#039;3 days&#039; claim in archetype C as no longer corresponding to their actual study behavior — and whether they code that perception as &#039;system is non-adaptive&#039; or &#039;my own study pattern has diverged&#039; is itself the construct the study is trying to measure.
+        </blockquote>
+      <p class="finding-rationale">The reminders make factual claims (&#039;47 cards due&#039;, &#039;68% retention&#039;, &#039;3 days since review&#039;) that are known to diverge from reality as weeks progress, and the system delivers these as statements of fact with no in-flow signal that the numbers are frozen week-1 snapshots. Participants cannot distinguish system-is-stale from my-behavior-changed. The failure mode is structurally invisible at the moment of action — a participant receiving &#039;your retention has dropped to 68%&#039; in week 5 has no surface telling them this figure is hardcoded.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.weak_override</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          The wizard&#039;s option to type a verbal label into the field on the participant&#039;s behalf if they haven&#039;t touched the input within 15 seconds is a pacing convenience that carries methodological cost. A participant hearing their own phrase typed back at them on screen would plausibly treat it as a commitment rather than a draft
+        </blockquote>
+      <p class="finding-rationale">The protocol allows the wizard to type a label into the participant&#039;s pile-label field on their behalf after 15 seconds of inactivity. The participant can technically edit this later, but the label is already committed to screen and framed as their words; the walkthrough identifies this as a commitment-framing effect. The override path (editing the wizard&#039;s entry) is more effortful and socially awkward than accepting the pre-typed label.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.paternalistic_default</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Decide whether the pacing requires inserting a 2-minute rest break (participant shows signs of fatigue: monosyllabic responses, long silences, repeated sighing) before card 30; if so, signal the facilitator via back-channel chat with the message &#039;REST NOW&#039;.
+        </blockquote>
+      <p class="finding-rationale">Participants are an ASRS-screened high-symptom population (a group historically subject to paternalistic assumptions about executive function). The protocol makes the fatigue-break decision on the participant&#039;s behalf via wizard observation of behavioral cues rather than asking the participant if they want a break. The walkthrough also flags that the criteria would miss masked-fatigue cases in participants actively managing self-presentation — exactly the population the default is aimed at. There is no described opt-in or self-request channel for breaks.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: simulated_walkthrough</div>
+          In the system-inferred condition, a participant reading the paraphrased version (&#039;correspondence tasks&#039; instead of &#039;client emails&#039;) would likely notice the category-label substitution, and the reaction would plausibly depend on whether the participant interprets the abstraction as intelligent generalization or as imprecise guessing. The fixed paraphrase rule is operationally clean but produces a single paraphrase style per participant
+        </blockquote>
+      <p class="finding-rationale">In the system-inferred condition the reminder can be subtly wrong (paraphrase drifts from intent), and the participant has no in-flow surface to correct, flag, or see why the paraphrase was chosen. The walkthrough explicitly notes this accuracy ambiguity, and observable_signals capture participant reactions post-hoc rather than letting the participant signal error at point of action. Accuracy perception is only surfaced in open-ended items after the block ends.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Sends a toast notification reading: &#039;Based on your activity patterns, it looks like you were working on [system-generated paraphrase of the goal for this block] — want to return?&#039;
+        </blockquote>
+      <p class="finding-rationale">The system-inferred toast invokes &#039;activity patterns&#039; as the basis for the reminder but provides no inline mechanism for the participant to inspect what those patterns actually are before clicking &#039;Back to work&#039; or &#039;Not now&#039;. The rationale is gestured at rhetorically but not inspectable at the point of decision, which is precisely the legibility gap the pattern targets.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_fade_mechanism</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          four reminder archetypes per week at pre-specified times (Monday 09:00, Tuesday 20:00, Thursday 12:00, Saturday 17:00 local time), each identical in wording and trigger logic across all six weeks
+        </blockquote>
+      <p class="finding-rationale">The reminder regime is delivered at fixed intensity for six weeks with no mechanism for the participant to reduce cadence as their own study habit strengthens. A proactive reminder system being prototyped this way could cultivate reliance on external prompting rather than internal initiation, and the design provides no conditional gating on user self-signal.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.paternalistic_default</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          &#039;You haven&#039;t reviewed in 3 days — your recall on recent material is fading&#039;
+        </blockquote>
+      <p class="finding-rationale">The reminder archetypes include explicitly scolding/warning language aimed at lapsed users, and the study deliberately recruits &#039;lapsed users&#039; as a subgroup. Archetype C frames the user&#039;s behavior as a failure state and archetype A invokes streak-preservation pressure. These defaults assume the participant wants to be pushed toward daily review, without evidence that lapsed users endorse that identity; the walkthrough itself notes archetype C will be factually wrong for the most lapsed participants.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>exit.institutional_dependence</code></span>
+        <span class="finding-axis">exit</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Read-only Mochi account access credentials (shared per participant) for the wizard to pull week-1 deck statistics for archetype personalization.
+        </blockquote>
+      <p class="finding-rationale">The study requires participants to share Mochi account credentials with researchers for data extraction, creating an institutional dependency during the study period. No failure case addresses what happens if Mochi changes its terms, if Firebase access is disrupted, or how participants revoke the shared credential access post-study. The consent and credential-revocation flow on exit is underspecified.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          &#039;Based on your usual pattern, evenings work well for you — 15 cards before bed?&#039;
+        </blockquote>
+      <p class="finding-rationale">Archetype D asserts a personalized rationale (&#039;based on your usual pattern&#039;) with no inline mechanism for the participant to inspect what pattern the system is claiming to detect or why evenings were selected. The reminder presents itself as reasoning from user data when no such reasoning occurred. At the point of action (tap/dismiss), the participant has no inspection surface for the claim.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.unverifiable_summary</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          &#039;Your retention on Deck X has dropped to 68% — worth a quick review today&#039;
+        </blockquote>
+      <p class="finding-rationale">Archetype B delivers a quantitative summary of the participant&#039;s retention performance with no affordance to trace the figure back to Mochi&#039;s actual data. The participant cannot verify &#039;68%&#039; against their source before deciding whether to review. Since the figure is hardcoded and diverges from reality over weeks, the &#039;trust me&#039; framing is structurally unverifiable at the point of action.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_rehearsal_space</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          0–5 min: Facilitator reads standardized welcome script, obtains verbal consent to audio/video recording, explains think-aloud protocol using a 3-card warm-up sort on unrelated topic (types of weather).
+        </blockquote>
+      <p class="finding-rationale">The session_structure explicitly includes a low-stakes 3-card warm-up on an unrelated topic (weather) to rehearse the think-aloud protocol before the task-coupled phase begins. This is a deliberate rehearsal space for the skill being asked of the participant (concurrent verbalization during sorting), satisfying the pattern&#039;s positive form.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          The wizard&#039;s workstation runs a local Node.js log-relay script (log_relay.js) that writes every drag-end event to a local SQLite file independently of the WebSocket connection, as a fallback log. If disconnection is detected (wizard sees &#039;Connection lost&#039; banner in their admin panel), the wizard immediately sends &#039;PAUSE&#039; via back-channel chat.
+        </blockquote>
+      <p class="finding-rationale">The failure_cases section explicitly addresses system-failure scenarios (WebSocket disconnection, browser crash) with visible signals (&#039;Connection lost&#039; banner) and a protocol response (pause, photo-recovery, manual re-entry). The system does not fail silently; the wizard sees the failure and triggers a recovery script. This is the positive form of the pattern — failures are made visible.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>capacity.no_rehearsal_space</code></span>
+        <span class="finding-axis">capacity</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch B</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Minutes 15–20: Practice block with a fourth goal not used in test conditions; wizard dispatches one practice reminder (always user-stated type) so participant experiences the reminder UI before data collection begins.
+        </blockquote>
+      <p class="finding-rationale">The session structure explicitly includes a low-stakes practice block with a non-test goal where the participant rehearses the reminder UI before measured blocks begin. This is a deliberate rehearsal affordance that scaffolds familiarity with the interaction without contaminating test conditions, meriting a positive scaffold score.</p>
+    </div>
+<div class="capture-finding finding-info">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.weak_override</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score 1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Participant taps, dismisses, or ignores each notification as they see fit... Dismiss and ignore are both logged as distinct events.
+        </blockquote>
+      <p class="finding-rationale">Override here is strong and frictionless: the participant can dismiss or simply ignore any notification with zero penalty, and both paths are logged as first-class events rather than treated as deviance. There is no persuasive re-prompt, no nagging escalation, and no framed-as-deviant override path. This is a scaffold for agency, not erosion.</p>
+    </div>
+</div>
+</section>
+
+<section id="panel">
+  <h2>Reviewer panel</h2>
+  <p class="section-lede">
+    Three Opus 4.7 agents review the surviving branch in sequence — a methodologist, an accessibility
+    advocate, and (optionally) a novelty hawk. A meta-reviewer reads their outputs and classifies the
+    disagreement without collapsing it to consensus.
+  </p>
+  <div class="meta-review">
+  <div class="meta-verdict">
+    <span class="meta-verdict-label">Meta-reviewer verdict:</span>
+    <span class="meta-verdict-value"><code>human_judgment_required</code></span>
+    <span class="meta-class">(<code>legitimate_methodological_split</code>)</span>
+  </div>
+  <p class="meta-rationale">Both reviewers land at major_revision, which would suggest consensus on disposition, but their blocking-severity objections target different and non-overlapping defects that cannot be resolved by a single revision pass. The methodologist&#039;s blocking concerns are internal-validity failures: no DV for the predictive claim, and an analysis threshold/clustering pipeline that cannot support the dimension-recovery claim at N=12. The accessibility advocate&#039;s blocking concerns are constitutive: the instrument itself is miscalibrated because the target population did not co-design it, and the session&#039;s authority asymmetries (wizard-controlled breaks, wizard-typed labels) will distort the very data the methodologist wants cleaner. Fixing the methodologist&#039;s DV problem by adding acceptability Likerts does not address co-design absence or paternalistic defaults; fixing the accessibility advocate&#039;s co-design and participant-agency problems may reshape the vignette corpus and session structure in ways that invalidate the current fractional factorial and N=12 justification. The two critiques interact: co-design could expose dimensions not varied in the corpus (reinforcing the methodologist&#039;s confound point), and removing the wizard-types rule changes the behavioral log data feeding the co-occurrence clustering. Sequencing and scope of revision — whether to run co-design first and then rebuild the methodology, or to lock methodology and bolt on accommodations — is a research-design decision the agents cannot adjudicate.</p>
+  <table class="mx-table">
+          <thead><tr><th>Reviewer</th><th>Recommendation</th><th>Decisive weakness</th></tr></thead>
+          <tbody>
+            <tr>
+                    <td>methodologist</td>
+                    <td><code>major_revision</code></td>
+                    <td>The central predictive claim (&#039;participant-named dimensions predict acceptability better than valence of framing alone&#039;) has no measured DV in the protocol — the card-sort never elicits per-vignette acceptability. Compounded by N=12 with a ≥50% threshold vulnerable to vocabulary fragmentation, a fractional-factorial vignette corpus that structurally constrains which dimensions the behavioral clustering can recover, and a median-split re-clustering the walkthrough itself flags as underpowered.</td>
+                  </tr><tr>
+                    <td>accessibility_advocate</td>
+                    <td><code>major_revision</code></td>
+                    <td>ADHD adults appear only as subjects, not as co-designers of the instrument intended to expose the inadequacy of a researcher-constructed frame. The protocol then makes unilateral paternalistic decisions (wizard-adjudicated fatigue breaks using cues known to miss masked fatigue in this exact population; wizard typing labels into the participant&#039;s first-person record after 15s inactivity) without a participant-initiated channel for pacing or break requests.</td>
+                  </tr>
+          </tbody>
+        </table>
+</div>
+  <p class="section-lede">
+    The interactive side-by-side panel is rendered separately — see
+    <code>runs/backlog_mochi_proactive/branches/a/REVIEWER_PANEL.html</code>
+    (generate with <code>probe panel backlog_mochi_proactive a</code>).
+  </p>
+</section>
+
+<section id="handoff">
+  <h2>What humans must decide</h2>
+  <p class="section-lede">
+    Every Probe guidebook ends with a <code>[HUMAN_REQUIRED]</code> block. This is not a closing
+    pleasantry — it is the set of decisions the pipeline is not authorized to make on the researcher's
+    behalf.
+  </p>
+  <p>Before running this study, the researcher must: (1) decide the sequencing question between co-design-first (which may reshape corpus, session structure, and sample size justification) versus methodology-lock-then-accommodate (which preserves the current analytic plan but leaves the instrument miscalibrated); (2) decide whether the contribution is descriptive (drop predictive language from the claim) or predictive (add a per-vignette acceptability DV and rebuild the analysis around it); (3) run at least 3 paid co-design sessions with ADHD adults and document changes; (4) obtain IRB approval for the compensation structure, accommodation options, and participant-initiated break channel; (5) pre-register the coding protocol, the saturation stopping rule (or N justification), the thematic consolidation step, and the clustering sensitivity analyses; (6) specify the recruitment matrix (diagnosis, medication, gender, comorbidity, recruitment source) and the stratified reporting plan. <span class="provtag tag-human_required">[HUMAN_REQUIRED]</span></p>
+</section>
+
+<section id="provenance">
+  <h2>Provenance legend</h2>
+  <p>Every content-bearing element in the underlying guidebook ends with exactly one of these tags. A markdown-AST linter fails the build if any element is untagged.</p>
+  <dl class="provenance-legend">
+    <dt>[RESEARCHER_INPUT]</dt><dd>The researcher's original premise, verbatim or lightly restated.</dd>
+    <dt>[SOURCE_CARD:&lt;id&gt;]</dt><dd>Grounded in a specific hand-curated source card. The id resolves to a file in <code>corpus/source_cards/</code>.</dd>
+    <dt>[SIMULATION_REHEARSAL]</dt><dd>Content from the rehearsal. <strong>Not evidence.</strong> Required to use hedged language.</dd>
+    <dt>[AGENT_INFERENCE]</dt><dd>Reasoning by an agent, not grounded in a source or simulation.</dd>
+    <dt>[UNCITED_ADJACENT]</dt><dd>Adjacent literature a reviewer named; the researcher must verify before grounding.</dd>
+    <dt>[TOOL_VERIFIED]</dt><dd>Measured by a Managed Agents tool-equipped session (bash/grep/file ops).</dd>
+    <dt>[IMPORTED_DRAFT]</dt><dd>Researcher's own text lifted verbatim from an imported paper draft (via <code>probe import</code>).</dd>
+    <dt>[HUMAN_REQUIRED]</dt><dd>Explicit handoff. Every guidebook must have at least one.</dd>
+    <dt>[DO_NOT_CLAIM]</dt><dd>Content the guidebook explicitly flags as unclaimable.</dd>
+  </dl>
+</section>
+
+<footer class="footer">
+  <h3>Cite</h3>
+  <p class="footer-intro">If you use Probe in research or teaching, please cite the arXiv paper:</p>
+  <pre class="bibtex"><code>@article{ryskeldiev2026probe,
+  title   = {Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research},
+  author  = {Ryskeldiev, Bektur},
+  year    = {2026},
+  journal = {arXiv preprint},
+  note    = {Built at the Cerebral Valley Claude Opus 4.7 hackathon}
+}</code></pre>
+  <p class="footer-links">
+    <a href="https://github.com/Apolotary/probe-researcher">Source code</a> ·
+    <a href="paper/probe.pdf">Paper PDF</a> ·
+    <a href="DEMO_WALKTHROUGH.md">Demo walkthrough</a>
+  </p>
+  <p class="footer-tagline">Built at the Cerebral Valley Claude Opus 4.7 hackathon, April 2026.</p>
+</footer>
+
+</main>
+</body>
+</html>
