@@ -1,0 +1,157 @@
+{
+  "runId": "benchmark_creativity_support",
+  "premise": "design a study to evaluate a creativity-support tool that gives poets alternative line endings during drafting",
+  "premiseTruncated": "design a study to evaluate a creativity-support tool that gives poets alternative line endings du...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "reason": "Passed capture-risk audit and meta-reviewer gates. Chosen for guidebook assembly (first in deterministic order).",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [],
+        "exit": [],
+        "legibility": [
+          "legibility.opaque_ranking",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "accept_revise",
+      "disagreementClass": "spurious_surface_disagreement",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED)"
+    },
+    {
+      "branchId": "b",
+      "status": "surviving",
+      "stage": "7d_meta",
+      "reason": "Passed capture-risk audit and meta-reviewer gates.",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.substitutes_for_practice",
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [
+          "agency.weak_override"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.opaque_ranking",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 2,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "accept_revise",
+      "disagreementClass": "consensus",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED)"
+    },
+    {
+      "branchId": "c",
+      "status": "surviving",
+      "stage": "7d_meta",
+      "reason": "Passed capture-risk audit and meta-reviewer gates.",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [
+          "agency.hides_options_before_review",
+          "agency.weak_override"
+        ],
+        "exit": [
+          "exit.data_lock_in"
+        ],
+        "legibility": [
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 2,
+        "exit": 1,
+        "legibility": 1
+      },
+      "metaReviewVerdict": "human_judgment_required",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED) [human_judgment_required]"
+    }
+  ],
+  "totalUsd": 6.649812999999998,
+  "totalInputTokens": 635940,
+  "totalOutputTokens": 149849,
+  "durationMs": 2687929,
+  "costEntryCount": 37,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "6_audit",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "7a_methodologist",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "7d_meta",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "8_guidebook",
+      "branchId": null,
+      "count": 8
+    }
+  ],
+  "linter": {
+    "guidebookExists": true,
+    "provenancePassed": true,
+    "voicePassed": true,
+    "provenanceViolationCount": 0,
+    "voiceViolationCount": 0
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 5_simulator [branch c]",
+    "repair pass on 6_audit [branch c]",
+    "repair pass on 7a_methodologist [branch b]",
+    "repair pass on 7d_meta [branch c]",
+    "repair pass on 7b_accessibility [branch b]",
+    "repair passes (7) on 8_guidebook"
+  ],
+  "generatedAt": "2026-04-22T04:25:11.772Z"
+}

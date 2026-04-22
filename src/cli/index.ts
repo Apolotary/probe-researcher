@@ -24,6 +24,7 @@ import { ganttCommand } from './gantt.js';
 import { buildPaperCommand } from './build_paper.js';
 import { panelCommand } from './panel.js';
 import { doctorCommand } from './doctor.js';
+import { statsCommand } from './stats.js';
 
 const program = new Command();
 
@@ -123,6 +124,14 @@ program
   .command('doctor')
   .description('One-command verification sweep — typecheck, tests, lint shipped guidebooks, PDF backend availability, git cleanliness, corpus/patterns/benchmark inventory. Exits non-zero on failure.')
   .action(doctorCommand);
+
+program
+  .command('stats')
+  .argument('[run_id]', 'run id to summarize; omit when using --all')
+  .option('--all', 'produce a cross-run table + RUNS_SUMMARY.md at repo root')
+  .option('--json', 'print the per-run stats object as JSON (no decorated table)')
+  .description('Per-run triage summary: branch verdicts, axis-level pattern fire counts, reviewer disagreement class, cost, duration, linter status, and anomalies (repair passes, missing artifacts, failed branches). Writes stats.json under the run directory. Use --all to iterate runs/ and produce RUNS_SUMMARY.md.')
+  .action((runId, opts) => statsCommand(runId, opts));
 
 program.parseAsync(process.argv).catch((err) => {
   console.error(err);

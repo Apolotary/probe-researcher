@@ -1,0 +1,122 @@
+{
+  "runId": "benchmark_code_review",
+  "premise": "design a study to evaluate an AI-assisted code review tool for mid-level engineers working on legacy codebases",
+  "premiseTruncated": "design a study to evaluate an AI-assisted code review tool for mid-level engineers working on leg...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2",
+      "auditVerdict": "BLOCKED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 3
+      },
+      "verdictLabel": "BLOCKED:legibility.no_failure_signal"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit blocked this branch on a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2",
+      "auditVerdict": "BLOCKED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [
+          "agency.weak_override"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 2
+      },
+      "verdictLabel": "BLOCKED:legibility.no_failure_signal"
+    },
+    {
+      "branchId": "c",
+      "status": "failed",
+      "stage": "7_review",
+      "reason": "7b_accessibility schema validation failed after repair:\n/recommendation: must be equal to one of the allowed values",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism"
+        ],
+        "agency": [
+          "agency.hides_options_before_review"
+        ],
+        "exit": [
+          "exit.competence_decay_on_exit"
+        ],
+        "legibility": [
+          "legibility.opaque_ranking",
+          "legibility.no_failure_signal",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 1,
+        "legibility": 3
+      },
+      "verdictLabel": "FAILED:7_review"
+    }
+  ],
+  "totalUsd": 2.4298100000000002,
+  "totalInputTokens": 236921,
+  "totalOutputTokens": 61553,
+  "durationMs": 1165898,
+  "costEntryCount": 18,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "c",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": false,
+    "provenancePassed": null,
+    "voicePassed": null,
+    "provenanceViolationCount": null,
+    "voiceViolationCount": null
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 7b_accessibility [branch c]"
+  ],
+  "generatedAt": "2026-04-22T04:25:11.739Z"
+}

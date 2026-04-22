@@ -1,0 +1,183 @@
+{
+  "runId": "demo_run",
+  "premise": "design a short study to understand how BLV screen-reader users interpret page hierarchy on AI-generated news articles",
+  "premiseTruncated": "design a short study to understand how BLV screen-reader users interpret page hierarchy on AI-gen...",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit fired a -2 finding on legibility.no_failure_signal.",
+      "blockingFinding": "audit:legibility.no_failure_signal:-2",
+      "auditVerdict": "BLOCKED",
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [
+          "agency.auto_decides_consequential_step",
+          "agency.weak_override",
+          "agency.paternalistic_default"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 3,
+        "exit": 0,
+        "legibility": 2
+      },
+      "verdictLabel": "BLOCKED:legibility.no_failure_signal"
+    },
+    {
+      "branchId": "b",
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "reason": "Meta-reviewer verdict: human_judgment_required (legitimate_methodological_split). Guidebook assembled.",
+      "blockingFinding": null,
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [
+          "agency.paternalistic_default"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 1,
+        "agency": 1,
+        "exit": 0,
+        "legibility": 3
+      },
+      "metaReviewVerdict": "human_judgment_required",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "SURVIVED (REVISION_REQUIRED) [human_judgment_required]"
+    },
+    {
+      "branchId": "c",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit fired a -2 finding on legibility.no_failure_signal.",
+      "blockingFinding": "audit:legibility.no_failure_signal:-2",
+      "auditVerdict": "BLOCKED",
+      "firedPatterns": {
+        "capacity": [
+          "capacity.no_fade_mechanism",
+          "capacity.no_rehearsal_space"
+        ],
+        "agency": [
+          "agency.auto_decides_consequential_step",
+          "agency.hides_options_before_review",
+          "agency.paternalistic_default"
+        ],
+        "exit": [
+          "exit.competence_decay_on_exit"
+        ],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 2,
+        "agency": 3,
+        "exit": 1,
+        "legibility": 3
+      },
+      "verdictLabel": "BLOCKED:legibility.no_failure_signal"
+    }
+  ],
+  "totalUsd": 5.929634,
+  "totalInputTokens": 501912,
+  "totalOutputTokens": 173596,
+  "durationMs": 3289928,
+  "costEntryCount": 42,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "4_prototype",
+      "branchId": "b",
+      "count": 5
+    },
+    {
+      "stage": "4_prototype",
+      "branchId": "a",
+      "count": 5
+    },
+    {
+      "stage": "4_prototype",
+      "branchId": "c",
+      "count": 5
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "6_audit",
+      "branchId": "b",
+      "count": 3
+    },
+    {
+      "stage": "6_audit",
+      "branchId": "a",
+      "count": 3
+    },
+    {
+      "stage": "6_audit",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "7a_methodologist",
+      "branchId": "b",
+      "count": 3
+    },
+    {
+      "stage": "7c_novelty",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "8_guidebook",
+      "branchId": null,
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": true,
+    "provenancePassed": true,
+    "voicePassed": true,
+    "provenanceViolationCount": 0,
+    "voiceViolationCount": 0
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair passes (4) on 4_prototype [branch b]",
+    "repair passes (4) on 4_prototype [branch a]",
+    "repair passes (4) on 4_prototype [branch c]",
+    "repair pass on 5_simulator [branch c]",
+    "repair passes (2) on 6_audit [branch b]",
+    "repair passes (2) on 6_audit [branch a]",
+    "repair pass on 6_audit [branch c]",
+    "repair passes (2) on 7a_methodologist [branch b]",
+    "repair pass on 7c_novelty [branch b]",
+    "repair pass on 8_guidebook"
+  ],
+  "generatedAt": "2026-04-22T04:25:11.792Z"
+}
