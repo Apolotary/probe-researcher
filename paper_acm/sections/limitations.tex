@@ -1,0 +1,47 @@
+\section{Limitations}
+\label{sec:limitations}
+
+This section is deliberately long. Naming limitations honestly is the work a provenance-discipline project must do in its own paper.
+
+\subsection{Evaluation limitations}
+
+\textbf{Single-trial ablation.} The Opus-vs-Sonnet ablation is one trial on one reviewer stage against one branch context. Generalizing it to ``Sonnet is substantively capable for the methodologist stage'' requires a multi-premise run with blind scoring. We have not run that.
+
+\textbf{Single-trial hallucination test.} The planted-fake-paper test is $n=1$. A stronger evaluation would inject ten or more fake papers, ten or more real-but-absent papers, and blind-score the outputs to distinguish ``Probe refuses to fabricate'' from ``Probe happened to refuse on this trial.'' This is the single highest-leverage future evaluation and we call it out as such.
+
+\textbf{Domain overfitting risk.} The 16 capture-risk patterns, the three reviewer personas, and the source-card corpus were all shaped against screen-based accessibility research. The second-domain code-review benchmark exposed a pattern-mis-fire where a calibration intervention's intentional friction was scored as paternalism. A stronger evaluation would run the full pipeline on five or more out-of-accessibility premises and compare the verdict patterns; we have not run that.
+
+\textbf{No human-baseline comparison.} We have not compared Probe's reviewer findings against real human reviewer feedback on the same premise. The methodology paper \citep{jin2024agentreview} established that this is the natural comparison for LLM-based peer-review systems; we have not made it.
+
+\subsection{System limitations}
+
+\textbf{Three-branch divergence is not empirically validated.} The system commits to three branches on the assumption that divergent-method comparison gives the adversarial review more to work with than a single deeper branch would. We have not tested this with a three-branch-at-one-iteration versus one-branch-at-three-iterations comparison.
+
+\textbf{Citation-misuse detection is not implemented.} The linter verifies that cited source-card IDs exist but not that quoted claims match the source's \texttt{allowed\_claims} list. The Liang-et-al.\ misuse in our own demo guidebook went undetected by the linter; a later human review caught it. A natural extension is a verifier agent that checks each \texttt{[SOURCE\_CARD:id]}-tagged paragraph against the card's \texttt{allowed\_claims} array.
+
+\textbf{Pattern applicability check is not implemented.} The capture-risk auditor fires patterns based on trigger heuristics that match the \emph{form} of a feature. The code-review benchmark showed that this can mis-match a manipulation-under-test as an unintended constraint. The \texttt{WORKSHOP\_NOT\_RECOMMENDED} template now asks the human reviewer to confirm the fire; the pattern library itself does not yet include an applicability check.
+
+\textbf{Delimiter-based capture for Managed Agents container files.} The \texttt{probe audit-deep} command cannot directly read files the agent writes inside its managed container. We now use a delimiter-based capture protocol: the system prompt asks the agent to repeat the completed \texttt{deep\_audit.md} inside \texttt{<<PROBE\_DEEP\_AUDIT\_CAPTURE>>} markers at the end of its chat output, which the CLI then extracts and writes locally alongside a full conversation trace. This works but is brittle — an agent that drops or mis-formats the markers falls back to the raw trace. A container-file-download API would be the structural fix.
+
+\subsection{Scope limitations (by design)}
+
+The project's README states the scope as screen-based interactive research: web, desktop, and mobile user interfaces; accessibility research on digital content; AI-assistant interactions; dashboards and productivity tools. The following are out of scope and will remain so:
+
+\begin{itemize}
+    \item \textbf{Ethnographic fieldwork.} Probe's simulated walkthrough pattern does not transfer to contexts where the object of study is cultural practice rather than interface interaction.
+    \item \textbf{Long-term in-the-wild deployment studies.} Probe rehearses a session-length study; it does not model how behavior evolves over weeks or months.
+    \item \textbf{Embodied AR/VR without screen capture.} If the research is about spatial interaction in a physical environment, the rehearsal-via-spec pattern does not apply.
+    \item \textbf{Any research without a capturable digital artifact.} Probe assumes the proposed intervention can be reduced to a screen-recordable or screen-readable form.
+\end{itemize}
+
+A researcher who uses Probe for an out-of-scope study will get a guidebook that looks structurally valid but models the wrong object. The linter does not check scope; the README does. We have not attempted a scope-check linter because the boundary is fuzzy enough that false negatives are inevitable.
+
+\subsection{The \texttt{[AGENT\_INFERENCE]} escape-hatch problem}
+
+The \texttt{[AGENT\_INFERENCE]} tag is the weakest of the eight provenance tags. It certifies that the content is the agent's own reasoning; it does not certify that the reasoning is well-anchored. A stronger system would require \texttt{[AGENT\_INFERENCE]} to cite at least one preceding provenance anchor (``inferred from \texttt{[SOURCE\_CARD:sanders\_stappers\_2014]}'' or a \texttt{[SIMULATION\_REHEARSAL]} paragraph within a short recency window).
+
+We have now implemented this as an opt-in linter mode: \texttt{probe lint --strict-inference <file>} enforces that every \texttt{[AGENT\_INFERENCE]} element sit within five preceding elements of an anchor tag (one of \texttt{SOURCE\_CARD}, \texttt{SIMULATION\_REHEARSAL}, \texttt{TOOL\_VERIFIED}, or \texttt{RESEARCHER\_INPUT}), or else cite a source card inline. Running this mode against the demo-run guidebook surfaces thirty-two violations: thirty-two sites where a load-bearing inference is not within reach of a grounded element. This is the specific weakness the advisors predicted. The violations are not bugs in the linter; they are accurate reports that the Stage 8 assembler, operating under a weaker rule, produced text whose inferences drift away from their evidence. We have not re-generated the shipped guidebook under the stricter rule because the demo narrative depends on the existing artifacts; a future run with \texttt{--strict-inference} fed back into the Stage 8 prompt should produce a visibly tighter guidebook.
+
+\subsection{Cost limitations}
+
+A full run costs approximately six dollars and takes twenty-five minutes of wall-clock time. The marginal cost scales roughly linearly with the size of the branch artifacts (the audit and guidebook stages process the entire per-branch corpus). For a research group running Probe on dozens of premises per week, the cost is small; for an independent researcher with a tight budget, it is not negligible. We have not optimized. Simple wins (more aggressive prompt caching across stages, moving more per-branch stages to Sonnet where the ablation evidence supports it) are available and unexploited.

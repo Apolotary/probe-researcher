@@ -1,0 +1,50 @@
+\section{Evaluation}
+\label{sec:eval}
+
+Probe produces one structured artifact per research premise. The most honest evaluation asks whether that artifact is the one a researcher would actually use as a starting point. We report three partial evaluations below, each explicit about what it does and does not support.
+
+\subsection{Model ablation: methodologist reviewer, Opus 4.7 vs.\ Sonnet 4.6}
+
+The methodologist reviewer is the adversarial stage Probe reserves for Opus 4.7. To test whether this is justified, we re-ran the stage against Branch B of the demo run with Sonnet 4.6 substituted for Opus, holding everything else identical: same system prompt, same input context, same schema, same repair-loop logic.
+
+Both models caught the announcement-duration confound. Opus produced six criticisms with quantified evidence spans (``roughly 4-5$\times$ longer in spoken duration''); Sonnet produced five criticisms with a less-precise but still-correct framing (``the AI condition announces [long string] while the human condition announces only [short string]''). Opus recommended \texttt{major\_revision}; \textbf{Sonnet recommended \texttt{reject}}, which is arguably the more methodologically honest call at $n=8$ with Friedman tests. Sonnet's run cost \$0.08 and took 56 seconds; Opus's run cost \$0.18 and took 56 seconds.
+
+The honest reading is that Opus delivered more precise evidence quantification; Sonnet delivered a slightly harder recommendation at 2.4$\times$ lower cost. The initial project plan routed this stage to Opus on the assumption that only Opus would catch the confound at all. That assumption does not survive a single-trial ablation. The project status document was revised accordingly: the claim is now ``Opus provides more specific evidence spans at higher cost; Sonnet is substantively capable on the same prompt.''
+
+\subsection{Hallucination test: planted fabricated reference}
+
+We injected a fabricated citation into the guidebook-assembly stage's context, framed as ``researcher notes'' the assembler might plausibly receive:
+
+\begin{quote}
+Smithson, M. J., \& Watanabe, R. (2024). Auditory provenance cues and BLV user navigation strategies. ACM Transactions on Accessible Computing, 17(3), 14:1--14:28. doi:10.1145/3612345.3612346.
+\end{quote}
+
+The paper does not exist. The DOI does not resolve. The test's single pass criterion is: the assembler must not produce a \texttt{[SOURCE\_CARD:smithson\_watanabe\_2024]} tag or any \texttt{[SOURCE\_CARD:<id>]} referencing a corpus ID that does not exist.
+
+The result: zero fabricated \texttt{[SOURCE\_CARD]} tags. The assembler wrote the reference into a \texttt{[HUMAN\_REQUIRED]} paragraph that explicitly instructs the researcher to verify the citation before grounding any claim on it. An initial version of the test's scoring rubric did not count \texttt{[HUMAN\_REQUIRED]} as an honest wrapper and returned \texttt{AMBIGUOUS}; we rewrote the rubric after reviewing the actual output, since \texttt{[HUMAN\_REQUIRED]} is strictly stronger than \texttt{[AGENT\_INFERENCE]} or \texttt{[UNCITED\_ADJACENT]} --- it makes verification a mandatory next step.
+
+This is a single trial. A stronger evaluation would run ten or more planted fakes alongside matched real-but-absent controls with blind scoring; we name this explicitly as future work \S\ref{sec:limitations}.
+
+\subsection{Second-domain benchmark: out-of-accessibility transfer}
+
+The demo premise lives in BLV accessibility, which is the author's primary domain and the area the project's patterns and reviewer personas were tuned against. To test whether the system's behavior is coherent outside that domain, we ran the full pipeline on a premise in a different area: ``design a study to evaluate an AI-assisted code review tool for mid-level engineers working on legacy codebases.''
+
+The pipeline produced three branches that differ on the expected four axes. Two were blocked at the capture-risk audit on different patterns; one failed at the accessibility reviewer stage on a schema-validation error where the reviewer returned a recommendation value outside the schema's enum. The blocking patterns were substantively defensible (auto-remediation of code-review findings without engineer confirmation; opacity of the ranking that determines which reviews the tool prioritizes); the infrastructure failure is an honest infrastructure failure, not a substantive finding, and the run summary makes the distinction.
+
+A third benchmark runs on a creativity-support premise: a tool that offers poets alternative line endings during drafting. The pipeline produced three branches, none of which the audit blocked --- two returned \texttt{accept\_revise} from the meta-reviewer, one returned \texttt{human\_judgment\_required}. Surviving branch A reframed the original ``evaluate a tool'' premise as a mechanism study on corpus-personalized divergence, a move we did not anticipate. The absence of blocking patterns is itself a signal: the current 16-pattern library, tuned against accessibility and code-review domains, does not fire heavily on creativity-support research. This points toward a missing Capacity axis pattern around narrowed expressive range --- we name it in the future-work section.
+
+\subsection{Deep audit: measured versus reasoned findings}
+
+Section \S\ref{sec:system} describes the twenty-one-tool-call managed-agents deep audit on Branch B. The quantitative result is that the deep audit verified five shallow-audit findings with measured quantities and surfaced nine new findings the shallow audit missed. Selected measurements:
+
+\begin{itemize}
+    \item AI-disclosure string: 96 characters, 16 words, $\sim$5.3 seconds at 180 wpm.
+    \item Human-framed string: 29 characters, 5 words, $\sim$1.7 seconds.
+    \item Delta: 3.67 seconds. The shallow audit described this qualitatively as ``several seconds''; the deep audit quantified it.
+    \item Zero participant-triggerable wizard controls out of five; zero occurrences of \texttt{stop}, \texttt{withdraw}, \texttt{opt out}, or \texttt{abort} in the prototype spec.
+    \item Zero matches for \texttt{byline}, \texttt{model card}, \texttt{source link}, \texttt{editorial policy}, \texttt{inspect}, or \texttt{tell me more}. This is a measured zero that confirms two separate Legibility findings the shallow audit could only infer.
+    \item Friedman test minimum detectable effect size at $n=8, k=3, \alpha=0.05$: Kendall's $W = 0.374$, between medium and large. This was not in the shallow audit at all.
+    \item The axe-core WCAG check the study proposes covers only the three article HTML variants, not the credibility-rating form or the debrief-card PDF that BLV participants must also interact with. Measured counter-example to the spec's implicit coverage claim.
+\end{itemize}
+
+The deep audit measures the same claims the shallow audit described qualitatively. What changes is that the researcher can now make a revision decision from the report alone --- ``the delta is 3.67 seconds'' sits in the paper differently from ``substantially longer in spoken duration.''

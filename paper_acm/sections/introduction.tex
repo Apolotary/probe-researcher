@@ -1,0 +1,30 @@
+\section{Introduction}
+
+A graduate student opens a new document and writes: ``I want to study how blind and low-vision users interpret page hierarchy on AI-generated news articles.'' The premise has three parts bundled into a sentence: a population, a stimulus property, and a cognitive claim. None of them is operationalized yet. The student will spend the next two weeks writing a recruitment script, the week after that piloting it against one BLV collaborator, another two weeks adjusting stimuli, and six months later will present a CHI submission whose first reviewer comment reads ``the AI-generated framing is not operationalized.''
+
+This paper describes a tool that reads the same sentence and returns, twenty-five minutes and roughly six dollars of API credit later, a study guidebook of seventy-seven content-bearing elements for one of three research programs, two of which it blocks with specific capture-risk findings quoted from their own prototype specs. Every paragraph of the guidebook carries a tag naming where the content came from: the researcher's input, a grounded source card, a simulated walkthrough, an agent's inference, or a point at which a human must take over. A markdown linter rejects any paragraph that lacks a tag, and rejects any tagged-as-rehearsal paragraph that uses evidence language. A second command spawns a Managed Agents session in which a reviewer agent runs bash and grep against the spec and measures the announcement-duration difference the shallow audit could only approximate.
+
+The tool is called \textbf{Probe}. It sits between the blank document and the study the researcher is about to spend six months building. Probe does not run a study; it rehearses the plan the study would test.
+
+\subsection{The claim}
+
+Probe's claim is narrow. A senior colleague reading a rough premise will, in the first thirty seconds, ask three or four sharp questions, name the nearest existing work, and propose two or three alternative framings. The first two stages of Probe try to do exactly that, as a large model under a senior-PI system prompt. The remaining six stages try to do what takes a lab several weeks: specify three divergent prototypes, rehearse what a user session under each would surface, audit each for the patterns Illich and Buijsman et al.\ identify as autonomy-eroding, and attack each from the perspective of three distinct reviewer personas whose meta-reviewer is forbidden from collapsing disagreement to consensus \citep{illich1973conviviality, buijsman2025autonomy}.
+
+None of this produces evidence about users. The point is for it not to. A single markdown linter fails the build on any unlabeled paragraph, any forbidden phrase outside quoted context, any paragraph tagged \texttt{[SIMULATION\_REHEARSAL]} that uses evidence language, and any heading that names findings. A guidebook that does not pass this lint never leaves the run directory.
+
+\subsection{Contributions}
+
+This paper's contributions are:
+
+\begin{enumerate}
+    \item A pipeline architecture for research-design triage that routes stages to Opus 4.7 or Sonnet 4.6 based on whether the stage requires normative reasoning or structured templating, and that runs per-branch stages in parallel with failure isolation via real git worktrees.
+    \item A 16-pattern capture-risk audit library across four axes (Capacity, Agency, Exit, Legibility) grounded in autonomy-by-design and conviviality theory, with each pattern requiring a quoted evidence span to fire.
+    \item A provenance-tag enforcement system that runs as a markdown-AST linter at paragraph, list-item, blockquote, and table-row granularity, with additional checks for evidence-language-in-rehearsal elements and predictive-outcome claims inside inference-tagged paragraphs.
+    \item A Managed Agents extension that lets a reviewer agent run bash and grep against the branch artifacts, producing measured quantitative findings the shallow audit could only approximate. On the demo run, this surfaced nine new findings the shallow audit missed.
+    \item An Opus-versus-Sonnet ablation on the methodologist reviewer stage that reports an honest and partly counterintuitive result: Sonnet 4.6 caught the same methodological confound at 2.4\texttimes{} lower cost but recommended reject where Opus recommended major revision. This tempers rather than amplifies the Opus-unique capability story.
+    \item A dedicated hallucination test that plants a fabricated adjacent paper into the guidebook assembler's context and verifies no \texttt{[SOURCE\_CARD:fake\_id]} tag appears in the output.
+\end{enumerate}
+
+\subsection{Scope}
+
+Probe is deliberately scoped to \emph{screen-based interactive research}. Ethnographic fieldwork, long-term in-the-wild deployment, and embodied AR without screen capture are out of scope. The README states this and the linter does not enforce it. The authors of any future paper that calls Probe's output ``findings'' will be refuted by the first peer reviewer who checks the provenance tags.
