@@ -61,8 +61,23 @@ run_one() {
   fi
   echo "  ⟲ retry (attempt 2)" | tee -a "$SUMMARY_FILE"
   if [[ -d "runs/$RUN_ID" ]]; then
-    mv "runs/$RUN_ID" "runs/${RUN_ID}_failed_attempt1_$(date +%s)"
+    mv "runs/$RUN_ID" "logs/failed_run_artifacts/${RUN_ID}_failed_attempt1_$(date +%s)"
   fi
+  # Clean up stale git worktrees + branch references from the failed
+  # attempt. Without this, `git worktree add -B run-<slug>-a` on retry
+  # hits a "branch already used by worktree at …" error and fails. The
+  # branch-name slug derivation in the orchestrator uses a trailing
+  # substring of the run_id, so the branch names aren't always easy to
+  # predict — prune the registry and delete any branches matching the
+  # tail of the slug. Backlog batch logged this as a recurring pain.
+  git worktree prune 2>/dev/null || true
+  SLUG_TAIL="${RUN_ID##*_}"
+  for letter in a b c; do
+    git branch --list "run-*${SLUG_TAIL}*-${letter}" 2>/dev/null | while read -r b; do
+      b="${b## *}"; b="${b##\* }"; b="${b%% }"
+      [[ -n "$b" ]] && git branch -D "$b" 2>/dev/null || true
+    done
+  done
   if npx probe run --run-id "$RUN_ID" --no-novelty "$PREMISE" >"$LOG.attempt2" 2>&1; then
     echo "  ✓ ok (attempt 2)" | tee -a "$SUMMARY_FILE"
     return 0

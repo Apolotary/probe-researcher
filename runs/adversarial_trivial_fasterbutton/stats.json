@@ -1,0 +1,147 @@
+{
+  "runId": "adversarial_trivial_fasterbutton",
+  "premise": "study whether users click faster buttons faster",
+  "premiseTruncated": "study whether users click faster buttons faster",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [
+          "agency.auto_decides_consequential_step",
+          "agency.paternalistic_default"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.unverifiable_summary"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 2,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED:agency.auto_decides_consequential_step"
+    },
+    {
+      "branchId": "b",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "PASSED",
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [],
+        "exit": [],
+        "legibility": []
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 0,
+        "exit": 0,
+        "legibility": 0
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED"
+    },
+    {
+      "branchId": "c",
+      "status": "blocked",
+      "stage": "7d_meta",
+      "reason": "Meta-reviewer rejected after reading the reviewer panel.",
+      "blockingFinding": "meta_review:reject",
+      "auditVerdict": "REVISION_REQUIRED",
+      "firedPatterns": {
+        "capacity": [],
+        "agency": [
+          "agency.weak_override",
+          "agency.paternalistic_default"
+        ],
+        "exit": [],
+        "legibility": [
+          "legibility.no_failure_signal",
+          "legibility.no_rationale_at_point_of_action"
+        ]
+      },
+      "firedCounts": {
+        "capacity": 0,
+        "agency": 2,
+        "exit": 0,
+        "legibility": 2
+      },
+      "metaReviewVerdict": "reject",
+      "disagreementClass": "legitimate_methodological_split",
+      "verdictLabel": "BLOCKED:agency.weak_override"
+    }
+  ],
+  "totalUsd": 2.325648,
+  "totalInputTokens": 312821,
+  "totalOutputTokens": 92479,
+  "durationMs": 2068237,
+  "costEntryCount": 30,
+  "repairPasses": [
+    {
+      "stage": "2_ideator",
+      "branchId": null,
+      "count": 2
+    },
+    {
+      "stage": "4_prototype",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "b",
+      "count": 2
+    },
+    {
+      "stage": "5_simulator",
+      "branchId": "c",
+      "count": 2
+    },
+    {
+      "stage": "6_audit",
+      "branchId": "a",
+      "count": 2
+    },
+    {
+      "stage": "7b_accessibility",
+      "branchId": "c",
+      "count": 2
+    }
+  ],
+  "linter": {
+    "guidebookExists": false,
+    "provenancePassed": null,
+    "voicePassed": null,
+    "provenanceViolationCount": null,
+    "voiceViolationCount": null
+  },
+  "anomalies": [
+    "repair pass on 2_ideator",
+    "repair pass on 4_prototype [branch a]",
+    "repair pass on 5_simulator [branch a]",
+    "repair pass on 5_simulator [branch b]",
+    "repair pass on 5_simulator [branch c]",
+    "repair pass on 6_audit [branch a]",
+    "repair pass on 7b_accessibility [branch c]"
+  ],
+  "generatedAt": "2026-04-22T08:37:48.860Z"
+}

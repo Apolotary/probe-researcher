@@ -102,6 +102,18 @@ Budget win is real: ~$2-3 per Sonnet run vs ~$5-6 per Opus run. Quality loss on 
 **Why it needs your judgment**: The paper's cost-tradeoff section currently reads "Sonnet is substantively capable on the methodologist stage" (from the n=1 Stage 7 ablation). The new evidence is the opposite shape on Stage 5 — Sonnet is substantively LESS capable. Neither claim generalizes beyond the stage it was tested on; the paper should distinguish. Concrete suggestion: add a Stage 5 ablation line to the evaluation — on one saved branch card that succeeded under Opus, re-run Stage 5 under Sonnet and report what breaks.
 **Severity**: medium (affects budget/quality tradeoff story; CLAUDE.md constraint is now load-bearing rather than hypothetical)
 
+## 2026-04-22 17:38 GMT+9 — adversarial run 2 (trivial_fasterbutton): retry-cleanup fix worked; Agency blockers on tautological premise
+
+**Source**: `runs/adversarial_trivial_fasterbutton/`, `logs/adversarial_trivial_fasterbutton.log` + `.attempt2`
+**Observation**: Two things worth noting on this run.
+
+1. **First live test of the adversarial-script retry fix**: attempt 1 failed at Stage 8 (Sonnet guidebook-lint failure, same failure mode as voice_agents / e2ee_ai). The upgraded retry path auto-prunes worktrees and deletes stale `run-<slug>-*` branches before re-attempting — and it worked. Attempt 2 ran cleanly, produced branch cards, audits, reviews, and blocked verdicts (no guidebook because all 3 branches blocked, but the pipeline completed its branch flow). Without this fix, attempt 2 would have hit the same worktree-collision that stalled 2 backlog runs.
+
+2. **Tautological premise gets Agency-tagged**: the literal sentence "study whether users click faster buttons faster" was interpreted as a Fitts's Law study variant by the ideator. The audit fired `agency.auto_decides_consequential_step` on branch A and `agency.weak_override` on branch C, both at -2. Neither of these is the "obvious" failure mode for a tautological premise (which would be `no testable proposition` at premise-interrogation time, or a trivial-claim flag) — the audit found legitimate-looking Agency risks in the resulting research-design framings. This suggests that by the time the pipeline reaches Stage 6, the premise-triviality has been laundered into specific interventions whose Agency footprint is real even if the original question was trivial. Worth a paper paragraph: premise interrogation sharpens trivial premises, but the sharpened versions can carry their own capture risks that the audit correctly catches.
+
+**Why it needs your judgment**: None for (1) — the fix works. For (2) — consider whether the paper wants to note that the pipeline does NOT refuse trivial premises end-to-end; it still runs through to completion (or blocking), and the audit can produce substantive findings even on trivial inputs. This might be a feature rather than a bug.
+**Severity**: low (both observations are positive)
+
 ## 2026-04-22 17:04 GMT+9 — adversarial run 1: Move framework is live in the premise interrogator
 
 **Source**: `runs/adversarial_trivial_darkmode/premise_card.json`

@@ -1,0 +1,23 @@
+=== Adversarial batch started 2026-04-22T07:53:02Z ===
+  cumulative total spend: $38.5134 (soft-stop at $120)
+
+[07:53:02Z] starting adversarial_trivial_darkmode (category=trivial)
+  premise: study whether users prefer dark mode
+  ✓ ok (attempt 1)
+  cumulative total spend: $39.9705 (soft-stop at $120)
+
+[08:03:44Z] starting adversarial_trivial_fasterbutton (category=trivial)
+  premise: study whether users click faster buttons faster
+  ⟲ retry (attempt 2)
+Deleted branch run-fasterbutton-a (was 498f2dc).
+Deleted branch run-fasterbutton-b (was d62d963).
+Deleted branch run-fasterbutton-c (was a155543).
+  ✓ ok (attempt 2)
+  cumulative total spend: $42.2962 (soft-stop at $120)
+
+[08:37:34Z] starting adversarial_trivial_biggertext (category=trivial)
+  premise: study whether bigger text is easier to read
+  ⟲ retry (attempt 2)
+Deleted branch run-l_biggertext-a (was 57665c1).
+Deleted branch run-l_biggertext-b (was 0b73337).
+Deleted branch run-l_biggertext-c (was 7fb7a36).

@@ -1,0 +1,27 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "adversarial_trivial_fasterbutton",
+  "raw_premise": "study whether users click faster buttons faster",
+  "sharpest_question": "Fitts' Law has answered this for seventy years — what phenomenon do you believe existing motor-performance models fail to predict that would justify running this study?",
+  "claim": "No falsifiable claim is visible. If the study worked as stated, it would replicate Fitts' Law under conditions already extensively documented, contributing nothing.",
+  "differentia": "No differentia is present. The premise describes a tautology (faster buttons → faster clicks) already explained by target-acquisition models. Nothing in the premise distinguishes this from undergraduate lab replication.",
+  "nearest_template": "Fitts' Law target-acquisition paradigm (Fitts 1954; replicated continuously through ISO 9241-411). Every variant of 'button speed' study that has ever been worth running has situated itself against this baseline and named a specific failure condition of the model.",
+  "missing_evidence": [
+    "No territory: the premise does not identify who is affected, in what context, or why the existing motor-performance literature is insufficient.",
+    "No niche: there is no named gap in prior work — Fitts' Law and its extensions (e.g., for touch, aging populations, motor impairments) already cover the space implied by the premise.",
+    "No occupation: the premise produces no testable proposition beyond a tautology; 'users click faster buttons faster' is the null hypothesis of every button-design study, not a contribution.",
+    "No operationalization of 'faster button': does this mean lower latency, larger target, faster visual feedback, haptic response onset? Each implies a different mechanism and a different literature.",
+    "No population or context: the result of a Fitts' Law replication in one context does not transfer to another without stated justification."
+  ],
+  "sharpened_options": [
+    "Territory: Touch-target acquisition in motor-impaired users is poorly predicted by standard Fitts' Law extensions. Niche: Existing models assume continuous motor control; tremor introduces stochastic perturbation that current ISO 9241-411 procedures do not account for. Occupation: A study testing whether a tremor-adjusted index of difficulty (substituting RMS displacement for movement amplitude) predicts acquisition time better than standard ID for users with essential tremor.",
+    "Territory: Perceived responsiveness of UI controls affects task completion independently of actual latency. Niche: Existing work measures click-to-response latency but does not isolate the contribution of pre-click visual affordance animation (button 'readiness' cues) from post-click feedback. Occupation: A study testing whether animated affordance onset (before pointer contact) reduces perceived acquisition time without changing measured acquisition time, using a 2×2 design crossing actual latency and affordance animation presence.",
+    "Territory: Mobile button design guidelines specify minimum target sizes but do not account for one-handed grip posture shifting the reachable thumb arc. Niche: Fitts' Law studies use controlled desktop or neutral-grip conditions; naturalistic one-handed phone use displaces the effective movement origin in ways no current guideline models. Occupation: A study testing whether a posture-adjusted target-placement model predicts error rates on standard-sized buttons better than current WCAG/Apple/Google size guidelines across three grip conditions.",
+    "Territory: Older adults show disproportionate performance degradation on small targets relative to Fitts' Law predictions calibrated on younger adults. Niche: It is not established whether the degradation is explained by increased MT variance, increased endpoint variance, or a changed speed-accuracy tradeoff parameter — each implies a different design intervention. Occupation: A study decomposing acquisition errors in adults 65+ into movement-phase versus endpoint-phase errors to identify which component drives the Fitts' Law residual, using kinematic logging rather than endpoint-only measurement."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}

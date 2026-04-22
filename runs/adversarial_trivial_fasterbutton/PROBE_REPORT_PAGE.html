@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe report — adversarial_trivial_fasterbutton</title>
+<style>
+:root {
+  --bg: #f7f5ef;
+  --bg-card: #ffffff;
+  --bg-pre: #1a1d2c;
+  --fg-pre: #e8e3d4;
+  --fg: #1a1a1a;
+  --fg-dim: #555;
+  --fg-faint: #888;
+  --border: #d0cbb8;
+  --border-soft: #e8e3d4;
+  --accent: #1B365D;
+  --accent-warm: #9e2e22;
+  --accent-amber: #b47b2a;
+  --accent-green: #1f6b1e;
+  --accent-plum: #7a2d5a;
+  --code-bg: #ede9dc;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Newsreader', 'Source Serif 4', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+h1, h2, h3, .topnav-brand, .topnav-links a, .hero-eyebrow, .hero-meta, .provtag, .card-tag,
+.pipeline-figure, .capture-findings, .meta-review, .footer-links, .footer-tagline {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: #10121e;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 48px 0 16px;
+  color: #10121e;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 6px;
+}
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 28px 0 8px;
+  color: #20232e;
+}
+
+p, li, blockquote { font-size: 17px; }
+p { margin: 0 0 14px; }
+
+/* Top nav */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247, 245, 239, 0.92);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.topnav-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.topnav-brand {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+.topnav-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.topnav-links a {
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 13px;
+}
+.topnav-links a:hover { color: var(--accent); }
+
+/* Hero */
+.hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 24px 24px;
+}
+.hero-eyebrow {
+  font-size: 13px;
+  color: var(--fg-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-meta {
+  font-size: 13px;
+  color: var(--fg-dim);
+  margin-top: 10px;
+}
+.hero-meta .run-id {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.hero-meta .dot { margin: 0 8px; color: #bbb; }
+.hero-tagline {
+  font-style: italic;
+  color: var(--fg-dim);
+  font-size: 16px;
+  margin-top: 24px;
+}
+
+/* Section lede */
+.section-lede {
+  font-size: 16px;
+  color: var(--fg-dim);
+  border-left: 3px solid var(--border);
+  padding: 4px 0 4px 14px;
+  margin: 0 0 20px;
+}
+
+/* Teaser figure */
+.teaser {
+  margin: 0 0 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+}
+.teaser figcaption {
+  font-size: 14px;
+  color: var(--fg-dim);
+  margin-top: 14px;
+  line-height: 1.5;
+}
+.pipeline-figure {
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+.pipeline-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--fg-dim);
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 16px;
+}
+.pipeline-stage {
+  background: var(--code-bg);
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+.pipeline-stages .arrow { color: var(--fg-faint); }
+.pipeline-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pipeline-branch {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 12px;
+}
+.pipeline-branch-label { font-size: 12px; color: var(--fg-dim); margin-bottom: 6px; }
+.pipeline-verdict {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.glyph-survived { background: #dff5df; color: var(--accent-green); }
+.glyph-blocked { background: #ffe3e0; color: var(--accent-warm); }
+.glyph-failed { background: #f0e0e0; color: #555; }
+.glyph-unknown { background: #e8e3d4; color: var(--fg-dim); }
+.pipeline-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.pipeline-detail code {
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Rehearsal cards */
+.rehearsal-cards {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.rehearsal-card {
+  background: #faf7ee;
+  border-left: 3px solid var(--accent-amber);
+  margin: 0;
+  padding: 14px 18px;
+  border-radius: 0 3px 3px 0;
+}
+.rehearsal-card p { margin: 0; font-style: italic; color: #3a3a3a; }
+.card-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent-amber);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Capture findings */
+.capture-findings {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+.capture-finding {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent-warm);
+  border-radius: 3px;
+  padding: 14px 18px;
+}
+.capture-finding.finding-drift { border-left-color: var(--accent-amber); }
+.capture-finding.finding-info { border-left-color: var(--fg-faint); }
+.finding-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.finding-pattern code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #222;
+}
+.finding-axis {
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.finding-score {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-warm);
+  font-weight: 700;
+}
+.finding-branch {
+  color: var(--fg-faint);
+  font-size: 12px;
+  margin-left: auto;
+}
+.finding-evidence {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 15px;
+  color: #2a2a2a;
+  background: var(--code-bg);
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-left: 2px solid var(--accent-amber);
+  border-radius: 0 3px 3px 0;
+}
+.evidence-source {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--fg-faint);
+  margin-bottom: 4px;
+  letter-spacing: 0.03em;
+}
+.finding-rationale {
+  font-size: 14px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+/* Meta review */
+.meta-review {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 18px 22px;
+  margin: 20px 0;
+}
+.meta-verdict { font-size: 14px; margin-bottom: 12px; }
+.meta-verdict-label { color: var(--fg-dim); }
+.meta-verdict-value code {
+  font-family: 'JetBrains Mono', monospace;
+  background: #e1f5e0;
+  color: var(--accent-green);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+.meta-class code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--code-bg);
+  color: var(--fg-dim);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.meta-rationale {
+  font-size: 15px;
+  color: #333;
+  margin: 10px 0;
+  line-height: 1.55;
+}
+.mx-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+}
+.mx-table th, .mx-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+.mx-table th { font-size: 11px; color: var(--fg-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+.mx-table code { font-family: 'JetBrains Mono', monospace; background: var(--code-bg); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+
+/* Inline content */
+code {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--bg-pre);
+  color: var(--fg-pre);
+  padding: 16px 20px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+blockquote {
+  margin: 14px 0;
+  padding: 8px 16px;
+  border-left: 3px solid var(--border);
+  color: #2a2a2a;
+}
+
+ul { padding-left: 22px; }
+li { margin: 4px 0; }
+
+/* Provenance tag badges */
+.provtag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  border-radius: 2px;
+  background: var(--code-bg);
+  color: var(--fg-faint);
+  vertical-align: baseline;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.provtag.tag-source_card { background: #dfeaff; color: #1B365D; }
+.provtag.tag-simulation_rehearsal { background: #faf0dc; color: var(--accent-amber); }
+.provtag.tag-agent_inference { background: #ede9dc; color: #5a5547; }
+.provtag.tag-researcher_input { background: #dff5df; color: var(--accent-green); }
+.provtag.tag-human_required { background: #dff5e6; color: #135a3b; }
+.provtag.tag-do_not_claim { background: #ffe3e0; color: var(--accent-warm); }
+.provtag.tag-uncited_adjacent { background: #f3e0ee; color: var(--accent-plum); }
+.provtag.tag-tool_verified { background: #e1f5e0; color: var(--accent-green); }
+.provtag.tag-imported_draft { background: #e6ecf5; color: #34456b; }
+
+.provenance-legend dt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  margin: 14px 0 4px;
+}
+.provenance-legend dd {
+  font-size: 15px;
+  color: var(--fg-dim);
+  margin: 0 0 8px;
+}
+
+/* Footer */
+.footer {
+  max-width: 760px;
+  margin: 64px auto 0;
+  padding: 24px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-dim);
+}
+.footer h3 { font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); margin: 0 0 12px; }
+.footer-intro { font-size: 14px; margin-bottom: 10px; }
+.bibtex { font-size: 12px; line-height: 1.5; padding: 14px 16px; }
+.footer-links { font-size: 13px; margin-top: 16px; }
+.footer-links a { color: var(--accent); text-decoration: none; margin-right: 4px; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-tagline { font-size: 12px; color: var(--fg-faint); margin-top: 20px; font-style: italic; }
+
+.missing-section {
+  font-style: italic;
+  color: var(--fg-faint);
+  padding: 12px 16px;
+  background: var(--code-bg);
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .topnav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .topnav-links { gap: 12px; }
+  h1 { font-size: 28px; }
+  .hero { padding: 36px 18px 12px; }
+  main { padding: 0 18px 60px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#premise" class="topnav-brand">Probe</a>
+    <div class="topnav-links">
+      <a href="#premise">Premise</a>
+      <a href="#method">Method</a>
+      <a href="#rehearsal">Rehearsal</a>
+      <a href="#safety">Capture-risk</a>
+      <a href="#panel">Reviewer panel</a>
+      <a href="#handoff">Humans must decide</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-eyebrow">A Probe simulation run · 2026-04-22</div>
+  <h1>study whether users click faster buttons faster</h1>
+  <div class="hero-meta">
+    <span class="run-id">adversarial_trivial_fasterbutton</span>
+    <span class="dot">·</span>
+    <span>branch A surviving</span>
+    <span class="dot">·</span>
+    <span>$2.33</span>
+    <span class="dot">·</span>
+    <span>34m28s wall</span>
+  </div>
+  <p class="hero-tagline">Rehearsal stage for research. The performance still needs humans.</p>
+</header>
+
+<main>
+
+<section id="teaser">
+  <figure class="teaser">
+    <div class="pipeline-figure">
+  <div class="pipeline-stages"><span class="pipeline-stage">1. premise</span><span class="arrow">→</span><span class="pipeline-stage">2. ideation</span><span class="arrow">→</span><span class="pipeline-stage">3. literature</span><span class="arrow">→</span><span class="pipeline-stage">4. prototype</span><span class="arrow">→</span><span class="pipeline-stage">5. simulator</span><span class="arrow">→</span><span class="pipeline-stage">6. audit</span><span class="arrow">→</span><span class="pipeline-stage">7. review</span><span class="arrow">→</span><span class="pipeline-stage">8. guidebook</span></div>
+  <div class="pipeline-branches"><div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch A</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>meta_review:reject</code></div>
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch B</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>meta_review:reject</code></div>
+      </div>
+<div class="pipeline-branch">
+        <div class="pipeline-branch-label">Branch C</div>
+        <div class="pipeline-verdict glyph-blocked">BLOCKED</div>
+        <div class="pipeline-detail"><code>meta_review:reject</code></div>
+      </div></div>
+</div>
+    <figcaption>
+      Figure 1. Pipeline outcome for this run. Eight stages, three branches, one guidebook. Branch
+      A survived capture-risk audit and adversarial review; other
+      branches stopped at the named stage. Verdicts below each branch were produced by the orchestrator from
+      the audit and meta-review outputs — not self-reported by the agents.
+    </figcaption>
+  </figure>
+</section>
+
+<section id="premise">
+  <h2>Premise</h2>
+  <p class="missing-section">No <code>Premise</code> section in this run's guidebook.</p>
+</section>
+
+<section id="background">
+  <h2>Background</h2>
+  <p class="missing-section">No <code>Background</code> section in this run's guidebook.</p>
+</section>
+
+<section id="method">
+  <h2>Method</h2>
+  <p class="section-lede">
+    Probe does not run a study. It writes one, rehearses it, and audits the rehearsal. This section restates
+    the prototype specification — the artifact a different researcher could build from without asking
+    clarifying questions — and the study protocol.
+  </p>
+  <p class="missing-section">No <code>Prototype</code> section in this run's guidebook.</p>
+  <p class="missing-section">No <code>Study protocol</code> section in this run's guidebook.</p>
+</section>
+
+<section id="rehearsal">
+  <h2>What the rehearsal surfaced</h2>
+  <p class="section-lede">
+    These are <strong>not participant quotes</strong>. They are the simulator's rehearsed observations, each
+    tagged <code>[SIMULATION_REHEARSAL]</code> in the underlying guidebook. They are priors to test, not
+    evidence the study has produced.
+  </p>
+  <p class="missing-section">No <code>[SIMULATION_REHEARSAL]</code> paragraphs surfaced for this run.</p>
+  <p class="missing-section">No <code>Failure hypotheses to test</code> section in this run's guidebook.</p>
+</section>
+
+<section id="safety">
+  <h2>Capture-risk audit</h2>
+  <p class="section-lede">
+    Probe fires sixteen named patterns across four axes — Capacity, Agency, Exit, Legibility — against every
+    branch's prototype spec and simulated walkthrough. A pattern is only reported when the auditor can quote
+    an evidence span from the rehearsed artifact; patterns that cannot be grounded in a specific passage are
+    not reported. A <code>-2</code> score blocks the branch.
+  </p>
+  <div class="capture-findings">
+  <div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.auto_decides_consequential_step</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Wizard clicks DIFFICULTY_ADJUST, which sends a configuration message to the iPad app instructing it to substitute the next larger target width (e.g., replace 8 px with 16 px) for the following block. The Latin-square counterbalancing record in the dashboard is automatically updated to mark the substituted condition as &#039;replaced&#039; so it can be excluded from the within-subjects counterbalancing analysis. Facilitator receives a Slack notification to say nothing to the participant about the change.
+        </blockquote>
+      <p class="finding-rationale">The DIFFICULTY_ADJUST control commits a consequential change to the experimental condition set — altering the target width the participant will face and permanently excluding a counterbalancing cell from analysis — without any authorization from the participant. The participant is explicitly kept unaware of the substitution. While this is a researcher-facing decision rather than a decision affecting a third party, it materially alters what the participant is tested on without their knowledge or any deliberate choice among visible options at the point of action.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.paternalistic_default</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Wizard clicks DIFFICULTY_ADJUST, which sends a configuration message to the iPad app instructing it to substitute the next larger target width (e.g., replace 8 px with 16 px) for the following block... Facilitator receives a Slack notification to say nothing to the participant about the change.
+        </blockquote>
+      <p class="finding-rationale">Participants are adults with diagnosed essential tremor, a population historically subject to paternalistic assumptions about capacity. The DIFFICULTY_ADJUST control unilaterally modifies the participant&#039;s task conditions without disclosure, on the assumption that floor-level performance warrants intervention on the participant&#039;s behalf. The participant is neither informed of the change nor given any path to opt out, affirm, or contest it. While the clinical rationale is preventing futile effort, the implementation forecloses participant agency over their own task conditions without consent.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Wizard clicks TRIAL_FLAG, which appends a &#039;flag=artifact&#039; label to the current trial&#039;s SQLite row and increments a visible flagged-trial counter on the dashboard. The trial is not repeated in real time; flagged trials are excluded during post-hoc model fitting. No participant-facing change occurs.
+        </blockquote>
+      <p class="finding-rationale">When the wizard flags a trial as an artifact — meaning the kinematic record for that trial is invalid and will be excluded from analysis — the participant receives no signal that the trial&#039;s data has been discarded. The participant cannot know whether their performance on a given trial contributed usable data to the study or was silently voided. Over 160 trials, a participant could plausibly complete a session in which a substantial fraction of their trials were flagged without any awareness, undermining their ability to adjust behavior or understand what the study captured from them.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.unverifiable_summary</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch A</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Compute or confirm the dashboard&#039;s auto-computed RMS displacement value: RMS = sqrt(mean of squared deviations of each sampled coordinate from the straight line connecting source center to target center). Decide whether the auto-computed value matches visual inspection of the trajectory plot within a ±5 px tolerance; if not, manually override the RMS field before the next trial starts.
+        </blockquote>
+      <p class="finding-rationale">The RMS displacement value, which is the primary independent variable in the tremor-adjusted Fitts&#039; Law model, is auto-computed by the dashboard and may be manually overridden by the wizard based on visual inspection. The participant has no access to the trajectory plot, the auto-computed RMS, the override value, or the basis for any discrepancy. The value that enters the analysis as representing the participant&#039;s tremor profile is produced through a wizard judgment process that the participant cannot inspect, verify, or contest at any point in the session or afterward.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.weak_override</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Triggered manually by the wizard when the participant&#039;s error rate on 6mm-diameter targets within the current block reaches or exceeds 60% (i.e., 5 or more misses out of 8 trials at that size within the block), indicating that 6mm targets are beyond the participant&#039;s reliable acquisition range and continued trials risk frustration-induced dropout or strategy abandonment.
+        </blockquote>
+      <p class="finding-rationale">The target_size_skip control modifies the participant&#039;s trial sequence — substituting 9mm targets for 6mm targets — without notifying the participant that this substitution has occurred. The participant has no mechanism to request that the original 6mm targets continue, nor are they informed that a substitution has been made. The participant cannot override the wizard&#039;s decision to change their task. While the substitution is protective in intent, the participant is given no agency over whether the accommodation is applied: the override path available to the wizard is asymmetric — the wizard can alter the participant&#039;s task unilaterally, but the participant cannot reverse or decline this alteration.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>agency.paternalistic_default</code></span>
+        <span class="finding-axis">agency</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          Participant population: Adult aged 65 or older ... Triggered manually by the wizard when the participant&#039;s error rate on 6mm-diameter targets within the current block reaches or exceeds 60% ... indicating that 6mm targets are beyond the participant&#039;s reliable acquisition range and continued trials risk frustration-induced dropout or strategy abandonment. Sends a command to the app that replaces all remaining 6mm-diameter trials in the current block with 9mm-diameter trials.
+        </blockquote>
+      <p class="finding-rationale">The participant population is explicitly adults aged 65 or older, a group historically subject to paternalistic assumptions about capability and tolerance for difficulty. The target_size_skip control defaults to protective task modification when an older adult struggles with the smallest targets, without the participant&#039;s knowledge or consent. No task_flow step describes the participant being offered a choice about whether to continue with difficult targets or receive easier ones. No wizard_control describes a frictionless path for the participant to opt out of this accommodation or to request that the original task difficulty be maintained. The intervention assumes that older adults meeting the 60% error threshold need protection from their own task performance, without evidence that this particular participant wants that accommodation.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_failure_signal</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          If tool_major consistently exceeds 15mm across trials, endpoint error values are contaminated and SCATTER labels generated from those values do not reflect the participant&#039;s actual trajectory endpoint; including this participant&#039;s data in the decomposition model would bias the SCATTER coefficient upward.
+        </blockquote>
+      <p class="finding-rationale">The failure_cases describe a scenario where the wizard&#039;s SCATTER classification labels are systematically incorrect due to grip-contaminated tool_major readings, yet the participant receives the same neutral gray flash on every trial and is never informed that their data may be unreliable. The expected_behavior for this failure is internal data flagging and stylus substitution, but no signal is surfaced to the participant indicating that the classifications applied to their trials are potentially invalid. A participant who receives a SCATTER-dominant classification profile in the step 4 replay may form an incorrect self-model of their movement errors when the underlying labels are contaminated. The participant has no mechanism to detect that the system&#039;s output for their session may be wrong.</p>
+    </div>
+<div class="capture-finding finding-drift">
+      <div class="finding-header">
+        <span class="finding-pattern"><code>legibility.no_rationale_at_point_of_action</code></span>
+        <span class="finding-axis">legibility</span>
+        <span class="finding-score">score -1</span>
+        <span class="finding-branch">branch C</span>
+      </div>
+      <blockquote class="finding-evidence">
+          <div class="evidence-source">source: prototype_spec</div>
+          After completing all three blocks, the participant watches a 90-second screen replay of three of their own trials: one wizard-labeled OVERSHOOT, one wizard-labeled SCATTER, and one correct hit. The trials are displayed as animated stylus-path overlays on the target, with no classification labels shown — only the trajectory lines and the target circle.
+        </blockquote>
+      <p class="finding-rationale">In step 4, the participant views trajectory replays selected by the wizard and is asked to describe what they notice and whether the patterns match their subjective experience. The participant has no access to the criteria the wizard used to select these three specific exemplars, nor to the classification framework (OVERSHOOT vs. SCATTER) that determined which trial was chosen as each exemplar type. The facilitator&#039;s question implicitly invites the participant to interpret the replays as meaningful distinctions, but the participant cannot inspect why these particular trials were selected or what the selection criteria were. The rationale for the selection is not available at the moment the participant is asked to interpret and respond to the replays.</p>
+    </div>
+</div>
+</section>
+
+<section id="panel">
+  <h2>Reviewer panel</h2>
+  <p class="section-lede">
+    Three Opus 4.7 agents review the surviving branch in sequence — a methodologist, an accessibility
+    advocate, and (optionally) a novelty hawk. A meta-reviewer reads their outputs and classifies the
+    disagreement without collapsing it to consensus.
+  </p>
+  <div class="meta-review">
+  <div class="meta-verdict">
+    <span class="meta-verdict-label">Meta-reviewer verdict:</span>
+    <span class="meta-verdict-value"><code>reject</code></span>
+    <span class="meta-class">(<code>legitimate_methodological_split</code>)</span>
+  </div>
+  <p class="meta-rationale">The methodologist identifies three blocking-severity criticisms — unvalidated wizard-contaminated RMS measurement, N=1 participant specification incompatible with the claimed mixed-effects analysis, and unblinded wizard artifact exclusion — none of which the accessibility advocate addresses or refutes. Under the meta-review rules, any unrefuted blocking criticism from any reviewer mandates rejection. The accessibility advocate&#039;s blocking criticisms (absent participatory design, paternalistic silent DIFFICULTY_ADJUST) are additional and independent grounds that also would warrant rejection. The reviewers do not disagree on whether the study is publishable as written; they disagree on which failures are most fundamental. The methodologist grounds rejection in measurement and statistical architecture; the accessibility advocate grounds major_revision in participatory ethics and consent — but the accessibility advocate&#039;s two blocking criticisms are themselves sufficient for rejection under the schema even at major_revision framing. Because three independent blocking criticisms (methodologist) plus two blocking criticisms (accessibility advocate) are unrefuted by any other reviewer, the verdict is reject rather than human_judgment_required. The disagreement is classified as a legitimate methodological split because the methodologist focuses on whether the measurement instrument can produce interpretable model comparisons, while the accessibility advocate focuses on whether the study design respects the population&#039;s epistemic standing — these are orthogonal failure modes, not the same concern named differently.</p>
+  <table class="mx-table">
+          <thead><tr><th>Reviewer</th><th>Recommendation</th><th>Decisive weakness</th></tr></thead>
+          <tbody>
+            <tr>
+                    <td>methodologist</td>
+                    <td><code>reject</code></td>
+                    <td>The primary independent variable (RMS displacement) is contaminated by unverified, fatigue-prone wizard judgment with no inter-rater reliability check; the study specifies a single participant while invoking mixed-effects models requiring N≥16; and the wizard has unblinded access to movement time during artifact exclusion decisions, making the model comparison uninterpretable.</td>
+                  </tr><tr>
+                    <td>accessibility_advocate</td>
+                    <td><code>major_revision</code></td>
+                    <td>People with essential tremor were not involved in designing the study; the silent DIFFICULTY_ADJUST mechanism unilaterally modifies conditions for disabled participants without disclosure or consent; and the armrest-free protocol strips participants&#039; habitual adaptive compensations, treating their coping strategies as experimental noise rather than legitimate expertise.</td>
+                  </tr>
+          </tbody>
+        </table>
+</div>
+  <p class="section-lede">
+    The interactive side-by-side panel is rendered separately — see
+    <code>runs/adversarial_trivial_fasterbutton/branches/a/REVIEWER_PANEL.html</code>
+    (generate with <code>probe panel adversarial_trivial_fasterbutton a</code>).
+  </p>
+</section>
+
+<section id="handoff">
+  <h2>What humans must decide</h2>
+  <p class="section-lede">
+    Every Probe guidebook ends with a <code>[HUMAN_REQUIRED]</code> block. This is not a closing
+    pleasantry — it is the set of decisions the pipeline is not authorized to make on the researcher's
+    behalf.
+  </p>
+  <p class="missing-section">No <code>Next steps</code> section in this run's guidebook.</p>
+</section>
+
+<section id="provenance">
+  <h2>Provenance legend</h2>
+  <p>Every content-bearing element in the underlying guidebook ends with exactly one of these tags. A markdown-AST linter fails the build if any element is untagged.</p>
+  <dl class="provenance-legend">
+    <dt>[RESEARCHER_INPUT]</dt><dd>The researcher's original premise, verbatim or lightly restated.</dd>
+    <dt>[SOURCE_CARD:&lt;id&gt;]</dt><dd>Grounded in a specific hand-curated source card. The id resolves to a file in <code>corpus/source_cards/</code>.</dd>
+    <dt>[SIMULATION_REHEARSAL]</dt><dd>Content from the rehearsal. <strong>Not evidence.</strong> Required to use hedged language.</dd>
+    <dt>[AGENT_INFERENCE]</dt><dd>Reasoning by an agent, not grounded in a source or simulation.</dd>
+    <dt>[UNCITED_ADJACENT]</dt><dd>Adjacent literature a reviewer named; the researcher must verify before grounding.</dd>
+    <dt>[TOOL_VERIFIED]</dt><dd>Measured by a Managed Agents tool-equipped session (bash/grep/file ops).</dd>
+    <dt>[IMPORTED_DRAFT]</dt><dd>Researcher's own text lifted verbatim from an imported paper draft (via <code>probe import</code>).</dd>
+    <dt>[HUMAN_REQUIRED]</dt><dd>Explicit handoff. Every guidebook must have at least one.</dd>
+    <dt>[DO_NOT_CLAIM]</dt><dd>Content the guidebook explicitly flags as unclaimable.</dd>
+  </dl>
+</section>
+
+<footer class="footer">
+  <h3>Cite</h3>
+  <p class="footer-intro">If you use Probe in research or teaching, please cite the arXiv paper:</p>
+  <pre class="bibtex"><code>@article{ryskeldiev2026probe,
+  title   = {Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research},
+  author  = {Ryskeldiev, Bektur},
+  year    = {2026},
+  journal = {arXiv preprint},
+  note    = {Built at the Cerebral Valley Claude Opus 4.7 hackathon}
+}</code></pre>
+  <p class="footer-links">
+    <a href="https://github.com/Apolotary/probe-researcher">Source code</a> ·
+    <a href="paper/probe.pdf">Paper PDF</a> ·
+    <a href="DEMO_WALKTHROUGH.md">Demo walkthrough</a>
+  </p>
+  <p class="footer-tagline">Built at the Cerebral Valley Claude Opus 4.7 hackathon, April 2026.</p>
+</footer>
+
+</main>
+</body>
+</html>
