@@ -22,7 +22,17 @@ import { writeWorkshopNotRecommended } from './workshop_not_recommended.js';
 
 export interface BranchState {
   branchId: string;
-  status: 'in_progress' | 'completed' | 'blocked' | 'failed';
+  /**
+   * - `in_progress`: still moving through stages.
+   * - `surviving`: reached Stage 8 successfully; this is the branch the
+   *   guidebook was assembled for (or one that passed the audit/review gates
+   *   but wasn't chosen as the guidebook's subject).
+   * - `completed`: reserved for explicit completion with no remaining work;
+   *   currently only emitted when guidebook assembly is skipped.
+   * - `blocked`: audit or meta-reviewer fired a blocking verdict.
+   * - `failed`: infrastructure error (stage threw), not a design failure.
+   */
+  status: 'in_progress' | 'surviving' | 'completed' | 'blocked' | 'failed';
   stage?: string;
   reason?: string;
   blockingFinding?: string;

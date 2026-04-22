@@ -77,12 +77,20 @@ export async function runCommand(
   }
 }
 
-function generateRunId(premise: string): string {
+export function generateRunId(premise: string): string {
   const slug = premise
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_|_$/g, '')
     .slice(0, 40);
-  const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  return `${stamp}_${slug}`;
+  // Build a timestamp that satisfies the run_id schema (^[a-z0-9_-]{3,64}$).
+  // ISO-8601's uppercase 'T' separator and trailing 'Z' both violate the
+  // lowercase-only rule, so format the parts explicitly.
+  const d = new Date();
+  const pad = (n: number): string => n.toString().padStart(2, '0');
+  const stamp =
+    `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}` +
+    `_${pad(d.getUTCHours())}-${pad(d.getUTCMinutes())}-${pad(d.getUTCSeconds())}`;
+  const id = slug ? `${stamp}_${slug}` : stamp;
+  return id.slice(0, 64);
 }

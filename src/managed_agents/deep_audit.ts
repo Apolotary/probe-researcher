@@ -67,12 +67,44 @@ Every paragraph in deep_audit.md MUST end with one of: [AGENT_INFERENCE], [TOOL_
 
 Do not invent citations. Do not write evidence language about human participants (this is still rehearsal; there are no participants). Do not fabricate quantitative results.
 
-When you are done, write deep_audit.md and emit a short summary stating how many findings you verified / challenged / added.`;
+When you are done, write /workspace/branch/deep_audit.md using the file tools, emit a short summary stating how many findings you verified / challenged / added, and then — so the local CLI can capture the finished file without needing managed-container file retrieval — emit the full contents of deep_audit.md one more time in your chat output, wrapped EXACTLY like this on lines by themselves:
+
+<<PROBE_DEEP_AUDIT_CAPTURE>>
+...the full markdown of deep_audit.md here...
+<<END_PROBE_DEEP_AUDIT_CAPTURE>>
+
+The capture markers must each appear on their own line with no leading or trailing text. Do not include the markers inside the file itself.`;
 
 export interface DeepAuditOptions {
   runId: string;
   branchId: string;
   dryRun?: boolean;
+}
+
+/**
+ * Extract the agent-emitted deep_audit.md content from a session trace.
+ *
+ * The system prompt asks the agent to wrap the final file in
+ * <<PROBE_DEEP_AUDIT_CAPTURE>> and <<END_PROBE_DEEP_AUDIT_CAPTURE>> markers,
+ * each on its own line. This function finds the LAST such block (so a
+ * discussion of the protocol earlier in the conversation doesn't get
+ * captured) and returns its content, trimmed. Returns null if no matching
+ * pair of markers is found.
+ *
+ * Exported for unit testing; the orchestrator imports it internally.
+ */
+export function extractDeepAuditCapture(conversation: string): string | null {
+  const startMarker = '<<PROBE_DEEP_AUDIT_CAPTURE>>';
+  const endMarker = '<<END_PROBE_DEEP_AUDIT_CAPTURE>>';
+  // Find the LAST start (in case the agent rehearsed the protocol earlier).
+  const lastStart = conversation.lastIndexOf(startMarker);
+  if (lastStart === -1) return null;
+  const end = conversation.indexOf(endMarker, lastStart + startMarker.length);
+  if (end === -1) return null;
+  const body = conversation.slice(lastStart + startMarker.length, end);
+  // Strip a single leading newline and trailing newline so the captured file
+  // doesn't have blank framing. Keep the internal content byte-identical.
+  return body.replace(/^\r?\n/, '').replace(/\r?\n\s*$/, '');
 }
 
 export async function runDeepAudit(opts: DeepAuditOptions): Promise<void> {
@@ -158,9 +190,31 @@ export async function runDeepAudit(opts: DeepAuditOptions): Promise<void> {
         );
       }
 
+      // Extract the captured file from the conversation stream. The agent
+      // has been instructed to wrap the complete deep_audit.md in
+      // <<PROBE_DEEP_AUDIT_CAPTURE>> … <<END_PROBE_DEEP_AUDIT_CAPTURE>>
+      // markers, each on its own line. Prefer that; fall back to the full
+      // conversation trace if the markers are missing (so older agent
+      // behavior still produces a readable file).
+      const captured = extractDeepAuditCapture(drain.text);
       const outputPath = path.join(bd, 'deep_audit.md');
-      await fs.writeFile(outputPath, drain.text);
-      console.log(`\n   ${chalk.hex(palette.passed)('✓')} wrote ${outputPath} (${drain.text.length} chars)`);
+      if (captured) {
+        await fs.writeFile(outputPath, captured);
+        console.log(
+          `\n   ${chalk.hex(palette.passed)('✓')} wrote ${outputPath} (${captured.length} chars, captured via delimiter)`,
+        );
+        // Also save the full conversation trace for reviewability.
+        const tracePath = path.join(bd, 'deep_audit_trace.md');
+        await fs.writeFile(tracePath, drain.text);
+        console.log(
+          `   ${chalk.hex(palette.passed)('✓')} session trace: ${tracePath} (${drain.text.length} chars)`,
+        );
+      } else {
+        await fs.writeFile(outputPath, drain.text);
+        console.log(
+          `\n   ${chalk.hex(palette.revision)('⚠')} capture delimiters not found in agent output — wrote full conversation trace to ${outputPath} (${drain.text.length} chars)`,
+        );
+      }
 
       const metaPath = path.join(runDir(runId), 'managed_agents', `deep_audit_${branchId}.json`);
       await fs.mkdir(path.dirname(metaPath), { recursive: true });

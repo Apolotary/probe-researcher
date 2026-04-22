@@ -124,6 +124,139 @@ Handoff. [HUMAN_REQUIRED]`;
     expect(r.tagCounts.UNCITED_ADJACENT).toBe(1);
   });
 
+  it('rejects a paragraph whose tag is not the final token', () => {
+    // A paragraph that mentions a tag string mid-prose and then continues
+    // with more text used to pass (TAG_RE was unanchored). Harden against
+    // guidebooks that describe tags as a category — "the [SOURCE_CARD] tag
+    // indicates grounding" shouldn't satisfy provenance for its own paragraph.
+    const md = `# Guidebook
+
+The [SOURCE_CARD] family of tags indicates grounding in the corpus, but the paragraph continues for another sentence.
+
+Handoff. [HUMAN_REQUIRED]`;
+    const r = checkProvenance(md);
+    expect(r.passed).toBe(false);
+    expect(r.violations.some((v) => /not the final token/.test(v))).toBe(true);
+  });
+
+  it('enforces provenance on GFM table rows (non-header)', () => {
+    // Without remark-gfm, remark-parse treats tables as plain paragraphs and
+    // never emits tableRow nodes, so the table-row branch of the linter was
+    // effectively dead. With remark-gfm wired in, a data row without a tag
+    // must be rejected.
+    const md = `# Guidebook
+
+| Axis | Finding |
+|------|---------|
+| Legibility | no failure signal |
+
+Handoff. [HUMAN_REQUIRED]`;
+    const r = checkProvenance(md);
+    expect(r.passed).toBe(false);
+    expect(r.violations.some((v) => /table row/.test(v))).toBe(true);
+  });
+
+  it('accepts a GFM table row that ends with a tag', () => {
+    const md = `# Guidebook
+
+| Axis | Finding |
+|------|---------|
+| Legibility | no failure signal [AGENT_INFERENCE] |
+
+Handoff. [HUMAN_REQUIRED]`;
+    const r = checkProvenance(md);
+    expect(r.passed).toBe(true);
+  });
+
+  describe('strict-inference mode (--strict-inference)', () => {
+    it('accepts AGENT_INFERENCE immediately after a SOURCE_CARD anchor', () => {
+      const md = `# Guidebook
+
+Prior work on AI-disclosure timing. [SOURCE_CARD:jakesch_2023_cowriting]
+
+Building on that, a timing manipulation here would probe the same asymmetry. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { strictInference: true });
+      expect(r.passed).toBe(true);
+    });
+
+    it('accepts AGENT_INFERENCE after a SIMULATION_REHEARSAL within the window', () => {
+      const md = `# Guidebook
+
+A participant encountering the condition might pause at the disclosure banner and re-read the heading region. [SIMULATION_REHEARSAL]
+
+The pause would be consistent with heightened epistemic monitoring of the disclosed source. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { strictInference: true });
+      expect(r.passed).toBe(true);
+    });
+
+    it('rejects AGENT_INFERENCE with no preceding anchor and no inline card', () => {
+      const md = `# Guidebook
+
+Some reasoning the model performed with no grounding. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { strictInference: true });
+      expect(r.passed).toBe(false);
+      expect(
+        r.violations.some((v) => /strict-inference mode requires one/.test(v)),
+      ).toBe(true);
+    });
+
+    it('accepts AGENT_INFERENCE that cites a source card inline', () => {
+      const md = `# Guidebook
+
+As Jakesch shows [SOURCE_CARD:jakesch_2023_cowriting] in the co-writing setting, disclosure timing shifts attitudes downstream. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { strictInference: true });
+      expect(r.passed).toBe(true);
+    });
+
+    it('rejects AGENT_INFERENCE if the anchor is beyond the recency window', () => {
+      // Five filler AGENT_INFERENCE paragraphs between the anchor and the
+      // paragraph being checked should push the anchor out of the window.
+      const md = `# Guidebook
+
+Prior work. [SOURCE_CARD:jakesch_2023_cowriting]
+
+Filler 1. [AGENT_INFERENCE]
+
+Filler 2. [AGENT_INFERENCE]
+
+Filler 3. [AGENT_INFERENCE]
+
+Filler 4. [AGENT_INFERENCE]
+
+Filler 5. [AGENT_INFERENCE]
+
+This one is too far from any anchor. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { strictInference: true });
+      // The first several AGENT_INFERENCEs are within window; the last isn't.
+      expect(r.passed).toBe(false);
+      expect(
+        r.violations.some((v) =>
+          /too far from any anchor|strict-inference mode requires one/.test(v),
+        ),
+      ).toBe(true);
+    });
+
+    it('default mode (strictInference off) does not enforce the anchor rule', () => {
+      const md = `# Guidebook
+
+Unanchored reasoning. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md); // strictInference omitted
+      expect(r.passed).toBe(true);
+    });
+  });
+
   it('counts tags correctly', () => {
     const md = `# Guidebook
 

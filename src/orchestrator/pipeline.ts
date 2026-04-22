@@ -149,6 +149,17 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
           blocking_finding: s.blockingFinding ?? 'unknown',
         })),
       });
+      // Transition any branch that reached Stage 8 from in_progress to
+      // 'surviving' so run_summary.json accurately reflects which branches
+      // passed all gates. Previously these stayed 'in_progress', which was
+      // both type-inaccurate and misleading to downstream consumers.
+      for (const id of survivors) {
+        const s = states.get(id);
+        if (s && s.status === 'in_progress') {
+          s.status = 'surviving';
+          s.stage = '8_guidebook';
+        }
+      }
       markStage(stageStates, '8_guidebook', 'done');
       spinner.succeed(
         stageDoneLabel(

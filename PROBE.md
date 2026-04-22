@@ -10,7 +10,7 @@ If the code disagrees with this file, update this file OR update the code — do
 |---|---|
 | `probe run <premise>` | full 8-stage pipeline, $5-10 per run |
 | `probe replay <run_id>` | deterministic replay of a recorded run, no Anthropic calls |
-| `probe lint <file>` | provenance + forbidden-phrase linting on a markdown file |
+| `probe lint <file>` | provenance + forbidden-phrase linting on a markdown file (`--strict-inference` raises the bar: every `[AGENT_INFERENCE]` element must sit within 5 elements of an anchor tag or cite a source card inline) |
 | `probe init <run_id>` | scaffold an empty run directory |
 | `probe explore <run_id>` | Ink-based 3-pane worktree-style UI for a completed run |
 | `probe audit-deep <run_id> <branch>` | Managed Agents deep audit with bash/grep/file tools, ~$1 |
@@ -124,6 +124,10 @@ Every paragraph, bullet, blockquote, list item, and table row in a generated gui
 | `[TOOL_VERIFIED]` | measured by a Managed Agent via bash/grep/file tools (used only by audit-deep output) |
 
 `src/lint/provenance.ts` enforces this. It also checks headings for evidence language — a heading like "Expected outcomes" or "Results" or "Findings" is rejected even if every paragraph below is correctly tagged.
+
+The tag must be the **final token** of the element (anchored regex). Mid-prose mentions of a tag name do not satisfy the check for their containing paragraph. Tables are parsed with `remark-gfm` so data rows are subject to the same rule as paragraphs, blockquotes, and list items.
+
+**Strict inference mode (opt-in).** `probe lint --strict-inference` adds a further rule: every `[AGENT_INFERENCE]` element must sit within 5 preceding elements of an anchor tag (`SOURCE_CARD`, `SIMULATION_REHEARSAL`, `TOOL_VERIFIED`, or `RESEARCHER_INPUT`) or cite a source card inline. Shipped guidebooks predate this rule and are not expected to pass it; new guidebooks may opt in.
 
 ## Forbidden phrases (voice discipline)
 

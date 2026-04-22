@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" font-family="Inter, -apple-system, sans-serif" font-size="10">
+  <defs>
+    <style>
+      .frame { fill: #fbf9f4; stroke: #1a1d2c; stroke-width: 0.8; rx: 3; ry: 3; }
+      .accent-legibility { fill: #b47b2a; }
+      .accent-blocked { fill: #9e2e22; }
+      .accent-capacity { fill: #3b6ba6; }
+      .accent-agency { fill: #7a2d5a; }
+      .accent-exit { fill: #1f6b1e; }
+      .meta { fill: #555; font-size: 9px; }
+      .field-label { fill: #555; font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+      .body { fill: #1a1d2c; font-size: 10px; }
+      .quote { fill: #1a1d2c; font-size: 9.5px; font-style: italic; }
+      .tag-tool { fill: #1a1d2c; font-weight: 500; font-size: 8.5px; }
+      .score-neg2 { fill: #9e2e22; font-weight: 600; font-size: 14px; }
+      .verdict-blocked { fill: #9e2e22; font-weight: 600; font-size: 11px; }
+      .rule { stroke: #d8d3c5; stroke-width: 0.6; }
+      .card-header { fill: #f0ece4; stroke: #1a1d2c; stroke-width: 0.8; }
+      .tool-verified { fill: #e1f5e0; stroke: #1f6b1e; stroke-width: 0.6; rx: 2; ry: 2; }
+    </style>
+  </defs>
+
+  <!-- Title strip -->
+  <text x="12" y="18" font-size="11.5" font-weight="600" fill="#1a1d2c">Probe — capture-risk audit finding (branch A, demo run)</text>
+  <text x="12" y="32" font-size="9" fill="#555">one finding from the sixteen-pattern library; the −2 score blocks the branch</text>
+
+  <!-- Finding card frame -->
+  <rect x="12" y="48" width="736" height="268" class="frame"/>
+  <rect x="12" y="48" width="736" height="28" class="card-header"/>
+
+  <!-- Card header: pattern id -->
+  <text x="22" y="67" font-weight="600" font-size="11" fill="#1a1d2c">pattern</text>
+  <text x="78" y="67" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="10.5" fill="#1a1d2c">legibility.no_failure_signal</text>
+  <text x="540" y="67" class="field-label">axis</text>
+  <text x="570" y="67" font-weight="600" fill="#b47b2a" font-size="10.5">Legibility</text>
+  <text x="660" y="67" class="field-label">score</text>
+  <text x="700" y="67" class="score-neg2">−2</text>
+
+  <!-- Evidence span field -->
+  <text x="22" y="98" class="field-label">evidence span</text>
+  <text x="106" y="98" class="meta">source: prototype_spec</text>
+  <rect x="22" y="105" width="716" height="72" fill="#f0ece4" rx="2" ry="2"/>
+  <line x1="30" y1="113" x2="30" y2="170" stroke="#b47b2a" stroke-width="2"/>
+  <text x="40" y="122" class="quote">&#8220;The wizard should detect this when the dashboard shows zero violations for an article but the participant's navigation</text>
+  <text x="40" y="136" class="quote">trace shows repeated backward heading navigations (Shift+H) indicating unexpected heading order, which contradicts</text>
+  <text x="40" y="150" class="quote">the clean audit score. This is the most likely way the audit pipeline produces false-negative structural assessments.&#8221;</text>
+
+  <!-- Divider -->
+  <line x1="22" y1="190" x2="738" y2="190" class="rule"/>
+
+  <!-- Rationale field -->
+  <text x="22" y="206" class="field-label">auditor rationale</text>
+  <text x="22" y="222" class="body">The primary measurement instrument silently fails, and the participant — whose navigation is ground truth — has no</text>
+  <text x="22" y="236" class="body">channel to flag failures during the session. The wizard catches these via judgment only, while the analysis plan treats</text>
+  <text x="22" y="250" class="body">axe-core counts as a first-class quantitative variable. A silent-failure mode in the central instrument, acknowledged</text>
+  <text x="22" y="264" class="body">in failure_cases but not resolved, is the canonical fire for this pattern.</text>
+
+  <!-- Bottom bar: verdict + deep audit reference -->
+  <line x1="22" y1="278" x2="738" y2="278" class="rule"/>
+  <text x="22" y="298" class="field-label">branch verdict</text>
+  <text x="110" y="298" class="verdict-blocked">BLOCKED</text>
+  <text x="190" y="298" class="meta">→ WORKSHOP_NOT_RECOMMENDED.md emitted; branch stops progressing</text>
+
+  <!-- Tool-verified badge on the right -->
+  <rect x="568" y="286" width="170" height="18" class="tool-verified"/>
+  <text x="653" y="298" text-anchor="middle" class="tag-tool">[TOOL_VERIFIED] deep audit</text>
+</svg>

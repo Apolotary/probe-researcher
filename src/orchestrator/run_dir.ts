@@ -25,10 +25,33 @@ export async function writePremiseInput(runId: string, premise: string): Promise
   await fs.writeFile(p, body);
 }
 
+/**
+ * Per-run promise chain serializing cost.json read-modify-write sequences.
+ *
+ * Stages 3-7 run across three branches in parallel via Promise.all. Without
+ * serialization, two branches completing simultaneously could both read the
+ * same cost.json, both append their own entry to an in-memory copy, and the
+ * second write would silently discard the first. Chaining each append onto
+ * the previous one guarantees the write sequence is linear per run.
+ */
+const costWriteChains = new Map<string, Promise<void>>();
+
 export async function appendCost(
   runId: string,
   entry: CostLog['stages'][number],
 ): Promise<void> {
+  const prior = costWriteChains.get(runId) ?? Promise.resolve();
+  const next = prior.then(() => writeCostEntry(runId, entry));
+  // Replace the chain's tail with a never-rejecting promise so a single
+  // write failure doesn't poison subsequent appends for the same run.
+  costWriteChains.set(
+    runId,
+    next.catch(() => undefined),
+  );
+  return next;
+}
+
+async function writeCostEntry(runId: string, entry: CostLog['stages'][number]): Promise<void> {
   const p = path.join(runDir(runId), 'cost.json');
   const raw = await fs.readFile(p, 'utf8');
   const log = JSON.parse(raw) as CostLog;

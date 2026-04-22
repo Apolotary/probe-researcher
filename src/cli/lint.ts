@@ -6,6 +6,7 @@ import { checkForbiddenPhrases } from '../lint/forbidden.js';
 interface LintOptions {
   voiceOnly?: boolean;
   provenanceOnly?: boolean;
+  strictInference?: boolean;
 }
 
 export async function lintCommand(file: string, opts: LintOptions): Promise<void> {
@@ -15,7 +16,7 @@ export async function lintCommand(file: string, opts: LintOptions): Promise<void
   let voiceResult: { passed: boolean; violations: string[] } | null = null;
 
   if (!opts.voiceOnly) {
-    provenanceResult = checkProvenance(md);
+    provenanceResult = checkProvenance(md, { strictInference: opts.strictInference });
   }
   if (!opts.provenanceOnly) {
     voiceResult = checkForbiddenPhrases(md);

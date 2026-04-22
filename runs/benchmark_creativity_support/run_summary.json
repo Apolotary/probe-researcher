@@ -3,15 +3,24 @@
   "branches": [
     {
       "branchId": "a",
-      "status": "in_progress"
+      "status": "surviving",
+      "stage": "8_guidebook",
+      "reason": "Passed capture-risk audit and meta-reviewer gates. Chosen for guidebook assembly (first in deterministic order).",
+      "blockingFinding": null
     },
     {
       "branchId": "b",
-      "status": "in_progress"
+      "status": "surviving",
+      "stage": "7d_meta",
+      "reason": "Passed capture-risk audit and meta-reviewer gates.",
+      "blockingFinding": null
     },
     {
       "branchId": "c",
-      "status": "in_progress"
+      "status": "surviving",
+      "stage": "7d_meta",
+      "reason": "Passed capture-risk audit and meta-reviewer gates.",
+      "blockingFinding": null
     }
   ]
 }

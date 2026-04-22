@@ -177,9 +177,14 @@ async function checkInventory(root: string): Promise<CheckResult[]> {
     detail: `${patterns.length}/4 axes`,
   });
 
-  // Run count
+  // Run count — filter out hidden entries, ablation/hallucination subdirs,
+  // and underscore-prefixed scratch directories (test fixtures, tmp runs).
   const runs = (await fs.readdir(path.join(root, 'runs')).catch(() => [])).filter(
-    (f) => !f.startsWith('.') && !f.startsWith('ablation_') && !f.startsWith('hallucination_'),
+    (f) =>
+      !f.startsWith('.') &&
+      !f.startsWith('_') &&
+      !f.startsWith('ablation_') &&
+      !f.startsWith('hallucination_'),
   );
   results.push({
     name: 'Benchmark runs',

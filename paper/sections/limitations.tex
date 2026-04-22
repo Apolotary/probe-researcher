@@ -21,7 +21,7 @@ This section is deliberately long. Naming limitations honestly is the work a pro
 
 \textbf{Pattern applicability check is not implemented.} The capture-risk auditor fires patterns based on trigger heuristics that match the \emph{form} of a feature. The code-review benchmark showed that this can mis-match a manipulation-under-test as an unintended constraint. The \texttt{WORKSHOP\_NOT\_RECOMMENDED} template now asks the human reviewer to confirm the fire; the pattern library itself does not yet include an applicability check.
 
-\textbf{No stored-session retrieval for Managed Agents.} The \texttt{probe audit-deep} command's output is the agent's streamed text response, not the files the agent writes inside its container. The deep audit wrote a richer \texttt{deep\_audit.md} to \texttt{/workspace/branch/} that we did not retrieve. A natural extension is a session-file-download step at the end of the command.
+\textbf{Delimiter-based capture for Managed Agents container files.} The \texttt{probe audit-deep} command cannot directly read files the agent writes inside its managed container. We now use a delimiter-based capture protocol: the system prompt asks the agent to repeat the completed \texttt{deep\_audit.md} inside \texttt{<<PROBE\_DEEP\_AUDIT\_CAPTURE>>} markers at the end of its chat output, which the CLI then extracts and writes locally alongside a full conversation trace. This works but is brittle — an agent that drops or mis-formats the markers falls back to the raw trace. A container-file-download API would be the structural fix.
 
 \subsection{Scope limitations (by design)}
 
@@ -38,7 +38,9 @@ A researcher who uses Probe for an out-of-scope study will get a guidebook that 
 
 \subsection{The \texttt{[AGENT\_INFERENCE]} escape-hatch problem}
 
-The \texttt{[AGENT\_INFERENCE]} tag is the weakest of the eight provenance tags. It certifies that the content is the agent's own reasoning; it does not certify that the reasoning is well-anchored. A stronger system would require \texttt{[AGENT\_INFERENCE]} to cite at least one preceding provenance anchor (e.g., ``inferred from [SOURCE\_CARD:sanders\_stappers\_2014] and [SIMULATION\_REHEARSAL:b\_stage5\_para\_3]''). We have not implemented this. The section-\S\ref{sec:discussion} paragraph on this topic is the full acknowledgment.
+The \texttt{[AGENT\_INFERENCE]} tag is the weakest of the eight provenance tags. It certifies that the content is the agent's own reasoning; it does not certify that the reasoning is well-anchored. A stronger system would require \texttt{[AGENT\_INFERENCE]} to cite at least one preceding provenance anchor (``inferred from \texttt{[SOURCE\_CARD:sanders\_stappers\_2014]}'' or a \texttt{[SIMULATION\_REHEARSAL]} paragraph within a short recency window).
+
+We have now implemented this as an opt-in linter mode: \texttt{probe lint --strict-inference <file>} enforces that every \texttt{[AGENT\_INFERENCE]} element sit within five preceding elements of an anchor tag (one of \texttt{SOURCE\_CARD}, \texttt{SIMULATION\_REHEARSAL}, \texttt{TOOL\_VERIFIED}, or \texttt{RESEARCHER\_INPUT}), or else cite a source card inline. Running this mode against the demo-run guidebook surfaces thirty-two violations: thirty-two sites where a load-bearing inference is not within reach of a grounded element. This is the specific weakness the advisors predicted. The violations are not bugs in the linter; they are accurate reports that the Stage 8 assembler, operating under a weaker rule, produced text whose inferences drift away from their evidence. We have not re-generated the shipped guidebook under the stricter rule because the demo narrative depends on the existing artifacts; a future run with \texttt{--strict-inference} fed back into the Stage 8 prompt should produce a visibly tighter guidebook.
 
 \subsection{Cost limitations}
 

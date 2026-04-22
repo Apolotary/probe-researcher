@@ -50,6 +50,7 @@ program
   .argument('<file>', 'guidebook markdown file to lint')
   .option('--voice-only', 'only run forbidden-phrase check', false)
   .option('--provenance-only', 'only run provenance tag check', false)
+  .option('--strict-inference', 'require every [AGENT_INFERENCE] element to sit within 5 preceding elements of an anchor tag (SOURCE_CARD, SIMULATION_REHEARSAL, TOOL_VERIFIED, RESEARCHER_INPUT) or cite a source card inline — opt-in rigor check from PROMPT_FOR_LLM_ADVISORS.md §3', false)
   .action(lintCommand);
 
 program

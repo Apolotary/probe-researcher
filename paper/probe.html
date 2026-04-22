@@ -780,7 +780,26 @@ pattern, quotes the evidence span, lists the findings that together
 carried the verdict, and suggests what specific revision would unblock
 the branch. The report ends with a <code>[HUMAN_REQUIRED]</code> block
 asking the researcher to confirm the pattern fired correctly rather than
-flagged a manipulation-under-test as paternalism.</p>
+flagged a manipulation-under-test as paternalism. Figure <a
+href="#fig:audit_finding" data-reference-type="ref"
+data-reference="fig:audit_finding">2</a> shows the exact shape of a
+fired finding: pattern id, axis, score, a quoted evidence span from the
+prototype spec, the auditor’s rationale, and the resulting branch
+verdict. The evidence span is the structural feature that distinguishes
+the audit from general-purpose critique — a quoted passage the
+researcher can open and verify, not a free-form objection.</p>
+<figure id="fig:audit_finding">
+<img src="figures/audit_finding.svg" />
+<figcaption>A fired capture-risk pattern from branch A of the demo run.
+The pattern <code>legibility.no_failure_signal</code> scores the branch
+at <span class="math inline">−2</span>, which the verdict rule escalates
+to <code>BLOCKED</code>. The evidence span is a verbatim quote from the
+prototype spec — the auditor must ground the finding in a passage the
+researcher can open, rather than in a rephrased summary. The same
+evidence span is what the <code>[TOOL_VERIFIED]</code> deep-audit then
+measures quantitatively in the <code>probe audit-deep</code>
+extension.</figcaption>
+</figure>
 <h2 id="adversarial-review-panel">Adversarial review panel</h2>
 <p>Stage 7 runs three reviewer agents in sequence against the same
 branch context. Each agent operates under a system prompt that forbids
@@ -1363,12 +1382,16 @@ that this can mis-match a manipulation-under-test as an unintended
 constraint. The <code>WORKSHOP_NOT_RECOMMENDED</code> template now asks
 the human reviewer to confirm the fire; the pattern library itself does
 not yet include an applicability check.</p>
-<p><strong>No stored-session retrieval for Managed Agents.</strong> The
-<code>probe audit-deep</code> command’s output is the agent’s streamed
-text response, not the files the agent writes inside its container. The
-deep audit wrote a richer <code>deep_audit.md</code> to
-<code>/workspace/branch/</code> that we did not retrieve. A natural
-extension is a session-file-download step at the end of the command.</p>
+<p><strong>Delimiter-based capture for Managed Agents container
+files.</strong> The <code>probe audit-deep</code> command cannot
+directly read files the agent writes inside its managed container. We
+now use a delimiter-based capture protocol: the system prompt asks the
+agent to repeat the completed <code>deep_audit.md</code> inside
+<code>&lt;&lt;PROBE_DEEP_AUDIT_CAPTURE&gt;&gt;</code> markers at the end
+of its chat output, which the CLI then extracts and writes locally
+alongside a full conversation trace. This works but is brittle — an
+agent that drops or mis-formats the markers falls back to the raw trace.
+A container-file-download API would be the structural fix.</p>
 <h2 id="scope-limitations-by-design">Scope limitations (by design)</h2>
 <p>The project’s README states the scope as screen-based interactive
 research: web, desktop, and mobile user interfaces; accessibility
@@ -1400,12 +1423,26 @@ negatives are inevitable.</p>
 provenance tags. It certifies that the content is the agent’s own
 reasoning; it does not certify that the reasoning is well-anchored. A
 stronger system would require <code>[AGENT_INFERENCE]</code> to cite at
-least one preceding provenance anchor (e.g., “inferred from
-[SOURCE_CARD:sanders_stappers_2014] and
-[SIMULATION_REHEARSAL:b_stage5_para_3]”). We have not implemented this.
-The section-§<a href="#sec:discussion" data-reference-type="ref"
-data-reference="sec:discussion">6</a> paragraph on this topic is the
-full acknowledgment.</p>
+least one preceding provenance anchor (“inferred from
+<code>[SOURCE_CARD:sanders_stappers_2014]</code>” or a
+<code>[SIMULATION_REHEARSAL]</code> paragraph within a short recency
+window).</p>
+<p>We have now implemented this as an opt-in linter mode:
+<code>probe lint --strict-inference &lt;file&gt;</code> enforces that
+every <code>[AGENT_INFERENCE]</code> element sit within five preceding
+elements of an anchor tag (one of <code>SOURCE_CARD</code>,
+<code>SIMULATION_REHEARSAL</code>, <code>TOOL_VERIFIED</code>, or
+<code>RESEARCHER_INPUT</code>), or else cite a source card inline.
+Running this mode against the demo-run guidebook surfaces thirty-two
+violations: thirty-two sites where a load-bearing inference is not
+within reach of a grounded element. This is the specific weakness the
+advisors predicted. The violations are not bugs in the linter; they are
+accurate reports that the Stage 8 assembler, operating under a weaker
+rule, produced text whose inferences drift away from their evidence. We
+have not re-generated the shipped guidebook under the stricter rule
+because the demo narrative depends on the existing artifacts; a future
+run with <code>--strict-inference</code> fed back into the Stage 8
+prompt should produce a visibly tighter guidebook.</p>
 <h2 id="cost-limitations">Cost limitations</h2>
 <p>A full run costs approximately six dollars and takes twenty-five
 minutes of wall-clock time. The marginal cost scales roughly linearly

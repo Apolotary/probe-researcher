@@ -51,6 +51,14 @@ voice lint
 
 This is the load-bearing piece. It walks the markdown AST and requires a tag on every paragraph, list item, blockquote, and table row. Try intentionally breaking it — edit the guidebook, delete one tag, re-run the lint. It should fail on the specific line.
 
+## Step 3b — Opt-in the stricter inference rule (15 seconds)
+
+```bash
+npx probe lint --strict-inference runs/demo_run/PROBE_GUIDEBOOK.md
+```
+
+Expected: fails with 32 violations. This is by design — the shipped guidebook passes the default lint (every element has a provenance tag at its end) but the opt-in rule requires every `[AGENT_INFERENCE]` element to sit within 5 preceding elements of an anchor tag (`SOURCE_CARD`, `SIMULATION_REHEARSAL`, `TOOL_VERIFIED`, `RESEARCHER_INPUT`) or cite a source card inline. Running it against the shipped artifact surfaces 32 sites where a load-bearing inference drifts away from its evidence — the specific "AGENT_INFERENCE is an escape hatch" concern the project's LLM advisors raised. The rule is implemented and tested; future Stage 8 prompts can opt in.
+
 ## Step 4 — See a blocked branch (1 minute of reading)
 
 ```bash

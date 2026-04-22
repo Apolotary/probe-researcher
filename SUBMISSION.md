@@ -33,13 +33,13 @@ Ranked by fit:
 - 9 agent system prompts
 - 12 verified source cards with resolved DOIs
 - 16 capture-risk patterns across 4 axes
-- 29 tests (linter, parser, CLI flag)
+- 49 tests (provenance linter with anchored tags and GFM table enforcement, forbidden-phrase linter, CLI flag parsing, cost-log race under `Promise.all`, run-id schema, deep-audit capture extractor, opt-in strict-inference rule for `[AGENT_INFERENCE]`)
 - Markdown-AST provenance linter + forbidden-phrase linter
 - 3 benchmark runs on different research domains (accessibility, code review, creativity support)
 - Opus 4.7 vs. Sonnet 4.6 ablation on the methodologist reviewer
 - Hallucination test with planted fake citation (PASSED)
 - Managed Agents deep-audit integration (21 tool-call demo session)
-- 17-page arXiv paper with 31 verified citations
+- 17-page arXiv paper with 33 verified citations and two figures (pipeline DAG + concrete capture-risk audit finding)
 
 ## Declared pre-existing
 

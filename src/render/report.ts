@@ -196,7 +196,9 @@ async function buildCombinedMarkdown(runId: string): Promise<string> {
   }
 
   // Reviewer panel (surviving branch)
-  const surviving = branches.find((b) => b.status === 'in_progress' || b.status === 'completed');
+  const surviving = branches.find(
+    (b) => b.status === 'surviving' || b.status === 'in_progress' || b.status === 'completed',
+  );
   if (surviving) {
     const bd = branchDir(runId, surviving.branchId);
     const reviewsDir = path.join(bd, 'reviews');

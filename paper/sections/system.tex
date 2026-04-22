@@ -41,7 +41,14 @@ The capture-risk auditor is the project's load-bearing normative step. It fires 
 
 The verdict rule is strict: any minus-two finding produces \texttt{BLOCKED}; two or more minus-ones produce \texttt{REVISION\_REQUIRED}; otherwise \texttt{PASSED}. The orchestrator computes the verdict from the findings, overwriting any inconsistent self-report by the model. Without this override the auditor's own arithmetic drifted in roughly one in three development trials. The model does pattern judgment and evidence-span selection; the orchestrator handles the sum.
 
-A minus-two finding triggers a \texttt{WORKSHOP\_NOT\_RECOMMENDED.md} report that names the fired pattern, quotes the evidence span, lists the findings that together carried the verdict, and suggests what specific revision would unblock the branch. The report ends with a \texttt{[HUMAN\_REQUIRED]} block asking the researcher to confirm the pattern fired correctly rather than flagged a manipulation-under-test as paternalism.
+A minus-two finding triggers a \texttt{WORKSHOP\_NOT\_RECOMMENDED.md} report that names the fired pattern, quotes the evidence span, lists the findings that together carried the verdict, and suggests what specific revision would unblock the branch. The report ends with a \texttt{[HUMAN\_REQUIRED]} block asking the researcher to confirm the pattern fired correctly rather than flagged a manipulation-under-test as paternalism. Figure \ref{fig:audit_finding} shows the exact shape of a fired finding: pattern id, axis, score, a quoted evidence span from the prototype spec, the auditor's rationale, and the resulting branch verdict. The evidence span is the structural feature that distinguishes the audit from general-purpose critique --- a quoted passage the researcher can open and verify, not a free-form objection.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{figures/audit_finding.svg}
+\caption{A fired capture-risk pattern from branch A of the demo run. The pattern \texttt{legibility.no\_failure\_signal} scores the branch at $-2$, which the verdict rule escalates to \texttt{BLOCKED}. The evidence span is a verbatim quote from the prototype spec --- the auditor must ground the finding in a passage the researcher can open, rather than in a rephrased summary. The same evidence span is what the \texttt{[TOOL\_VERIFIED]} deep-audit then measures quantitatively in the \texttt{probe audit-deep} extension.}
+\label{fig:audit_finding}
+\end{figure}
 
 \subsection{Adversarial review panel}
 

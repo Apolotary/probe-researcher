@@ -42,6 +42,9 @@ export async function runsCommand(): Promise<void> {
 
   const rows: RunRow[] = [];
   for (const e of entries) {
+    // Skip hidden entries, ablation/hallucination subtrees, and
+    // underscore-prefixed scratch directories (test fixtures, tmp runs).
+    if (e.startsWith('.') || e.startsWith('_')) continue;
     const runPath = path.join(runsDir, e);
     const stat = await fs.stat(runPath).catch(() => null);
     if (!stat?.isDirectory()) continue;
@@ -187,7 +190,9 @@ async function readRunMetadata(runPath: string, runId: string): Promise<RunRow |
 
   const guidebookExists = await pathExists(path.join(runPath, 'PROBE_GUIDEBOOK.md'));
 
-  const survivingCount = branches.filter((b) => b.status === 'completed' || b.status === 'in_progress').length;
+  const survivingCount = branches.filter(
+    (b) => b.status === 'surviving' || b.status === 'completed' || b.status === 'in_progress',
+  ).length;
   const blockedCount = branches.filter((b) => b.status === 'blocked').length;
   const failedCount = branches.filter((b) => b.status === 'failed').length;
 
