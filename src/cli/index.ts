@@ -42,6 +42,7 @@ program
   .option('--run-id <id>', 'override auto-generated run id')
   .option('--skip <stages>', 'comma-separated stage numbers to skip', '')
   .option('--no-novelty', 'skip the novelty hawk reviewer (stage 7c)')
+  .option('--step', 'pause after each stage for user review; opens $EDITOR on demand to edit the just-produced artifact before the next stage reads it')
   .action(runCommand);
 
 program

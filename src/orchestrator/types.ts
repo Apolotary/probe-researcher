@@ -5,6 +5,13 @@ export interface RunOptions {
   branchCount: number;
   /** Include the novelty hawk reviewer in stage 7. Default true. */
   includeNovelty?: boolean;
+  /**
+   * `--step` mode. After each stage completes, pause and ask the user
+   * whether to continue, edit the just-produced artifact, or quit. Lets
+   * the user shape each stage's output before the next one spends API
+   * credit on a downstream artifact grounded in it.
+   */
+  stepMode?: boolean;
 }
 
 export type StageId =

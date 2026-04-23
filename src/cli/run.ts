@@ -13,6 +13,8 @@ interface RunCommandOptions {
    * `undefined` (meaning the flag was not passed), which we treat as true.
    */
   novelty?: boolean;
+  /** `--step` mode: pause after each stage for user approval/edit. */
+  step?: boolean;
 }
 
 export async function runCommand(
@@ -32,6 +34,7 @@ export async function runCommand(
     branchCount: 3, // schema enforces a/b/c enum; not configurable for now
     // opts.novelty === false only when --no-novelty was passed.
     includeNovelty: opts.novelty !== false,
+    stepMode: opts.step === true,
   };
 
   // Logo banner — suppress on narrow terminals.

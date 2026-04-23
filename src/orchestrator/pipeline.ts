@@ -14,6 +14,7 @@ import { runStageGuidebook } from './stages/stage8_guidebook.js';
 import { branchColor, palette, emojis } from '../ui/theme.js';
 import { renderBanner, type StageState } from '../ui/pipeline_banner.js';
 import * as stageSummary from '../ui/stage_summary.js';
+import { pauseBetweenStages, type StepChoice } from './step_pause.js';
 import {
   type BranchState,
   type StageStatesMap,
@@ -50,6 +51,36 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
 
   showBanner(stageStates);
 
+  const stepMode = options.stepMode === true;
+  let branchIdsForPause: string[] = [];
+  // Per-branch state map — survives stages 3-7. Declared up here (not
+  // after Stage 2) so the step() helper's userQuit path always has a
+  // value to pass to finishRun, even if the user quits before Stage 2.
+  let states = new Map<string, BranchState>();
+
+  /**
+   * Called after each stage's preview + footer. In step mode, asks the
+   * user what to do next. Returns true if the pipeline should continue,
+   * false if the user chose to quit. May also mutate skip to jump past
+   * intermediate stages.
+   */
+  const step = async (stageId: string): Promise<boolean> => {
+    if (!stepMode) return true;
+    const choice: StepChoice = await pauseBetweenStages({
+      runId,
+      stageId,
+      branchIds: branchIdsForPause,
+    });
+    if (choice.kind === 'quit') return false;
+    if (choice.kind === 'skip-to') {
+      const currentNum = parseInt(stageId.match(/^(\d+)/)?.[1] ?? '0', 10);
+      for (let s = currentNum + 1; s < choice.stageNumber; s++) {
+        skip.add(String(s));
+      }
+    }
+    return true;
+  };
+
   // Stage 1 — single call, not per-branch.
   if (!skip.has('1')) {
     await runSingleStage({
@@ -63,6 +94,7 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
         await stageSummary.runningTotals(runId);
       },
     });
+    if (!(await step('1_premise'))) return userQuit(runId, states, stageStates);
   }
 
   // Stage 2 — single call, but spawns N branches.
@@ -85,40 +117,46 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
         await stageSummary.runningTotals(runId);
       },
     });
+    branchIdsForPause = branchIds;
+    if (!(await step('2_ideator'))) return userQuit(runId, states, stageStates);
   } else {
     branchIds = await listBranches(runDir(runId));
+    branchIdsForPause = branchIds;
   }
 
-  // Per-branch state map — survives stages 3-7.
-  const states = new Map<string, BranchState>(
+  // Populate the per-branch state map now that branchIds are known.
+  states = new Map<string, BranchState>(
     branchIds.map((id) => [id, { branchId: id, status: 'in_progress' }]),
   );
 
   // Stages 3-5 — per-branch, no verdict (outcome is ok / failed).
   if (!skip.has('3')) {
-    await perBranchNoVerdict({ states, stageId: '3_literature', stageStates, fn: (id) => runStageLiterature({ runId, branchId: id }) });
+    await perBranchNoVerdict({ states: states, stageId: '3_literature', stageStates, fn: (id) => runStageLiterature({ runId, branchId: id }) });
     await stageSummary.previewLiterature(runId, branchIds);
     await stageSummary.stageFooter(runId, '3_');
     await stageSummary.runningTotals(runId);
+    if (!(await step('3_literature'))) return userQuit(runId, states, stageStates);
   }
   if (!skip.has('4')) {
-    await perBranchNoVerdict({ states, stageId: '4_prototype', stageStates, fn: (id) => runStagePrototype({ runId, branchId: id }) });
+    await perBranchNoVerdict({ states: states, stageId: '4_prototype', stageStates, fn: (id) => runStagePrototype({ runId, branchId: id }) });
     await stageSummary.previewPrototype(runId, branchIds);
     await stageSummary.stageFooter(runId, '4_');
     await stageSummary.runningTotals(runId);
+    if (!(await step('4_prototype'))) return userQuit(runId, states, stageStates);
   }
   if (!skip.has('5')) {
-    await perBranchNoVerdict({ states, stageId: '5_simulator', stageStates, fn: (id) => runStageSimulator({ runId, branchId: id }) });
+    await perBranchNoVerdict({ states: states, stageId: '5_simulator', stageStates, fn: (id) => runStageSimulator({ runId, branchId: id }) });
     await stageSummary.previewSimulator(runId, branchIds);
     await stageSummary.stageFooter(runId, '5_');
     await stageSummary.runningTotals(runId);
+    if (!(await step('5_simulator'))) return userQuit(runId, states, stageStates);
   }
 
   // Stage 6 — per-branch with verdict. -2 finding → BLOCKED → WORKSHOP_NOT_RECOMMENDED.
   if (!skip.has('6')) {
     await perBranchWithVerdict({
       runId,
-      states,
+      states: states,
       stageId: '6_audit',
       stageStates,
       fn: (id) => runStageAudit({ runId, branchId: id }),
@@ -130,13 +168,14 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
     await stageSummary.previewAudit(runId, branchIds);
     await stageSummary.stageFooter(runId, '6_');
     await stageSummary.runningTotals(runId);
+    if (!(await step('6_audit'))) return userQuit(runId, states, stageStates);
   }
 
   // Stage 7 — per-branch with verdict. meta-reviewer reject → BLOCKED.
   if (!skip.has('7')) {
     await perBranchWithVerdict({
       runId,
-      states,
+      states: states,
       stageId: '7d_meta',
       stageStates,
       fn: (id) => runStageReviewers({ runId, branchId: id, includeNovelty: options.includeNovelty ?? true }),
@@ -148,6 +187,7 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
     await stageSummary.previewReviewers(runId, branchIds);
     await stageSummary.stageFooter(runId, '7');
     await stageSummary.runningTotals(runId);
+    if (!(await step('7d_meta'))) return userQuit(runId, states, stageStates);
   }
 
   // Stage 8 — guidebook assembly runs on the first surviving branch.
@@ -281,6 +321,36 @@ async function finishRun(args: {
     status: 'completed',
     survivingBranches: survivors,
     blockedBranches: blocked.map((s) => s.branchId),
+  };
+}
+
+/**
+ * Called when the user chose 'q' at a step-mode pause. Writes the run
+ * summary with whatever state has been built so far, shows the banner
+ * with the partial completion, and returns a 'failed' PipelineResult
+ * so the CLI's caller knows the run didn't complete normally. All
+ * artifacts produced before the quit are preserved.
+ */
+async function userQuit(
+  runId: string,
+  states: Map<string, BranchState>,
+  stageStates: StageStatesMap,
+): Promise<PipelineResult> {
+  console.log('');
+  console.log(chalk.hex(palette.revision)(`▸ user requested quit — saving partial state`));
+  await writeRunSummary(runId, states);
+  showSummary(stageStates);
+  console.log('');
+  console.log(chalk.hex(palette.dim)(`  artifacts preserved under runs/${runId}/`));
+  return {
+    runId,
+    status: 'failed',
+    survivingBranches: Array.from(states.values())
+      .filter((s) => s.status === 'in_progress' || s.status === 'surviving')
+      .map((s) => s.branchId),
+    blockedBranches: Array.from(states.values())
+      .filter((s) => s.status === 'blocked')
+      .map((s) => s.branchId),
   };
 }
 
