@@ -4,7 +4,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { callClaude } from '../../anthropic/client.js';
 import { parseJsonFromModel, validateAgainst } from '../../schema/validate.js';
-import { agentPromptPath, branchDir, runDir } from '../../util/paths.js';
+import { agentPromptPath, branchDir, runDir, projectRoot } from '../../util/paths.js';
 import { writeJson } from '../stage_util.js';
 
 const pExecFile = promisify(execFile);
@@ -134,8 +134,16 @@ async function ensureWorktree(runId: string, branchId: string, dir: string): Pro
   const stripped = runId.replace(/^(backlog_|adversarial_|benchmark_|import_|_?test_)/, '');
   const slug = stripped.slice(-16).replace(/^[-_]+/, '');
   const branchName = `run-${slug}-${branchId}`;
+  // CRITICAL: pin cwd to the project root. Without this, `git worktree add`
+  // runs from wherever the user invoked `probe` (which via npm link is
+  // often an unrelated directory like ~/probe-test), and git complains
+  // "not a git repository". The project root is always the probe-researcher
+  // clone, which either is a git repo or gets one via ensureRunDir's
+  // auto-init path in src/orchestrator/run_dir.ts.
   try {
-    await pExecFile('git', ['worktree', 'add', '-B', branchName, dir, 'HEAD']);
+    await pExecFile('git', ['worktree', 'add', '-B', branchName, dir, 'HEAD'], {
+      cwd: projectRoot(),
+    });
   } catch (e) {
     const msg = String((e as Error).message);
     if (!/already exists|is not empty|fatal: invalid reference/.test(msg)) {
