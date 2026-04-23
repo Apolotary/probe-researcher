@@ -86,6 +86,10 @@ export interface PerBranchNoVerdictArgs {
 
 /**
  * Per-branch stage with no verdict (stages 3, 4, 5). Outcome is ok / failed.
+ * Prints live per-branch completion lines as promises resolve so the user
+ * can see which branches are still running while Promise.all awaits the
+ * slowest one — more informative than a single global spinner for these
+ * stages, which can take 1-4 minutes per branch in parallel.
  */
 export async function perBranchNoVerdict(args: PerBranchNoVerdictArgs): Promise<void> {
   const { states, stageId, stageStates, fn } = args;
@@ -96,28 +100,38 @@ export async function perBranchNoVerdict(args: PerBranchNoVerdictArgs): Promise<
   }
   const spinner = stageSpinner(stageId);
   markStage(stageStates, stageId, 'active');
-  const outcomes: Array<{ id: string; ok: boolean; err?: string }> = [];
+
+  // In-flight count ticks down as branches finish. Updates the spinner
+  // text so the user sees "2/3 branches done…" while the last one runs.
+  let remaining = active.length;
+  const startAt = Date.now();
+  const outcomes: Array<{ id: string; ok: boolean; err?: string; elapsed: number }> = [];
   await Promise.all(
     active.map(async (id) => {
+      const branchStart = Date.now();
       try {
         await fn(id);
-        outcomes.push({ id, ok: true });
+        const elapsed = Date.now() - branchStart;
+        outcomes.push({ id, ok: true, elapsed });
+        remaining--;
+        // Pause spinner, print the done line above it, resume.
+        const glyph = branchGlyph(id);
+        spinner.text = chalk.hex(palette.stage)(`${stageId} · ${active.length - remaining}/${active.length} branches done`);
+        console.log(`   ${glyph}  ${chalk.hex(palette.passed)('✓')} ${chalk.hex(palette.dim)(`(${(elapsed / 1000).toFixed(0)}s)`)}`);
       } catch (e) {
+        const elapsed = Date.now() - branchStart;
         markFailed(states, id, stageId, e);
-        outcomes.push({ id, ok: false, err: String((e as Error).message).slice(0, 120) });
+        outcomes.push({ id, ok: false, err: String((e as Error).message).slice(0, 120), elapsed });
+        remaining--;
+        const glyph = branchGlyph(id);
+        spinner.text = chalk.hex(palette.stage)(`${stageId} · ${active.length - remaining}/${active.length} branches done (1 failed)`);
+        console.log(`   ${glyph}  ${chalk.hex(palette.blocked)('✗')} ${chalk.hex(palette.dim)(`(${(elapsed / 1000).toFixed(0)}s) ${outcomes.at(-1)?.err ?? ''}`)}`);
       }
     }),
   );
   markStage(stageStates, stageId, 'done');
-  spinner.succeed(stageDoneLabel(stageId, `${active.length} branch${active.length === 1 ? '' : 'es'}`));
-  for (const out of outcomes.sort((a, b) => a.id.localeCompare(b.id))) {
-    const glyph = branchGlyph(out.id);
-    if (out.ok) {
-      console.log(`   ${glyph}  ${chalk.hex(palette.passed)('ok')}`);
-    } else {
-      console.log(`   ${glyph}  ${chalk.hex(palette.blocked)('failed')}  ${chalk.hex(palette.dim)(out.err ?? '')}`);
-    }
-  }
+  const totalSec = ((Date.now() - startAt) / 1000).toFixed(0);
+  spinner.succeed(stageDoneLabel(stageId, `${active.length} branch${active.length === 1 ? '' : 'es'} · ${totalSec}s wall`));
 }
 
 export interface PerBranchWithVerdictArgs {
@@ -140,6 +154,8 @@ export interface PerBranchWithVerdictArgs {
 /**
  * Per-branch stage with a string verdict (stages 6 and 7). Blocking verdicts
  * transition the branch to blocked status and emit WORKSHOP_NOT_RECOMMENDED.
+ * Same live-progress treatment as perBranchNoVerdict — per-branch verdict
+ * lines print as they resolve, spinner text updates with the count.
  */
 export async function perBranchWithVerdict(args: PerBranchWithVerdictArgs): Promise<void> {
   const { runId, states, stageId, stageStates, fn, blockingVerdicts, blockedReason, blockingFinding, doneLabel } = args;
@@ -150,12 +166,14 @@ export async function perBranchWithVerdict(args: PerBranchWithVerdictArgs): Prom
   }
   const spinner = stageSpinner(stageId);
   markStage(stageStates, stageId, 'active');
-  const outcomes: Array<{ id: string; verdict: string }> = [];
+
+  let remaining = active.length;
+  const startAt = Date.now();
   await Promise.all(
     active.map(async (id) => {
+      const branchStart = Date.now();
       try {
         const verdict = await fn(id);
-        outcomes.push({ id, verdict });
         if (blockingVerdicts.includes(verdict)) {
           const state = states.get(id);
           if (state) {
@@ -171,19 +189,33 @@ export async function perBranchWithVerdict(args: PerBranchWithVerdictArgs): Prom
             blockingFinding,
           });
         }
+        remaining--;
+        const elapsed = Date.now() - branchStart;
+        const glyph = branchGlyph(id);
+        const vcolor = verdictColor(verdict);
+        const tag = blockingVerdicts.includes(verdict) ? ` ${emojis.blocked} WORKSHOP_NOT_RECOMMENDED.md` : '';
+        spinner.text = chalk.hex(palette.stage)(
+          `${stageId} · ${active.length - remaining}/${active.length} branches ${doneLabel}`,
+        );
+        console.log(
+          `   ${glyph}  ${vcolor(verdict)}${chalk.hex(palette.dim)(tag)} ${chalk.hex(palette.dim)(`(${(elapsed / 1000).toFixed(0)}s)`)}`,
+        );
       } catch (e) {
         markFailed(states, id, stageId, e);
-        outcomes.push({ id, verdict: 'FAILED' });
+        remaining--;
+        const elapsed = Date.now() - branchStart;
+        const glyph = branchGlyph(id);
+        spinner.text = chalk.hex(palette.stage)(
+          `${stageId} · ${active.length - remaining}/${active.length} branches ${doneLabel} (1 failed)`,
+        );
+        console.log(
+          `   ${glyph}  ${chalk.hex(palette.blocked)('FAILED')} ${chalk.hex(palette.dim)(`(${(elapsed / 1000).toFixed(0)}s) ${String((e as Error).message).slice(0, 100)}`)}`,
+        );
       }
     }),
   );
   markStage(stageStates, stageId, 'done');
-  spinner.succeed(stageDoneLabel(stageId, `${active.length} branches ${doneLabel}`));
-  for (const out of outcomes.sort((a, b) => a.id.localeCompare(b.id))) {
-    const glyph = branchGlyph(out.id);
-    const vcolor = verdictColor(out.verdict);
-    const tag = blockingVerdicts.includes(out.verdict) ? ` ${emojis.blocked} WORKSHOP_NOT_RECOMMENDED.md` : '';
-    console.log(`   ${glyph}  ${vcolor(out.verdict)}${chalk.hex(palette.dim)(tag)}`);
-  }
+  const totalSec = ((Date.now() - startAt) / 1000).toFixed(0);
+  spinner.succeed(stageDoneLabel(stageId, `${active.length} branches ${doneLabel} · ${totalSec}s wall`));
 }
 

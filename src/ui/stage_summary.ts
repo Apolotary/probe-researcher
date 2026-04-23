@@ -183,3 +183,79 @@ export async function previewGuidebook(runId: string): Promise<void> {
     /* skip */
   }
 }
+
+interface CostEntry {
+  stage: string;
+  branch_id?: string;
+  model: string;
+  duration_ms: number;
+  usd: number;
+  input_tokens: number;
+  output_tokens: number;
+}
+
+/**
+ * Running-total footer printed between stages. Reads cost.json and
+ * reports elapsed wall-time + spend + completed-stage count. Gives
+ * the user a live sense of "where are we in the budget" without
+ * needing to open another terminal.
+ */
+export async function runningTotals(runId: string, totalStages = 8): Promise<void> {
+  const d = await readJson<{ stages?: CostEntry[]; totals?: { usd?: number; input_tokens?: number; output_tokens?: number } }>(
+    path.join(runDir(runId), 'cost.json'),
+  );
+  if (!d?.stages) return;
+  const totalUsd = d.totals?.usd ?? 0;
+  const totalMs = d.stages.reduce((a, s) => a + (s.duration_ms ?? 0), 0);
+  // "7a_methodologist" / "7b_accessibility" / "7d_meta" all roll up to "7".
+  const uniqueStages = new Set(
+    d.stages.map((s) => s.stage.match(/^(\d+)/)?.[1] ?? s.stage),
+  );
+  const done = uniqueStages.size;
+  console.log(
+    `${INDENT}${chalk.hex(palette.dim)('─── progress:')} ` +
+      `${chalk.hex(palette.stage)(`${done}/${totalStages}`)} ${chalk.hex(palette.dim)('stages ·')} ` +
+      `${chalk.hex(palette.stage)(fmtDuration(totalMs))} ${chalk.hex(palette.dim)('elapsed ·')} ` +
+      `${chalk.hex(palette.passed)('$' + totalUsd.toFixed(2))} ${chalk.hex(palette.dim)('spent ───')}`,
+  );
+  console.log('');
+}
+
+/**
+ * Per-stage footer: what did THIS stage cost and how long did it take?
+ * Reads the cost entries whose `stage` field starts with the given id
+ * and sums them. Handles both single-call stages (1, 2, 8) and
+ * per-branch stages (3-7) that have one entry per branch.
+ */
+export async function stageFooter(runId: string, stageIdPrefix: string): Promise<void> {
+  const d = await readJson<{ stages?: CostEntry[] }>(path.join(runDir(runId), 'cost.json'));
+  if (!d?.stages) return;
+  const matching = d.stages.filter((s) => s.stage.startsWith(stageIdPrefix));
+  if (matching.length === 0) return;
+  const usd = matching.reduce((a, s) => a + (s.usd ?? 0), 0);
+  const ms = matching.reduce((a, s) => a + (s.duration_ms ?? 0), 0);
+  const models = new Set(matching.map((s) => s.model));
+  const modelLabel = [...models].map(shortModelName).join(', ');
+  console.log(
+    `${INDENT}${chalk.hex(palette.dim)(
+      `took ${fmtDuration(ms)} · $${usd.toFixed(2)} · ${modelLabel}${matching.length > 1 ? ` · ${matching.length} calls` : ''}`,
+    )}`,
+  );
+}
+
+function shortModelName(m: string): string {
+  if (m.startsWith('claude-opus')) return 'Opus 4.7';
+  if (m.startsWith('claude-sonnet')) return 'Sonnet 4.6';
+  if (m.startsWith('gpt-5')) return 'GPT-5';
+  if (m.startsWith('gpt-4')) return 'GPT-4';
+  return m;
+}
+
+function fmtDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`;
+  const s = ms / 1000;
+  if (s < 60) return `${s.toFixed(1)}s`;
+  const m = Math.floor(s / 60);
+  const rem = Math.round(s - m * 60);
+  return `${m}m${String(rem).padStart(2, '0')}s`;
+}
