@@ -338,40 +338,73 @@ const state = {
   editing: false,
 };
 
+// Event delegation — one listener per sidebar section, using data-action
+// attributes so clicks fire regardless of which inner child was hit.
+document.addEventListener('DOMContentLoaded', () => {
+  const bind = (id, handler) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', (ev) => {
+      let t = ev.target;
+      while (t && t !== el && !t.dataset?.action) t = t.parentElement;
+      if (t && t.dataset?.action) handler(t.dataset);
+    });
+  };
+  bind('run-list', (d) => loadRun(d.id));
+  bind('stage-nav', (d) => {
+    if (d.rel) loadArtifact(d.rel);
+    else renderOverview();
+  });
+  bind('branch-nav', (d) => {
+    if (d.branch) renderBranchDetail(d.branch);
+  });
+});
+
 async function loadRuns() {
-  const res = await fetch('/api/runs');
-  const { runs } = await res.json();
-  state.runs = runs;
-  renderRunList();
+  try {
+    const res = await fetch('/api/runs');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const { runs } = await res.json();
+    state.runs = runs;
+    renderRunList();
+  } catch (e) {
+    document.getElementById('run-list').innerHTML = '<div style="color:var(--accent-warm)">Failed to load runs: ' + esc(String(e)) + '</div>';
+  }
 }
 
 function renderRunList() {
   const el = document.getElementById('run-list');
   if (state.runs.length === 0) {
-    el.innerHTML = '<div style="color:var(--fg-faint);font-style:italic;padding:8px 0">No runs in runs/. Start one with <code>probe run \\"your premise\\"</code>.</div>';
+    el.innerHTML = '<div style="color:var(--fg-faint);font-style:italic;padding:8px 0">No runs in runs/. Start one with <code>probe run "your premise"</code>.</div>';
     return;
   }
   el.innerHTML = state.runs.map(r => \`
-    <a class="run-entry \${r.id === state.currentRunId ? 'active' : ''}" data-id="\${r.id}">
-      <span class="run-id">\${r.id.length > 36 ? r.id.slice(0, 36) + '…' : r.id}</span>
-      <span class="run-premise">\${esc(r.premise.slice(0, 80))}</span>
-    </a>
+    <div class="run-entry \${r.id === state.currentRunId ? 'active' : ''}" data-action="pick-run" data-id="\${esc(r.id)}" role="button" tabindex="0">
+      <span class="run-id">\${esc(r.id.length > 36 ? r.id.slice(0, 36) + '…' : r.id)}</span>
+      <span class="run-premise">\${esc((r.premise || '').slice(0, 80))}</span>
+    </div>
   \`).join('');
-  el.querySelectorAll('[data-id]').forEach(a => a.addEventListener('click', () => loadRun(a.dataset.id)));
 }
 
 async function loadRun(id) {
   state.currentRunId = id;
   state.currentArtifactPath = null;
   state.editing = false;
-  const res = await fetch('/api/runs/' + encodeURIComponent(id));
-  state.currentRun = await res.json();
-  renderRunList();
-  renderMainHeader();
-  renderStageNav();
-  renderBranchNav();
-  renderOverview();
-  document.getElementById('toolbar').style.display = 'none';
+  document.getElementById('main-title').textContent = 'Loading ' + id + '…';
+  try {
+    const res = await fetch('/api/runs/' + encodeURIComponent(id));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    state.currentRun = await res.json();
+    renderRunList();
+    renderMainHeader();
+    renderStageNav();
+    renderBranchNav();
+    renderOverview();
+    document.getElementById('toolbar').style.display = 'none';
+  } catch (e) {
+    document.getElementById('main-title').textContent = 'Failed to load ' + id;
+    document.getElementById('content').innerHTML = '<div class="hint" style="color:var(--accent-warm)">' + esc(String(e)) + '</div>';
+  }
 }
 
 function renderMainHeader() {
@@ -384,44 +417,39 @@ function renderStageNav() {
   const header = document.getElementById('stage-nav-header');
   header.style.display = 'block';
   const stages = [
-    { k: 'premise', label: '1. Premise', rel: 'premise_card.json', has: !!state.currentRun.premise_card },
-    { k: 'ideator', label: '2. Ideation', rel: null, has: true },
-    { k: 'guidebook', label: '8. Guidebook', rel: 'PROBE_GUIDEBOOK.md', has: state.currentRun.guidebook_exists },
+    { label: '· Overview', rel: '' },
+    { label: '1. Premise', rel: 'premise_card.json' },
+    { label: '8. Guidebook', rel: state.currentRun.guidebook_exists ? 'PROBE_GUIDEBOOK.md' : '' },
   ];
-  el.innerHTML = stages.map(s => \`
-    <a class="nav-entry \${state.currentArtifactPath === s.rel ? 'active' : ''}" data-k="\${s.k}" data-rel="\${s.rel ?? ''}">
+  el.innerHTML = stages.map(s => {
+    const active = state.currentArtifactPath === s.rel ? 'active' : '';
+    const exists = s.rel === '' || (s.rel && (s.rel === 'PROBE_GUIDEBOOK.md' ? state.currentRun.guidebook_exists : !!state.currentRun.premise_card));
+    return \`<div class="nav-entry \${active}" data-action="pick-stage" data-rel="\${esc(s.rel)}" role="button" tabindex="0">
       <div class="nav-label">
-        <span>\${s.label}</span>
-        <span class="nav-status">\${s.has ? '✓' : '—'}</span>
+        <span>\${esc(s.label)}</span>
+        <span class="nav-status">\${exists ? '✓' : '—'}</span>
       </div>
-    </a>
-  \`).join('');
-  el.querySelectorAll('[data-k]').forEach(a => a.addEventListener('click', () => {
-    if (a.dataset.rel) loadArtifact(a.dataset.rel);
-    else renderOverview();
-  }));
+    </div>\`;
+  }).join('');
 }
 
 function renderBranchNav() {
   const el = document.getElementById('branch-nav');
   const header = document.getElementById('branch-nav-header');
   const branches = state.currentRun.branches || {};
-  const ids = Object.keys(branches);
+  const ids = Object.keys(branches).sort();
   if (ids.length === 0) { header.style.display = 'none'; el.innerHTML = ''; return; }
   header.style.display = 'block';
   el.innerHTML = ids.map(b => {
     const br = branches[b];
     const verdict = br.audit?.verdict || (br.meta_review?.verdict || '—');
-    return \`
-      <a class="nav-entry" data-b="\${b}">
-        <div class="nav-label">
-          <span>Branch \${b.toUpperCase()}</span>
-          <span class="nav-status">\${esc(verdict)}</span>
-        </div>
-      </a>
-    \`;
+    return \`<div class="nav-entry" data-action="pick-branch" data-branch="\${esc(b)}" role="button" tabindex="0">
+      <div class="nav-label">
+        <span>Branch \${esc(b.toUpperCase())}</span>
+        <span class="nav-status">\${esc(verdict)}</span>
+      </div>
+    </div>\`;
   }).join('');
-  el.querySelectorAll('[data-b]').forEach(a => a.addEventListener('click', () => renderBranchDetail(a.dataset.b)));
 }
 
 function renderOverview() {

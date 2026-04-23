@@ -15,6 +15,7 @@ import { replayCommand } from './replay.js';
 import { lintCommand } from './lint.js';
 import { initCommand } from './init.js';
 import { exploreCommand } from './explore.js';
+import { exploreV2Command } from './explore_v2.js';
 import { auditDeepCommand } from './audit_deep.js';
 import { interviewCommand } from './interview.js';
 import { symposiumCommand } from './symposium.js';
@@ -69,6 +70,12 @@ program
   .argument('<run_id>', 'run id to explore visually (worktree-style 3-pane UI)')
   .description('Open a multi-pane terminal UI for a completed run — navigate branches, toggle artifact views, lock/unlock branches')
   .action(exploreCommand);
+
+program
+  .command('explore2')
+  .argument('<run_id>', 'run id to explore with the new two-pane UI')
+  .description('Two-pane terminal UI (sidebar navigator + main artifact viewer) — ↑↓ to move, Enter/Tab to switch focus, e to open current artifact in $EDITOR, q to quit. SSH-friendly equivalent of `probe web`.')
+  .action(exploreV2Command);
 
 program
   .command('audit-deep')
