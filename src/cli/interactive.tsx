@@ -1,25 +1,29 @@
 /**
  * Interactive default — what happens when the user types `probe` with no
- * subcommand. An Ink menu that detects which providers are available and
- * offers a fork:
- *   - Run a new premise      (needs an API key)
- *   - Import a paper draft   (needs an API key)
- *   - Explore an existing run (works offline)
- *   - View the runs dashboard (works offline)
- *   - Run the health check   (works offline)
- *   - Quit
+ * subcommand. An Ink app that:
  *
- * Each option dispatches to the existing subcommand machinery — the menu
- * is a launcher, not a reimplementation.
+ *   1. Shows a menu of options adapted to the detected provider
+ *      (API-needing options hidden in demo mode).
+ *   2. For free-text options (run a new premise / import a paper),
+ *      switches to a TextInput SCREEN INSIDE the same Ink app — no
+ *      stdin handoff. User types, hits Enter, Ink captures the value,
+ *      unmounts, and dispatches to the subcommand.
+ *   3. For read-only options (explore / stats / doctor), unmounts and
+ *      dispatches to the existing subcommand via execFileSync.
+ *
+ * Earlier versions tried to hand off to readline or print launch
+ * instructions. Both had issues (stdin raw-mode not released on macOS;
+ * instructions made the menu feel broken). Keeping text entry inside
+ * Ink sidesteps both.
  */
 
 import React, { useState } from 'react';
 import { Box, Text, useInput, useApp, render } from 'ink';
+import TextInput from 'ink-text-input';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { palette } from '../ui/theme.js';
 import { banner, tagline } from '../ui/logo.js';
-import { runDir } from '../util/paths.js';
 import { detectProvider } from '../llm/provider.js';
 
 interface MenuEntry {
@@ -27,18 +31,13 @@ interface MenuEntry {
   label: string;
   hint: string;
   needsApi: boolean;
-  /**
-   * Return value tells the caller what to do after the Ink app exits.
-   * The outer wrapper executes it. This pattern keeps dispatch logic
-   * out of the Ink event loop.
-   */
   dispatch: DispatchRequest;
 }
 
 export type DispatchRequest =
   | { kind: 'subcommand'; argv: string[] }
-  | { kind: 'premise-then-run' }
-  | { kind: 'import-then-audit' }
+  | { kind: 'run-with-premise'; premise: string; runId?: string; includeNovelty: boolean }
+  | { kind: 'import-with-path'; filePath: string }
   | { kind: 'exit' };
 
 function buildMenu(hasApi: boolean): MenuEntry[] {
@@ -48,14 +47,16 @@ function buildMenu(hasApi: boolean): MenuEntry[] {
       label: 'Run a new premise',
       hint: 'Full 8-stage pipeline (~$3-6, ~25-45 min)',
       needsApi: true,
-      dispatch: { kind: 'premise-then-run' },
+      // The actual dispatch is built from the TextInput screen; this
+      // placeholder is replaced before resolve().
+      dispatch: { kind: 'run-with-premise', premise: '', includeNovelty: true },
     },
     {
       id: 'import',
       label: 'Import a paper draft',
       hint: 'Warm-start — classify sections of an existing paper (~$0.10, ~1 min)',
       needsApi: true,
-      dispatch: { kind: 'import-then-audit' },
+      dispatch: { kind: 'import-with-path', filePath: '' },
     },
     {
       id: 'explore',
@@ -89,6 +90,11 @@ function buildMenu(hasApi: boolean): MenuEntry[] {
   return entries.filter((e) => (hasApi ? true : !e.needsApi || e.id === 'quit'));
 }
 
+type Screen =
+  | { kind: 'menu' }
+  | { kind: 'premise-input' }
+  | { kind: 'import-input' };
+
 interface AppProps {
   onChoose: (request: DispatchRequest) => void;
   runsInventory: string[];
@@ -99,24 +105,36 @@ function InteractiveApp({ onChoose, runsInventory }: AppProps): React.ReactEleme
   const provider = detectProvider();
   const menu = buildMenu(provider.canCallApi);
   const [cursor, setCursor] = useState(0);
+  const [screen, setScreen] = useState<Screen>({ kind: 'menu' });
+  const [textValue, setTextValue] = useState('');
 
   useInput((input, key) => {
+    if (screen.kind !== 'menu') return; // let TextInput handle its own keys
     if (key.upArrow || input === 'k') {
       setCursor((c) => Math.max(0, c - 1));
     } else if (key.downArrow || input === 'j') {
       setCursor((c) => Math.min(menu.length - 1, c + 1));
     } else if (key.return) {
       const entry = menu[cursor];
-      onChoose(entry.dispatch);
-      exit();
+      if (entry.dispatch.kind === 'run-with-premise') {
+        setTextValue('');
+        setScreen({ kind: 'premise-input' });
+      } else if (entry.dispatch.kind === 'import-with-path') {
+        setTextValue('');
+        setScreen({ kind: 'import-input' });
+      } else {
+        onChoose(entry.dispatch);
+        exit();
+      }
     } else if (input === 'q' || key.escape) {
       onChoose({ kind: 'exit' });
       exit();
     }
   });
 
-  return (
-    <Box flexDirection="column" paddingX={1}>
+  // ── Header (always visible) ────────────────────────────────────────
+  const header = (
+    <>
       <Text>{banner()}</Text>
       <Text>{tagline()}</Text>
       <Box marginTop={1}>
@@ -140,27 +158,107 @@ function InteractiveApp({ onChoose, runsInventory }: AppProps): React.ReactEleme
           {runsInventory.length > 0 ? `: ${runsInventory.slice(0, 3).join(', ')}${runsInventory.length > 3 ? `, +${runsInventory.length - 3} more` : ''}` : ''}
         </Text>
       </Box>
-      <Box flexDirection="column">
-        {menu.map((entry, i) => {
-          const selected = i === cursor;
-          return (
-            <Box key={entry.id} marginBottom={0}>
-              <Text color={selected ? palette.probe : palette.heading}>
-                {selected ? '▸ ' : '  '}
-                {entry.label}
-              </Text>
-              {entry.hint && (
-                <Text color={palette.dim}>
-                  {'    '}
-                  {entry.hint}
+    </>
+  );
+
+  // ── Menu screen ────────────────────────────────────────────────────
+  if (screen.kind === 'menu') {
+    return (
+      <Box flexDirection="column" paddingX={1}>
+        {header}
+        <Box flexDirection="column">
+          {menu.map((entry, i) => {
+            const selected = i === cursor;
+            return (
+              <Box key={entry.id} marginBottom={0}>
+                <Text color={selected ? palette.probe : palette.heading}>
+                  {selected ? '▸ ' : '  '}
+                  {entry.label}
                 </Text>
-              )}
-            </Box>
-          );
-        })}
+                {entry.hint && (
+                  <Text color={palette.dim}>
+                    {'    '}
+                    {entry.hint}
+                  </Text>
+                )}
+              </Box>
+            );
+          })}
+        </Box>
+        <Box marginTop={1}>
+          <Text color={palette.dim}>↑↓ move · Enter pick · q quit</Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  // ── Premise-input screen ───────────────────────────────────────────
+  if (screen.kind === 'premise-input') {
+    return (
+      <Box flexDirection="column" paddingX={1}>
+        {header}
+        <Box marginBottom={1}>
+          <Text color={palette.stage}>Run a new premise</Text>
+        </Box>
+        <Box marginBottom={1}>
+          <Text color={palette.dim}>
+            Type one sentence describing the study you want Probe to triage.
+            {'\n'}Example: "design a study to evaluate an ARIA-live AI disclosure banner for BLV screen-reader users"
+          </Text>
+        </Box>
+        <Box>
+          <Text color={palette.probe}>▸ </Text>
+          <TextInput
+            value={textValue}
+            onChange={setTextValue}
+            onSubmit={(v) => {
+              const trimmed = v.trim();
+              if (!trimmed) {
+                onChoose({ kind: 'exit' });
+              } else {
+                onChoose({ kind: 'run-with-premise', premise: trimmed, includeNovelty: true });
+              }
+              exit();
+            }}
+            placeholder="your research premise…"
+          />
+        </Box>
+        <Box marginTop={1}>
+          <Text color={palette.dim}>Enter to launch · (empty Enter cancels)</Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  // ── Import-input screen ────────────────────────────────────────────
+  return (
+    <Box flexDirection="column" paddingX={1}>
+      {header}
+      <Box marginBottom={1}>
+        <Text color={palette.stage}>Import a paper draft</Text>
+      </Box>
+      <Box marginBottom={1}>
+        <Text color={palette.dim}>Path to a .md or .tex file. Relative paths resolve from the current directory.</Text>
+      </Box>
+      <Box>
+        <Text color={palette.probe}>▸ </Text>
+        <TextInput
+          value={textValue}
+          onChange={setTextValue}
+          onSubmit={(v) => {
+            const trimmed = v.trim();
+            if (!trimmed) {
+              onChoose({ kind: 'exit' });
+            } else {
+              onChoose({ kind: 'import-with-path', filePath: trimmed });
+            }
+            exit();
+          }}
+          placeholder="examples/sample_imported_paper.md"
+        />
       </Box>
       <Box marginTop={1}>
-        <Text color={palette.dim}>↑↓ move · Enter pick · q quit</Text>
+        <Text color={palette.dim}>Enter to import · (empty Enter cancels)</Text>
       </Box>
     </Box>
   );
@@ -179,130 +277,112 @@ async function listRuns(): Promise<string[]> {
   }
 }
 
-/**
- * Launch the interactive menu. Resolves with the dispatch request the
- * user picked. Caller is responsible for executing the dispatch (i.e.
- * re-entering the CLI with a subcommand, or prompting for a premise).
- *
- * This function takes care to fully hand stdin back to the caller after
- * the Ink app exits — Ink puts stdin into raw mode, and if we don't
- * unmount + await the instance + reset raw mode before the next reader
- * (readline, execFile inherit, etc.) takes stdin, the follow-up prompt
- * swallows keystrokes silently. First Mac-terminal bug report surfaced
- * exactly this: the premise `>` prompt rendered but accepted no input.
- */
+/** Launch the Ink menu + text-input app; resolve with the dispatch request. */
 export async function runInteractiveMenu(): Promise<DispatchRequest> {
   const runsInventory = await listRuns();
   let pick: DispatchRequest | null = null;
-  const finishedPromise = new Promise<void>((resolve) => {
-    const instance = render(
-      <InteractiveApp
-        onChoose={(req) => {
-          if (pick === null) pick = req;
-        }}
-        runsInventory={runsInventory}
-      />,
-    );
-    // waitUntilExit resolves when the Ink app unmounts (triggered by
-    // useApp().exit() inside the component). After that the stdin
-    // handoff is safe, which is what we need for the subsequent
-    // readline.createInterface / execFileSync call to actually receive
-    // user keystrokes.
-    instance
-      .waitUntilExit()
-      .then(() => {
-        // Belt-and-braces: reset raw mode explicitly. Ink's cleanup
-        // usually handles this, but the Mac terminal bug report above
-        // showed at least one path where it didn't.
-        if (process.stdin.isTTY) {
-          try {
-            process.stdin.setRawMode(false);
-          } catch {
-            /* already off */
-          }
-        }
-        resolve();
-      })
-      .catch(() => resolve());
-  });
-  await finishedPromise;
+  const instance = render(
+    <InteractiveApp
+      onChoose={(req) => {
+        if (pick === null) pick = req;
+      }}
+      runsInventory={runsInventory}
+    />,
+  );
+  try {
+    await instance.waitUntilExit();
+  } catch {
+    /* ignore */
+  }
+  // Defensive stdin reset in case Ink left it in raw mode.
+  if (process.stdin.isTTY) {
+    try {
+      process.stdin.setRawMode(false);
+    } catch {
+      /* already off */
+    }
+  }
   return pick ?? { kind: 'exit' };
 }
 
 /**
- * Top-level entry that maps the menu's dispatch request onto concrete
- * CLI behavior. Called from src/cli/index.ts as the default action.
- *
- * The read-only dispatch paths (explore / stats / doctor) re-enter the
- * CLI via execFileSync with stdio: 'inherit'. The write paths (run a
- * new premise / import a paper) print the exact command and exit so
- * the shell handles input — this avoids a class of stdin-handoff bugs
- * between Ink and readline that caused the premise prompt to silently
- * swallow keystrokes on macOS Terminal.
+ * Default entry. Runs the menu in a loop — after each action completes,
+ * the menu comes back. This is the "claude-code but for papers"
+ * feel: one persistent session, `q` / Quit is the only way out. The
+ * subcommand output stays in the terminal's scrollback so the user can
+ * still read what ran.
  */
 export async function interactiveDefault(): Promise<void> {
-  const pick = await runInteractiveMenu();
-  if (pick.kind === 'exit') return;
+  while (true) {
+    const pick = await runInteractiveMenu();
 
-  if (pick.kind === 'subcommand') {
-    // Re-enter the CLI with the picked subcommand. These are offline
-    // read-only commands (runs / stats --all / doctor) — no input
-    // needed after launch, so stdio: 'inherit' works cleanly.
-    const { execFileSync } = await import('node:child_process');
-    try {
-      execFileSync('probe', pick.argv, { stdio: 'inherit' });
-    } catch {
-      // child command manages its own exit codes.
+    if (pick.kind === 'exit') return;
+
+    if (pick.kind === 'subcommand') {
+      const { execFileSync } = await import('node:child_process');
+      printSeparator();
+      try {
+        execFileSync('probe', pick.argv, { stdio: 'inherit' });
+      } catch {
+        /* subcommand manages its own exit */
+      }
+      await pauseForReturn();
+      continue;
     }
-    return;
-  }
 
-  if (pick.kind === 'premise-then-run') {
-    printLaunchInstructions('run');
-    return;
-  }
+    if (pick.kind === 'run-with-premise') {
+      const { execFileSync } = await import('node:child_process');
+      const args = ['run'];
+      if (pick.runId) args.push('--run-id', pick.runId);
+      if (!pick.includeNovelty) args.push('--no-novelty');
+      args.push(pick.premise);
+      printSeparator();
+      try {
+        execFileSync('probe', args, { stdio: 'inherit' });
+      } catch {
+        /* subcommand manages its own exit */
+      }
+      await pauseForReturn();
+      continue;
+    }
 
-  if (pick.kind === 'import-then-audit') {
-    printLaunchInstructions('import');
-    return;
+    if (pick.kind === 'import-with-path') {
+      const abs = path.resolve(pick.filePath);
+      printSeparator();
+      try {
+        await fs.access(abs);
+        const { execFileSync } = await import('node:child_process');
+        execFileSync('probe', ['import', abs], { stdio: 'inherit' });
+      } catch (e) {
+        console.log(`File not found or import failed: ${abs}`);
+        console.log(String((e as Error).message ?? ''));
+      }
+      await pauseForReturn();
+      continue;
+    }
   }
-
-  // dummy reference so unused-import lint doesn't trip on runDir / fs,
-  // both of which are kept for a future in-Ink TextInput path we may
-  // add back once Ink's stdin handoff is more reliable on macOS.
-  void runDir;
-  void fs;
 }
 
-function printLaunchInstructions(mode: 'run' | 'import'): void {
-  const lines: string[] = [];
-  if (mode === 'run') {
-    lines.push('');
-    lines.push('Run a new premise — copy one of these into your shell:');
-    lines.push('');
-    lines.push('    probe run "design a study to evaluate X for Y"');
-    lines.push('');
-    lines.push('Or with explicit flags:');
-    lines.push('');
-    lines.push('    probe run --run-id my_run_2026 "your premise sentence"');
-    lines.push('    probe run --no-novelty "your premise"       # skip the novelty-hawk reviewer');
-    lines.push('');
-    lines.push('Typical cost: $3–6, typical wall-clock: 25–45 min.');
-    lines.push('Cost scales with premise specificity + branch divergence.');
-  } else {
-    lines.push('');
-    lines.push('Import a paper draft — copy this into your shell:');
-    lines.push('');
-    lines.push('    probe import path/to/your/paper.md');
-    lines.push('');
-    lines.push('Then, to audit the imported draft:');
-    lines.push('');
-    lines.push('    probe audit-deep <the-run-id-from-output> a');
-    lines.push('');
-    lines.push('Typical cost: $0.05–0.20, typical wall-clock: ~1 min.');
-  }
-  for (const l of lines) {
-    // eslint-disable-next-line no-console
-    console.log(l);
-  }
+function printSeparator(): void {
+  console.log('');
+  console.log('─'.repeat(60));
+  console.log('');
+}
+
+/** After a subcommand completes, wait for Enter before redrawing the menu so the user has time to read. */
+async function pauseForReturn(): Promise<void> {
+  console.log('');
+  console.log('─'.repeat(60));
+  process.stdout.write('Press Enter to return to the menu (Ctrl+C to exit)… ');
+  // Use a native readline here — Ink is not mounted at this point, so stdin is fully ours.
+  const readline = await import('node:readline');
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  await new Promise<void>((resolve) => {
+    rl.once('line', () => {
+      rl.close();
+      resolve();
+    });
+    rl.once('close', () => resolve());
+  });
+  console.log('');
 }
