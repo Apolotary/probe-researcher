@@ -28,6 +28,8 @@ import { projectRoot, runDir, branchDir } from '../util/paths.js';
 import { palette } from '../ui/theme.js';
 import { buildIndexHtml } from './index_html.js';
 
+const HALIDE_ROOT = path.join(projectRoot(), 'src', 'web', 'halide');
+
 export interface WebServerOptions {
   port?: number;
   host?: string;
@@ -44,10 +46,39 @@ export async function startWebServer(opts: WebServerOptions = {}): Promise<void>
   app.use(express.text({ limit: '2mb', type: 'text/*' }));
 
   // ── HTML index ────────────────────────────────────────────────────────
-  app.get('/', (_req, res) => {
+  // New default: the Halide (Dossier Prototype) dark UI — React + Babel
+  // in-browser. Served from src/web/halide/. The old single-page app
+  // remains available at /legacy for fallback.
+  app.get('/', async (_req, res) => {
+    try {
+      const html = await fs.readFile(path.join(HALIDE_ROOT, 'index.html'), 'utf8');
+      res.set('Content-Type', 'text/html; charset=utf-8');
+      res.send(html);
+    } catch {
+      res.set('Content-Type', 'text/html; charset=utf-8');
+      res.send(buildIndexHtml());
+    }
+  });
+
+  app.get('/legacy', (_req, res) => {
     res.set('Content-Type', 'text/html; charset=utf-8');
     res.send(buildIndexHtml());
   });
+
+  // Static assets for the Halide UI (jsx components + any future images).
+  // Must be registered before the catch-all API error handler but after
+  // the explicit routes above.
+  app.use(
+    '/components',
+    express.static(path.join(HALIDE_ROOT, 'components'), {
+      setHeaders: (res, file) => {
+        if (file.endsWith('.jsx')) {
+          // Babel standalone consumes these as text/babel scripts.
+          res.set('Content-Type', 'text/plain; charset=utf-8');
+        }
+      },
+    }),
+  );
 
   // ── Run listing ──────────────────────────────────────────────────────
   app.get('/api/runs', async (_req, res) => {

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · Halide</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: oklch(15.5% 0.010 255); }
+  body { font-family: Inter, system-ui, sans-serif; color: oklch(94% 0.005 255); }
+  #root { height: 100vh; }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-thumb { background: oklch(28% 0.012 255); border-radius: 4px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root">
+  <div style="padding:40px 56px;color:oklch(58% 0.010 255);font-family:Inter,system-ui,sans-serif;font-size:13px;">
+    Loading Probe · Halide UI…
+  </div>
+</div>
+<script type="text/babel" src="components/data.jsx"></script>
+<script type="text/babel" src="components/halide.jsx"></script>
+<script type="text/babel" src="components/halide-shell.jsx"></script>
+<script type="text/babel" src="components/halide-views.jsx"></script>
+<script type="text/babel" src="components/halide-app.jsx"></script>
+<script type="text/babel">
+  // Overlay real Probe runs from the API on top of the fixtures.
+  // The fixtures stay as-is so the prototype's checkpoint / walkthrough /
+  // audit views render with realistic content; only the "Recent runs"
+  // rail reflects the user's actual runs/ directory.
+  (async () => {
+    try {
+      const res = await fetch('/api/runs');
+      if (res.ok) {
+        const body = await res.json();
+        const runs = (body.runs || []).slice(0, 8).map((r) => {
+          const stats = r.stats || {};
+          const costs = stats.cost_usd ?? stats.total_cost ?? stats.cost ?? 0;
+          const dur = stats.wall_clock ?? stats.duration ?? '—';
+          const verdict = stats.surviving_branches != null
+            ? (stats.surviving_branches === 0 ? 'all blocked' : `${stats.surviving_branches} surviving`)
+            : '—';
+          const stamp = stats.finished_at ? new Date(stats.finished_at).toLocaleString() : '';
+          return {
+            id: r.id,
+            premise: (r.premise || '').slice(0, 180),
+            cost: typeof costs === 'number' ? costs : 0,
+            duration: dur,
+            verdict,
+            stamp,
+          };
+        });
+        if (runs.length > 0) window.PROBE_RUNS = runs;
+      }
+    } catch (e) { /* API unavailable; fall back to fixtures */ }
+
+    const Root = () => (
+      <>
+        <window.HalideStyles />
+        <window.HalideApp />
+      </>
+    );
+    ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+  })();
+</script>
+</body>
+</html>
