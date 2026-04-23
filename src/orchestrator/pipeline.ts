@@ -13,6 +13,7 @@ import { runStageReviewers } from './stages/stage7_reviewers.js';
 import { runStageGuidebook } from './stages/stage8_guidebook.js';
 import { branchColor, palette, emojis } from '../ui/theme.js';
 import { renderBanner, type StageState } from '../ui/pipeline_banner.js';
+import * as stageSummary from '../ui/stage_summary.js';
 import {
   type BranchState,
   type StageStatesMap,
@@ -56,6 +57,7 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
       stageStates,
       detail: () => `runs/${runId}/premise_card.json`,
       fn: () => runStagePremise({ runId, premise }),
+      onSuccess: () => stageSummary.previewPremise(runId),
     });
   }
 
@@ -70,10 +72,11 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
         branchIds = await runStageIdeator({ runId });
         return branchIds;
       },
-      onSuccess: () => {
+      onSuccess: async () => {
         for (const b of branchIds) {
           console.log(`   ${branchGlyphInline(b)}  ${chalk.hex(palette.dim)(`runs/${runId}/branches/${b}/branch_card.json`)}`);
         }
+        await stageSummary.previewIdeator(runId, branchIds);
       },
     });
   } else {
@@ -88,12 +91,15 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
   // Stages 3-5 — per-branch, no verdict (outcome is ok / failed).
   if (!skip.has('3')) {
     await perBranchNoVerdict({ states, stageId: '3_literature', stageStates, fn: (id) => runStageLiterature({ runId, branchId: id }) });
+    await stageSummary.previewLiterature(runId, branchIds);
   }
   if (!skip.has('4')) {
     await perBranchNoVerdict({ states, stageId: '4_prototype', stageStates, fn: (id) => runStagePrototype({ runId, branchId: id }) });
+    await stageSummary.previewPrototype(runId, branchIds);
   }
   if (!skip.has('5')) {
     await perBranchNoVerdict({ states, stageId: '5_simulator', stageStates, fn: (id) => runStageSimulator({ runId, branchId: id }) });
+    await stageSummary.previewSimulator(runId, branchIds);
   }
 
   // Stage 6 — per-branch with verdict. -2 finding → BLOCKED → WORKSHOP_NOT_RECOMMENDED.
@@ -109,6 +115,7 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
       blockingFinding: 'audit:capture_risk:-2',
       doneLabel: 'audited',
     });
+    await stageSummary.previewAudit(runId, branchIds);
   }
 
   // Stage 7 — per-branch with verdict. meta-reviewer reject → BLOCKED.
@@ -124,6 +131,7 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
       blockingFinding: 'meta_review:reject',
       doneLabel: 'reviewed',
     });
+    await stageSummary.previewReviewers(runId, branchIds);
   }
 
   // Stage 8 — guidebook assembly runs on the first surviving branch.
@@ -167,6 +175,7 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
           `${emojis.survived} branch ${branchColor(chosen)(chosen)} survived → runs/${runId}/PROBE_GUIDEBOOK.md`,
         ),
       );
+      await stageSummary.previewGuidebook(runId);
     } catch (e) {
       markStage(stageStates, '8_guidebook', 'failed');
       spinner.fail(chalk.hex(palette.blocked)(`guidebook assembly failed: ${String((e as Error).message).slice(0, 200)}`));
