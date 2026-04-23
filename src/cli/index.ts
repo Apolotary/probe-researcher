@@ -28,6 +28,7 @@ import { statsCommand } from './stats.js';
 import { importCommand } from './import_paper.js';
 import { reportPageCommand } from './report_page.js';
 import { interactiveDefault } from './interactive.js';
+import { webCommand } from './web.js';
 
 const program = new Command();
 
@@ -148,6 +149,14 @@ program
   .option('-o, --output <path>', 'output path (default runs/<id>/PROBE_REPORT_PAGE.html)')
   .description('Render a single-file self-contained HTML report page for a run, in the stanfordhci.github.io/Bloom long-scroll template — top-nav anchors, title block, teaser pipeline figure, text/figure rhythm, rehearsal-quote cards, capture-risk Safety section, reviewer-panel summary, provenance legend, BibTeX footer. Shareable via a single URL; renders on mobile; zero API cost.')
   .action(reportPageCommand);
+
+program
+  .command('web')
+  .option('-p, --port <port>', 'port to bind (default 4470)')
+  .option('--host <host>', 'host to bind (default 127.0.0.1)')
+  .option('--no-open', 'do not open the browser automatically')
+  .description('Start a local web UI for browsing and editing runs. Binds 127.0.0.1 by default. Two-pane layout: sidebar with runs/stages/branches, main area with rendered artifacts and inline editor. Saves go straight to disk; the next pipeline stage reads the edited file.')
+  .action(webCommand);
 
 program
   .command('stats')
