@@ -183,18 +183,50 @@ async function listRuns(): Promise<string[]> {
  * Launch the interactive menu. Resolves with the dispatch request the
  * user picked. Caller is responsible for executing the dispatch (i.e.
  * re-entering the CLI with a subcommand, or prompting for a premise).
+ *
+ * This function takes care to fully hand stdin back to the caller after
+ * the Ink app exits — Ink puts stdin into raw mode, and if we don't
+ * unmount + await the instance + reset raw mode before the next reader
+ * (readline, execFile inherit, etc.) takes stdin, the follow-up prompt
+ * swallows keystrokes silently. First Mac-terminal bug report surfaced
+ * exactly this: the premise `>` prompt rendered but accepted no input.
  */
 export async function runInteractiveMenu(): Promise<DispatchRequest> {
   const runsInventory = await listRuns();
-  return new Promise((resolve) => {
-    let resolved = false;
-    const finish = (req: DispatchRequest): void => {
-      if (resolved) return;
-      resolved = true;
-      resolve(req);
-    };
-    render(<InteractiveApp onChoose={finish} runsInventory={runsInventory} />);
+  let pick: DispatchRequest | null = null;
+  const finishedPromise = new Promise<void>((resolve) => {
+    const instance = render(
+      <InteractiveApp
+        onChoose={(req) => {
+          if (pick === null) pick = req;
+        }}
+        runsInventory={runsInventory}
+      />,
+    );
+    // waitUntilExit resolves when the Ink app unmounts (triggered by
+    // useApp().exit() inside the component). After that the stdin
+    // handoff is safe, which is what we need for the subsequent
+    // readline.createInterface / execFileSync call to actually receive
+    // user keystrokes.
+    instance
+      .waitUntilExit()
+      .then(() => {
+        // Belt-and-braces: reset raw mode explicitly. Ink's cleanup
+        // usually handles this, but the Mac terminal bug report above
+        // showed at least one path where it didn't.
+        if (process.stdin.isTTY) {
+          try {
+            process.stdin.setRawMode(false);
+          } catch {
+            /* already off */
+          }
+        }
+        resolve();
+      })
+      .catch(() => resolve());
   });
+  await finishedPromise;
+  return pick ?? { kind: 'exit' };
 }
 
 /**
