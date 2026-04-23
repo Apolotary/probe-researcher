@@ -232,16 +232,25 @@ export async function runInteractiveMenu(): Promise<DispatchRequest> {
 /**
  * Top-level entry that maps the menu's dispatch request onto concrete
  * CLI behavior. Called from src/cli/index.ts as the default action.
+ *
+ * The read-only dispatch paths (explore / stats / doctor) re-enter the
+ * CLI via execFileSync with stdio: 'inherit'. The write paths (run a
+ * new premise / import a paper) print the exact command and exit so
+ * the shell handles input — this avoids a class of stdin-handoff bugs
+ * between Ink and readline that caused the premise prompt to silently
+ * swallow keystrokes on macOS Terminal.
  */
 export async function interactiveDefault(): Promise<void> {
   const pick = await runInteractiveMenu();
   if (pick.kind === 'exit') return;
 
   if (pick.kind === 'subcommand') {
-    // Re-enter the CLI with the picked subcommand.
+    // Re-enter the CLI with the picked subcommand. These are offline
+    // read-only commands (runs / stats --all / doctor) — no input
+    // needed after launch, so stdio: 'inherit' works cleanly.
     const { execFileSync } = await import('node:child_process');
     try {
-      execFileSync('npx', ['probe', ...pick.argv], { stdio: 'inherit' });
+      execFileSync('probe', pick.argv, { stdio: 'inherit' });
     } catch {
       // child command manages its own exit codes.
     }
@@ -249,66 +258,51 @@ export async function interactiveDefault(): Promise<void> {
   }
 
   if (pick.kind === 'premise-then-run') {
-    await promptThenRun('run');
+    printLaunchInstructions('run');
     return;
   }
 
   if (pick.kind === 'import-then-audit') {
-    await promptThenRun('import');
+    printLaunchInstructions('import');
     return;
   }
+
+  // dummy reference so unused-import lint doesn't trip on runDir / fs,
+  // both of which are kept for a future in-Ink TextInput path we may
+  // add back once Ink's stdin handoff is more reliable on macOS.
+  void runDir;
+  void fs;
 }
 
-/**
- * After the menu closes, prompt for either a premise (for run) or a file
- * path (for import). We drop Ink for the prompt — a readline line is
- * enough and avoids Ink's input-focus rough edges for free-text.
- */
-async function promptThenRun(mode: 'run' | 'import'): Promise<void> {
-  const readline = await import('node:readline');
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  const prompt = (q: string): Promise<string> =>
-    new Promise((resolve) => rl.question(q, (answer) => resolve(answer)));
-
-  console.log('');
+function printLaunchInstructions(mode: 'run' | 'import'): void {
+  const lines: string[] = [];
   if (mode === 'run') {
-    const premise = (
-      await prompt('Premise (one sentence, e.g. "design a study to evaluate X for Y"):\n> ')
-    ).trim();
-    rl.close();
-    if (!premise) {
-      console.log('(no premise entered, exiting)');
-      return;
-    }
-    const { execFileSync } = await import('node:child_process');
-    try {
-      execFileSync('npx', ['probe', 'run', premise], { stdio: 'inherit' });
-    } catch {
-      /* subcommand handles exit */
-    }
-    return;
+    lines.push('');
+    lines.push('Run a new premise — copy one of these into your shell:');
+    lines.push('');
+    lines.push('    probe run "design a study to evaluate X for Y"');
+    lines.push('');
+    lines.push('Or with explicit flags:');
+    lines.push('');
+    lines.push('    probe run --run-id my_run_2026 "your premise sentence"');
+    lines.push('    probe run --no-novelty "your premise"       # skip the novelty-hawk reviewer');
+    lines.push('');
+    lines.push('Typical cost: $3–6, typical wall-clock: 25–45 min.');
+    lines.push('Cost scales with premise specificity + branch divergence.');
+  } else {
+    lines.push('');
+    lines.push('Import a paper draft — copy this into your shell:');
+    lines.push('');
+    lines.push('    probe import path/to/your/paper.md');
+    lines.push('');
+    lines.push('Then, to audit the imported draft:');
+    lines.push('');
+    lines.push('    probe audit-deep <the-run-id-from-output> a');
+    lines.push('');
+    lines.push('Typical cost: $0.05–0.20, typical wall-clock: ~1 min.');
   }
-
-  // import
-  const filePath = (await prompt('Path to paper draft (.md or .tex):\n> ')).trim();
-  rl.close();
-  if (!filePath) {
-    console.log('(no file entered, exiting)');
-    return;
+  for (const l of lines) {
+    // eslint-disable-next-line no-console
+    console.log(l);
   }
-  const absPath = path.resolve(filePath);
-  try {
-    await fs.access(absPath);
-  } catch {
-    console.log(`File not found: ${absPath}`);
-    return;
-  }
-  const { execFileSync } = await import('node:child_process');
-  try {
-    execFileSync('npx', ['probe', 'import', absPath], { stdio: 'inherit' });
-  } catch {
-    /* subcommand handles exit */
-  }
-  // dummy reference to keep runDir import linted as "in use" without polluting runtime.
-  void runDir;
 }
