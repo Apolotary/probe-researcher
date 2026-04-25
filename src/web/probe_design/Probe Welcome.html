@@ -336,7 +336,7 @@ function Welcome({ keyState, keySource, setScreen }) {
           <span style={{ color: palette.ink3 }}>data dir</span>
           <span style={{ color: palette.ink }}>~/.probe/projects/</span>
           <span style={{ color: palette.ink3 }}>model</span>
-          <span style={{ color: palette.ink }}>claude-sonnet-4-5 · fallback claude-haiku-4-5</span>
+          <span style={{ color: palette.ink }}>claude-sonnet-4-6 · fallback claude-haiku-4-5-20251001</span>
         </div>
         {!ready && (
           <button onClick={() => setScreen('settings')} style={{
@@ -542,7 +542,7 @@ function Settings({ keySource, setKeySource, keyState, setKeyState, pastedKey, s
       <div style={{ marginTop: 36 }}>
         <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
           textTransform: 'uppercase', marginBottom: 8 }}>─── other ───</div>
-        <SettingRow label="model"           value="claude-sonnet-4-5"   trail="default · change in config.toml" />
+        <SettingRow label="model"           value="claude-sonnet-4-6"   trail="default · change in config.toml" />
         <SettingRow label="port"            value="7392"                trail="--port flag overrides" />
         <SettingRow label="data directory"  value="~/.probe/projects/"  trail="symlinks supported" />
         <SettingRow label="telemetry"       value="off"                 trail="never enabled by default" />

@@ -683,14 +683,14 @@ function DiffStrip({ stage, stageData, draftRun, accept, discard }) {
 function stageModel(stageId) {
   // Mirrors Probe Config.html stage routing
   switch (stageId) {
-    case 'framing':     return 'claude-sonnet-4-5';
-    case 'literature':  return 'claude-sonnet-4-5';
+    case 'framing':     return 'claude-sonnet-4-6';
+    case 'literature':  return 'claude-sonnet-4-6';
     case 'methodology': return 'claude-opus-4-5';
-    case 'artifacts':   return 'claude-sonnet-4-5';
-    case 'evaluation':  return 'claude-haiku-4-5';
+    case 'artifacts':   return 'claude-sonnet-4-6';
+    case 'evaluation':  return 'claude-haiku-4-5-20251001';
     case 'report':      return 'claude-opus-4-5';
-    case 'review':      return 'claude-sonnet-4-5';
-    default:            return 'claude-sonnet-4-5';
+    case 'review':      return 'claude-sonnet-4-6';
+    default:            return 'claude-sonnet-4-6';
   }
 }
 

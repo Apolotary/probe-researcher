@@ -230,7 +230,7 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone }) {
             {window.ModelStatusLine && (
               <div className="fade-in" style={{ padding: '14px 0 6px' }}>
                 <window.ModelStatusLine
-                  model="claude-sonnet-4-5"
+                  model="claude-sonnet-4-6"
                   phase={window.PhaseDots ? (
                     <window.PhaseDots
                       phases={['planning', 'simulating', 'collating', 'reporting']}

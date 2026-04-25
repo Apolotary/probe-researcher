@@ -119,7 +119,7 @@ export function ReviewScene({ goto, exit, state, setState }: SceneProps): React.
           <Text>
             {'  '}
             <Text color={probeTokens.cyan}>~ </Text>
-            <Text color={probeTokens.ink3}>convening review panel — claude-sonnet-4-5 · planning › reading paper › drafting reviews › verifying</Text>
+            <Text color={probeTokens.ink3}>convening review panel — claude-sonnet-4-6 · planning › reading paper › drafting reviews › verifying</Text>
             {fill(' ', Math.max(0, innerW - 110))}
           </Text>
         </FrameRow>

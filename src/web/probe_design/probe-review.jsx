@@ -982,7 +982,7 @@ function ReviewWrapper({ mainRq, selectedBranches, chosenDesign, plan, evalResul
           <div style={{ padding: '14px 0', color: palette.ink3, fontSize: 13 }}>
             {window.ModelStatusLine ? (
               <window.ModelStatusLine
-                model="claude-sonnet-4-5"
+                model="claude-sonnet-4-6"
                 phase={window.PhaseDots ? (
                   <window.PhaseDots
                     phases={['planning', 'simulating panel', 'aggregating', 'verdict']}

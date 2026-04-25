@@ -49,13 +49,13 @@
   }
 
   // A horizontal "model is thinking" row.
-  //   model:    'claude-sonnet-4-5'
+  //   model:    'claude-sonnet-4-6'
   //   phase:    short status string ('planning · 142 tokens')
   //   accent:   override color (defaults to cyan)
   //   elapsed:  ms elapsed (or pass `running` to auto-tick)
   //   running:  if true and elapsed not provided, will tick its own timer
   function ModelStatusLine({
-    model = 'claude-sonnet-4-5',
+    model = 'claude-sonnet-4-6',
     phase = 'thinking',
     accent,
     elapsed,
