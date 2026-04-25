@@ -188,7 +188,10 @@ function Methodology({ mainRq, selectedBranches, onBack, onContinue }) {
   const [customDesign, setCustomDesign] = useState(null);
 
   const [liveDesigns, setLiveDesigns] = useState(null); // null until /api/probe/methodology resolves
-  const designs = liveDesigns ?? stockDesigns(rqs);
+  // Cap to 3 candidates regardless of source. The LLM prompt asks for
+  // 3 distinct designs; the stock library has 5 historical entries
+  // we trim down to keep the UI consistent on offline / API-failure.
+  const designs = (liveDesigns ?? stockDesigns(rqs)).slice(0, 3);
   const allDesigns = customDesign ? [...designs, customDesign] : designs;
 
   // Stream design cards. We start with the (possibly empty) liveDesigns
@@ -231,21 +234,21 @@ function Methodology({ mainRq, selectedBranches, onBack, onContinue }) {
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data && Array.isArray(data.candidates) && data.candidates.length) {
-          const adapted = data.candidates.map(adaptDesign);
+          const adapted = data.candidates.slice(0, 3).map(adaptDesign);
           setLiveDesigns(adapted);
           setRevealed(0);
           for (let i = 1; i <= adapted.length; i++) {
             ivs.push(setTimeout(() => setRevealed(i), 100 + i * 180));
           }
         } else {
-          // fall through to stock
-          for (let i = 1; i <= stockDesigns(rqs).length; i++) {
+          // fall through to stock — capped at 3 to match the LLM cap
+          for (let i = 1; i <= 3; i++) {
             ivs.push(setTimeout(() => setRevealed(i), 250 + i * 220));
           }
         }
       })
       .catch(() => {
-        for (let i = 1; i <= stockDesigns(rqs).length; i++) {
+        for (let i = 1; i <= 3; i++) {
           ivs.push(setTimeout(() => setRevealed(i), 250 + i * 220));
         }
       });
