@@ -182,6 +182,31 @@ window.ProbeSidebar = function ProbeSidebar(props) {
             border: `1px solid ${palette.rule}`, padding: '0 5px', borderRadius: 2,
           }}>⌘N</span>
         </button>
+
+        {/* Replay button right under "new project" — surfaces the
+            bundled demo so a judge with no API key has an obvious
+            try-it-now affordance. Standalone <a> instead of going
+            through the shell router because /ui/replay is its own
+            page (not an iframe content). */}
+        <a
+          href="/ui/replay"
+          style={{
+            marginTop: 6, display: 'flex', alignItems: 'center', gap: 8,
+            padding: '7px 10px', background: 'transparent',
+            border: `1px solid ${palette.rule}`, borderRadius: 3,
+            color: palette.cyan, fontFamily: 'inherit', fontSize: 12.5,
+            textDecoration: 'none', textAlign: 'left',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = palette.bg2; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+          title="Replay a saved demo run — no API key required"
+        >
+          <span style={{ fontSize: 12 }}>▶</span>
+          <span>replay sample run</span>
+          <span style={{
+            marginLeft: 'auto', color: palette.ink4, fontSize: 10,
+          }}>$0</span>
+        </a>
       </div>
 
       {/* RECENTS */}
