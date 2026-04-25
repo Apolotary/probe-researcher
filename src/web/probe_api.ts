@@ -79,27 +79,60 @@ export function mountProbeApi(app: express.Express): void {
   // ─── Stage helper ───────────────────────────────────────────────
   // If a demo is active, serve the cached slice with a synthetic
   // delay; otherwise fall through to the live LLM call.
+  //
+  // Cache-miss policy: when a demo is replaying but doesn't include
+  // this stage's slice, we still try the live LLM so a partial demo
+  // doesn't hang — but if that fails (e.g. judge has no API key) we
+  // return an empty placeholder rather than 500. The frontend has
+  // stock fallbacks for every stage and treats empty payloads as
+  // "use stock", which keeps the demo flow from showing console
+  // errors during replay.
   async function served<T>(
     res: express.Response,
     stage: string,
     args: Record<string, unknown>,
     live: () => Promise<T>,
   ): Promise<void> {
+    const replayingNow = demo.isReplaying();
     try {
-      if (demo.isReplaying()) {
+      if (replayingNow) {
         const cached = demo.slice(stage, args);
         if (cached !== null) {
           await demo.delay();
           res.json(cached);
           return;
         }
-        // Demo missing this stage's slice — fall through to live so
-        // the user sees real content rather than a hang.
       }
       const out = await live();
       res.json(out);
     } catch (e) {
+      if (replayingNow) {
+        // Demo missing slice + live failed (likely no API key) → soft
+        // fallback so the frontend's stock content kicks in cleanly.
+        res.json(emptyPayloadFor(stage));
+        return;
+      }
       res.status(500).json({ error: String((e as Error).message) });
+    }
+  }
+
+  // Per-stage empty-but-shaped payload returned when a replay falls
+  // through to a failing live call. Each shape mirrors what the
+  // frontend expects to extract; an empty array/string lets the
+  // stock-content path on the frontend take over.
+  function emptyPayloadFor(stage: string): Record<string, unknown> {
+    switch (stage) {
+      case 'brainstorm':   return { rqs: [] };
+      case 'literature':   return { block: null };
+      case 'methodology':  return { candidates: [] };
+      case 'plan':         return { plan: null };
+      case 'artifacts':    return { artifacts: [] };
+      case 'personas':     return { personas: [] };
+      case 'findings':     return { findings: [] };
+      case 'report':       return { titleOptions: [], discussion: '', conclusion: '' };
+      case 'review':       return { reviewers: [], meta: null };
+      case 'teaser':       return { svg: null, caption: null };
+      default:             return {};
     }
   }
 

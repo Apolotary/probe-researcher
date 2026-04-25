@@ -351,9 +351,15 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue, g
         .then((r) => r.ok ? r.json() : null)
         .then((data) => {
           if (!data || !Array.isArray(data.artifacts)) return;
+          // The LLM emits kinds ('spec', 'protocol', 'irb', 'survey',
+          // 'diary') as id, but decideArtifacts above wants 'impl' for
+          // the implementation plan. Normalise so live bodies actually
+          // replace the stock ones rather than being silently dropped.
+          const aliasFromLLM = (id) => (id === 'spec' ? 'impl' : id);
           const map = {};
           for (const a of data.artifacts) {
-            if (a.id && a.body) map[a.id] = a.body;
+            const localId = aliasFromLLM(a.id);
+            if (localId && a.body) map[localId] = a.body;
           }
           setLiveBodies(map);
         })
