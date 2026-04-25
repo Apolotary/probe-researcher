@@ -424,7 +424,26 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue })
         </h2>
 
         {stage === 0 ? (
-          <DraftingRow wants={wants} />
+          <>
+            {window.ModelStatusLine && (
+              <div className="fade-in" style={{ padding: '14px 0 6px' }}>
+                <window.ModelStatusLine
+                  model="claude-sonnet-4-5"
+                  phase={window.PhaseDots ? (
+                    <window.PhaseDots
+                      phases={['planning', 'drafting', 'formatting', 'verifying']}
+                      activeIdx={1}
+                      accent={palette.amber}
+                      compact
+                    />
+                  ) : null}
+                  accent={palette.amber}
+                  running
+                />
+              </div>
+            )}
+            <DraftingRow wants={wants} />
+          </>
         ) : (
           <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {wants.map((id, i) => {

@@ -22,7 +22,8 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { detectProvider, resolveModel, NoApiKeysError, type ProviderName } from './provider.js';
+import { detectProvider, NoApiKeysError } from './provider.js';
+import { modelForStage, type UiStage } from '../config/probe_toml.js';
 import type {
   SubRQ, LiteratureBlock, CandidateDesign, StudyPlan, Artifact,
   Persona, Friction,
@@ -38,21 +39,15 @@ function anthropic(): Anthropic {
   return anthropicClient;
 }
 
-/** Cheap Sonnet by default — these are short structured calls. */
-function pickModel(): string {
-  const provider: ProviderName = detectProvider().name;
-  if (provider === 'anthropic') return resolveModel('anthropic', 'sonnet').modelId;
-  if (provider === 'openai')    return resolveModel('openai',    'sonnet').modelId;
-  throw new NoApiKeysError();
-}
-
 interface CallOpts {
+  /** UI workflow stage this call belongs to — drives model selection. */
+  stage: UiStage;
   system: string;
   user: string;
   maxTokens?: number;
 }
 
-async function callLLM({ system, user, maxTokens = 2048 }: CallOpts): Promise<string> {
+async function callLLM({ stage, system, user, maxTokens = 2048 }: CallOpts): Promise<string> {
   const provider = detectProvider();
   if (!provider.canCallApi) throw new NoApiKeysError();
   if (provider.name !== 'anthropic') {
@@ -61,7 +56,10 @@ async function callLLM({ system, user, maxTokens = 2048 }: CallOpts): Promise<st
     // UI surface degrades gracefully to canned content in that case.
     throw new Error(`probe_calls: only the anthropic provider is wired; got ${provider.name}`);
   }
-  const modelId = pickModel();
+  // Per-stage model resolution from probe.toml. The user can flip the
+  // whole pipeline with [models].mode = 'sonnet' | 'opus' | 'mixed',
+  // or set per-stage IDs explicitly with mode = 'custom'.
+  const modelId = modelForStage(stage);
   const response = await anthropic().messages.create({
     model: modelId,
     max_tokens: maxTokens,
@@ -97,23 +95,35 @@ function extractJSON(text: string): unknown {
 
 export async function brainstorm(premise: string): Promise<SubRQ[]> {
   const system =
-    `You are the interrogator stage of a research-design pipeline. Given a
-researcher's main research question, propose three sub-research-questions
-(RQ A, B, C) that each take a different angle on the topic. The three
-angles MUST be distinct: one mechanism-oriented, one intervention-oriented,
-one lived-experience-oriented. Output strict JSON only.`;
+    `You are the interrogator stage of a research-design pipeline.
+Given a researcher's main research question, propose three
+sub-research-questions (RQ A, B, C) that are FACETS OF THE SAME
+STUDY — not three separate studies. The three sub-RQs should be
+combinable into a single integrated study that, when answered
+together, addresses the main RQ.
+
+The three sub-RQs must take DIFFERENT angles on the same topic so
+they're complementary, not redundant:
+  RQ A — mechanism-oriented (what underlies the phenomenon)
+  RQ B — intervention-oriented (what shifts it in a measurable direction)
+  RQ C — lived-experience-oriented (how practitioners experience it)
+
+Each sub-RQ is a sharper version of the main RQ from one angle. The
+methods you suggest should be layerable in ONE study (e.g., one
+cohort, mixed-methods design) rather than three independent studies.
+Strict JSON only.`;
   const user =
-    `Main research question:\n${premise}\n\nReturn JSON:\n` +
+    `Main research question:\n${premise}\n\nReturn three sub-RQs that work as facets of one integrated study answering the main RQ. Return JSON:\n` +
     '```json\n' +
     `{
   "rqs": [
-    {"letter":"A","rq":"…","angle":"mechanism","method":"…","n":"n≈18"},
-    {"letter":"B","rq":"…","angle":"intervention","method":"…","n":"n≈24"},
-    {"letter":"C","rq":"…","angle":"lived experience","method":"…","n":"n≈12"}
+    {"letter":"A","rq":"<mechanism sub-RQ that sharpens the main RQ>","angle":"mechanism","method":"<method that contributes to a unified study>","n":"n≈18"},
+    {"letter":"B","rq":"<intervention sub-RQ in the same study>","angle":"intervention","method":"<layered method>","n":"n≈24"},
+    {"letter":"C","rq":"<lived-experience sub-RQ in the same study>","angle":"lived experience","method":"<layered method>","n":"n≈12"}
   ]
 }` +
     '\n```';
-  const text = await callLLM({ system, user, maxTokens: 1024 });
+  const text = await callLLM({ stage: 'brainstorm', system, user, maxTokens: 1024 });
   const parsed = extractJSON(text) as { rqs?: SubRQ[] };
   if (!parsed.rqs || !Array.isArray(parsed.rqs) || parsed.rqs.length === 0) {
     throw new Error('brainstorm: malformed response');
@@ -146,7 +156,7 @@ fabricate DOIs. Strict JSON only.`;
   "gaps":      ["bullet …", "bullet …", "bullet …"]
 }` +
     '\n```';
-  const text = await callLLM({ system, user, maxTokens: 1500 });
+  const text = await callLLM({ stage: 'literature', system, user, maxTokens: 1500 });
   const parsed = extractJSON(text) as Partial<LiteratureBlock>;
   return {
     letter: rq.letter,
@@ -192,7 +202,7 @@ the design covers (core/partial/none). Strict JSON only.`;
 }` +
     '\n```' +
     `\nCoverage keys MUST be exactly: ${letters}.`;
-  const text = await callLLM({ system, user, maxTokens: 3000 });
+  const text = await callLLM({ stage: 'methodology', system, user, maxTokens: 3000 });
   const parsed = extractJSON(text) as { candidates?: CandidateDesign[] };
   if (!parsed.candidates || !Array.isArray(parsed.candidates)) {
     throw new Error('methodology: malformed response');
@@ -224,7 +234,7 @@ detail, deliverables, recruitment, and risks. Strict JSON only.`;
   "risks":["…","…","…"]
 }` +
     '\n```';
-  const text = await callLLM({ system, user, maxTokens: 2000 });
+  const text = await callLLM({ stage: 'plan', system, user, maxTokens: 2000 });
   const parsed = extractJSON(text) as Partial<StudyPlan>;
   return {
     phases: Array.isArray(parsed.phases) ? parsed.phases : [],
@@ -264,7 +274,7 @@ Draft each artifact's body in markdown. Strict JSON only.`;
   ]
 }` +
     '\n```';
-  const text = await callLLM({ system, user, maxTokens: 4000 });
+  const text = await callLLM({ stage: 'artifacts', system, user, maxTokens: 4000 });
   const parsed = extractJSON(text) as { artifacts?: Artifact[] };
   return Array.isArray(parsed.artifacts) ? parsed.artifacts.slice(0, 6) : [];
 }
@@ -287,7 +297,7 @@ will color their responses. Strict JSON only.`;
   ]
 }` +
     '\n```';
-  const text = await callLLM({ system, user, maxTokens: 2000 });
+  const text = await callLLM({ stage: 'personas', system, user, maxTokens: 2000 });
   const parsed = extractJSON(text) as { personas?: Persona[] };
   if (!Array.isArray(parsed.personas)) return [];
   return parsed.personas.slice(0, n).map((p, i) => ({
@@ -329,7 +339,7 @@ low-severity. Each friction has a trigger (what causes it), evidence
   ]
 }` +
     '\n```';
-  const text = await callLLM({ system, user, maxTokens: 1500 });
+  const text = await callLLM({ stage: 'findings', system, user, maxTokens: 1500 });
   const parsed = extractJSON(text) as { findings?: Friction[] };
   return Array.isArray(parsed.findings) ? parsed.findings : [];
 }
@@ -364,7 +374,7 @@ Return JSON:
   "conclusion": "one paragraph ≤120 words"
 }
 \`\`\``;
-  const text = await callLLM({ system, user, maxTokens: 2000 });
+  const text = await callLLM({ stage: 'report', system, user, maxTokens: 2000 });
   const parsed = extractJSON(text) as {
     titleOptions?: string[];
     discussion?: string;
@@ -487,7 +497,7 @@ Return JSON:
 }
 \`\`\``;
 
-  const text = await callLLM({ system, user, maxTokens: 4500 });
+  const text = await callLLM({ stage: 'review', system, user, maxTokens: 4500 });
   const parsed = extractJSON(text) as Partial<ReviewSession>;
 
   // Defensive defaults so the UI never sees undefined critical fields.

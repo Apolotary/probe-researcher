@@ -527,17 +527,26 @@ function Brainstorm({ mainRq, onBack, onContinue }) {
 
           {/* Branches column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative' }}>
-            {thinking && allBranches.length === 3 && (
+            {/* Spinner shows whenever a brainstorm call is in flight.
+                The original mock gated this on allBranches.length===3
+                because it used a synchronous stockBranches; with the
+                live /api/probe/brainstorm fetch, branches start empty
+                and only populate once the API responds. Render the
+                spinner as long as `thinking` is true — that's the
+                load-bearing signal. */}
+            {thinking && window.ModelStatusLine && (
               <div className="fade-in" style={{ padding: '4px 0 2px' }}>
                 <window.ModelStatusLine
                   model="claude-sonnet-4-5"
                   phase={
-                    <window.PhaseDots
-                      phases={['planning', 'sketching angles', 'drafting', 'verifying']}
-                      activeIdx={Math.min(revealed, 3)}
-                      accent={palette.amber}
-                      compact
-                    />
+                    window.PhaseDots ? (
+                      <window.PhaseDots
+                        phases={['planning', 'sketching angles', 'drafting', 'verifying']}
+                        activeIdx={Math.min(revealed, 3)}
+                        accent={palette.amber}
+                        compact
+                      />
+                    ) : null
                   }
                   accent={palette.amber}
                   running

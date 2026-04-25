@@ -212,6 +212,26 @@ function Literature({ mainRq, selectedBranches, onBack, onContinue }) {
               </div>
             </div>
 
+            {/* Loading indicator while the live API call is in flight.
+                liveLit[letter] is set when /api/probe/literature lands. */}
+            {!live && window.ModelStatusLine && (
+              <div className="fade-in" style={{ padding: '10px 4px 0' }}>
+                <window.ModelStatusLine
+                  model="claude-sonnet-4-5"
+                  phase={window.PhaseDots ? (
+                    <window.PhaseDots
+                      phases={['planning', 'searching', 'ranking', 'drafting']}
+                      activeIdx={Math.min(stage, 3)}
+                      accent={palette.amber}
+                      compact
+                    />
+                  ) : null}
+                  accent={palette.amber}
+                  running
+                />
+              </div>
+            )}
+
             {/* state of the art */}
             <Section title="state of the art" hint="synthesis from agent read" reveal={stage >= 3}>
               <p style={{ margin: 0, color: palette.ink, fontSize: 14, lineHeight: 1.65 }}>

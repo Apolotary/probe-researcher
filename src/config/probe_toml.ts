@@ -32,14 +32,37 @@ export const ENV_VAR: Record<Provider, string> = {
   google:    'GOOGLE_API_KEY',
 };
 
+export type ModelMode = 'sonnet' | 'opus' | 'mixed' | 'custom';
+
+/**
+ * Stage IDs the probe ui workflow drives. Each maps to one LLM call
+ * (probe_calls.ts). When [models].mode is 'sonnet' / 'opus' / 'mixed',
+ * the per-stage values below are ignored and a preset is applied.
+ *
+ * Mixed = opus for orchestration (brainstorm, methodology, review),
+ * sonnet for execution (everything else). Per WWDC-cookbook style.
+ */
+export type UiStage =
+  | 'brainstorm' | 'literature' | 'methodology' | 'plan'
+  | 'artifacts'  | 'personas'   | 'findings'    | 'report' | 'review';
+
 export interface ProbeConfig {
   keys: Record<Provider, string>;
   models: {
+    /** Quick preset. Overrides the per-stage values below. */
+    mode: ModelMode;
+    /** Per-stage model IDs. Used when mode = 'custom'. */
+    brainstorm:  string;
     literature:  string;
     methodology: string;
+    plan:        string;
     artifacts:   string;
-    evaluation:  string;
+    personas:    string;
+    findings:    string;
     report:      string;
+    review:      string;
+    // Legacy alias (kept so older probe.toml files don't break parse).
+    evaluation:  string;
   };
   budget: {
     max_per_run:  number;
@@ -64,14 +87,32 @@ export interface ProbeConfig {
   };
 }
 
+/** Anthropic model IDs current as of April 2026. */
+export const SONNET = 'claude-sonnet-4-6';
+export const OPUS   = 'claude-opus-4-7';
+export const HAIKU  = 'claude-haiku-4-5-20251001';
+
+/** Stages where deep reasoning matters most (used by 'mixed' preset). */
+const ORCHESTRATION_STAGES: ReadonlySet<UiStage> = new Set([
+  'brainstorm', 'methodology', 'review',
+]);
+
 export const DEFAULT_CONFIG: ProbeConfig = {
   keys: { anthropic: '', openai: '', google: '' },
   models: {
-    literature:  'claude-sonnet-4-5',
-    methodology: 'claude-sonnet-4-5',
-    artifacts:   'claude-sonnet-4-5',
-    evaluation:  'claude-haiku-4-5',
-    report:      'claude-sonnet-4-5',
+    // Demo default: all sonnet 4.6 (fast + cheap). Switch to 'opus'
+    // for best-quality, 'mixed' for opus on orchestration stages.
+    mode:        'sonnet',
+    brainstorm:  SONNET,
+    literature:  SONNET,
+    methodology: SONNET,
+    plan:        SONNET,
+    artifacts:   SONNET,
+    personas:    SONNET,
+    findings:    SONNET,
+    report:      SONNET,
+    review:      SONNET,
+    evaluation:  SONNET, // legacy alias
   },
   budget: {
     max_per_run:  25.0,
@@ -273,4 +314,28 @@ export function keyHealth(cfg: ProbeConfig = readConfig()): { ok: number; total:
     if (resolveKey(p, cfg).source !== 'unset') ok++;
   }
   return { ok, total: PROVIDERS.length };
+}
+
+/**
+ * Resolve which model the UI should call for a given workflow stage.
+ * Preset modes ('sonnet' / 'opus' / 'mixed') override per-stage values
+ * so the user can flip the whole pipeline with a single config edit.
+ */
+export function modelForStage(stage: UiStage, cfg: ProbeConfig = readConfig()): string {
+  const m = cfg.models;
+  if (m.mode === 'sonnet') return SONNET;
+  if (m.mode === 'opus')   return OPUS;
+  if (m.mode === 'mixed')  return ORCHESTRATION_STAGES.has(stage) ? OPUS : SONNET;
+  // mode = 'custom' → fall back to per-stage assignments
+  switch (stage) {
+    case 'brainstorm':  return m.brainstorm  || SONNET;
+    case 'literature':  return m.literature  || SONNET;
+    case 'methodology': return m.methodology || SONNET;
+    case 'plan':        return m.plan        || SONNET;
+    case 'artifacts':   return m.artifacts   || SONNET;
+    case 'personas':    return m.personas    || SONNET;
+    case 'findings':    return m.findings    || SONNET;
+    case 'report':      return m.report      || SONNET;
+    case 'review':      return m.review      || SONNET;
+  }
 }

@@ -379,6 +379,26 @@ function Methodology({ mainRq, selectedBranches, onBack, onContinue }) {
         <SectionHeader title="candidate integrated designs"
           hint={`${designs.length} drafted · pick one or propose your own`} />
 
+        {/* Loading indicator while /api/probe/methodology is in flight.
+            liveDesigns stays null until the call lands. */}
+        {liveDesigns === null && window.ModelStatusLine && (
+          <div className="fade-in" style={{ padding: '4px 0 10px' }}>
+            <window.ModelStatusLine
+              model="claude-sonnet-4-5"
+              phase={window.PhaseDots ? (
+                <window.PhaseDots
+                  phases={['planning', 'drafting', 'piloting', 'verifying']}
+                  activeIdx={Math.min(revealed, 3)}
+                  accent={palette.amber}
+                  compact
+                />
+              ) : null}
+              accent={palette.amber}
+              running
+            />
+          </div>
+        )}
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {allDesigns.map((d, i) => {
             const visible = d.custom || i < revealed;

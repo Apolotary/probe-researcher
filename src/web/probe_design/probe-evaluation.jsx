@@ -226,7 +226,26 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone }) {
         )}
 
         {phase === 'running' && (
-          <RunningPanel personas={personas} progress={progress} />
+          <>
+            {window.ModelStatusLine && (
+              <div className="fade-in" style={{ padding: '14px 0 6px' }}>
+                <window.ModelStatusLine
+                  model="claude-sonnet-4-5"
+                  phase={window.PhaseDots ? (
+                    <window.PhaseDots
+                      phases={['planning', 'simulating', 'collating', 'reporting']}
+                      activeIdx={Math.min(Math.floor(progress * 4), 3)}
+                      accent={palette.amber}
+                      compact
+                    />
+                  ) : null}
+                  accent={palette.amber}
+                  running
+                />
+              </div>
+            )}
+            <RunningPanel personas={personas} progress={progress} />
+          </>
         )}
 
         {phase === 'done' && (
