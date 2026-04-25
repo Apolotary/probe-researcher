@@ -1,0 +1,24 @@
+{
+  "run_id": "2026-04-23_03-57-39_is_there_any_point_to_have_more_extra_fi",
+  "branches": [
+    {
+      "branchId": "a",
+      "status": "blocked",
+      "stage": "6_audit",
+      "reason": "Capture-risk audit fired a -2 finding.",
+      "blockingFinding": "audit:capture_risk:-2"
+    },
+    {
+      "branchId": "b",
+      "status": "failed",
+      "stage": "7d_meta",
+      "reason": "7c_novelty JSON parse failed after repair: SyntaxError: Unterminated string in JSON at position 8740 (line 76 column 127)"
+    },
+    {
+      "branchId": "c",
+      "status": "failed",
+      "stage": "7d_meta",
+      "reason": "7a_methodologist schema validation failed after repair:\n/criticisms/1/evidence_span/quote: must NOT have fewer than 10 characters"
+    }
+  ]
+}

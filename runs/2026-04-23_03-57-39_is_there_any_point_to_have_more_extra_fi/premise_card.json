@@ -1,0 +1,28 @@
+{
+  "stage": "1_premise",
+  "schema_version": "1.0.0",
+  "run_id": "2026-04-23_03-57-39_is_there_any_point_to_have_more_extra_fi",
+  "raw_premise": "is there any point to have more extra fingers past one extra artificial finger?",
+  "sharpest_question": "Point for whom, doing what task, measured how — the premise has no user, no task, and no outcome variable.",
+  "claim": "Adding supernumerary robotic fingers beyond one yields diminishing or negative returns on task performance, cognitive load, or embodiment — but the premise does not yet commit to which.",
+  "differentia": "Not visible. The premise does not name a task domain, a dependent measure, or a comparison condition that would distinguish it from existing supernumerary-limb studies.",
+  "nearest_template": "Supernumerary robotic limb / Third Thumb work (e.g., Dani Clode / Makin lab at UCL; MIT's supernumerary robotic fingers by Asada's group). These studies test single extra digits for bimanual-task augmentation, grasp stability, and motor cortex reorganization.",
+  "missing_evidence": [
+    "No user population specified (able-bodied augmentation? amputees? surgeons? musicians?).",
+    "No task specified — cardinality of fingers only matters relative to a manipulation demand.",
+    "No dependent variable — performance, learnability, embodiment, neural representation, cognitive load?",
+    "No control condition — is the comparison 1 vs 2 vs N extra fingers, or extra fingers vs other end-effectors?",
+    "No mechanism hypothesis — why would a second extra finger help or hurt (DOF saturation? control bandwidth? body-schema capacity?).",
+    "No actuation or control modality specified — fingers driven by which body signal (EMG, foot, breath, residual toe)? Control channel scarcity may be the real bottleneck, not finger count."
+  ],
+  "sharpened_options": [
+    "Territory: able-bodied manual augmentation is bottlenecked not by end-effector count but by available control channels. Niche: existing supernumerary-finger studies (Third Thumb, MIT SRF) test N=1 extra digit and do not characterize the control-channel ceiling. Occupation: in a bimanual assembly task, performance gains saturate or invert between one and two extra fingers when control is mapped to independent toe-flexion signals, because users cannot allocate independent motor commands beyond ~1 extra DOF cluster.",
+    "Territory: body-schema plasticity for non-biological limbs. Niche: prior work shows embodiment of a single extra thumb but has not tested whether the body schema can incorporate multiple simultaneous supernumerary digits. Occupation: subjective embodiment and proprioceptive drift measures will decrease monotonically as supernumerary finger count increases from 1 to 3, indicating a capacity limit on schema extension.",
+    "Territory: task-specific manipulation where the human hand is geometrically insufficient (e.g., surgical knot-tying, luthiery, cable routing). Niche: supernumerary-finger literature has focused on generic grasping, not geometrically-constrained tasks where added fingers have a principled role. Occupation: in tasks requiring simultaneous contact at >5 points, two extra fingers produce measurable completion-time gains over one, whereas in <=5-contact tasks they do not — the value of extra fingers is task-topological, not general.",
+    "Territory: rehabilitation for partial hand loss. Niche: prosthetic research optimizes replacement of missing digits but has not examined whether adding beyond anatomical count restores or exceeds baseline function. Occupation: for users with 3-finger residual hands, restoring to 5 outperforms restoring to 4, but adding a 6th yields no ADL performance gain — establishing an anatomical ceiling rather than a control ceiling."
+  ],
+  "provenance": {
+    "raw_premise": "RESEARCHER_INPUT",
+    "analysis": "AGENT_INFERENCE"
+  }
+}
