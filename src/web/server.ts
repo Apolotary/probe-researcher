@@ -109,6 +109,7 @@ export async function startWebServer(opts: WebServerOptions = {}): Promise<void>
   app.get('/ui/config',  uiRoute('Probe Config.html'));
   app.get('/ui/dossier', uiRoute('Dossier Prototype.html'));
   app.get('/ui/canvas',  uiRoute('Probe Web UI.html'));
+  app.get('/ui/replay',  uiRoute('Probe Replay.html'));
 
   // Static mount for the design's JSX modules + assets. Must come
   // AFTER the explicit named routes above so /ui/project picks the

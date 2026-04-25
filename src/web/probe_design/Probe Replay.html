@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · replay</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    background: #0f1419;
+    color: #c5c8d4;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 100vh;
+  }
+  #root { min-height: 100vh; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const palette = {
+  bg: '#0f1419', bg2: '#161b22',
+  ink: '#c5c8d4', ink2: '#8b93a7', ink3: '#5c6678',
+  amber: '#d9a548', amberSoft: 'rgba(217,165,72,0.14)',
+  moss: '#7fb069', cyan: '#7dcfff', rose: '#e26e6e',
+  rule: '#1f2530',
+};
+
+// Pretty timestamp ("3h ago", "yesterday", "2d ago")
+function relTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const ms = Date.now() - d.getTime();
+  const min = Math.floor(ms / 60000);
+  if (min < 1) return 'just now';
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const days = Math.floor(hr / 24);
+  return days === 1 ? 'yesterday' : `${days}d ago`;
+}
+
+function ReplayPicker() {
+  const [demos, setDemos] = useState(null);
+  const [hover, setHover] = useState(null);
+  const [cursor, setCursor] = useState(0);
+  const [status, setStatus] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/probe/demo/list')
+      .then((r) => r.json())
+      .then((d) => setDemos(d.demos || []))
+      .catch(() => setDemos([]));
+  }, []);
+
+  const startReplay = (name) => {
+    setStatus({ kind: 'starting', name });
+    fetch('/api/probe/demo/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, delayMs: 1500 }),
+    })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('start ' + r.status)))
+      .then(() => {
+        // Walk the user back through the workflow with cached responses.
+        // Pre-seeded by setting a query flag the new-project flow detects.
+        window.location.href = '/ui/new?demo=' + encodeURIComponent(name);
+      })
+      .catch((e) => setStatus({ kind: 'error', error: String(e.message || e) }));
+  };
+
+  const stopReplay = () => {
+    fetch('/api/probe/demo/stop', { method: 'POST' });
+  };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!demos || demos.length === 0) return;
+      if (e.key === 'ArrowDown' || e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+        setCursor((c) => Math.min(demos.length - 1, c + 1));
+      } else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCursor((c) => Math.max(0, c - 1));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        startReplay(demos[cursor].name);
+      } else if (e.key === 'Escape') {
+        window.location.href = '/ui';
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [demos, cursor]);
+
+  return (
+    <div style={{ minHeight: '100vh', background: palette.bg, color: palette.ink,
+      display: 'flex', flexDirection: 'column' }}>
+      {/* header */}
+      <div style={{
+        borderBottom: `1px solid ${palette.rule}`,
+        padding: '12px 22px', display: 'flex', alignItems: 'center', gap: 12,
+        color: palette.ink3, fontSize: 12,
+      }}>
+        <span style={{ color: palette.amber, fontWeight: 600 }}>probe</span>
+        <span style={{ color: palette.ink3 }}>›</span>
+        <span style={{ color: palette.ink }}>replay demo</span>
+        <span style={{ marginLeft: 'auto' }}>
+          <button onClick={() => { stopReplay(); window.location.href = '/ui'; }} style={{
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            color: palette.ink3, fontFamily: 'inherit', fontSize: 12.5,
+            padding: 0,
+          }}>← launcher</button>
+        </span>
+      </div>
+
+      <div style={{ flex: 1, padding: '40px 24px', maxWidth: 720, margin: '0 auto', width: '100%' }}>
+        <div style={{
+          color: palette.ink3, fontSize: 11, letterSpacing: '0.16em',
+          textTransform: 'uppercase', marginBottom: 14,
+        }}>──── saved demo recordings ────</div>
+        <h1 style={{ margin: 0, fontWeight: 500, fontSize: 22, color: palette.ink }}>
+          Pick a demo to replay
+        </h1>
+        <p style={{ color: palette.ink2, fontSize: 13.5, lineHeight: 1.6, marginTop: 10 }}>
+          Replay uses the saved API responses. Spinners and phase dots still
+          render at ~1.5s per stage so the cadence stays believable on camera,
+          but no Anthropic credit is spent.
+        </p>
+
+        {demos === null && (
+          <div style={{ color: palette.ink3, marginTop: 32, fontSize: 13 }}>… loading …</div>
+        )}
+
+        {demos !== null && demos.length === 0 && (
+          <div style={{
+            marginTop: 32, padding: '20px 22px',
+            background: palette.bg2, border: `1px solid ${palette.rule}`,
+            borderLeft: `3px solid ${palette.amber}`, borderRadius: 4,
+            color: palette.ink2, fontSize: 13, lineHeight: 1.6,
+          }}>
+            <div style={{ color: palette.amber, fontSize: 11, letterSpacing: '0.12em',
+              textTransform: 'uppercase', marginBottom: 8 }}>no demos yet</div>
+            Run <a href="/ui/new" style={{ color: palette.cyan }}>a new project</a> end-to-end,
+            then click <span style={{ color: palette.cyan }}>● save as demo</span> on the done
+            page. The recording will appear here for instant replay.
+          </div>
+        )}
+
+        {demos && demos.length > 0 && (
+          <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {demos.map((d, i) => {
+              const isCursor = cursor === i;
+              const isHover = hover === d.name;
+              const active = isCursor || isHover;
+              return (
+                <button
+                  key={d.name}
+                  onMouseEnter={() => { setHover(d.name); setCursor(i); }}
+                  onMouseLeave={() => setHover(null)}
+                  onClick={() => startReplay(d.name)}
+                  style={{
+                    textAlign: 'left', cursor: 'pointer',
+                    background: active ? palette.amberSoft : palette.bg2,
+                    border: `1px solid ${active ? palette.amber : palette.rule}`,
+                    borderLeft: `3px solid ${active ? palette.amber : palette.ink3}`,
+                    borderRadius: 4, padding: '12px 16px',
+                    color: 'inherit', fontFamily: 'inherit', fontSize: 13,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+                    <span style={{ color: palette.cyan, fontWeight: 600 }}>{d.name}</span>
+                    <span style={{ marginLeft: 'auto', color: palette.ink3, fontSize: 11.5 }}>
+                      {relTime(d.savedAt)}
+                    </span>
+                  </div>
+                  {d.premise && (
+                    <div style={{ color: palette.ink2, fontSize: 12.5, marginTop: 6, lineHeight: 1.5 }}>
+                      {d.premise.length > 140 ? d.premise.slice(0, 138) + '…' : d.premise}
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+            <div style={{ color: palette.ink3, fontSize: 11.5, marginTop: 10 }}>
+              j/k or ↑↓ to move · enter to replay · esc to launcher
+            </div>
+          </div>
+        )}
+
+        {status?.kind === 'starting' && (
+          <div style={{ marginTop: 18, color: palette.cyan, fontSize: 12.5 }}>
+            … starting replay of <strong>{status.name}</strong> …
+          </div>
+        )}
+        {status?.kind === 'error' && (
+          <div style={{ marginTop: 18, color: palette.rose, fontSize: 12.5 }}>
+            ✗ {status.error}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<ReplayPicker />);
+</script>
+</body>
+</html>

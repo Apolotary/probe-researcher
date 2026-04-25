@@ -110,6 +110,24 @@ function NewProject() {
   }, []);
   useEffect(() => { if (route === 'input') taRef.current && taRef.current.focus(); }, [route]);
 
+  // Demo-replay flow: ?demo=<name> in the URL means we just landed
+  // here from /ui/replay → /api/probe/demo/start. Pre-fill the
+  // premise textarea with the saved demo's premise so the user can
+  // just press Enter to walk the canned flow.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const demoName = params.get('demo');
+    if (!demoName) return;
+    fetch('/api/probe/demo/load?name=' + encodeURIComponent(demoName))
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (d?.state?.premise) {
+          setText(d.state.premise);
+        }
+      })
+      .catch(() => { /* user can still type one */ });
+  }, []);
+
   const onKey = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -177,7 +195,18 @@ function NewProject() {
     return <div style={{ padding: 40, color: palette.ink3 }}>Loading review…</div>;
   }
   if (route === 'done') {
+    // Pass the full workflow state so the Done pane can save a demo
+    // recording that captures every stage (premise → review).
+    const fullState = {
+      premise: mainRq,
+      selectedBranches,
+      chosenDesign,
+      plan,
+      evalResult,
+      // Loose copy of any extra evalResult fields (paperTitle/discussion/conclusion/findings/personas)
+    };
     return <DonePane mainRq={mainRq} chosenDesign={chosenDesign}
+      fullState={fullState}
       onBack={() => setRoute('review')}
       onRestart={() => { setRoute('input'); setText(''); setMainRq(''); setSelectedBranches([]); setChosenDesign(null); setPlan(null); }} />;
   }
@@ -725,7 +754,9 @@ function Brainstorm({ mainRq, onBack, onContinue }) {
 }
 
 // ─── Final landing pane after the simulated evaluation finishes ───
-function DonePane({ mainRq, chosenDesign, onBack, onRestart }) {
+function DonePane({ mainRq, chosenDesign, fullState, onBack, onRestart }) {
+  const [saveStatus, setSaveStatus] = useState(null);
+
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') { e.preventDefault(); onBack(); }
@@ -733,6 +764,27 @@ function DonePane({ mainRq, chosenDesign, onBack, onRestart }) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+
+  const saveAsDemo = () => {
+    const suggested = (mainRq || 'demo').slice(0, 60);
+    const name = window.prompt('Name this demo recording:', suggested);
+    if (!name) return;
+    setSaveStatus({ kind: 'saving', name });
+    fetch('/api/probe/demo/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, state: fullState || { premise: mainRq } }),
+    })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('save ' + r.status)))
+      .then((data) => {
+        setSaveStatus({ kind: 'saved', name: data?.saved?.name || name });
+        setTimeout(() => setSaveStatus(null), 4000);
+      })
+      .catch((e) => {
+        setSaveStatus({ kind: 'error', error: String(e.message || e) });
+        setTimeout(() => setSaveStatus(null), 5000);
+      });
+  };
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Crumb steps={[
@@ -776,17 +828,32 @@ function DonePane({ mainRq, chosenDesign, onBack, onRestart }) {
             study design · {chosenDesign?.name || '—'} · {chosenDesign?.duration || '—'}
           </div>
         </div>
-        <div style={{ marginTop: 36, display: 'flex', gap: 12 }}>
+        <div style={{ marginTop: 36, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button onClick={onBack} style={{
             background: 'transparent', border: `1px solid ${palette.rule}`, color: palette.ink2,
             padding: '7px 16px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, cursor: 'pointer',
           }}>revisit a stage</button>
+          <button onClick={saveAsDemo} title="Save this run for instant replay (demo videos)" style={{
+            background: 'transparent', border: `1px solid ${palette.cyan}`, color: palette.cyan,
+            padding: '7px 16px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
+            cursor: 'pointer',
+          }}>● save as demo</button>
           <button onClick={onRestart} style={{
             background: palette.amber, border: `1px solid ${palette.amber}`, color: palette.bg,
             padding: '7px 16px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
             cursor: 'pointer',
           }}>start a new project</button>
         </div>
+        {saveStatus && (
+          <div style={{
+            marginTop: 14, fontSize: 12,
+            color: saveStatus.kind === 'saved' ? palette.moss : saveStatus.kind === 'error' ? palette.rose : palette.cyan,
+          }}>
+            {saveStatus.kind === 'saving' && '… saving demo …'}
+            {saveStatus.kind === 'saved' && `✓ saved as "${saveStatus.name}" — replay from launcher`}
+            {saveStatus.kind === 'error' && `✗ ${saveStatus.error}`}
+          </div>
+        )}
       </div>
       <StatusBar
         head={<><span style={{ color: palette.moss }}>● ready</span><span>7 stages complete</span></>}

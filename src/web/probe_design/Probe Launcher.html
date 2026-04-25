@@ -54,12 +54,12 @@ const palette = {
 
 // Menu items with real destinations.
 const menu = [
-  { key: 'n', icon: '+', label: 'New project',     hint: 'state a premise',          href: '/ui/new'     },
-  { key: 'o', icon: '↗', label: 'Open project',    hint: 'pick local run',           href: '/ui/project' },
-  { key: 'r', icon: '↻', label: 'Recent',          hint: '3 runs · 12d',             href: '/ui/recent'  },
-  { key: 'd', icon: '▶', label: 'Replay demo_run', hint: 'cached · $0',              href: '/ui/dossier' },
-  { key: 'c', icon: '⚙', label: 'Config',          hint: '~/.config/probe/probe.toml', href: '/ui/config' },
-  { key: 'q', icon: '×', label: 'Quit',            hint: 'close window',             action: 'quit' },
+  { key: 'n', icon: '+', label: 'New project',     hint: 'state a premise',                href: '/ui/new'     },
+  { key: 'o', icon: '↗', label: 'Open project',    hint: 'pick local run',                 href: '/ui/project' },
+  { key: 'd', icon: '▶', label: 'Replay demo',     hint: 'saved runs · cached · $0',       href: '/ui/replay'  },
+  { key: 'p', icon: '◇', label: 'Dossier preview', hint: 'design canvas / prototype',      href: '/ui/dossier' },
+  { key: 'c', icon: '⚙', label: 'Config',          hint: '~/.config/probe/probe.toml',     href: '/ui/config' },
+  { key: 'q', icon: '×', label: 'Quit',            hint: 'close window',                   action: 'quit' },
 ];
 
 function Launcher() {
