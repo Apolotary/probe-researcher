@@ -103,7 +103,45 @@ function NewProject() {
   const [evalResult, setEvalResult] = useState(null);
   const [text, setText] = useState('');
   const [caretOn, setCaretOn] = useState(true);
+  // Track whether we're inside a demo replay so the workflow can show
+  // a small badge — judges who land here via "▶ replay sample run"
+  // shouldn't think the responses they see are live LLM output. The
+  // badge is rendered as a fixed-position element via React.Fragment
+  // so it sits above whatever stage is currently mounted.
+  const [replayingDemo, setReplayingDemo] = useState(null);
   const taRef = useRef(null);
+
+  // Render the badge near the top of the viewport. Fixed-positioned
+  // and small so it never interferes with stage layout. Click clears
+  // the active demo (calls /api/probe/demo/stop) and returns to home,
+  // which is the only safe way to exit replay-cached responses.
+  const DemoBadge = () => replayingDemo ? (
+    <div
+      onClick={() => {
+        fetch('/api/probe/demo/stop', { method: 'POST' }).catch(() => null);
+        if (window.parent !== window) {
+          try { window.parent.postMessage({ type: 'probe-nav', target: 'home' }, '*'); } catch { /* */ }
+        } else {
+          window.location.href = '/ui';
+        }
+      }}
+      title="Click to exit replay and return home"
+      style={{
+        position: 'fixed', top: 8, right: 12, zIndex: 1000,
+        display: 'flex', alignItems: 'center', gap: 6,
+        padding: '4px 10px', borderRadius: 999,
+        background: 'rgba(125,207,255,0.10)',
+        border: '1px solid rgba(125,207,255,0.5)',
+        color: '#7dcfff', fontFamily: 'inherit', fontSize: 11,
+        cursor: 'pointer', userSelect: 'none',
+        backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+      }}
+    >
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#7dcfff' }} />
+      <span>replay · {replayingDemo}</span>
+      <span style={{ color: 'rgba(125,207,255,0.6)', marginLeft: 4 }}>×</span>
+    </div>
+  ) : null;
 
   useEffect(() => {
     const iv = setInterval(() => setCaretOn((c) => !c), 530);
@@ -138,6 +176,7 @@ function NewProject() {
       return;
     }
     if (demoName) {
+      setReplayingDemo(demoName);
       fetch('/api/probe/demo/load?name=' + encodeURIComponent(demoName))
         .then((r) => r.ok ? r.json() : null)
         .then((d) => {
@@ -206,51 +245,54 @@ function NewProject() {
     }
   };
 
+  // Wrap each route's component in a fragment so the demo-replay badge
+  // can ride along on top of every stage. DemoBadge is null when no
+  // demo is active, so non-demo runs render the same as before.
   if (route === 'brainstorm') {
-    return <Brainstorm mainRq={mainRq} onBack={() => setRoute('input')} goTo={goTo}
-      onContinue={(branches) => { setSelectedBranches(branches); setRoute('literature'); }} />;
+    return <><DemoBadge /><Brainstorm mainRq={mainRq} onBack={() => setRoute('input')} goTo={goTo}
+      onContinue={(branches) => { setSelectedBranches(branches); setRoute('literature'); }} /></>;
   }
   if (route === 'literature') {
-    return <window.Literature mainRq={mainRq} selectedBranches={selectedBranches} goTo={goTo}
+    return <><DemoBadge /><window.Literature mainRq={mainRq} selectedBranches={selectedBranches} goTo={goTo}
       onBack={() => setRoute('brainstorm')}
-      onContinue={() => setRoute('methodology')} />;
+      onContinue={() => setRoute('methodology')} /></>;
   }
   if (route === 'methodology') {
-    return <window.Methodology mainRq={mainRq} selectedBranches={selectedBranches} goTo={goTo}
+    return <><DemoBadge /><window.Methodology mainRq={mainRq} selectedBranches={selectedBranches} goTo={goTo}
       onBack={() => setRoute('literature')}
       onContinue={({ chosenDesign: cd, plan: pl }) => {
         setChosenDesign(cd); setPlan(pl); setRoute('artifacts');
-      }} />;
+      }} /></>;
   }
   if (route === 'artifacts') {
-    return <window.Artifacts chosenDesign={chosenDesign} plan={plan}
+    return <><DemoBadge /><window.Artifacts chosenDesign={chosenDesign} plan={plan}
       selectedBranches={selectedBranches} goTo={goTo}
       onBack={() => setRoute('methodology')}
-      onContinue={() => setRoute('evaluation')} />;
+      onContinue={() => setRoute('evaluation')} /></>;
   }
   if (route === 'evaluation') {
-    return <window.Evaluation chosenDesign={chosenDesign} plan={plan}
+    return <><DemoBadge /><window.Evaluation chosenDesign={chosenDesign} plan={plan}
       selectedBranches={selectedBranches} goTo={goTo}
       onBack={() => setRoute('artifacts')}
-      onDone={(result) => { setEvalResult(result); setRoute('report'); }} />;
+      onDone={(result) => { setEvalResult(result); setRoute('report'); }} /></>;
   }
   if (route === 'report') {
-    return <window.Report mainRq={mainRq} selectedBranches={selectedBranches}
+    return <><DemoBadge /><window.Report mainRq={mainRq} selectedBranches={selectedBranches}
       chosenDesign={chosenDesign} plan={plan} evalResult={evalResult} goTo={goTo}
       onBack={() => setRoute('evaluation')}
-      onDone={() => setRoute('review')} />;
+      onDone={() => setRoute('review')} /></>;
   }
   // Review — stage 07. Inserted between report and done per CHANGES.md.
   // window.Review is provided by probe-review.jsx.
   if (route === 'review') {
     if (window.Review) {
-      return <window.Review
+      return <><DemoBadge /><window.Review
         mainRq={mainRq} selectedBranches={selectedBranches}
         chosenDesign={chosenDesign} plan={plan} evalResult={evalResult} goTo={goTo}
         onBack={() => setRoute('report')}
-        onDone={() => setRoute('done')} />;
+        onDone={() => setRoute('done')} /></>;
     }
-    return <div style={{ padding: 40, color: palette.ink3 }}>Loading review…</div>;
+    return <><DemoBadge /><div style={{ padding: 40, color: palette.ink3 }}>Loading review…</div></>;
   }
   if (route === 'done') {
     const fullState = {
@@ -260,15 +302,17 @@ function NewProject() {
       plan,
       evalResult,
     };
-    return <DonePane mainRq={mainRq} chosenDesign={chosenDesign} goTo={goTo}
+    return <><DemoBadge /><DonePane mainRq={mainRq} chosenDesign={chosenDesign} goTo={goTo}
       fullState={fullState}
       onBack={() => setRoute('review')}
-      onRestart={() => { setRoute('input'); setText(''); setMainRq(''); setSelectedBranches([]); setChosenDesign(null); setPlan(null); }} />;
+      onRestart={() => { setRoute('input'); setText(''); setMainRq(''); setSelectedBranches([]); setChosenDesign(null); setPlan(null); }} /></>;
   }
 
   const wc = text.trim() ? text.trim().split(/\s+/).length : 0;
 
   return (
+    <>
+      <DemoBadge />
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Crumb steps={[
                ['probe', palette.amber, 'probe'],
@@ -406,6 +450,7 @@ function NewProject() {
 
       <StatusBar tail={<span>press <kbd style={kbdStyle}>↵</kbd> to begin</span>} />
     </div>
+    </>
   );
 }
 
