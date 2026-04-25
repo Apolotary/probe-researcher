@@ -204,8 +204,31 @@ async function checkGit(root: string): Promise<CheckResult> {
       const { stdout: branch } = await pExecFile('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: root });
       return { name: 'Git working tree', passed: true, detail: `clean on ${branch.trim()}` };
     }
-    const changes = status.trim().split('\n').length;
-    return { name: 'Git working tree', passed: false, detail: `${changes} uncommitted change(s)`, warning: true };
+    // Categorise so a fresh clone with normal worktree drift doesn't look
+    // alarming. Three buckets:
+    //   - source: modified/staged tracked files outside runs/<id>/branches
+    //     (these are real uncommitted code changes)
+    //   - worktree: gitlink-mode entries under runs/*/branches/* — every
+    //     active research-run worktree is one of these by design, the
+    //     parent always lags behind the worktree's HEAD
+    //   - untracked: ?? entries (new files not yet added)
+    const lines = status.trim().split('\n');
+    const isWorktreeBranch = (l: string) =>
+      /^.M\s+runs\/[^/]+\/branches\/[^/]+\/?$/.test(l);
+    const isUntracked = (l: string) => l.startsWith('??');
+    const worktree = lines.filter(isWorktreeBranch).length;
+    const untracked = lines.filter(isUntracked).length;
+    const source = lines.length - worktree - untracked;
+    if (source === 0) {
+      const parts: string[] = ['source clean'];
+      if (worktree > 0)  parts.push(`${worktree} worktree branch(es) drifted`);
+      if (untracked > 0) parts.push(`${untracked} untracked`);
+      return { name: 'Git working tree', passed: true, detail: parts.join(' · ') };
+    }
+    const parts: string[] = [`${source} source change(s)`];
+    if (worktree > 0)  parts.push(`${worktree} worktree drift`);
+    if (untracked > 0) parts.push(`${untracked} untracked`);
+    return { name: 'Git working tree', passed: false, detail: parts.join(' · '), warning: true };
   } catch {
     return { name: 'Git working tree', passed: false, detail: 'not a git repo' };
   }
