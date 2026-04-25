@@ -14,7 +14,7 @@
 import express from 'express';
 import {
   brainstorm, literature, methodology, plan,
-  artifacts, personas, findings, report, review,
+  artifacts, personas, findings, report, review, teaser,
   hasApiKey,
 } from '../llm/probe_calls.js';
 import * as demo from './probe_demo.js';
@@ -244,6 +244,30 @@ export function mountProbeApi(app: express.Express): void {
         findings: body.findings ?? [],
         paperTitle: body.paperTitle ?? 'Untitled paper',
         discussion: body.discussion ?? '',
+      });
+    });
+  });
+
+  // Teaser SVG generator — used by the report stage's "project page"
+  // export. Asks the LLM to produce a Nerfies-style hero figure.
+  // Returns { svg, caption }.
+  router.post('/teaser', async (req, res) => {
+    const body = (req.body ?? {}) as {
+      premise?: string;
+      paperTitle?: string;
+      designName?: string;
+      rqs?: Array<{ letter: string; rq: string; angle: string; method: string; n: string }>;
+    };
+    if (!body.premise || !body.paperTitle) {
+      res.status(400).json({ error: 'premise and paperTitle required' });
+      return;
+    }
+    await served(res, 'teaser', body, async () => {
+      return await teaser({
+        premise: body.premise!,
+        paperTitle: body.paperTitle!,
+        designName: body.designName ?? 'integrated study',
+        rqs: body.rqs ?? [],
       });
     });
   });

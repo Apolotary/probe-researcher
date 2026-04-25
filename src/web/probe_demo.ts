@@ -19,6 +19,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { projectRoot } from '../util/paths.js';
 
 interface SavedDemo {
   name: string;
@@ -35,7 +36,12 @@ interface DemoCursor {
   delayMs: number;
 }
 
-const HOME_DIR = path.join(os.homedir(), '.config', 'probe', 'demos');
+// Two locations are searched. User-saved demos live in ~/.config so
+// they survive across versions of the binary. Bundled demos ship with
+// the repo so a fresh clone has at least one demo ready to replay
+// (judge-friendly: no API key required).
+const HOME_DIR    = path.join(os.homedir(), '.config', 'probe', 'demos');
+const BUNDLED_DIR = path.join(projectRoot(), 'assets', 'demos');
 
 let active: DemoCursor | null = null;
 
@@ -65,40 +71,55 @@ export function saveDemo(name: string, state: { premise?: string }): SavedDemo {
   return payload;
 }
 
-export function listDemos(): Array<{ name: string; savedAt: string; premise: string }> {
-  ensureDir();
+function readDemoFile(dir: string, file: string): { name: string; savedAt: string; premise: string } | null {
   try {
-    return fs.readdirSync(HOME_DIR)
-      .filter((f) => f.endsWith('.json'))
-      .map((f) => {
-        try {
-          const raw = fs.readFileSync(path.join(HOME_DIR, f), 'utf8');
-          const parsed = JSON.parse(raw) as SavedDemo;
-          return {
-            name: parsed.name ?? f.replace(/\.json$/, ''),
-            savedAt: parsed.savedAt ?? '',
-            premise: parsed.premise ?? '',
-          };
-        } catch {
-          return null;
-        }
-      })
-      .filter((x): x is { name: string; savedAt: string; premise: string } => x !== null)
-      .sort((a, b) => b.savedAt.localeCompare(a.savedAt));
+    const raw = fs.readFileSync(path.join(dir, file), 'utf8');
+    const parsed = JSON.parse(raw) as SavedDemo;
+    return {
+      name: parsed.name ?? file.replace(/\.json$/, ''),
+      savedAt: parsed.savedAt ?? '',
+      premise: parsed.premise ?? '',
+    };
   } catch {
-    return [];
+    return null;
   }
+}
+
+export function listDemos(): Array<{ name: string; savedAt: string; premise: string; bundled?: boolean }> {
+  ensureDir();
+  // Build a name → entry map so user-saved demos shadow bundled ones
+  // with the same name (the user's edits win).
+  const byName = new Map<string, { name: string; savedAt: string; premise: string; bundled?: boolean }>();
+  // Bundled first (lowest priority).
+  try {
+    if (fs.existsSync(BUNDLED_DIR)) {
+      for (const f of fs.readdirSync(BUNDLED_DIR).filter((f) => f.endsWith('.json'))) {
+        const e = readDemoFile(BUNDLED_DIR, f);
+        if (e) byName.set(e.name, { ...e, bundled: true });
+      }
+    }
+  } catch { /* ignore */ }
+  // User home overrides.
+  try {
+    for (const f of fs.readdirSync(HOME_DIR).filter((f) => f.endsWith('.json'))) {
+      const e = readDemoFile(HOME_DIR, f);
+      if (e) byName.set(e.name, e);
+    }
+  } catch { /* ignore */ }
+  return [...byName.values()].sort((a, b) => b.savedAt.localeCompare(a.savedAt));
 }
 
 export function loadDemo(name: string): SavedDemo | null {
   ensureDir();
   const slug = slugify(name);
-  const target = path.join(HOME_DIR, `${slug}.json`);
-  try {
-    return JSON.parse(fs.readFileSync(target, 'utf8')) as SavedDemo;
-  } catch {
-    return null;
+  // Try user home first; fall back to bundled.
+  for (const dir of [HOME_DIR, BUNDLED_DIR]) {
+    const target = path.join(dir, `${slug}.json`);
+    try {
+      return JSON.parse(fs.readFileSync(target, 'utf8')) as SavedDemo;
+    } catch { /* try next */ }
   }
+  return null;
 }
 
 export function startReplay(name: string, delayMs = 1500): SavedDemo | null {

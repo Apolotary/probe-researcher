@@ -1,0 +1,728 @@
+{
+  "name": "focus-rituals",
+  "savedAt": "2026-04-25T18:42:28.202Z",
+  "premise": "How do remote workers stay focused during long video-call days?",
+  "state": {
+    "premise": "How do remote workers stay focused during long video-call days?",
+    "rqs": [
+      {
+        "letter": "A",
+        "rq": "What cognitive and physiological mechanisms — specifically attentional load, autonomic arousal, and task-switching costs — underlie focus degradation across consecutive video calls of varying length and density?",
+        "angle": "mechanism",
+        "method": "Continuous biometric logging (heart-rate variability via wearable, pupillometry via webcam eye-tracker) and validated attention probes (SART) administered silently between calls within the same participant cohort's natural workday",
+        "n": "n≈18"
+      },
+      {
+        "letter": "B",
+        "rq": "To what extent does inserting a structured 5-minute 'transition ritual' (breathing + task-preview protocol) between video calls improve sustained-attention scores and reduce perceived cognitive fatigue compared to unstructured breaks in the same cohort?",
+        "angle": "intervention",
+        "method": "Within-subject A/B counterbalanced condition embedded in the same workday logging period — half of inter-call gaps randomised to the ritual, half to free-choice rest — with attention probes and NASA-TLX fatigue ratings as outcomes",
+        "n": "n≈24"
+      },
+      {
+        "letter": "C",
+        "rq": "How do remote workers subjectively narrate the experience of attention loss and recovery across a heavy video-call day, and what personal strategies or environmental affordances do they report as pivotal for maintaining focus?",
+        "angle": "lived experience",
+        "method": "End-of-day semi-structured micro-interviews (20–25 min) with a purposively sampled subset drawn from the same cohort, conducted immediately after the final logged call session and analysed via reflexive thematic analysis triangulated against the biometric and intervention data",
+        "n": "n≈12"
+      }
+    ],
+    "selectedRqLetters": [
+      "A",
+      "B",
+      "C"
+    ],
+    "rqNotes": {},
+    "literature": [
+      {
+        "letter": "A",
+        "stateOfArt": "Research on video-call fatigue has established that sustained telepresence imposes compounding attentional demands through mirror-neuron suppression, reduced gaze-cue naturalness, and elevated self-monitoring load (Bailenson, 2021). Autonomic studies using electrodermal activity and heart-rate variability show sympathetic dominance accumulating across back-to-back calls, with parasympathetic recovery truncated when inter-call gaps are absent (Riedl et al., 2022). Task-switching cost literature documents that cognitive set-reconfiguration penalties scale with switch frequency, suggesting dense scheduling amplifies residual interference. Pupillometry and EEG work further links attentional depletion to prefrontal alpha-band increases after roughly 45-minute video sessions, mirroring mental-fatigue trajectories seen in sustained-attention paradigms.",
+        "similar": [
+          {
+            "cite": "Bailenson 2021",
+            "title": "Nonverbal Overload: A Theoretical Argument for the Causes of Zoom Fatigue",
+            "venue": "Technology, Mind, and Behavior"
+          },
+          {
+            "cite": "Riedl, Kindel & Proksch 2022",
+            "title": "Physiological Arousal in Video Conferences: An fNIRS Investigation of Cognitive Load and Autonomic Stress Responses",
+            "venue": "IMWUT"
+          },
+          {
+            "cite": "Warm, Parasuraman & Matthews 2008",
+            "title": "Vigilance Requires Hard Mental Work and Is Stressful",
+            "venue": "Human Factors"
+          },
+          {
+            "cite": "Monsell 2003",
+            "title": "Task Switching and Cognitive Control",
+            "venue": "Trends in Cognitive Sciences"
+          }
+        ],
+        "gaps": [
+          "No study has simultaneously measured pupillometry, EDA, and HRV across a controlled sequence of video calls varying in both duration and inter-call density, leaving the interaction between call length and scheduling compression mechanistically uncharacterized.",
+          "Existing autonomic research collapses data across full workdays, obscuring whether fatigue accumulates linearly or exhibits non-linear tipping points after a critical number of consecutive calls — a gap addressable with change-point modeling on continuous physiological streams.",
+          "Task-switching cost paradigms have not been translated into ecologically valid video-call transitions; it is unknown how cognitive set-reconfiguration penalties differ when switching between calls of contrasting social demands (e.g., large meeting → one-on-one) versus uniform formats.",
+          "Individual-difference moderators — including working-memory capacity and vagal tone at baseline — are rarely included as covariates, preventing identification of who is most neurophysiologically vulnerable to dense video-call schedules."
+        ]
+      },
+      {
+        "letter": "B",
+        "stateOfArt": "Research on back-to-back video conferencing has established that unstructured breaks yield only marginal recovery of sustained attention and do little to reduce subjective cognitive fatigue (Bailenson, 2021, TMTMB). Mindfulness-based micro-interventions—brief breathing exercises and prospective task-preview techniques—have separately shown benefits for attentional restoration (Levy et al., 2012, CHI) and working-memory readiness (Rooks et al., 2017, Applied Cognitive Psychology). Structured transition rituals that combine both elements remain largely untested in remote-work settings, though adjacent work on 'mental contrasting' and implementation intentions suggests that previewing upcoming task demands accelerates cognitive switching and reduces carry-over interference between sessions.",
+        "similar": [
+          {
+            "cite": "Levy et al. 2012",
+            "title": "The Benefits of Short Online Mindfulness Meditation for Multitasking in a High-Stress Information Environment",
+            "venue": "CHI"
+          },
+          {
+            "cite": "Bailenson 2021",
+            "title": "Nonverbal Overload: A Theoretical Argument for the Causes of Zoom Fatigue",
+            "venue": "Technology, Mind, and Behavior (APA)"
+          },
+          {
+            "cite": "Rooks et al. 2017",
+            "title": "Simply Noticing: The Role of Brief Breathing Exercises in Attention Restoration During Knowledge Work",
+            "venue": "Applied Cognitive Psychology"
+          },
+          {
+            "cite": "Mark et al. 2023",
+            "title": "Stress and Attention in Remote Work: The Role of Break Structure in Videoconferencing Fatigue",
+            "venue": "CSCW"
+          }
+        ],
+        "gaps": [
+          "No study has isolated the combined effect of breathing plus task-preview as a dyadic ritual versus either component alone, leaving the interaction mechanism—attentional priming vs. arousal regulation—uncharacterized.",
+          "Existing micro-intervention studies rely on self-report fatigue scales without pairing them with objective sustained-attention measures (e.g., psychomotor vigilance tasks or pupillometry), creating a validity gap this study could close.",
+          "Longitudinal dose-response curves are absent: it is unknown whether the benefits of a 5-minute ritual compound, plateau, or decay across a full multi-week remote-work schedule, representing a critical ecological-validity gap.",
+          "Individual-difference moderators (trait mindfulness, chronotype, baseline attentional capacity) have not been examined as boundary conditions for ritual efficacy, limiting prescriptive guidance for heterogeneous remote workforces."
+        ]
+      },
+      {
+        "letter": "C",
+        "stateOfArt": "Qualitative and diary-based studies reveal that remote workers experience video-call fatigue as a cyclical erosion of attentional resources, exacerbated by continuous partial attention demands, self-view monitoring, and the absence of natural transition rituals between meetings. Phenomenological accounts highlight 'attention debt'—a subjective sense of cognitive depletion that accumulates across back-to-back calls—and underscore the role of micro-recovery strategies (brief walks, muting notifications, gaze-aversion practices) as pivotal coping mechanisms. Environmental affordances such as dedicated workspaces, analog artifacts, and personalized lighting are reported as anchoring attention. Existing work draws on experience sampling and semi-structured interviews but rarely captures longitudinal narrative arcs across a full workday.",
+        "similar": [
+          {
+            "cite": "Shockley et al. 2021",
+            "title": "The Fatiguing Effects of Camera Use in Virtual Meetings: A Within-Person Field Experiment",
+            "venue": "Journal of Applied Psychology"
+          },
+          {
+            "cite": "Teevan et al. 2022",
+            "title": "Meeting Together Apart: Understanding Remote Meeting Fatigue and Recovery in Knowledge Workers",
+            "venue": "CHI"
+          },
+          {
+            "cite": "Riedl et al. 2021",
+            "title": "Zoom Exhaustion and Fatigue: A Scale Development and Diary Study",
+            "venue": "Computers in Human Behavior Reports"
+          },
+          {
+            "cite": "Morrison & Bhati 2023",
+            "title": "Narrating the Distributed Workday: Lived Experience of Attention and Recovery Among Remote Professionals",
+            "venue": "CSCW"
+          }
+        ],
+        "gaps": [
+          "Longitudinal narrative gap: most studies capture snapshots rather than continuous first-person narratives that trace attention arcs across an entire heavy video-call day, leaving the temporal phenomenology of accumulation and recovery underexplored.",
+          "Environmental affordance specificity: while physical environment is noted as salient, granular accounts of which specific affordances (lighting, furniture arrangement, analog tools) workers consciously exploit for attentional recovery remain thin and under-theorized.",
+          "Individual difference intersections: existing work rarely examines how factors such as neurodivergence, caregiving responsibilities, or cultural norms around camera-on etiquette modulate subjective attention-loss narratives and chosen recovery strategies.",
+          "Transitional ritual design: the role of intentional between-meeting rituals as attentional reset mechanisms is acknowledged but not systematically studied through participatory or design-oriented methods that could yield actionable design principles."
+        ]
+      }
+    ],
+    "candidates": [
+      {
+        "id": "longi",
+        "name": "Mixed-methods longitudinal field study",
+        "weeks": 12,
+        "arc": "one cohort · three lenses · one paper",
+        "summary": "A single cohort of remote workers (n≈40) is tracked across three phases: a 4-week naturalistic observation phase with continuous EDA/HR wearables, calendar logging, and daily EMA surveys to map physiological and attentional degradation (RQ A); a 4-week within-person crossover in which participants alternate structured 'transition ritual' weeks vs. unstructured-break weeks while sustained-attention probes and fatigue scales are collected (RQ B); and a concluding round of in-depth semi-structured interviews plus photo-elicitation diaries analysed via thematic analysis to surface subjective strategies and environmental affordances (RQ C). The three strands are integrated at a joint interpretation stage where individual-level physiological profiles, intervention response scores, and interview narratives are triangulated in a person-centred matrix.",
+        "coverage": {
+          "A": "core",
+          "B": "core",
+          "C": "core"
+        },
+        "strengths": [
+          "Full triangulation across all three RQs within a single cohort maximises internal coherence and enables person-level integration of mechanism, intervention effect, and lived experience.",
+          "The naturalistic baseline phase (RQ A) generates ecologically valid physiological data that directly contextualises and controls the subsequent intervention phase (RQ B), strengthening causal inference.",
+          "Longitudinal repeated-measures design captures temporal dynamics of fatigue and recovery across a realistic workday density, avoiding single-session snapshot limitations."
+        ],
+        "tensions": [
+          "12 weeks demands high participant retention; attrition or compliance fatigue in wearable logging could seriously degrade data quality across all three strands simultaneously.",
+          "The sequential phasing means RQ B findings depend on RQ A data quality, creating a methodological dependency that complicates parallel analysis and may delay the intervention launch if early data are noisy."
+        ]
+      },
+      {
+        "id": "rct_lab",
+        "name": "Controlled intervention experiment with embedded physiological battery",
+        "weeks": 4,
+        "arc": "randomised crossover · lab-anchored · intervention-first paper",
+        "summary": "A within-subjects randomised crossover experiment (n≈60) compresses the core of the study into two fully counterbalanced lab-simulation days (spaced 1 week apart) in which participants complete a standardised 6-hour video-call schedule under either the structured transition-ritual condition or an unstructured-break control; continuous EEG (theta/alpha band power as attentional load indices), EDA, and pupillometry are recorded throughout, providing fine-grained physiological evidence for the mechanisms of focus degradation (RQ A partial) while the primary RQ B outcome — sustained-attention scores via PVT and cognitive fatigue VAS — is the confirmatory endpoint. A brief post-day retrospective verbal protocol and open-ended questionnaire captures just enough subjective narrative to contextualise intervention experience (RQ C partial), but depth is intentionally sacrificed for experimental control.",
+        "coverage": {
+          "A": "partial",
+          "B": "core",
+          "C": "partial"
+        },
+        "strengths": [
+          "Random crossover assignment with a standardised call schedule provides the strongest causal evidence for the intervention's effect (RQ B), minimising confounds that field designs cannot control.",
+          "Multi-modal physiological recording (EEG + EDA + pupillometry) within the same session yields a rich mechanistic picture of attentional load and autonomic arousal tied directly to the intervention manipulation.",
+          "Compact 4-week timeline makes the study feasible with tighter budgets and reduces participant burden compared to the longitudinal design."
+        ],
+        "tensions": [
+          "The artificial lab-simulation environment reduces ecological validity; findings about mechanism and intervention efficacy may not generalise to the heterogeneous home-office contexts remote workers actually inhabit.",
+          "The post-day questionnaire yields only shallow narrative data, meaning RQ C is addressed in a supplementary rather than substantive way, and deep subjective strategies or environmental affordances remain underexplored."
+        ]
+      },
+      {
+        "id": "qual_core",
+        "name": "Qualitative-core interpretive study with light digital-trace augmentation",
+        "weeks": 6,
+        "arc": "experience-centred · narrative-primary · discovery-oriented paper",
+        "summary": "Rooted in interpretive phenomenological analysis (IPA), this design recruits 16–20 remote workers with heavy video-call loads for three data-collection layers over 6 weeks: a pre-interview week of self-captured screen-time logs and micro-diary entries documenting moment-to-moment focus and fatigue cues (light digital trace to sensitise participants and researcher); two in-depth IPA interviews per participant (opening and closing, spaced 4 weeks apart) exploring lived attention loss and recovery narratives, personal rituals, and environmental affordances (RQ C core); and optional co-analysis workshops where participants review emerging themes and surface implicit cognitive strategies, which are then mapped against existing attentional-load literature to generate theoretically grounded mechanism hypotheses (RQ A partial). RQ B is addressed analytically rather than empirically: participants who already self-practise transition rituals are identified as a naturally occurring sub-group, and their narratives are contrasted with non-practitioners to produce design implications and testable propositions for future intervention trials.",
+        "coverage": {
+          "A": "partial",
+          "B": "partial",
+          "C": "core"
+        },
+        "strengths": [
+          "IPA interviews and co-analysis workshops yield uniquely rich, emic accounts of attention loss and recovery that no survey or wearable instrument can capture, directly and substantively answering RQ C.",
+          "The naturally occurring ritual sub-group comparison generates ecologically grounded, participant-validated hypotheses about transition rituals that can inform more precisely targeted future intervention designs for RQ B.",
+          "Lower resource and infrastructure requirements (no EEG, no wearables, no lab space) make this the most feasible design for under-resourced teams, and the 6-week timeline is highly manageable."
+        ],
+        "tensions": [
+          "Absence of a controlled intervention means RQ B is addressed only inferentially through narrative contrast, which reviewers may regard as insufficient for any claim about the transition ritual's efficacy.",
+          "Self-reported cognitive and physiological experiences cannot be validated against objective measures, leaving mechanistic claims about attentional load and autonomic arousal (RQ A) speculative and reliant on participant introspective accuracy."
+        ]
+      }
+    ],
+    "chosenDesignId": "longi",
+    "chosenDesign": {
+      "id": "longi",
+      "name": "Mixed-methods longitudinal field study",
+      "weeks": 12,
+      "arc": "one cohort · three lenses · one paper",
+      "summary": "A single cohort of remote workers (n≈40) is tracked across three phases: a 4-week naturalistic observation phase with continuous EDA/HR wearables, calendar logging, and daily EMA surveys to map physiological and attentional degradation (RQ A); a 4-week within-person crossover in which participants alternate structured 'transition ritual' weeks vs. unstructured-break weeks while sustained-attention probes and fatigue scales are collected (RQ B); and a concluding round of in-depth semi-structured interviews plus photo-elicitation diaries analysed via thematic analysis to surface subjective strategies and environmental affordances (RQ C). The three strands are integrated at a joint interpretation stage where individual-level physiological profiles, intervention response scores, and interview narratives are triangulated in a person-centred matrix.",
+      "coverage": {
+        "A": "core",
+        "B": "core",
+        "C": "core"
+      },
+      "strengths": [
+        "Full triangulation across all three RQs within a single cohort maximises internal coherence and enables person-level integration of mechanism, intervention effect, and lived experience.",
+        "The naturalistic baseline phase (RQ A) generates ecologically valid physiological data that directly contextualises and controls the subsequent intervention phase (RQ B), strengthening causal inference.",
+        "Longitudinal repeated-measures design captures temporal dynamics of fatigue and recovery across a realistic workday density, avoiding single-session snapshot limitations."
+      ],
+      "tensions": [
+        "12 weeks demands high participant retention; attrition or compliance fatigue in wearable logging could seriously degrade data quality across all three strands simultaneously.",
+        "The sequential phasing means RQ B findings depend on RQ A data quality, creating a methodological dependency that complicates parallel analysis and may delay the intervention launch if early data are noisy."
+      ]
+    },
+    "selectedBranches": [
+      {
+        "letter": "A",
+        "rq": "What cognitive and physiological mechanisms — specifically attentional load, autonomic arousal, and task-switching costs — underlie focus degradation across consecutive video calls of varying length and density?",
+        "angle": "mechanism",
+        "method": "Continuous biometric logging (heart-rate variability via wearable, pupillometry via webcam eye-tracker) and validated attention probes (SART) administered silently between calls within the same participant cohort's natural workday",
+        "n": "n≈18"
+      },
+      {
+        "letter": "B",
+        "rq": "To what extent does inserting a structured 5-minute 'transition ritual' (breathing + task-preview protocol) between video calls improve sustained-attention scores and reduce perceived cognitive fatigue compared to unstructured breaks in the same cohort?",
+        "angle": "intervention",
+        "method": "Within-subject A/B counterbalanced condition embedded in the same workday logging period — half of inter-call gaps randomised to the ritual, half to free-choice rest — with attention probes and NASA-TLX fatigue ratings as outcomes",
+        "n": "n≈24"
+      },
+      {
+        "letter": "C",
+        "rq": "How do remote workers subjectively narrate the experience of attention loss and recovery across a heavy video-call day, and what personal strategies or environmental affordances do they report as pivotal for maintaining focus?",
+        "angle": "lived experience",
+        "method": "End-of-day semi-structured micro-interviews (20–25 min) with a purposively sampled subset drawn from the same cohort, conducted immediately after the final logged call session and analysed via reflexive thematic analysis triangulated against the biometric and intervention data",
+        "n": "n≈12"
+      }
+    ],
+    "plan": {
+      "phases": [
+        {
+          "weeks": 1,
+          "name": "Setup & Onboarding",
+          "detail": "Recruit and screen ~45 remote workers (targeting n=40 completers), obtain informed consent, distribute and calibrate EDA/HR wearables, install calendar-logging software, and orient participants to the EMA app and study protocols."
+        },
+        {
+          "weeks": 4,
+          "name": "Naturalistic Observation Phase (RQ A)",
+          "detail": "Participants work as normal while continuous wearable data (EDA, HR) are passively captured alongside automatic calendar logs and 4x-daily EMA surveys measuring momentary attention, fatigue, and meeting load to map physiological and attentional degradation across typical video-call days."
+        },
+        {
+          "weeks": 1,
+          "name": "Crossover Preparation & Training",
+          "detail": "Analyse baseline data to confirm within-person variability, randomly assign crossover sequence (ritual-first vs. unstructured-first), train participants in the standardised 'transition ritual' protocol (5-min guided breathing, physical movement, and task-reset checklist between calls), and update EMA instruments."
+        },
+        {
+          "weeks": 4,
+          "name": "Within-Person Crossover Intervention Phase (RQ B)",
+          "detail": "Participants alternate weekly between structured transition-ritual weeks and unstructured self-directed break weeks; sustained-attention probes (psychomotor vigilance task via app) and fatigue/engagement scales are collected after each call block, with wearables continuing throughout to capture physiological contrasts across conditions."
+        },
+        {
+          "weeks": 1,
+          "name": "Qualitative Data Collection (RQ C)",
+          "detail": "Each participant completes a 3-day photo-elicitation diary capturing their workspace affordances and coping strategies, followed by a 60-minute semi-structured interview exploring subjective focus strategies, perceived ritual utility, and environmental influences, with all interviews audio-recorded and transcribed."
+        },
+        {
+          "weeks": 1,
+          "name": "Integration & Joint Interpretation",
+          "detail": "Merge cleaned quantitative time-series data, intervention response scores, and coded interview themes into a person-centred matrix; conduct triangulation workshops with the research team to identify convergent, complementary, and dissonant findings across strands and draft integrated interpretive memos."
+        }
+      ],
+      "deliverables": [
+        "Baseline physiological and attentional degradation profiles for each participant (EDA/HR time-series + EMA summary dashboards) from the naturalistic observation phase",
+        "Within-person crossover analysis report comparing sustained-attention probe scores and fatigue ratings between ritual and unstructured-break weeks, including effect sizes and individual response heterogeneity",
+        "Thematic analysis codebook and narrative report from photo-elicitation diaries and semi-structured interviews identifying subjective focus strategies and environmental affordances",
+        "Integrated person-centred triangulation matrix linking physiological profiles, intervention responses, and interview narratives for each participant",
+        "Peer-reviewed manuscript (or preprint) reporting mixed-methods findings with a conceptual model of remote-worker attentional management across a video-call day",
+        "Practical toolkit document summarising evidence-based transition ritual guidelines for remote workers and organisational policy recommendations"
+      ],
+      "recruitment": "Recruit full-time remote knowledge workers (≥3 video calls/day, ≥6 months fully remote) aged 22–60 via professional networks, LinkedIn postings, and organisational partnerships, screening out individuals with cardiovascular conditions affecting EDA/HR validity.",
+      "totalWeeks": 12,
+      "risks": [
+        "Wearable attrition and data dropout: skin irritation, device charging fatigue, or technical failures may degrade continuous EDA/HR coverage — mitigated by weekly compliance check-ins, spare devices, and pre-specifying a minimum 70% data-completeness threshold for retention in quantitative analyses",
+        "Crossover contamination and carryover effects: participants may continue ritual behaviours during unstructured weeks, diluting the contrast — mitigated by weekly protocol-adherence logs, EMA compliance monitoring, and inclusion of a washout self-report item at each week's close",
+        "Participant dropout and cohort attrition: a 12-week commitment with intensive data collection may cause dropout, threatening longitudinal power — mitigated by recruiting n=45 to absorb ~12% attrition, offering tiered incentives (gift cards at phase completions), and maintaining regular researcher-participant rapport via brief weekly check-in messages",
+        "Social desirability bias in qualitative strand: participants may over-report effective coping in interviews, particularly after the intervention phase — mitigated by photo-elicitation priming that anchors discussion in concrete artefacts and by triangulating self-reports against objective wearable and attention-probe data",
+        "Integration complexity and researcher burden: triangulating three heterogeneous data streams into a coherent person-centred matrix is analytically demanding and risks superficial mixing — mitigated by pre-specifying integration rules in a mixed-methods analysis protocol before data collection closes and by scheduling dedicated team triangulation workshops in the final phase"
+      ]
+    },
+    "studyNotes": "",
+    "artifacts": null,
+    "evalN": 12,
+    "personas": [
+      {
+        "id": "1",
+        "name": "Alex (32)",
+        "role": "Staff PM, US-CA",
+        "bias": "high-trust, low IT friction, values quiet hours",
+        "attrs": [
+          "camera-off advocate",
+          "6 calls/day",
+          "introvert"
+        ]
+      },
+      {
+        "id": "2",
+        "name": "Priya (28)",
+        "role": "Junior Software Engineer, India-Bengaluru",
+        "bias": "eager to impress, over-schedules herself, fears missing context",
+        "attrs": [
+          "camera always on",
+          "back-to-back meetings",
+          "note-taker"
+        ]
+      },
+      {
+        "id": "3",
+        "name": "Marcus (45)",
+        "role": "Senior Sales Director, UK-London",
+        "bias": "extrovert who thrives on calls but burns out by Friday",
+        "attrs": [
+          "8+ calls/day",
+          "standing desk user",
+          "multitasks on calls"
+        ]
+      },
+      {
+        "id": "4",
+        "name": "Claudia (39)",
+        "role": "UX Researcher, Germany-Berlin",
+        "bias": "strict work-life separator, resents meetings invading deep-work blocks",
+        "attrs": [
+          "do-not-disturb enforcer",
+          "3 calls/day max",
+          "async-first mindset"
+        ]
+      },
+      {
+        "id": "5",
+        "name": "DeShawn (34)",
+        "role": "IT Support Specialist, US-TX",
+        "bias": "constantly interrupted mid-focus, skeptical of video-call necessity",
+        "attrs": [
+          "reactive schedule",
+          "headset power-user",
+          "coffee-dependent"
+        ]
+      },
+      {
+        "id": "6",
+        "name": "Yuki (52)",
+        "role": "Finance Manager, Japan-Tokyo",
+        "bias": "high conformity to meeting norms, rarely speaks up about fatigue",
+        "attrs": [
+          "camera on (cultural norm)",
+          "formal attire always",
+          "late-evening calls across time zones"
+        ]
+      },
+      {
+        "id": "7",
+        "name": "Sofia (26)",
+        "role": "Content Marketing Coordinator, Brazil-São Paulo",
+        "bias": "easily distracted by social media, craves social interaction on calls",
+        "attrs": [
+          "home with roommates",
+          "chat multitasker",
+          "prefers short check-ins"
+        ]
+      },
+      {
+        "id": "8",
+        "name": "Tariq (41)",
+        "role": "HR Business Partner, UAE-Dubai",
+        "bias": "empathetic listener who absorbs others' stress, rarely sets own boundaries",
+        "attrs": [
+          "5 calls/day",
+          "walks during 1:1s",
+          "emotion-regulation focused"
+        ]
+      },
+      {
+        "id": "9",
+        "name": "Linda (58)",
+        "role": "Executive Assistant, Canada-Toronto",
+        "bias": "highly organized but resistant to new focus tools, relies on paper systems",
+        "attrs": [
+          "manages others' calendars",
+          "minimal tech stack",
+          "early riser"
+        ]
+      },
+      {
+        "id": "10",
+        "name": "Kofi (31)",
+        "role": "Data Analyst, Ghana-Accra",
+        "bias": "intermittent connectivity issues heighten anxiety around call reliability",
+        "attrs": [
+          "bandwidth-conscious",
+          "audio-only preferred",
+          "focused work in off-peak hours"
+        ]
+      },
+      {
+        "id": "11",
+        "name": "Emma (36)",
+        "role": "Engineering Team Lead, Australia-Sydney",
+        "bias": "protective of team focus time, battles timezone sprawl with US HQ",
+        "attrs": [
+          "blocks deep-work mornings",
+          "camera-off policy for standups",
+          "parent of two"
+        ]
+      },
+      {
+        "id": "12",
+        "name": "Dmitri (48)",
+        "role": "Product Strategy Consultant, Netherlands-Amsterdam",
+        "bias": "freelance mindset, self-directed focus routines, dismissive of corporate norms",
+        "attrs": [
+          "pomodoro practitioner",
+          "2–4 client calls/day",
+          "café worker"
+        ]
+      }
+    ],
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "critical",
+        "title": "Crossover Condition Contamination",
+        "trigger": "During the 1-week Crossover Preparation & Training phase, participants learn both intervention conditions simultaneously before the 4-week Within-Person Crossover Intervention Phase begins, causing carry-over behavioral adoption that renders condition separation invalid.",
+        "evidence": "Simulated cohort of 32 remote workers showed that 71% spontaneously began applying focus strategies from the 'upcoming' condition during the final days of their current condition, collapsing the within-person contrast. Diary entries logged identical focus tactics across both supposed conditions in weeks 3–4 of the intervention phase, reducing the detectable effect size by an estimated 60%.",
+        "fix": "Restructure the Crossover Preparation phase into a single blinded orientation: train participants only on the logistics and measurement procedures of the first assigned condition, and withhold details of the second condition until a brief 48-hour transition window between crossover legs. Add a 3–5 day wash-out buffer between legs and include a contamination-check item in daily diaries."
+      },
+      {
+        "id": "F2",
+        "severity": "medium",
+        "title": "Naturalistic Observation Reactivity Plateau",
+        "trigger": "The 4-week Naturalistic Observation Phase (RQ A) relies on self-report ESM (experience sampling) multiple times per day, but participants habituate to prompts by week 2, leading to declining compliance and stereotyped responses that no longer reflect actual in-call behavior.",
+        "evidence": "Simulated cohort showed ESM response rates dropping from 87% in week 1 to 49% in week 4. Qualitative debriefs in the Integration phase revealed that participants began answering prompts 'on autopilot,' with variance in focus ratings artificially compressed after day 10. This threatened ecological validity for RQ A's baseline estimates.",
+        "fix": "Implement an adaptive ESM schedule that randomizes prompt density (2–6 per day) and rotates question framing weekly to reduce habituation. Supplement with passive data collection (e.g., calendar API pull for call duration, optional keyboard-activity logging) so baseline estimates do not rely solely on self-report."
+      },
+      {
+        "id": "F3",
+        "severity": "low",
+        "title": "Qualitative Phase Timing Compression",
+        "trigger": "The single 1-week Qualitative Data Collection phase is positioned immediately after the demanding 4-week intervention phase, creating participant fatigue and scheduling conflicts that reduce interview depth and sample completeness.",
+        "evidence": "Simulated cohort showed 28% of participants requested interview postponements beyond the allocated week, and those who completed interviews in days 1–3 provided richer narratives than those interviewed in days 4–7 (average response length 40% shorter). Three participants dropped out entirely before qualitative data could be collected, creating systematic missingness in RQ C.",
+        "fix": "Extend the Qualitative Data Collection window to 2 weeks and stagger interview scheduling across the intervention phase's final week and the dedicated collection week using a rolling enrollment model. Offer asynchronous options (voice-memo diary submissions) as a fallback to retain participants who cannot commit to synchronous interviews."
+      }
+    ],
+    "paperTitle": "Rituals in the Grid: A Mixed-Methods Longitudinal Investigation of Transition Protocols, Attentional Load, and Focus Recovery Across Heavy Video-Call Days",
+    "discussion": "Our mixed-methods longitudinal design revealed convergent evidence that attentional load accumulates nonlinearly across consecutive video calls, with physiological and self-report indicators diverging most sharply after the third sequential call in a day. Structured transition rituals demonstrated meaningful promise: participants in the intervention leg reported [SIMULATION_REHEARSAL] approximately 22% lower perceived cognitive fatigue scores relative to unstructured-break controls, and sustained-attention task performance declined [SIMULATION_REHEARSAL] roughly 18% more slowly across the workday. Crossover contamination was substantially curtailed by the single-blinded orientation protocol and the 3–5 day washout buffer, though diary contamination-check items flagged a residual awareness effect in roughly 9% of participants [SIMULATION_REHEARSAL], underscoring the inherent difficulty of blinding behavioral interventions. Adaptive ESM scheduling reduced habituation-related response drift, while passive calendar-API and keyboard-activity data provided anchoring estimates that strengthened ecological validity. Qualitative narratives illuminated the mechanisms quantitative measures could not fully capture, particularly how environmental affordances—dedicated physical transition zones and ambient sound control—amplified ritual efficacy, suggesting that protocol and place interact in ways future interventions must jointly target.",
+    "conclusion": "Remote workers navigating dense video-call schedules face compounding cognitive and physiological costs that unstructured breaks inadequately offset. This study demonstrates that brief, structured transition rituals—combining diaphragmatic breathing with forward task-preview—can meaningfully attenuate sustained-attention degradation and perceived fatigue across a full workday. Methodological safeguards against crossover contamination and observational reactivity strengthened causal inference within a naturalistic field context. Qualitative findings further reveal that individual strategy and environmental design are inseparable from protocol effectiveness. Organizations should consider embedding transition rituals into scheduling norms, while researchers must continue probing the boundary conditions under which micro-recovery interventions remain potent across diverse remote work ecologies.",
+    "titleOptions": [
+      "Rituals in the Grid: A Mixed-Methods Longitudinal Investigation of Transition Protocols, Attentional Load, and Focus Recovery Across Heavy Video-Call Days",
+      "From Call to Call: Examining Cognitive Fatigue, Autonomic Arousal, and Structured Micro-Breaks in Remote Workers' Video-Conferencing Marathons",
+      "Bridging the Gaps: How 5-Minute Transition Rituals Modulate Sustained Attention and Perceived Fatigue During Consecutive Video Calls in Remote Work Contexts"
+    ],
+    "projectName": "focus-rituals",
+    "reviewSession": {
+      "paperTitle": "Rituals in the Grid: A Mixed-Methods Longitudinal Investigation of Transition Protocols, Attentional Load, and Focus Recovery Across Heavy Video-Call Days",
+      "reviewers": [
+        {
+          "id": "R1",
+          "rec": "RR",
+          "field": "attention & cognitive ergonomics",
+          "affiliation": "academic",
+          "topicConfidence": "expert",
+          "oneLine": "Compelling premise undermined by crossover contamination and unverified effect-size claims.",
+          "strengths": [
+            "The nonlinear accumulation model of attentional load after the third consecutive call is theoretically grounded and aligns with Directed Attention Restoration theory; the divergence of physiological and self-report indicators is a genuinely novel empirical contribution.",
+            "Mixed-methods integration is thoughtful: physiological markers (autonomic arousal) are used to triangulate, not merely supplement, self-report fatigue scores, which is rare in HCI field studies.",
+            "Longitudinal design spanning real heavy-call days provides ecological validity that laboratory-based attention paradigms consistently lack."
+          ],
+          "weaknesses": [
+            "F1 (Crossover Condition Contamination) is critical and unresolved. Participants experienced both intervention and control legs within the same cohort without sufficient washout; habituated breathing practices likely bled into unstructured-break days, biasing the 22% fatigue-reduction figure upward. The paper acknowledges this but offers no sensitivity analysis to bound the contamination effect.",
+            "The [SIMULATION_REHEARSAL] placeholders in the Discussion suggest that the 22% and 18% figures are illustrative rather than empirically anchored — reviewers cannot evaluate effect size validity, confidence intervals, or practical significance without the actual data tables.",
+            "The autonomic arousal operationalization is underdescribed: which HRV metric (RMSSD, LF/HF ratio, SDNN), what epoch length, and how was motion artifact handled during seated video calls? This omission prevents replication."
+          ],
+          "toAuthors": "The paper makes a genuinely important contribution to understanding focus degradation in video-intensive work. However, the crossover contamination (F1) must be addressed analytically before the core causal claim — that the ritual causes fatigue reduction — is defensible. I strongly recommend a carryover-effect model (e.g., Jones & Kenward crossover ANCOVA) to partition contamination variance, and if that is not feasible, the claims should be explicitly reframed as correlational. Additionally, please replace all [SIMULATION_REHEARSAL] placeholders with real statistics, including 95% CIs, effect sizes (Cohen's d or η²), and raw means. The HRV protocol section needs a dedicated subsection clarifying the specific metric, epoch, and artifact-rejection pipeline.",
+          "toChairs": "Revise-and-resubmit is appropriate. Core findings are plausible and novel, but the crossover contamination issue and missing empirical anchors in the Discussion prevent confident evaluation at this stage."
+        },
+        {
+          "id": "R2",
+          "rec": "ARR",
+          "field": "remote work & organizational behavior · CSCW",
+          "affiliation": "industry",
+          "topicConfidence": "confident",
+          "oneLine": "Strong real-world relevance; minor methodological fixes would make this publishable quickly.",
+          "strengths": [
+            "RQ C is answered with unusual richness: the qualitative narratives surface environmental affordance categories (dedicated breakout spaces, ambient sound management) that go beyond generic self-regulation advice and will be directly actionable for workplace designers and HR practitioners.",
+            "The longitudinal design tracks participants across multiple heavy-call days rather than a single session, which is essential for capturing the cumulative fatigue dynamics that cross-sectional studies miss entirely.",
+            "The breathing-plus-task-preview protocol is sufficiently specified (5 minutes, structured sequence) to be deployable in organizational settings, giving the intervention arm genuine translational value."
+          ],
+          "weaknesses": [
+            "F2 (Naturalistic Observation Reactivity Plateau) is discussed but its implications for the first two weeks of data are never quantified. If participants normalized their behavior only after week 2–3, early-phase data may systematically underestimate true fatigue levels, skewing longitudinal trajectories.",
+            "The qualitative coding scheme is mentioned but neither the codebook categories nor inter-rater reliability statistics (Cohen's κ or Krippendorff's α) are reported. Without these, RQ C's thematic claims rest on unvalidated analyst interpretation.",
+            "The paper does not distinguish between synchronous meeting density (back-to-back calls) and asynchronous task interruptions during calls, which organizational research shows have distinct cognitive costs. This conflation limits the specificity of 'heavy video-call days' as a construct."
+          ],
+          "toAuthors": "This is a timely and practically relevant paper that I believe can reach publication with focused revisions. Please provide inter-rater reliability figures for the qualitative coding and include a reactivity plateau analysis — even a simple comparison of fatigue trajectories in weeks 1–2 versus weeks 3-plus would address the F2 concern transparently. Clarifying the operational definition of 'heavy video-call day' to separate meeting density from within-call interruptions would sharpen the construct considerably and align the paper more precisely with existing CSCW literature on interruption costs.",
+          "toChairs": "Accept with minor revisions. The practical contribution and longitudinal design are strong. The gaps are addressable without fundamental redesign and should not require another full review cycle if authors respond diligently."
+        },
+        {
+          "id": "R3",
+          "rec": "RRX",
+          "field": "cognitive neuroscience & psychophysiology",
+          "affiliation": "academic",
+          "topicConfidence": "expert",
+          "oneLine": "The mechanistic claims in RQ A fundamentally outrun the measurement apparatus deployed.",
+          "strengths": [
+            "Addressing task-switching costs longitudinally in naturalistic settings fills a genuine gap; most task-switching research is confined to highly controlled laboratory button-press paradigms with no ecological bearing on real knowledge-worker contexts.",
+            "The observation that physiological and self-report indicators diverge most after the third sequential call is a specific, falsifiable finding that invites theoretical elaboration about why subjective fatigue lags behind autonomic stress responses.",
+            "Mixed-methods design allows the qualitative phase to generate hypotheses about individual differences (e.g., environmental affordances) that purely quantitative designs could not have surfaced."
+          ],
+          "weaknesses": [
+            "RQ A claims to investigate 'cognitive and physiological mechanisms' but the study measures proxies only: sustained-attention task scores and HRV. Neither measure provides mechanistic evidence — they are distal behavioral and autonomic correlates. True mechanistic inquiry would require prefrontal metabolic imaging (fNIRS), EEG alpha-band power, or pupillometry as indices of cognitive resource depletion. The paper does not adequately caveat this gap, repeatedly using the language of mechanism without mechanism-level data.",
+            "The transition ritual confounds two active components — paced breathing (autonomic regulation) and task-preview (prospective memory loading) — with no attempt to isolate their independent contributions. Without a dismantling design or at minimum a component-level mediation analysis, it is impossible to attribute the intervention effect to either mechanism, rendering the theoretical contribution of RQ B nearly vacuous.",
+            "F3 (Qualitative Phase Timing Compression) is flagged as low priority by the authors, but compressing interviews to end-of-day recall introduces substantial retrospective bias for fine-grained attentional states experienced hours earlier. This is not a minor procedural inconvenience; it systematically distorts the phenomenological validity of RQ C's narrative findings."
+          ],
+          "toAuthors": "I respect the ambition of this project, but the paper's theoretical framing and its measurement toolkit are currently operating at different levels of analysis, and that mismatch is not cosmetic. The language of 'cognitive mechanisms' and 'autonomic arousal mechanisms' throughout RQ A and the Discussion implies process-level explanation that HRV and behavioral attention scores cannot support. I urge the authors to either (a) reframe the contribution as identifying behavioral and autonomic correlates of video-call fatigue — a legitimate and publishable claim — or (b) supplement with a neurophysiological measure (pupillometry is feasible in naturalistic settings) that bridges the gap. The confounded intervention also needs structural attention: pre-registering a mediation model that separates breathing from task-preview effects in a follow-up wave would substantially strengthen the theoretical claim. Finally, please consider experience-sampling or micro-interviews during natural call breaks rather than end-of-day recall for the qualitative phase.",
+          "toChairs": "Major revision required — I would not accept even with minor revisions because the mechanistic framing in RQ A misrepresents what the measurements can support, and the intervention confound undermines the theoretical core of RQ B. Rethinking both framing and partial redesign are needed."
+        }
+      ],
+      "meta": {
+        "ac": "AC",
+        "verdict": "major",
+        "summary": "The panel is divided but converges on a major revision verdict. R2 finds the ecological validity and practical contribution sufficient for acceptance with minor revisions, while R1 and R3 identify structural issues that preclude immediate acceptance. All three reviewers flag the [SIMULATION_REHEARSAL] placeholders in the Discussion as a critical credibility problem — the paper cannot be evaluated on its quantitative merits without real statistics and confidence intervals. R1 focuses on the crossover contamination threat to causal inference; R3 raises the more fundamental concern that RQ A's mechanistic language is unsupported by the measurement apparatus, and that the breathing-plus-task-preview intervention is confounded. R2's concerns about qualitative inter-rater reliability and the reactivity plateau are real but addressable. The paper's longitudinal design and thematic qualitative richness represent genuine contributions; the path to acceptance requires honest reframing, analytical additions, and resolution of the contamination and confound issues.",
+        "proposed": "1. Replace all [SIMULATION_REHEARSAL] placeholders with actual statistics including means, SDs, 95% CIs, and effect sizes. 2. Conduct and report a carryover-effect analysis (e.g., Jones-Kenward model) to bound the F1 crossover contamination. 3. Reframe RQ A mechanistic language as 'correlates' unless a neurophysiological or pupillometric measure is added. 4. Report a component-level mediation analysis separating breathing from task-preview effects, or explicitly flag the confound as a study limitation with future-work implications. 5. Report qualitative inter-rater reliability (κ or α) and address F2 reactivity plateau by comparing early versus late longitudinal phases. 6. Consider experience-sampling micro-interviews to replace end-of-day recall for RQ C.",
+        "consensusPoints": [
+          {
+            "tag": "all-3",
+            "text": "The [SIMULATION_REHEARSAL] placeholders render the quantitative claims unevaluable; real effect-size statistics with confidence intervals must be provided before any accept decision is possible.",
+            "priority": "high"
+          },
+          {
+            "tag": "2-of-3",
+            "text": "The crossover design's carryover contamination (F1) is inadequately addressed analytically; a formal carryover-effect model or explicit reframing from causal to correlational claims is required (R1, R3).",
+            "priority": "high"
+          },
+          {
+            "tag": "2-of-3",
+            "text": "Qualitative inter-rater reliability statistics are absent and the timing compression of end-of-day recall introduces retrospective bias that undermines RQ C validity (R2, R3).",
+            "priority": "medium"
+          },
+          {
+            "tag": "1-of-3",
+            "text": "The intervention confounds paced breathing with task-preview without a dismantling or mediation strategy, making the theoretical attribution of RQ B's effects nearly impossible (R3 only).",
+            "priority": "low"
+          }
+        ]
+      }
+    },
+    "evalResult": {
+      "paperTitle": "Rituals in the Grid: A Mixed-Methods Longitudinal Investigation of Transition Protocols, Attentional Load, and Focus Recovery Across Heavy Video-Call Days",
+      "discussion": "Our mixed-methods longitudinal design revealed convergent evidence that attentional load accumulates nonlinearly across consecutive video calls, with physiological and self-report indicators diverging most sharply after the third sequential call in a day. Structured transition rituals demonstrated meaningful promise: participants in the intervention leg reported [SIMULATION_REHEARSAL] approximately 22% lower perceived cognitive fatigue scores relative to unstructured-break controls, and sustained-attention task performance declined [SIMULATION_REHEARSAL] roughly 18% more slowly across the workday. Crossover contamination was substantially curtailed by the single-blinded orientation protocol and the 3–5 day washout buffer, though diary contamination-check items flagged a residual awareness effect in roughly 9% of participants [SIMULATION_REHEARSAL], underscoring the inherent difficulty of blinding behavioral interventions. Adaptive ESM scheduling reduced habituation-related response drift, while passive calendar-API and keyboard-activity data provided anchoring estimates that strengthened ecological validity. Qualitative narratives illuminated the mechanisms quantitative measures could not fully capture, particularly how environmental affordances—dedicated physical transition zones and ambient sound control—amplified ritual efficacy, suggesting that protocol and place interact in ways future interventions must jointly target.",
+      "conclusion": "Remote workers navigating dense video-call schedules face compounding cognitive and physiological costs that unstructured breaks inadequately offset. This study demonstrates that brief, structured transition rituals—combining diaphragmatic breathing with forward task-preview—can meaningfully attenuate sustained-attention degradation and perceived fatigue across a full workday. Methodological safeguards against crossover contamination and observational reactivity strengthened causal inference within a naturalistic field context. Qualitative findings further reveal that individual strategy and environmental design are inseparable from protocol effectiveness. Organizations should consider embedding transition rituals into scheduling norms, while researchers must continue probing the boundary conditions under which micro-recovery interventions remain potent across diverse remote work ecologies.",
+      "findings": [
+        {
+          "id": "F1",
+          "severity": "critical",
+          "title": "Crossover Condition Contamination",
+          "trigger": "During the 1-week Crossover Preparation & Training phase, participants learn both intervention conditions simultaneously before the 4-week Within-Person Crossover Intervention Phase begins, causing carry-over behavioral adoption that renders condition separation invalid.",
+          "evidence": "Simulated cohort of 32 remote workers showed that 71% spontaneously began applying focus strategies from the 'upcoming' condition during the final days of their current condition, collapsing the within-person contrast. Diary entries logged identical focus tactics across both supposed conditions in weeks 3–4 of the intervention phase, reducing the detectable effect size by an estimated 60%.",
+          "fix": "Restructure the Crossover Preparation phase into a single blinded orientation: train participants only on the logistics and measurement procedures of the first assigned condition, and withhold details of the second condition until a brief 48-hour transition window between crossover legs. Add a 3–5 day wash-out buffer between legs and include a contamination-check item in daily diaries."
+        },
+        {
+          "id": "F2",
+          "severity": "medium",
+          "title": "Naturalistic Observation Reactivity Plateau",
+          "trigger": "The 4-week Naturalistic Observation Phase (RQ A) relies on self-report ESM (experience sampling) multiple times per day, but participants habituate to prompts by week 2, leading to declining compliance and stereotyped responses that no longer reflect actual in-call behavior.",
+          "evidence": "Simulated cohort showed ESM response rates dropping from 87% in week 1 to 49% in week 4. Qualitative debriefs in the Integration phase revealed that participants began answering prompts 'on autopilot,' with variance in focus ratings artificially compressed after day 10. This threatened ecological validity for RQ A's baseline estimates.",
+          "fix": "Implement an adaptive ESM schedule that randomizes prompt density (2–6 per day) and rotates question framing weekly to reduce habituation. Supplement with passive data collection (e.g., calendar API pull for call duration, optional keyboard-activity logging) so baseline estimates do not rely solely on self-report."
+        },
+        {
+          "id": "F3",
+          "severity": "low",
+          "title": "Qualitative Phase Timing Compression",
+          "trigger": "The single 1-week Qualitative Data Collection phase is positioned immediately after the demanding 4-week intervention phase, creating participant fatigue and scheduling conflicts that reduce interview depth and sample completeness.",
+          "evidence": "Simulated cohort showed 28% of participants requested interview postponements beyond the allocated week, and those who completed interviews in days 1–3 provided richer narratives than those interviewed in days 4–7 (average response length 40% shorter). Three participants dropped out entirely before qualitative data could be collected, creating systematic missingness in RQ C.",
+          "fix": "Extend the Qualitative Data Collection window to 2 weeks and stagger interview scheduling across the intervention phase's final week and the dedicated collection week using a rolling enrollment model. Offer asynchronous options (voice-memo diary submissions) as a fallback to retain participants who cannot commit to synchronous interviews."
+        }
+      ],
+      "personas": [
+        {
+          "id": "1",
+          "name": "Alex (32)",
+          "role": "Staff PM, US-CA",
+          "bias": "high-trust, low IT friction, values quiet hours",
+          "attrs": [
+            "camera-off advocate",
+            "6 calls/day",
+            "introvert"
+          ]
+        },
+        {
+          "id": "2",
+          "name": "Priya (28)",
+          "role": "Junior Software Engineer, India-Bengaluru",
+          "bias": "eager to impress, over-schedules herself, fears missing context",
+          "attrs": [
+            "camera always on",
+            "back-to-back meetings",
+            "note-taker"
+          ]
+        },
+        {
+          "id": "3",
+          "name": "Marcus (45)",
+          "role": "Senior Sales Director, UK-London",
+          "bias": "extrovert who thrives on calls but burns out by Friday",
+          "attrs": [
+            "8+ calls/day",
+            "standing desk user",
+            "multitasks on calls"
+          ]
+        },
+        {
+          "id": "4",
+          "name": "Claudia (39)",
+          "role": "UX Researcher, Germany-Berlin",
+          "bias": "strict work-life separator, resents meetings invading deep-work blocks",
+          "attrs": [
+            "do-not-disturb enforcer",
+            "3 calls/day max",
+            "async-first mindset"
+          ]
+        },
+        {
+          "id": "5",
+          "name": "DeShawn (34)",
+          "role": "IT Support Specialist, US-TX",
+          "bias": "constantly interrupted mid-focus, skeptical of video-call necessity",
+          "attrs": [
+            "reactive schedule",
+            "headset power-user",
+            "coffee-dependent"
+          ]
+        },
+        {
+          "id": "6",
+          "name": "Yuki (52)",
+          "role": "Finance Manager, Japan-Tokyo",
+          "bias": "high conformity to meeting norms, rarely speaks up about fatigue",
+          "attrs": [
+            "camera on (cultural norm)",
+            "formal attire always",
+            "late-evening calls across time zones"
+          ]
+        },
+        {
+          "id": "7",
+          "name": "Sofia (26)",
+          "role": "Content Marketing Coordinator, Brazil-São Paulo",
+          "bias": "easily distracted by social media, craves social interaction on calls",
+          "attrs": [
+            "home with roommates",
+            "chat multitasker",
+            "prefers short check-ins"
+          ]
+        },
+        {
+          "id": "8",
+          "name": "Tariq (41)",
+          "role": "HR Business Partner, UAE-Dubai",
+          "bias": "empathetic listener who absorbs others' stress, rarely sets own boundaries",
+          "attrs": [
+            "5 calls/day",
+            "walks during 1:1s",
+            "emotion-regulation focused"
+          ]
+        },
+        {
+          "id": "9",
+          "name": "Linda (58)",
+          "role": "Executive Assistant, Canada-Toronto",
+          "bias": "highly organized but resistant to new focus tools, relies on paper systems",
+          "attrs": [
+            "manages others' calendars",
+            "minimal tech stack",
+            "early riser"
+          ]
+        },
+        {
+          "id": "10",
+          "name": "Kofi (31)",
+          "role": "Data Analyst, Ghana-Accra",
+          "bias": "intermittent connectivity issues heighten anxiety around call reliability",
+          "attrs": [
+            "bandwidth-conscious",
+            "audio-only preferred",
+            "focused work in off-peak hours"
+          ]
+        },
+        {
+          "id": "11",
+          "name": "Emma (36)",
+          "role": "Engineering Team Lead, Australia-Sydney",
+          "bias": "protective of team focus time, battles timezone sprawl with US HQ",
+          "attrs": [
+            "blocks deep-work mornings",
+            "camera-off policy for standups",
+            "parent of two"
+          ]
+        },
+        {
+          "id": "12",
+          "name": "Dmitri (48)",
+          "role": "Product Strategy Consultant, Netherlands-Amsterdam",
+          "bias": "freelance mindset, self-directed focus routines, dismissive of corporate norms",
+          "attrs": [
+            "pomodoro practitioner",
+            "2–4 client calls/day",
+            "café worker"
+          ]
+        }
+      ],
+      "n": 12,
+      "evaluation": ""
+    }
+  }
+}

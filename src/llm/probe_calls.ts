@@ -548,6 +548,53 @@ Return JSON:
   };
 }
 
+/* ── teaser SVG (hero figure for the project page) ───────────────── */
+
+export async function teaser(input: {
+  premise: string;
+  paperTitle: string;
+  designName: string;
+  rqs: SubRQ[];
+}): Promise<{ svg: string; caption: string }> {
+  const system =
+    `You are an editorial illustrator. Generate a single inline SVG
+that works as the HERO figure on a Nerfies-style academic project page.
+
+Hard constraints:
+- Output JSON containing one valid <svg>…</svg> string and a one-line caption.
+- viewBox="0 0 880 360", no width/height attributes (CSS sizes it).
+- No external assets; only inline shapes, text, gradients, masks.
+- Palette: warm ivory paper #fbf8f1, navy ink #1a1f2c, vermilion accent #b04a3a, amber warm #d9a548. Stay close to these — the page CSS uses them.
+- No raster <image>, no <foreignObject>, no animations.
+- Keep it abstract / typographic / cartographic — schematic representation
+  of the study's shape (sub-questions, methods, findings). Not a photo.
+- ≤ 4 KB after minify.
+
+Strict JSON only — no prose outside the JSON envelope.`;
+
+  const user =
+    `Paper: ${input.paperTitle}
+Premise: ${input.premise}
+Chosen design: ${input.designName}
+Sub-RQs:
+${input.rqs.map((r) => `  RQ ${r.letter} (${r.angle}): ${r.rq}`).join('\n')}
+
+Return JSON:
+\`\`\`json
+{
+  "svg": "<svg viewBox=\\"0 0 880 360\\" xmlns=\\"http://www.w3.org/2000/svg\\">…</svg>",
+  "caption": "≤ 14 words, what the figure shows"
+}
+\`\`\``;
+
+  const text = await callLLM({ stage: 'report', system, user, maxTokens: 4000 });
+  const parsed = extractJSON(text) as { svg?: string; caption?: string };
+  return {
+    svg: parsed.svg ?? '',
+    caption: parsed.caption ?? '',
+  };
+}
+
 /** Whether at least one provider has a usable API key right now. */
 export function hasApiKey(): boolean {
   return detectProvider().canCallApi;
