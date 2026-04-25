@@ -212,9 +212,16 @@ async function checkGit(root: string): Promise<CheckResult> {
     //     active research-run worktree is one of these by design, the
     //     parent always lags behind the worktree's HEAD
     //   - untracked: ?? entries (new files not yet added)
-    const lines = status.trim().split('\n');
+    // Don't trim() — porcelain lines start with the 2-char status prefix,
+    // and the first char can be a space (= unstaged-only modification).
+    // trim() would eat that space and break the regex below.
+    const lines = status.replace(/\n+$/, '').split('\n').filter((l) => l.length > 0);
+    // git porcelain prefix is two chars (XY): index status + worktree
+    // status. Match any modification flag for runs/<id>/branches/<x>
+    // since worktrees can show staged-only (M ), unstaged ( M), or both.
     const isWorktreeBranch = (l: string) =>
-      /^.M\s+runs\/[^/]+\/branches\/[^/]+\/?$/.test(l);
+      /^[MARCUD ?][MARCUD ?]\s+runs\/[^/]+\/branches\/[^/]+\/?$/.test(l) &&
+      !l.startsWith('??');
     const isUntracked = (l: string) => l.startsWith('??');
     const worktree = lines.filter(isWorktreeBranch).length;
     const untracked = lines.filter(isUntracked).length;
