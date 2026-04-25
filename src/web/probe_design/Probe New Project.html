@@ -814,25 +814,46 @@ function DonePane({ mainRq, chosenDesign, fullState, onBack, onRestart }) {
           drafted the artifacts, and ran a simulated pilot to surface obvious problems.
           What ships next is up to you.
         </div>
-        <div style={{
-          marginTop: 36, padding: '16px 18px', maxWidth: 640, width: '100%', boxSizing: 'border-box',
-          background: palette.bg2, border: `1px solid ${palette.rule}`,
-          borderLeft: `3px solid ${palette.amber}`, borderRadius: 4, textAlign: 'left',
-        }}>
+        {/* The "your project" summary card. Clicking anywhere on the
+            card (or its arrow) opens the steady-state project page at
+            /ui/project — same destination as the launcher's "Open
+            project". */}
+        <button
+          onClick={() => { window.location.href = '/ui/project'; }}
+          title="Open the project management page"
+          style={{
+            marginTop: 36, padding: '16px 18px', maxWidth: 640, width: '100%', boxSizing: 'border-box',
+            background: palette.bg2, border: `1px solid ${palette.rule}`,
+            borderLeft: `3px solid ${palette.amber}`, borderRadius: 4, textAlign: 'left',
+            color: 'inherit', fontFamily: 'inherit', cursor: 'pointer',
+            display: 'block', position: 'relative',
+            transition: 'background 120ms, border-color 120ms',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#1a2029'; e.currentTarget.style.borderColor = palette.amber; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = palette.bg2; e.currentTarget.style.borderColor = palette.rule; e.currentTarget.style.borderLeftColor = palette.amber; }}
+        >
           <div style={{ color: palette.amber, fontSize: 11, letterSpacing: '0.12em',
-            textTransform: 'uppercase', marginBottom: 8 }}>your project</div>
+            textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>your project</span>
+            <span style={{ marginLeft: 'auto', color: palette.ink3, fontSize: 11 }}>open project page →</span>
+          </div>
           <div style={{ color: palette.ink, fontSize: 14, lineHeight: 1.55 }}>
             <span style={{ color: palette.amber, marginRight: 6 }}>›</span>{mainRq}
           </div>
           <div style={{ color: palette.ink3, fontSize: 12, marginTop: 10 }}>
             study design · {chosenDesign?.name || '—'} · {chosenDesign?.duration || '—'}
           </div>
-        </div>
+        </button>
         <div style={{ marginTop: 36, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button onClick={onBack} style={{
             background: 'transparent', border: `1px solid ${palette.rule}`, color: palette.ink2,
             padding: '7px 16px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, cursor: 'pointer',
           }}>revisit a stage</button>
+          <button onClick={() => { window.location.href = '/ui/project'; }} style={{
+            background: 'transparent', border: `1px solid ${palette.amber}`, color: palette.amber,
+            padding: '7px 16px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
+            cursor: 'pointer',
+          }}>open project page →</button>
           <button onClick={saveAsDemo} title="Save this run for instant replay (demo videos)" style={{
             background: 'transparent', border: `1px solid ${palette.cyan}`, color: palette.cyan,
             padding: '7px 16px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
