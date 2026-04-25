@@ -16,7 +16,7 @@ Built for the [Cerebral Valley **Built with Opus 4.7** hackathon](https://cerebr
 
 > **Try it now (no install):** `git clone … && cd probe-researcher && npm install && npm run build && export ANTHROPIC_API_KEY=… && npx probe ui --web` then open `http://127.0.0.1:4470/ui`.
 
-> **Try it without an API key:** the same URL ships with a saved demo. Click `[d] Replay demo` from the launcher (or hit ⌘K → "demo") and walk through a 14-second pre-recorded run.
+> **Try it without an API key:** the same URL ships with a saved demo. Click `▶ replay sample run` in the left sidebar and walk through a 14-second pre-recorded run — no API spend.
 
 What's new in this hackathon (built April 21–26, 2026): everything under `src/cli/ui_app.tsx`, `src/cli/ui_scenes/`, `src/cli/ui_state.ts`, `src/llm/probe_calls.ts`, `src/web/probe_api.ts`, `src/web/probe_design/`, `src/web/probe_demo.ts`, and `src/config/probe_toml.ts` — the new **probe ui** surface (TUI + web shell) and the live Anthropic API integration that drives every stage.
 
@@ -26,7 +26,7 @@ The older offline pipeline (`probe run`, `probe lint`, the provenance linter) is
 
 - **Three reviewers genuinely disagree.** The simulated peer-review panel (1 area chair + 3 reviewers, each parameterised by `field` × `affiliation` × `topic confidence`) routinely lands recommendations spread across `RR / ARR / RRX`. The area-chair meta-review reconciles them. This holds across runs because Opus 4.7 sustains the role-separation under length.
 - **Per-stage model selection.** `[models].mode` in `~/.config/probe/probe.toml` flips the whole pipeline between `sonnet` (cheap), `opus` (best), or `mixed` (Opus on orchestration stages — brainstorm/methodology/review — Sonnet on execution). Defaults to sonnet for fast demos.
-- **Save once, replay forever.** A real run takes ~2 minutes (9 LLM calls). On the Done page, click `● save as demo` to capture the entire state to `~/.config/probe/demos/<slug>.json`. Click `[d] Replay demo` to walk through it again in ~14 seconds with the same spinners and phase dots — no API spend.
+- **Save once, replay forever.** A real run takes ~2 minutes (9 LLM calls). On the Done page, click `● save as demo` to capture the entire state to `~/.config/probe/demos/<slug>.json`. Click `▶ replay sample run` in the sidebar to walk through it again in ~14 seconds with the same spinners and phase dots — no API spend.
 - **Provenance, by force.** Everything synthesized is tagged `[SIMULATION_REHEARSAL]`. The provenance linter (carried over from the offline pipeline) refuses to ship guidebooks where simulated content uses evidence language.
 
 ### 200-word submission summary
