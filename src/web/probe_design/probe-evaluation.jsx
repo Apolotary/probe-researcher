@@ -417,10 +417,12 @@ function SectionEditable({ label, hint, value, setValue, isEditing, setEditing }
               outline: 'none', resize: 'vertical', lineHeight: 1.6, caretColor: palette.amber,
             }} />
         ) : (
-          <pre style={{
-            margin: 0, color: palette.ink, fontFamily: 'inherit', fontSize: 13,
-            lineHeight: 1.65, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-          }}>{value}</pre>
+          window.MarkdownText
+            ? <window.MarkdownText text={value} />
+            : <pre style={{
+                margin: 0, color: palette.ink, fontFamily: 'inherit', fontSize: 13,
+                lineHeight: 1.65, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+              }}>{value}</pre>
         )}
       </div>
     </div>

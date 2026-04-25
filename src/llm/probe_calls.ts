@@ -177,10 +177,12 @@ export async function methodology(
   const coverageKeys = rqs.map((r) => `"${r.letter}": "core"|"partial"|"none"`).join(', ');
   const system =
     `You are the methodology-design agent. Given a main RQ and selected
-sub-RQs, propose 5 INTEGRATED study designs — each a single paper's
+sub-RQs, propose 3 INTEGRATED study designs — each a single paper's
 worth of work that jointly answers the selected RQs through layered
-methods. For each, fill an RQ-coverage matrix indicating which RQs
-the design covers (core/partial/none). Strict JSON only.`;
+methods. The 3 designs MUST be distinct in shape — different time
+budget, different method mix — so the user has a real choice. For
+each, fill an RQ-coverage matrix indicating which RQs the design
+covers (core/partial/none). Strict JSON only.`;
   const user =
     `Main RQ: ${premise}\n\nSub-RQs:\n${rqList}\n\nReturn JSON:\n` +
     '```json\n' +
@@ -196,18 +198,20 @@ the design covers (core/partial/none). Strict JSON only.`;
       "strengths":["…","…","…"],
       "tensions":["…","…"]
     }
-    // 5 entries total — pick 5 distinct designs (longitudinal,
-    // probe, two-phase, qualitative-core, rapid pilot)
+    // 3 entries total — pick 3 distinct designs (e.g., a longitudinal
+    // mixed-methods option, a tighter focused-intervention option, a
+    // qualitative-core option). They must differ in time budget AND
+    // in method mix so the user has a meaningful choice.
   ]
 }` +
     '\n```' +
     `\nCoverage keys MUST be exactly: ${letters}.`;
-  const text = await callLLM({ stage: 'methodology', system, user, maxTokens: 3000 });
+  const text = await callLLM({ stage: 'methodology', system, user, maxTokens: 2500 });
   const parsed = extractJSON(text) as { candidates?: CandidateDesign[] };
   if (!parsed.candidates || !Array.isArray(parsed.candidates)) {
     throw new Error('methodology: malformed response');
   }
-  return parsed.candidates.slice(0, 5);
+  return parsed.candidates.slice(0, 3);
 }
 
 /* ── plan ───────────────────────────────────────────────────────── */

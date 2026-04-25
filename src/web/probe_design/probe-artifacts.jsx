@@ -504,11 +504,17 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue })
                             caretColor: palette.amber,
                           }} />
                       ) : (
-                        <pre style={{
-                          margin: 0, color: palette.ink, fontFamily: 'inherit', fontSize: 12.5,
-                          lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                        <div style={{
                           maxHeight: 480, overflow: 'auto',
-                        }}>{bodyOf(id)}</pre>
+                          padding: '4px 4px',
+                        }}>
+                          {window.MarkdownText
+                            ? <window.MarkdownText text={bodyOf(id)} />
+                            : <pre style={{
+                                margin: 0, color: palette.ink, fontFamily: 'inherit', fontSize: 12.5,
+                                lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                              }}>{bodyOf(id)}</pre>}
+                        </div>
                       )}
                     </div>
                   )}

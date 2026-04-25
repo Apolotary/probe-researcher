@@ -435,10 +435,14 @@ function MetaReviewCard({ meta, expanded, onToggle }) {
           borderTop: `1px dashed ${palette.rule}`,
         }}>
           <DetailBlock label="summary" accent="#d9a548">
-            {meta.summary}
+            {window.MarkdownText
+              ? <window.MarkdownText text={meta.summary} />
+              : meta.summary}
           </DetailBlock>
           <DetailBlock label="proposed decision" accent="#d9a548">
-            {meta.proposed}
+            {window.MarkdownText
+              ? <window.MarkdownText text={meta.proposed} />
+              : meta.proposed}
           </DetailBlock>
           <DetailBlock label={`consensus points · ${meta.consensusPoints.length}`} accent="#d9a548">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
@@ -556,8 +560,11 @@ function ReviewerCard({ reviewer: r, expanded, onToggle }) {
               padding: '10px 12px', background: palette.bg,
               borderLeft: `2px solid ${rec.color}`,
               color: palette.ink, fontSize: 13, lineHeight: 1.65,
-              whiteSpace: 'pre-wrap',
-            }}>{r.toAuthors}</div>
+            }}>
+              {window.MarkdownText
+                ? <window.MarkdownText text={r.toAuthors} />
+                : <span style={{ whiteSpace: 'pre-wrap' }}>{r.toAuthors}</span>}
+            </div>
           </DetailBlock>
           <DetailBlock label="comments to chairs · confidential" accent={palette.ink3}>
             <div style={{
@@ -565,7 +572,11 @@ function ReviewerCard({ reviewer: r, expanded, onToggle }) {
               border: `1px dashed ${palette.rule}`,
               color: palette.ink2, fontSize: 12.5, lineHeight: 1.6,
               fontStyle: 'italic',
-            }}>{r.toChairs}</div>
+            }}>
+              {window.MarkdownText
+                ? <window.MarkdownText text={r.toChairs} />
+                : r.toChairs}
+            </div>
           </DetailBlock>
         </div>
       )}
