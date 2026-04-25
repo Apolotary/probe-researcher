@@ -133,4 +133,28 @@ New stages, patterns, source cards:
 - Capture-risk patterns: add to `patterns/<axis>.yaml` with id, name, description, trigger_heuristic, evidence_template, default_score.
 - Agent prompts: one file per agent in `agents/<stage>.md`. System prompt first, then output schema reference, then voice guardrails, then examples.
 
+## `probe ui` — interactive workflow (separate from `probe run`)
+
+`probe ui` is a complementary surface added to the project (commit `3698c0c`). It does **not** replace `probe run` and does **not** produce shipped guidebooks under `runs/`. It's a tutorial-style walkthrough designed in Claude Design that lets a researcher rehearse the 7-stage pipeline interactively before committing to a real run.
+
+Architecture:
+
+- `src/cli/ui_app.tsx` — top-level Ink router, scene state.
+- `src/cli/ui_state.ts` — workflow state (premise, RQs, plan, artifacts, findings, review session) carried between scenes. Has both canned `make*` and live `live*` content generators; the live ones call `src/llm/probe_calls.ts`.
+- `src/cli/ui_scenes/` — one .tsx per scene (startup / welcome / premise / brainstorm / literature / methodology / artifacts / evaluation / report / review / done / project / config). Each scene reads `state` and calls `setState` from props.
+- `src/llm/probe_calls.ts` — pure async functions that hit the Anthropic SDK directly. No `runId`, no `cost.json` append (different posture from `src/anthropic/client.ts`, which is for the production pipeline).
+- `src/web/probe_design/` — design files (HTML + JSX) shipped verbatim from Claude Design's handoff bundle. Each stage's component fetches `/api/probe/<stage>` for live content and falls back to its stock data on error.
+- `src/web/probe_api.ts` — express endpoints that wrap `probe_calls.ts` for the web frontend.
+- `src/config/probe_toml.ts` — read/write `~/.config/probe/probe.toml` (atomic, 0600 perms). Both surfaces share this file.
+
+Pipeline order (fixed, do NOT renumber): `framing → literature → methodology → artifacts → evaluation → report → review`. The review stage simulates a peer-review panel: 1 AC + 3 reviewers, each with `field` / `affiliation` (academic | industry | independent) / `topicConfidence` (expert | confident | tentative | outsider). Recommendation buckets: `A | ARR | RR | RRX | X`. Verdicts: `accept | minor | major | reject`.
+
+Output artifacts from `probe ui` are NOT shipped guidebooks. They are exports the user can save (markdown / latex / pdf / project page) and explicitly carry `[SIMULATION_REHEARSAL]` provenance tags. The same hard rule applies: nothing produced here is evidence.
+
+When extending `probe ui`:
+
+- New stage → new file under `src/cli/ui_scenes/`, register in `ui_app.tsx` SceneId + route, add `live*` generator in `ui_state.ts` and `probe_calls.ts`, mount endpoint in `probe_api.ts`, copy/link the design file under `src/web/probe_design/`.
+- Per-stage accent colors and phase labels for `<ModelStatusLine>` are documented in `src/web/probe_design/design_handoff_probe/README.md` § Loading indicators.
+- Don't drift the status colors (moss / amber / cyan / rose / ink3) between TUI and web — both surfaces import from `src/ui/probe_tokens.ts`.
+
 Never add a forbidden-phrase exception. Never add a provenance tag that isn't enforced by the linter.

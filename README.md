@@ -111,6 +111,10 @@ npx probe run --run-id <the-import-id> --skip 1,2,3,4,5 "<premise sentence>"
 ### Everything else
 
 ```bash
+# Interactive surfaces (new — designed in Claude Design)
+npx probe ui                            # full TUI workflow: premise → 7-stage walkthrough → done
+npx probe ui --web                      # same flow in a browser at /ui (full Dossier prototype)
+
 # Inspect
 npx probe runs                          # Linear-style list of every run under runs/
 npx probe stats <run_id>                # per-run triage: verdicts, axis fires, lint, anomalies
@@ -128,6 +132,30 @@ npx probe audit-deep <run_id> <branch>  # tool-equipped deep audit (bash / grep 
 npx probe interview <run_id>            # simulated participant interview
 npx probe symposium <run_id>...         # multi-run convener report
 ```
+
+### `probe ui` — interactive workflow (TUI + web)
+
+`probe ui` opens a stateful 7-stage workflow with a LazyVim-style launcher and live Anthropic API calls:
+
+```
+launcher → premise → brainstorm 3 RQs → literature → methodology
+        → artifacts → evaluation → report → review (1AC + 3 reviewers) → done
+```
+
+Both surfaces share state via `~/.config/probe/probe.toml` and call the same `/api/probe/*` endpoints (mounted on the express server when `--web` is passed). Without an API key, every stage falls back to canned content so the demo still runs.
+
+```bash
+# TUI (default)
+probe ui
+
+# Browser companion — same flow, richer chrome
+probe ui --web
+
+# Jump to a specific scene (development)
+probe ui --scene methodology
+```
+
+The review stage (07) runs an ARR-style peer-review pass — one area chair plus three reviewers, each with their own `field`, `affiliation` (academic / industry / independent), and `topicConfidence` (expert / confident / tentative / outsider). Reviewers disagree by design and the AC writes a meta-review with consensus points tagged `all-3` / `2-of-3` / `1-of-3`.
 
 ### Providers and keys
 

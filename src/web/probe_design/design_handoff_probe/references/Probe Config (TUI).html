@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · config (TUI mock)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  html, body { margin: 0; padding: 0; height: 100%; background: #0a0e13; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    color: #c5c8d4;
+    font-size: 14px;
+    line-height: 1.25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  /* iTerm-ish window chrome to frame the TUI */
+  .term {
+    width: max-content;
+    max-width: 100%;
+    background: #0f1419;
+    border: 1px solid #1f2530;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .devnotes {
+    padding: 14px 18px 18px;
+    border-top: 1px solid #1f2530;
+    background: #0c1117;
+    color: #5c6678;
+    font-size: 12px;
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .devnotes .h { color: #8b93a7; margin-bottom: 6px; }
+  .titlebar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    background: #11161d;
+    border-bottom: 1px solid #1f2530;
+    color: #5c6678;
+    font-size: 12px;
+  }
+  .titlebar .dots { display: flex; gap: 6px; margin-right: 10px; }
+  .titlebar .dots span { width: 11px; height: 11px; border-radius: 50%; }
+  .titlebar .dots span:nth-child(1) { background: #ff5f57; }
+  .titlebar .dots span:nth-child(2) { background: #febc2e; }
+  .titlebar .dots span:nth-child(3) { background: #28c840; }
+
+  pre.tui {
+    margin: 0;
+    padding: 16px 14px 14px;
+    color: #c5c8d4;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1.3;
+    white-space: pre;
+    tab-size: 4;
+  }
+
+  /* Inline color spans — used to highlight regions inside the <pre> */
+  .b   { color: #d9a548; }                 /* brand amber */
+  .bb  { color: #d9a548; font-weight: 700;}/* brand bold */
+  .ink { color: #c5c8d4; }
+  .ink2{ color: #8b93a7; }
+  .ink3{ color: #5c6678; }
+  .moss{ color: #7fb069; }
+  .rose{ color: #e26e6e; }
+  .blue{ color: #7aa2f7; }
+  .cyan{ color: #7dcfff; }
+  .rule{ color: #1f2530; }                 /* box-drawing */
+  .ruleS{color: #2a3140; }                 /* slightly brighter rules */
+
+  /* selected row in left rail = inverse video on amber */
+  .sel { background: #d9a548; color: #0f1419; font-weight: 600; }
+  .selSoft { background: rgba(217, 165, 72, 0.18); color: #d9a548; }
+
+  /* status line: inverted block at the bottom */
+  .status { background: #d9a548; color: #0f1419; font-weight: 600; }
+  .statusInk { background: #1a2029; color: #8b93a7; }
+
+  /* dirty / unsaved marker in the header */
+  .dot { color: #d9a548; }
+  .ok  { color: #7fb069; }
+  .miss{ color: #5c6678; }
+
+  /* a soft caret on the focused field */
+  @keyframes caret { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+  .caret { animation: caret 1.05s steps(1) infinite; color: #d9a548; }
+</style>
+</head>
+<body>
+
+<div class="term">
+  <div class="titlebar">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <span>jordan@studio</span> <span class="ink3">—</span> <span>probe config</span> <span class="ink3">—</span> <span>156×42</span>
+  </div>
+
+<pre class="tui"><span class="rule">┌─ </span><span class="bb">PROBE</span><span class="ink3"> · config </span><span class="rule">────────────────────────────────────────────────────────────────────────────────────────</span> <span class="ink3">~/.config/probe/probe.toml </span><span class="dot">●</span> <span class="ink2">unsaved </span><span class="rule">─┐</span>
+<span class="rule">│</span>                                                                                                                                                <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">SECTIONS</span>                  <span class="rule">│</span>  <span class="b">§</span> <span class="ink">API keys</span>                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="sel"> [k] ⌬ API keys           </span><span class="rule">│</span>  <span class="ink3">Probe checks env vars first, then this config. Env always wins — clear it to fall back.</span>             <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [m] ◆ Models             </span><span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [b] $ Budget             </span><span class="rule">│</span>  <span class="ink">Anthropic </span>   <span class="ok">●</span> <span class="ink2">env · $ANTHROPIC_API_KEY</span>   <span class="ink">sk-ant-…7Q4f</span>   <span class="ink3">tested 2 min ago</span>                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [a] ◐ Appearance         </span><span class="rule">│</span>              <span class="ink3">└── env is set; this overrides the stored value below.</span>                                    <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [h] ⏵ Behavior           </span><span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [i] i About              </span><span class="rule">│</span>  <span class="ink">OpenAI    </span>   <span class="ok">●</span> <span class="ink2">stored in config         </span>   <span class="ink">sk-…m9Lp    </span>   <span class="ink3">tested 2 min ago</span>                            <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>              <span class="ink3">└── falls through from $OPENAI_API_KEY (unset)</span>                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">NAVIGATE</span>                  <span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">j/k</span><span class="ink3"> · move section      </span><span class="rule">│</span>  <span class="ink">Google    </span>   <span class="miss">○</span> <span class="ink3">unset                    </span>   <span class="ink3">—           </span>   <span class="ink3">tested —</span>                                    <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">tab</span><span class="ink3"> · next field        </span><span class="rule">│</span>              <span class="ink3">└── falls through from $GOOGLE_API_KEY (unset)</span>                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">enter</span><span class="ink3"> · edit field      </span><span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">:e</span><span class="ink3"> · open raw toml      </span><span class="rule">│</span>  <span class="ink3">┌──────────────────────────────────────────────────────────────────────────────────────────────────┐</span> <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">^s</span><span class="ink3"> · save & apply       </span><span class="rule">│</span>  <span class="ink3">│</span> Edit Anthropic key                                                                               <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">esc</span><span class="ink3"> · back               </span><span class="rule">│</span>  <span class="ink3">│</span>                                                                                                  <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span> <span class="b">›</span> <span class="ink">sk-ant-api03-aBcDeFg</span><span class="caret">█</span>                                                                       <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span>                                                                                                  <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span> <span class="ink3">[enter] save · [^t] test connection · [esc] cancel</span>                                              <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">└──────────────────────────────────────────────────────────────────────────────────────────────────┘</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">┌── notes ────────────────────────────────────────────────────────────────────────────────────────┐</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span> <span class="b">i</span>  Probe never logs key material. Stored entries live in <span class="ink">~/.config/probe/probe.toml</span>          <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span>    with <span class="ink">0600</span> perms. Env precedence is checked at every command.                              <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">└─────────────────────────────────────────────────────────────────────────────────────────────────┘</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">└────────────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>
+<span class="status"> NORMAL </span><span class="statusInk"> API keys                                JetBrains Mono · 14px                          [+]   2/3 keys ok       1:1 </span></pre>
+  <div class="devnotes">
+    <div class="h">notes for the dev</div>
+    – this is a static mock rendered with HTML <code>&lt;pre&gt;</code> + spans; in the real TUI it's drawn each frame by the framework (Bubble Tea / Ratatui / Textual)<br>
+    – box-drawing uses U+2500 series; section icons (⌬ ◆ ⏵ etc.) need a Nerd Font or recent emoji-aware terminal<br>
+    – status line is inverse-video on the brand amber — match the HTML version's status bar but rendered with terminal SGR codes<br>
+    – modal (the "Edit Anthropic key" pop-up) is centered-floating in the right pane; vim-style normal/insert mode applies inside text fields
+  </div>
+</div>
+
+</body>
+</html>

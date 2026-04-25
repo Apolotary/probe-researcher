@@ -74,8 +74,10 @@ export interface Friction {
 export interface ReviewerCard {
   id: string;                        // 'R1' | 'R2' | 'R3'
   rec: 'A' | 'ARR' | 'RR' | 'RRX' | 'X';
-  expertise: number;                 // 1–5
-  confidence: 'low' | 'medium' | 'high';
+  // Specialization profile (probe-review.jsx v2):
+  field: string;                     // free-text expertise area
+  affiliation: 'academic' | 'industry' | 'independent';
+  topicConfidence: 'expert' | 'confident' | 'tentative' | 'outsider';
   oneLine: string;
   strengths: string[];
   weaknesses: string[];
@@ -568,7 +570,10 @@ export function makeReviewSession(state: ProbeWorkflowState): ReviewSession {
     paperTitle: state.paperTitle || 'Untitled paper',
     reviewers: [
       {
-        id: 'R1', rec: 'RR', expertise: 4, confidence: 'high',
+        id: 'R1', rec: 'RR',
+        field: 'attention & cognitive ergonomics',
+        affiliation: 'academic',
+        topicConfidence: 'expert',
         oneLine: 'Strong wedge, under-powered pilot, claims may overreach.',
         strengths: [
           'Framing positions the contribution against prior work cleanly.',
@@ -584,7 +589,10 @@ export function makeReviewSession(state: ProbeWorkflowState): ReviewSession {
         toChairs: 'Borderline RR. ARR if authors can address the IRR + power gap in a revision.',
       },
       {
-        id: 'R2', rec: 'ARR', expertise: 3, confidence: 'medium',
+        id: 'R2', rec: 'ARR',
+        field: 'qualitative methods · CSCW',
+        affiliation: 'academic',
+        topicConfidence: 'confident',
         oneLine: 'Methodologically clean. Mostly presentational issues.',
         strengths: [
           'Mixed-methods design is justified and well-executed.',
@@ -600,7 +608,10 @@ export function makeReviewSession(state: ProbeWorkflowState): ReviewSession {
         toChairs: 'Easy ARR for me. Issues are presentational and one mid-sized restructuring of related work.',
       },
       {
-        id: 'R3', rec: 'RRX', expertise: 2, confidence: 'medium',
+        id: 'R3', rec: 'RRX',
+        field: 'organizational behavior · remote work',
+        affiliation: 'industry',
+        topicConfidence: 'tentative',
         oneLine: 'Interesting framing but the simulated pilot oversells the claims.',
         strengths: [
           'Clear writing and strong figures.',

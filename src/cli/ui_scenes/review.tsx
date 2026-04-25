@@ -233,16 +233,29 @@ export function ReviewScene({ goto, exit, state, setState }: SceneProps): React.
                     )}
                     <Text color={probeTokens.ink3}>  </Text>
                     <Text color={rec.color}>{r.rec.padEnd(3, ' ')}</Text>
-                    <Text color={probeTokens.ink3}>  conf </Text>
-                    <Text color={probeTokens.ink}>{r.confidence}</Text>
-                    <Text color={probeTokens.ink3}>  expertise {r.expertise}/5</Text>
                     <Text color={probeTokens.ink3}>  </Text>
-                    <Text color={probeTokens.ink2}>{trim(r.oneLine, innerW - 60)}</Text>
-                    {fill(' ', Math.max(0, innerW - 60 - Math.min(r.oneLine.length, innerW - 60)))}
+                    <Text color={
+                      r.affiliation === 'academic'    ? probeTokens.blue :
+                      r.affiliation === 'industry'    ? probeTokens.cyan :
+                                                        probeTokens.ink2
+                    }>[{r.affiliation === 'academic' ? 'AC' : r.affiliation === 'industry' ? 'IN' : 'IX'}]</Text>
+                    <Text color={probeTokens.ink3}>  </Text>
+                    <Text color={
+                      r.topicConfidence === 'expert'     ? probeTokens.moss :
+                      r.topicConfidence === 'confident'  ? probeTokens.moss :
+                      r.topicConfidence === 'tentative'  ? probeTokens.amber :
+                                                            probeTokens.rose
+                    }>[{r.topicConfidence}]</Text>
+                    <Text color={probeTokens.ink3}>  </Text>
+                    <Text color={probeTokens.ink2}>{trim(r.oneLine, innerW - 70)}</Text>
+                    {fill(' ', Math.max(0, innerW - 70 - Math.min(r.oneLine.length, innerW - 70)))}
                   </Text>
                 </FrameRow>
                 {isOpen && (
                   <>
+                    <FrameRow width={width}>
+                      <Text>{'        '}<Text color={probeTokens.ink3}>field: </Text><Text color={probeTokens.ink}>{trim(r.field, innerW - 20)}</Text>{fill(' ', Math.max(0, innerW - 18 - Math.min(r.field.length, innerW - 20)))}</Text>
+                    </FrameRow>
                     <FrameRow width={width}>
                       <Text>{'        '}<Text color={probeTokens.moss}>strengths</Text>{fill(' ', Math.max(0, innerW - 20))}</Text>
                     </FrameRow>

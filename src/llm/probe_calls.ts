@@ -382,8 +382,13 @@ Return JSON:
 export interface ReviewerCard {
   id: string;
   rec: 'A' | 'ARR' | 'RR' | 'RRX' | 'X';
-  expertise: number;            // 1–5
-  confidence: 'low' | 'medium' | 'high';
+  // Reviewer specialization (from probe-review.jsx v2 design):
+  //   field           — claimed expertise area (free text)
+  //   affiliation     — academic | industry | independent
+  //   topicConfidence — expert | confident | tentative | outsider
+  field: string;
+  affiliation: 'academic' | 'industry' | 'independent';
+  topicConfidence: 'expert' | 'confident' | 'tentative' | 'outsider';
   oneLine: string;
   strengths: string[];
   weaknesses: string[];
@@ -414,12 +419,12 @@ export async function review(input: {
   discussion: string;
 }): Promise<ReviewSession> {
   const system =
-    `You are simulating an OpenReview / ARR-style peer-review session for
-the user's research paper. Produce ONE meta-review by the area chair (AC)
-and THREE reviewer reports. Reviewers must DISAGREE meaningfully — assign
-distinct recommendations (e.g., RR / ARR / RRX) and let their critiques
-overlap on some points but diverge on others. Be specific, not generic.
-Strict JSON only.
+    `You are simulating a peer-review session for the user's research
+paper. Produce ONE meta-review by the area chair (AC) and THREE
+reviewer reports. Reviewers must DISAGREE meaningfully — assign
+distinct recommendations and distinct specialization profiles so the
+panel critiques the paper from different angles. Be specific, not
+generic. Strict JSON only.
 
 Recommendation buckets:
   A   = accept (rare)
@@ -428,7 +433,14 @@ Recommendation buckets:
   RRX = major revision (rethink core argument)
   X   = reject
 
-Verdict buckets: accept | minor | major | reject (the AC chooses).`;
+Verdict buckets: accept | minor | major | reject (the AC chooses).
+
+Reviewer specialization (each reviewer must have ALL three):
+  field           — short phrase naming their expertise area, e.g.
+                    "attention & cognitive ergonomics", "qualitative
+                    methods · CSCW", "organizational behavior".
+  affiliation     — one of: academic | industry | independent
+  topicConfidence — one of: expert | confident | tentative | outsider`;
 
   const user =
     `Paper title: ${input.paperTitle}
@@ -448,16 +460,17 @@ Return JSON:
     {
       "id": "R1",
       "rec": "RR",
-      "expertise": 4,
-      "confidence": "high",
+      "field": "<short phrase>",
+      "affiliation": "academic",
+      "topicConfidence": "expert",
       "oneLine": "<≤16-word summary>",
       "strengths": ["…","…","…"],
       "weaknesses": ["…","…","…"],
       "toAuthors": "<paragraph addressed to authors, ≤140 words>",
       "toChairs": "<short note to chairs, ≤40 words>"
     },
-    {"id":"R2", "rec":"ARR", …},
-    {"id":"R3", "rec":"RRX", …}
+    {"id":"R2", "rec":"ARR", "field":"<…>", "affiliation":"academic|industry|independent", "topicConfidence":"<…>", …},
+    {"id":"R3", "rec":"RRX", "field":"<…>", "affiliation":"<…>", "topicConfidence":"<…>", …}
   ],
   "meta": {
     "ac": "AC",
@@ -478,14 +491,23 @@ Return JSON:
   const parsed = extractJSON(text) as Partial<ReviewSession>;
 
   // Defensive defaults so the UI never sees undefined critical fields.
+  // The 3 reviewers default to a varied panel (academic/industry/independent
+  // and a spread of topic confidence) when the LLM response misses fields.
+  const FALLBACK_AFFIL: Array<ReviewerCard['affiliation']> = ['academic', 'academic', 'industry'];
+  const FALLBACK_TC: Array<ReviewerCard['topicConfidence']> = ['expert', 'confident', 'tentative'];
   return {
     paperTitle: parsed.paperTitle ?? input.paperTitle,
     reviewers: Array.isArray(parsed.reviewers)
       ? parsed.reviewers.slice(0, 3).map((r, i) => ({
           id: r.id ?? `R${i + 1}`,
           rec: (r.rec ?? 'RR') as ReviewerCard['rec'],
-          expertise: typeof r.expertise === 'number' ? r.expertise : 3,
-          confidence: (r.confidence ?? 'medium') as ReviewerCard['confidence'],
+          field: r.field ?? 'general HCI',
+          affiliation: (['academic', 'industry', 'independent'] as const).includes(r.affiliation as ReviewerCard['affiliation'])
+            ? r.affiliation as ReviewerCard['affiliation']
+            : FALLBACK_AFFIL[i] ?? 'academic',
+          topicConfidence: (['expert', 'confident', 'tentative', 'outsider'] as const).includes(r.topicConfidence as ReviewerCard['topicConfidence'])
+            ? r.topicConfidence as ReviewerCard['topicConfidence']
+            : FALLBACK_TC[i] ?? 'confident',
           oneLine: r.oneLine ?? '',
           strengths: Array.isArray(r.strengths) ? r.strengths : [],
           weaknesses: Array.isArray(r.weaknesses) ? r.weaknesses : [],

@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · welcome</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    background: #0f1419;
+    color: #c5c8d4;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  #root { min-height: 100vh; }
+  textarea, input { font-family: inherit; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #0f1419; }
+  ::-webkit-scrollbar-thumb { background: #1f2530; border-radius: 5px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  @keyframes streamIn { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
+  .fade-in { animation: fadeIn 240ms ease-out both; }
+  .pulse-dot { animation: blink 1s steps(1) infinite; }
+  .stream-line { animation: streamIn 200ms ease-out both; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="probe-tokens.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+const palette = window.__probePalette;
+const kbdStyle = window.__probeKbd;
+
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "screen": "welcome",
+  "keySource": "env",
+  "keyState": "valid",
+  "showTerminal": true
+}/*EDITMODE-END*/;
+
+// ─── stages of the boot sequence ─────────────────────────────────────────
+// "Welcome" mocks what a researcher sees AFTER typing `probe` in their shell:
+// the terminal animates a short server-startup log on the left, the browser
+// auto-opens the local UI on the right. The browser side is the actual app.
+
+function App() {
+  const [screen, setScreen] = useState(TWEAKS.screen);          // 'welcome' | 'settings'
+  const [keySource, setKeySource] = useState(TWEAKS.keySource); // 'env' | 'config' | 'paste' | 'none'
+  const [keyState, setKeyState] = useState(TWEAKS.keyState);    // 'valid' | 'missing' | 'unauthorized' | 'rate-limited' | 'checking'
+  const [showTerminal, setShowTerminal] = useState(TWEAKS.showTerminal);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [pastedKey, setPastedKey] = useState(keySource === 'paste' ? 'sk-ant-···············Q4kJ' : '');
+
+  // Edit-mode handshake
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (!e.data) return;
+      if (e.data.type === '__activate_edit_mode')   setTweaksOpen(true);
+      if (e.data.type === '__deactivate_edit_mode') setTweaksOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+  const persist = (patch) => window.parent.postMessage({ type: '__edit_mode_set_keys', edits: patch }, '*');
+
+  return (
+    <div data-screen-label={`Probe ${screen === 'welcome' ? '00 Welcome' : '01 Settings'}`}
+      style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <TopBar screen={screen} setScreen={setScreen} keyState={keyState} keySource={keySource} />
+      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+        {showTerminal && <TerminalPane keyState={keyState} keySource={keySource} />}
+        <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+          {screen === 'welcome'
+            ? <Welcome keyState={keyState} keySource={keySource} setScreen={setScreen} />
+            : <Settings
+                keySource={keySource} setKeySource={(v) => { setKeySource(v); persist({ keySource: v }); }}
+                keyState={keyState}    setKeyState={(v)  => { setKeyState(v);  persist({ keyState: v });  }}
+                pastedKey={pastedKey}  setPastedKey={setPastedKey} />
+          }
+        </div>
+      </div>
+      <StatusFooter keyState={keyState} keySource={keySource} screen={screen} />
+
+      {tweaksOpen && (
+        <TweaksPanel
+          screen={screen} setScreen={(v) => { setScreen(v); persist({ screen: v }); }}
+          keySource={keySource} setKeySource={(v) => { setKeySource(v); persist({ keySource: v }); }}
+          keyState={keyState} setKeyState={(v) => { setKeyState(v); persist({ keyState: v }); }}
+          showTerminal={showTerminal} setShowTerminal={(v) => { setShowTerminal(v); persist({ showTerminal: v }); }}
+          onClose={() => {
+            setTweaksOpen(false);
+            window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+          }} />
+      )}
+    </div>
+  );
+}
+
+// ─── TopBar ──────────────────────────────────────────────────────────────
+function TopBar({ screen, setScreen, keyState, keySource }) {
+  return (
+    <div style={{
+      borderBottom: `1px solid ${palette.rule}`,
+      padding: '12px 22px', display: 'flex', alignItems: 'center', gap: 14,
+      color: palette.ink3, fontSize: 12,
+      background: palette.bg,
+    }}>
+      <span style={{ color: palette.amber, fontWeight: 600, fontSize: 13, letterSpacing: '0.04em' }}>probe</span>
+      <span style={{ color: palette.ink4 }}>·</span>
+      <span style={{ color: palette.ink3 }}>v0.4.1</span>
+      <span style={{ color: palette.ink4 }}>·</span>
+      <span style={{ color: palette.ink3 }}>local · 127.0.0.1:7392</span>
+      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 14 }}>
+        {[
+          { id: 'welcome',  label: 'home' },
+          { id: 'settings', label: 'settings' },
+        ].map((t) => {
+          const active = screen === t.id;
+          return (
+            <button key={t.id} onClick={() => setScreen(t.id)} style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: active ? palette.ink : palette.ink3,
+              fontFamily: 'inherit', fontSize: 12,
+              borderBottom: `2px solid ${active ? palette.amber : 'transparent'}`,
+              paddingBottom: 2, transition: 'border-color 100ms, color 100ms',
+            }}>{t.label}</button>
+          );
+        })}
+        <KeyHealthPip keyState={keyState} keySource={keySource} onClick={() => setScreen('settings')} />
+      </span>
+    </div>
+  );
+}
+
+function KeyHealthPip({ keyState, keySource, onClick }) {
+  const map = {
+    valid:        { color: '#7fb069', label: 'key ok',   icon: '●' },
+    missing:      { color: '#e26e6e', label: 'no key',   icon: '⚠' },
+    unauthorized: { color: '#e26e6e', label: '401',      icon: '⚠' },
+    'rate-limited': { color: '#d9a548', label: '429',    icon: '⚠' },
+    checking:     { color: '#7dcfff', label: 'checking', icon: '◌' },
+  };
+  const m = map[keyState] || map.missing;
+  const sourceLabel = {
+    env:    'env',
+    config: '~/.probe',
+    paste:  'browser',
+    none:   '—',
+  }[keySource];
+  return (
+    <button onClick={onClick} style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      padding: '3px 10px', background: palette.bg2,
+      border: `1px solid ${palette.rule}`, borderRadius: 999,
+      color: m.color, fontFamily: 'inherit', fontSize: 11, cursor: 'pointer',
+    }} title={`API key from ${sourceLabel}`}>
+      <span style={{
+        animation: keyState === 'checking' ? 'spin 1.2s linear infinite' : 'none',
+        display: 'inline-block',
+      }}>{m.icon}</span>
+      <span>{m.label}</span>
+      <span style={{ color: palette.ink4 }}>·</span>
+      <span style={{ color: palette.ink3 }}>{sourceLabel}</span>
+    </button>
+  );
+}
+
+// ─── Terminal pane (left side) ───────────────────────────────────────────
+// Streams a fake startup log so the connection between the user's CLI and
+// the in-browser app is legible.
+function TerminalPane({ keyState, keySource }) {
+  const lines = useMemo(() => buildBootLog(keyState, keySource), [keyState, keySource]);
+  const [revealed, setRevealed] = useState(0);
+
+  useEffect(() => {
+    setRevealed(0);
+    const ivs = lines.map((_, i) => setTimeout(() => setRevealed(i + 1), 150 + i * 110));
+    return () => ivs.forEach(clearTimeout);
+  }, [lines]);
+
+  return (
+    <div style={{
+      width: 460, flex: 'none', minWidth: 380,
+      borderRight: `1px solid ${palette.rule}`,
+      background: '#0a0d12',
+      display: 'flex', flexDirection: 'column',
+    }}>
+      {/* terminal chrome */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '8px 12px', borderBottom: `1px solid ${palette.rule}`,
+        background: '#11161d',
+      }}>
+        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#3d4555' }} />
+        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#3d4555' }} />
+        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#3d4555' }} />
+        <span style={{ marginLeft: 12, color: palette.ink3, fontSize: 11.5 }}>
+          ~/research — zsh — 92×24
+        </span>
+      </div>
+
+      {/* log */}
+      <div style={{
+        flex: 1, padding: '14px 16px', fontSize: 12, lineHeight: 1.55,
+        overflow: 'auto', color: palette.ink2,
+      }}>
+        {lines.slice(0, revealed).map((l, i) => (
+          <div key={i} className="stream-line" style={{
+            marginBottom: l.gap ? 8 : 1,
+            color: l.color || palette.ink2,
+          }}>
+            {l.prompt && <span style={{ color: palette.amber, marginRight: 6 }}>{l.prompt}</span>}
+            {l.tag && <span style={{
+              color: l.tagColor || palette.ink3, marginRight: 8,
+              fontVariantNumeric: 'tabular-nums',
+            }}>{l.tag}</span>}
+            <span>{l.text}</span>
+          </div>
+        ))}
+        {revealed < lines.length && (
+          <span style={{
+            display: 'inline-block', width: 7, height: 14, marginLeft: 2,
+            background: palette.amber, verticalAlign: '-2px',
+            animation: 'blink 1s steps(1) infinite',
+          }} />
+        )}
+        {revealed >= lines.length && (
+          <div style={{ marginTop: 8, color: palette.ink3 }}>
+            <span style={{ color: palette.amber, marginRight: 6 }}>›</span>
+            <span style={{
+              display: 'inline-block', width: 7, height: 14,
+              background: palette.amber, verticalAlign: '-2px',
+              animation: 'blink 1s steps(1) infinite',
+            }} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function buildBootLog(keyState, keySource) {
+  const ts = (n) => `${String(Math.floor(n / 60)).padStart(2,'0')}:${String(n % 60).padStart(2,'0')}.${String(Math.floor(Math.random()*999)).padStart(3,'0')}`;
+  const out = [];
+  out.push({ prompt: '$', text: 'probe', color: palette.ink });
+  out.push({ tag: ts(0), text: 'starting probe v0.4.1', color: palette.ink2 });
+  if (keySource === 'env') {
+    out.push({ tag: ts(0), text: 'detected ANTHROPIC_API_KEY in environment', color: palette.moss });
+  } else if (keySource === 'config') {
+    out.push({ tag: ts(0), text: 'reading ~/.probe/config.toml', color: palette.ink2 });
+    out.push({ tag: ts(0), text: 'using anthropic.api_key from config', color: palette.moss });
+  } else if (keySource === 'paste') {
+    out.push({ tag: ts(0), text: 'no env key found', color: palette.ink3 });
+    out.push({ tag: ts(0), text: 'using key from local browser store', color: palette.ink2 });
+  } else {
+    out.push({ tag: ts(0), text: 'no API key found in env or config', color: '#e26e6e' });
+    out.push({ tag: ts(0), text: 'opening setup page in browser', color: palette.ink2 });
+  }
+  out.push({ tag: ts(1), text: 'binding 127.0.0.1:7392', color: palette.ink2 });
+  out.push({ tag: ts(1), text: 'spawning agents · 5 ready', color: palette.ink2 });
+  out.push({ tag: ts(1), text: 'opening http://127.0.0.1:7392 in default browser', color: palette.cyan, gap: true });
+  if (keyState === 'unauthorized') {
+    out.push({ tag: ts(2), text: 'auth check failed: 401 Unauthorized', color: '#e26e6e' });
+    out.push({ tag: ts(2), text: 'see settings to update key', color: palette.ink3 });
+  } else if (keyState === 'rate-limited') {
+    out.push({ tag: ts(2), text: '429 rate-limited · retrying in 30s', color: palette.amber });
+  } else if (keyState === 'valid') {
+    out.push({ tag: ts(2), text: 'auth check ok · org: research/probe', color: palette.moss });
+    out.push({ tag: ts(2), text: 'ready · ⌃C to stop', color: palette.ink3 });
+  } else if (keyState === 'missing') {
+    out.push({ tag: ts(2), text: 'awaiting key in browser', color: palette.amber });
+  }
+  return out;
+}
+
+// ─── Welcome screen ──────────────────────────────────────────────────────
+function Welcome({ keyState, keySource, setScreen }) {
+  const ready = keyState === 'valid';
+  return (
+    <div className="fade-in" style={{
+      padding: '48px 56px 80px', maxWidth: 760,
+    }}>
+      <div style={{
+        color: palette.ink3, fontSize: 11, letterSpacing: '0.16em',
+        textTransform: 'uppercase', marginBottom: 14,
+      }}>──── probe · local research agent ────</div>
+      <h1 style={{
+        margin: 0, fontWeight: 500, fontSize: 30, color: palette.ink,
+        letterSpacing: '-0.005em',
+      }}>
+        Welcome back.
+      </h1>
+      <p style={{
+        color: palette.ink2, fontSize: 14.5, lineHeight: 1.6, maxWidth: 600,
+        marginTop: 12, textWrap: 'pretty',
+      }}>
+        Probe runs as a local server on your machine. The CLI starts it,
+        the browser drives it, your filesystem owns the projects. Everything
+        the agents do can be inspected, paused, or rolled back.
+      </p>
+
+      {/* Status card */}
+      <div style={{
+        marginTop: 32, padding: '14px 18px',
+        background: palette.bg2, border: `1px solid ${palette.rule}`,
+        borderLeft: `3px solid ${ready ? palette.moss : palette.amber}`,
+        borderRadius: 3,
+      }}>
+        <div style={{
+          color: ready ? palette.moss : palette.amber,
+          fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
+        }}>
+          {ready ? '─── server running · ready ───' : '─── server running · setup needed ───'}
+        </div>
+        <div style={{
+          marginTop: 8, display: 'grid', gridTemplateColumns: '110px 1fr', gap: 6,
+          color: palette.ink2, fontSize: 13,
+        }}>
+          <span style={{ color: palette.ink3 }}>endpoint</span>
+          <span style={{ color: palette.ink }}>http://127.0.0.1:7392</span>
+          <span style={{ color: palette.ink3 }}>API key</span>
+          <span>
+            <KeyStateInline keyState={keyState} keySource={keySource} />
+          </span>
+          <span style={{ color: palette.ink3 }}>data dir</span>
+          <span style={{ color: palette.ink }}>~/.probe/projects/</span>
+          <span style={{ color: palette.ink3 }}>model</span>
+          <span style={{ color: palette.ink }}>claude-sonnet-4-5 · fallback claude-haiku-4-5</span>
+        </div>
+        {!ready && (
+          <button onClick={() => setScreen('settings')} style={{
+            marginTop: 14, background: palette.amber, color: palette.bg,
+            border: 'none', padding: '6px 14px', borderRadius: 3,
+            fontFamily: 'inherit', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+          }}>finish setup ›</button>
+        )}
+      </div>
+
+      {/* Recent projects */}
+      <div style={{
+        marginTop: 32, color: palette.ink3, fontSize: 11,
+        letterSpacing: '0.14em', textTransform: 'uppercase',
+      }}>─── recent projects ───</div>
+      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column' }}>
+        {[
+          { name: 'meeting-fatigue · v3', stage: 'evaluation', when: '2h ago', status: 'fresh' },
+          { name: 'code-review-onboarding', stage: 'literature', when: '3d ago', status: 'stale' },
+          { name: 'weeknight-recipes',   stage: 'framing', when: '11d ago', status: 'queued' },
+        ].map((p, i) => (
+          <a key={i} href="Probe Project.html" style={{
+            display: 'grid', gridTemplateColumns: '1fr auto auto auto',
+            gap: 14, alignItems: 'baseline', padding: '10px 4px',
+            borderBottom: `1px dashed ${palette.rule}`,
+            color: 'inherit', textDecoration: 'none', cursor: 'pointer',
+          }}>
+            <span style={{ color: palette.ink, fontSize: 13.5 }}>{p.name}</span>
+            <span style={{ color: palette.ink3, fontSize: 11.5 }}>{p.stage}</span>
+            <span style={{ color: statusColor(p.status), fontSize: 11 }}>● {p.status}</span>
+            <span style={{ color: palette.ink4, fontSize: 11.5 }}>{p.when}</span>
+          </a>
+        ))}
+        <a href="Probe New Project.html" style={{
+          display: 'flex', alignItems: 'center', gap: 10, padding: '12px 4px',
+          color: palette.cyan, fontSize: 13, textDecoration: 'none', cursor: 'pointer',
+        }}>
+          <span style={{ fontSize: 18, fontWeight: 400 }}>+</span>
+          <span>start a new project</span>
+          <kbd style={{ ...kbdStyle, marginLeft: 'auto' }}>⌘ N</kbd>
+        </a>
+      </div>
+
+      {/* Install hint */}
+      <div style={{
+        marginTop: 36, paddingTop: 18, borderTop: `1px solid ${palette.rule}`,
+      }}>
+        <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase', marginBottom: 8 }}>─── installed via ───</div>
+        <pre style={{
+          margin: 0, padding: '10px 14px', background: palette.bg2,
+          border: `1px solid ${palette.rule}`, borderRadius: 3,
+          color: palette.ink2, fontFamily: 'inherit', fontSize: 12.5,
+          overflow: 'auto',
+        }}><span style={{ color: palette.ink4 }}># homebrew (recommended on macOS / Linux)</span>{'\n'}<span style={{ color: palette.amber }}>$</span> brew install anthropic/research/probe{'\n'}<span style={{ color: palette.ink4 }}># or via npm</span>{'\n'}<span style={{ color: palette.amber }}>$</span> npm i -g @anthropic-ai/probe{'\n'}<span style={{ color: palette.ink4 }}># then anywhere</span>{'\n'}<span style={{ color: palette.amber }}>$</span> probe</pre>
+      </div>
+    </div>
+  );
+}
+
+function KeyStateInline({ keyState, keySource }) {
+  const map = {
+    valid:        { color: palette.moss,  label: 'detected and validated' },
+    missing:      { color: palette.rose,  label: 'not configured' },
+    unauthorized: { color: palette.rose,  label: 'rejected by Anthropic API (401)' },
+    'rate-limited': { color: palette.amber, label: 'rate limited (429)' },
+    checking:     { color: palette.cyan,  label: 'checking…' },
+  };
+  const m = map[keyState];
+  const src = {
+    env:    'ANTHROPIC_API_KEY env var',
+    config: '~/.probe/config.toml',
+    paste:  'browser local store',
+    none:   '—',
+  }[keySource];
+  return (
+    <span style={{ color: m.color }}>
+      ● {m.label}
+      {keyState === 'valid' && <span style={{ color: palette.ink3 }}> · from {src}</span>}
+    </span>
+  );
+}
+
+function statusColor(s) {
+  return s === 'fresh' ? palette.moss : s === 'stale' ? palette.amber : palette.ink4;
+}
+
+// ─── Settings screen ─────────────────────────────────────────────────────
+function Settings({ keySource, setKeySource, keyState, setKeyState, pastedKey, setPastedKey }) {
+  const [reveal, setReveal] = useState(false);
+  const [testing, setTesting] = useState(false);
+
+  const test = () => {
+    setTesting(true);
+    setKeyState('checking');
+    setTimeout(() => {
+      setTesting(false);
+      // Honor the user's "scenario" choice — don't override missing/401/etc.
+      // For env/config/paste we assume valid unless the tweak says otherwise.
+      const ok = keySource !== 'none';
+      setKeyState(ok ? 'valid' : 'missing');
+    }, 1100);
+  };
+
+  return (
+    <div className="fade-in" style={{
+      padding: '40px 56px 80px', maxWidth: 760,
+    }}>
+      <div style={{
+        color: palette.ink3, fontSize: 11, letterSpacing: '0.16em',
+        textTransform: 'uppercase', marginBottom: 14,
+      }}>──── settings ────</div>
+      <h1 style={{ margin: 0, fontWeight: 500, fontSize: 26, color: palette.ink }}>
+        API key & runtime
+      </h1>
+      <p style={{ color: palette.ink2, fontSize: 13.5, marginTop: 10, lineHeight: 1.6 }}>
+        Probe checks key sources in priority order. The first source that
+        provides a working key wins; the rest are shown for reference.
+      </p>
+
+      {/* Source priority list */}
+      <div style={{ marginTop: 26 }}>
+        <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase', marginBottom: 8 }}>─── key sources · in order of precedence ───</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <SourceRow
+            n={1} id="env"
+            title="ANTHROPIC_API_KEY environment variable"
+            sub="recommended for power users · set in ~/.zshrc or shell profile"
+            keySource={keySource} setKeySource={setKeySource}
+            details={keySource === 'env'
+              ? <EnvDetails keyState={keyState} />
+              : <code style={codeStyle}>export ANTHROPIC_API_KEY=sk-ant-…</code>} />
+          <SourceRow
+            n={2} id="config"
+            title="~/.probe/config.toml"
+            sub="for users who don't want a global env var"
+            keySource={keySource} setKeySource={setKeySource}
+            details={<code style={codeStyle}>{'[anthropic]\napi_key = "sk-ant-…"'}</code>} />
+          <SourceRow
+            n={3} id="paste"
+            title="paste here"
+            sub="stored in your browser's localStorage · wiped on logout"
+            keySource={keySource} setKeySource={setKeySource}
+            details={<PasteRow pastedKey={pastedKey} setPastedKey={setPastedKey} reveal={reveal} setReveal={setReveal} />} />
+        </div>
+      </div>
+
+      {/* Test connection */}
+      <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${palette.rule}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={test} disabled={testing} style={{
+            background: testing ? palette.bg2 : palette.amber,
+            color: testing ? palette.ink3 : palette.bg,
+            border: `1px solid ${testing ? palette.rule : palette.amber}`,
+            padding: '6px 14px', borderRadius: 3, fontFamily: 'inherit',
+            fontSize: 12, fontWeight: 600, cursor: testing ? 'wait' : 'pointer',
+          }}>
+            {testing ? 'testing…' : 'test connection'}
+          </button>
+          <KeyStateInline keyState={keyState} keySource={keySource} />
+        </div>
+        {keyState === 'unauthorized' && (
+          <div style={{
+            marginTop: 12, padding: '10px 12px', borderRadius: 3,
+            border: `1px solid ${palette.rose}`,
+            borderLeft: `3px solid ${palette.rose}`,
+            background: 'rgba(226,110,110,0.08)',
+            color: palette.ink, fontSize: 12.5,
+          }}>
+            <strong style={{ color: palette.rose }}>401 Unauthorized — </strong>
+            the key was found but the API rejected it. It may be revoked,
+            expired, or copied with a typo. Generate a new key at console.anthropic.com.
+          </div>
+        )}
+        {keyState === 'rate-limited' && (
+          <div style={{
+            marginTop: 12, padding: '10px 12px', borderRadius: 3,
+            border: `1px solid ${palette.amber}`,
+            borderLeft: `3px solid ${palette.amber}`,
+            background: 'rgba(217,165,72,0.08)',
+            color: palette.ink, fontSize: 12.5,
+          }}>
+            <strong style={{ color: palette.amber }}>429 rate-limited — </strong>
+            your account hit per-minute or per-day limits. Probe will retry
+            with backoff; consider upgrading your tier if this is frequent.
+          </div>
+        )}
+        {keyState === 'missing' && (
+          <div style={{
+            marginTop: 12, padding: '10px 12px', borderRadius: 3,
+            border: `1px solid ${palette.rule}`,
+            borderLeft: `3px solid ${palette.rose}`,
+            background: palette.bg2, color: palette.ink2, fontSize: 12.5,
+          }}>
+            No key configured. Pick a source above and paste or export a key,
+            then test the connection.
+          </div>
+        )}
+      </div>
+
+      {/* Other settings */}
+      <div style={{ marginTop: 36 }}>
+        <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase', marginBottom: 8 }}>─── other ───</div>
+        <SettingRow label="model"           value="claude-sonnet-4-5"   trail="default · change in config.toml" />
+        <SettingRow label="port"            value="7392"                trail="--port flag overrides" />
+        <SettingRow label="data directory"  value="~/.probe/projects/"  trail="symlinks supported" />
+        <SettingRow label="telemetry"       value="off"                 trail="never enabled by default" />
+        <SettingRow label="max concurrent"  value="3 agents"            trail="raise for paid tiers" />
+      </div>
+    </div>
+  );
+}
+
+function SourceRow({ n, id, title, sub, keySource, setKeySource, details }) {
+  const active = keySource === id;
+  return (
+    <div style={{
+      background: active ? palette.bg2 : 'transparent',
+      border: `1px solid ${active ? palette.amber : palette.rule}`,
+      borderLeft: `3px solid ${active ? palette.amber : palette.ink4}`,
+      borderRadius: 3,
+    }}>
+      <button onClick={() => setKeySource(id)} style={{
+        display: 'grid', gridTemplateColumns: '32px 1fr auto', gap: 12, alignItems: 'baseline',
+        width: '100%', padding: '10px 12px', textAlign: 'left',
+        background: 'transparent', border: 'none', color: 'inherit',
+        fontFamily: 'inherit', cursor: 'pointer',
+      }}>
+        <span style={{
+          color: active ? palette.amber : palette.ink4,
+          fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+        }}>#{n}</span>
+        <span>
+          <div style={{ color: palette.ink, fontSize: 13, fontWeight: 500 }}>{title}</div>
+          <div style={{ color: palette.ink3, fontSize: 11.5, marginTop: 2 }}>{sub}</div>
+        </span>
+        <span style={{
+          color: active ? palette.amber : palette.ink4, fontSize: 11,
+          letterSpacing: '0.1em', textTransform: 'uppercase',
+        }}>{active ? 'in use' : 'click to use'}</span>
+      </button>
+      <div style={{
+        padding: '8px 14px 12px 56px',
+        borderTop: `1px dashed ${palette.rule}`,
+        background: active ? palette.bg : 'rgba(0,0,0,0.18)',
+      }}>{details}</div>
+    </div>
+  );
+}
+
+function EnvDetails({ keyState }) {
+  return (
+    <div>
+      <div style={{ color: palette.ink3, fontSize: 11, marginBottom: 6 }}>$ env | grep ANTHROPIC</div>
+      <code style={{
+        ...codeStyle,
+        color: keyState === 'valid' ? palette.ink : palette.ink2,
+      }}>
+        ANTHROPIC_API_KEY=sk-ant-···············Q4kJ
+      </code>
+      <div style={{ marginTop: 6, color: palette.ink3, fontSize: 11.5 }}>
+        Detected at probe startup. Restart probe after changing the env var.
+      </div>
+    </div>
+  );
+}
+
+function PasteRow({ pastedKey, setPastedKey, reveal, setReveal }) {
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input
+          type={reveal ? 'text' : 'password'}
+          value={pastedKey}
+          onChange={(e) => setPastedKey(e.target.value)}
+          placeholder="sk-ant-…"
+          style={{
+            flex: 1, background: palette.bg, border: `1px solid ${palette.rule}`,
+            color: palette.ink, fontFamily: 'inherit', fontSize: 12.5,
+            padding: '5px 9px', borderRadius: 3, outline: 'none',
+          }} />
+        <button onClick={() => setReveal((r) => !r)} style={{
+          background: 'transparent', border: `1px solid ${palette.rule}`,
+          color: palette.ink2, fontFamily: 'inherit', fontSize: 11,
+          padding: '5px 10px', borderRadius: 3, cursor: 'pointer',
+        }}>{reveal ? 'hide' : 'show'}</button>
+        <button style={{
+          background: palette.cyan, color: palette.bg,
+          border: 'none', padding: '5px 12px', borderRadius: 3,
+          fontFamily: 'inherit', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+        }}>save</button>
+      </div>
+      <div style={{ marginTop: 6, color: palette.ink3, fontSize: 11.5 }}>
+        Saved to <span style={{ color: palette.ink2 }}>localStorage</span> on this browser only.
+        Clearing site data removes it.
+      </div>
+    </div>
+  );
+}
+
+function SettingRow({ label, value, trail }) {
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '160px 1fr auto',
+      gap: 14, alignItems: 'baseline',
+      padding: '8px 0', borderBottom: `1px dashed ${palette.rule}`,
+      fontSize: 13,
+    }}>
+      <span style={{ color: palette.ink3 }}>{label}</span>
+      <span style={{ color: palette.ink }}>{value}</span>
+      <span style={{ color: palette.ink4, fontSize: 11.5 }}>{trail}</span>
+    </div>
+  );
+}
+
+const codeStyle = {
+  display: 'inline-block', padding: '4px 8px', background: palette.bg,
+  border: `1px solid ${palette.rule}`, borderRadius: 3,
+  color: palette.ink, fontFamily: 'inherit', fontSize: 12,
+  whiteSpace: 'pre-wrap',
+};
+
+// ─── Status footer ───────────────────────────────────────────────────────
+function StatusFooter({ keyState, keySource, screen }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 14,
+      padding: '6px 14px', background: palette.bg2,
+      borderTop: `1px solid ${palette.rule}`,
+      fontSize: 11.5, color: palette.ink3,
+    }}>
+      <span style={{ color: keyState === 'valid' ? palette.moss : palette.amber }}>
+        ● {keyState === 'valid' ? 'server ready' : 'setup pending'}
+      </span>
+      <span>·</span>
+      <span>0 active runs</span>
+      <span>·</span>
+      <span>3 projects</span>
+      <span style={{ marginLeft: 'auto' }}>
+        <kbd style={kbdStyle}>⌃C</kbd> stop server (in terminal) ·
+        <kbd style={kbdStyle}>?</kbd> shortcuts
+      </span>
+    </div>
+  );
+}
+
+// ─── Tweaks panel ────────────────────────────────────────────────────────
+function TweaksPanel({ screen, setScreen, keySource, setKeySource, keyState, setKeyState, showTerminal, setShowTerminal, onClose }) {
+  return (
+    <div style={{
+      position: 'fixed', right: 18, bottom: 36, width: 290,
+      background: palette.bg2, border: `1px solid ${palette.rule}`, borderRadius: 4,
+      boxShadow: '0 10px 40px -10px rgba(0,0,0,0.6)',
+      color: palette.ink, fontSize: 12.5, zIndex: 100,
+    }}>
+      <div style={{
+        padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8,
+        borderBottom: `1px solid ${palette.rule}`,
+      }}>
+        <span style={{ color: palette.amber }}>⚙</span>
+        <span style={{ fontWeight: 600 }}>Tweaks</span>
+        <button onClick={onClose} style={{
+          marginLeft: 'auto', background: 'transparent', border: 'none',
+          color: palette.ink3, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14,
+        }}>×</button>
+      </div>
+      <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <Row label="screen">
+          <Seg options={['welcome','settings']} value={screen} onChange={setScreen} />
+        </Row>
+        <Row label="key source">
+          <Seg options={['env','config','paste','none']} value={keySource} onChange={setKeySource} />
+        </Row>
+        <Row label="key state">
+          <Seg options={['valid','missing','unauthorized','rate-limited']} value={keyState} onChange={setKeyState} />
+        </Row>
+        <Row label="terminal pane">
+          <Seg options={[true,false]} value={showTerminal} onChange={setShowTerminal}
+            labels={['show','hide']} />
+        </Row>
+      </div>
+    </div>
+  );
+}
+function Row({ label, children }) {
+  return (
+    <div>
+      <div style={{
+        color: palette.ink3, fontSize: 10.5, letterSpacing: '0.1em',
+        textTransform: 'uppercase', marginBottom: 5,
+      }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+function Seg({ options, value, onChange, labels }) {
+  return (
+    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      {options.map((v, i) => {
+        const active = v === value;
+        return (
+          <button key={String(v)} onClick={() => onChange(v)} style={{
+            padding: '3px 9px',
+            background: active ? palette.amber : 'transparent',
+            color: active ? palette.bg : palette.ink2,
+            border: `1px solid ${active ? palette.amber : palette.rule}`,
+            fontFamily: 'inherit', fontSize: 11, cursor: 'pointer',
+            borderRadius: 3,
+          }}>{labels ? labels[i] : String(v)}</button>
+        );
+      })}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
