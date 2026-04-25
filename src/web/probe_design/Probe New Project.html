@@ -115,19 +115,51 @@ function NewProject() {
   // here from /ui/replay → /api/probe/demo/start. Pre-fill the
   // premise textarea with the saved demo's premise so the user can
   // just press Enter to walk the canned flow.
+  //
+  // Shell-launch flow: ?prompt=<text>&go=brainstorm means we were
+  // launched from the v2 shell home view (window.parent is the
+  // shell). Pre-fill the prompt and auto-advance to brainstorm.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const demoName = params.get('demo');
-    if (!demoName) return;
-    fetch('/api/probe/demo/load?name=' + encodeURIComponent(demoName))
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => {
-        if (d?.state?.premise) {
-          setText(d.state.premise);
-        }
-      })
-      .catch(() => { /* user can still type one */ });
+    const prompt = params.get('prompt');
+    const go = params.get('go');
+
+    if (prompt) {
+      setText(prompt);
+      if (go === 'brainstorm') {
+        // Defer one tick so React has the text in state before we
+        // transition routes.
+        setTimeout(() => {
+          setMainRq(prompt);
+          setRoute('brainstorm');
+        }, 60);
+      }
+      return;
+    }
+    if (demoName) {
+      fetch('/api/probe/demo/load?name=' + encodeURIComponent(demoName))
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (d?.state?.premise) {
+            setText(d.state.premise);
+          }
+        })
+        .catch(() => { /* user can still type one */ });
+    }
   }, []);
+
+  // Tell the parent shell what stage we're on so it can manage
+  // sidebar collapse / breadcrumb / etc. Only fires when running
+  // inside an iframe (window.parent !== window).
+  useEffect(() => {
+    if (window.parent === window) return;
+    try {
+      window.parent.postMessage({ type: 'probe-stage', stage: route }, '*');
+    } catch {
+      /* cross-origin messaging blocked — no-op */
+    }
+  }, [route]);
 
   const onKey = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -138,10 +170,13 @@ function NewProject() {
       }
     }
     // First Esc clears the text. Second Esc on empty navigates back
-    // to the launcher at /ui — so the user is never stuck.
+    // to the launcher (or the shell's home view, when embedded).
     if (e.key === 'Escape') {
       if (text) {
         setText('');
+      } else if (window.parent !== window) {
+        // Inside the v2 shell — ask the shell to switch to home.
+        try { window.parent.postMessage({ type: 'probe-nav', target: 'home' }, '*'); } catch { /* */ }
       } else {
         window.location.href = '/ui';
       }
@@ -220,15 +255,21 @@ function NewProject() {
              right={
                <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
                  <button
-                   onClick={() => { window.location.href = '/ui'; }}
+                   onClick={() => {
+                     if (window.parent !== window) {
+                       try { window.parent.postMessage({ type: 'probe-nav', target: 'home' }, '*'); } catch { /* */ }
+                     } else {
+                       window.location.href = '/ui';
+                     }
+                   }}
                    style={{
                      background: 'transparent', border: 'none', cursor: 'pointer',
                      color: palette.ink3, fontFamily: 'inherit', fontSize: 12.5,
                      padding: 0,
                    }}
-                   title="Return to launcher"
+                   title="Return to home"
                  >
-                   ← launcher
+                   ← home
                  </button>
                  <span><kbd style={kbdStyle}>esc</kbd> {text ? 'clear' : 'back'}</span>
                </span>

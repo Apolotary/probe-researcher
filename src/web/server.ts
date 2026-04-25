@@ -98,18 +98,20 @@ export async function startWebServer(opts: WebServerOptions = {}): Promise<void>
       res.status(500).send(`failed to load ${file}: ${String((e as Error).message)}`);
     }
   };
-  // Both surfaces start at the launcher (Variant A LazyVim-style).
-  // Menu picks navigate to the actual flows below.
-  app.get('/ui',         uiRoute('Probe Launcher.html'));
-  app.get('/ui/',        uiRoute('Probe Launcher.html'));
-  app.get('/ui/new',     uiRoute('Probe New Project.html')); // the workflow
-  app.get('/ui/startup', uiRoute('Probe Launcher.html'));    // alias for the launcher
-  app.get('/ui/welcome', uiRoute('Probe Welcome.html'));
-  app.get('/ui/project', uiRoute('Probe Project.html'));
-  app.get('/ui/config',  uiRoute('Probe Config.html'));
-  app.get('/ui/dossier', uiRoute('Dossier Prototype.html'));
-  app.get('/ui/canvas',  uiRoute('Probe Web UI.html'));
-  app.get('/ui/replay',  uiRoute('Probe Replay.html'));
+  // v2 design: a unified shell with persistent sidebar + iframe for
+  // project/new-project/config. /ui is the new entry. The old
+  // LazyVim-style launcher stays available at /ui/launcher.
+  app.get('/ui',          uiRoute('Probe Web UI v2.html'));
+  app.get('/ui/',         uiRoute('Probe Web UI v2.html'));
+  app.get('/ui/launcher', uiRoute('Probe Launcher.html')); // legacy
+  app.get('/ui/new',      uiRoute('Probe New Project.html')); // the workflow (mounted as iframe inside the shell)
+  app.get('/ui/startup',  uiRoute('Probe Launcher.html'));    // alias for the launcher
+  app.get('/ui/welcome',  uiRoute('Probe Welcome.html'));
+  app.get('/ui/project',  uiRoute('Probe Project.html'));
+  app.get('/ui/config',   uiRoute('Probe Config.html'));
+  app.get('/ui/dossier',  uiRoute('Dossier Prototype.html'));
+  app.get('/ui/canvas',   uiRoute('Probe Web UI.html'));
+  app.get('/ui/replay',   uiRoute('Probe Replay.html'));
 
   // Static mount for the design's JSX modules + assets. Must come
   // AFTER the explicit named routes above so /ui/project picks the
