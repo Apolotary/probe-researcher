@@ -285,19 +285,27 @@ export async function personas(n: number, premise: string): Promise<Persona[]> {
   const system =
     `You are the simulated-participant agent. Generate N synthetic
 personas representing a diverse pool of plausible participants for
-the given study. Each has name, role, and a one-line bias note that
-will color their responses. Strict JSON only.`;
+the given study. Each persona has: name, role, a one-line bias note
+that colors their responses, and 2-3 short attribute chips
+(workspace habits or relevant traits, e.g. "camera-off advocate",
+"6 calls/day", "introvert"). Strict JSON only.`;
   const user =
     `Study premise: ${premise}\nN: ${n}\n\nReturn JSON:\n` +
     '```json\n' +
     `{
   "personas": [
-    {"id":"1","name":"Alex (32)","role":"staff PM, US-CA","bias":"high-trust, low IT friction, values quiet hours"}
-    // n entries — vary roles, regions, ages, biases
+    {
+      "id":"1",
+      "name":"Alex (32)",
+      "role":"staff PM, US-CA",
+      "bias":"high-trust, low IT friction, values quiet hours",
+      "attrs":["camera-off advocate","6 calls/day","introvert"]
+    }
+    // n entries total — vary roles, regions, ages, biases, attrs
   ]
 }` +
     '\n```';
-  const text = await callLLM({ stage: 'personas', system, user, maxTokens: 2000 });
+  const text = await callLLM({ stage: 'personas', system, user, maxTokens: 2500 });
   const parsed = extractJSON(text) as { personas?: Persona[] };
   if (!Array.isArray(parsed.personas)) return [];
   return parsed.personas.slice(0, n).map((p, i) => ({
@@ -305,6 +313,7 @@ will color their responses. Strict JSON only.`;
     name: p.name ?? `Persona ${i + 1}`,
     role: p.role ?? '',
     bias: p.bias ?? '',
+    attrs: Array.isArray(p.attrs) ? p.attrs.slice(0, 4) : [],
   }));
 }
 

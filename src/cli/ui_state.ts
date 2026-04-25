@@ -60,6 +60,8 @@ export interface Persona {
   name: string;
   role: string;
   bias: string;
+  /** Optional attribute chips (used by the web persona pool). */
+  attrs?: string[];
 }
 
 export interface Friction {

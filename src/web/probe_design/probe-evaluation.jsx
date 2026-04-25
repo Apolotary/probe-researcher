@@ -374,7 +374,11 @@ function PersonaPool({ personas, compact, dim }) {
             </div>
             <div style={{ color: palette.amber, fontSize: 11, marginTop: 2 }}>{p.role}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-              {p.attrs.map((a, j) => (
+              {/* p.attrs is an array on stock personas but absent on
+                  LLM-generated ones (the API returns id/name/role/bias).
+                  Guard against undefined so the component doesn't crash
+                  the whole React tree when live personas land. */}
+              {(p.attrs || []).map((a, j) => (
                 <span key={j} style={{ ...chipStyle, fontSize: 10, padding: '1px 6px' }}>{a}</span>
               ))}
             </div>
