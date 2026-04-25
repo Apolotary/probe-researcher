@@ -11,26 +11,35 @@ const chipStyle = window.__probeChip;
 const ghostBtnStyle = window.__probeGhostBtn;
 
 // Decide which artifacts a given study plan needs.
-// Heuristic: scan plan.phases + design components for keywords.
+// Heuristic: scan plan.phases + design components + design summary
+// for keywords. If the keyword pass returns nothing (LLM-generated
+// designs sometimes phrase the plan generically), fall back to the
+// always-useful triplet so the user is never staring at a blank
+// artifacts pane.
 function decideArtifacts(plan, design) {
   const text = [
     ...(plan?.phases || []).map((p) => `${p.name} ${p.detail}`),
     ...(design?.components || []).map((c) => c.name),
     design?.summary || '',
+    design?.name || '',
+    plan?.recruitment || '',
   ].join(' ').toLowerCase();
 
   const wants = [];
-  if (/(probe|instrument|build|deploy|widget|bot|software|tool)/.test(text)) {
+  if (/(probe|instrument|build|deploy|widget|bot|software|tool|app|app-based|prototype|technology|platform)/.test(text)) {
     wants.push('impl');
   }
-  if (/(interview|diary|esm|body-map|walkthrough|trial|ritual|session|field)/.test(text)) {
+  if (/(interview|diary|esm|body-map|walkthrough|trial|ritual|session|field|qualitative|cohort|participant)/.test(text)) {
     wants.push('protocol');
   }
   if (/survey/.test(text)) wants.push('survey');
   if (/(diary|esm)/.test(text)) wants.push('diary');
   // Always include an IRB memo if any human contact exists
-  if (/(participant|interview|diary|deploy|trial|survey)/.test(text)) wants.push('irb');
+  if (/(participant|interview|diary|deploy|trial|survey|cohort|recruit)/.test(text)) wants.push('irb');
 
+  // Fallback: if we matched nothing, ship the standard set so the
+  // user never sees an empty artifact list.
+  if (wants.length === 0) return ['impl', 'protocol', 'irb'];
   return wants;
 }
 
