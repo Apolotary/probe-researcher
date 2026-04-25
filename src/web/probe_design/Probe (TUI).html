@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · TUI mocks</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  html, body { margin: 0; padding: 0; height: 100%; background: #0a0e13; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    color: #c5c8d4;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 100vh;
+    padding: 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  /* ── scene switcher chip ── */
+  .switcher {
+    display: inline-flex;
+    border: 1px solid #1f2530;
+    background: #0f1419;
+    border-radius: 999px;
+    overflow: hidden;
+    font-size: 12px;
+  }
+  .switcher button {
+    background: transparent;
+    border: none;
+    color: #8b93a7;
+    padding: 7px 18px;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    border-right: 1px solid #1f2530;
+  }
+  .switcher button:last-child { border-right: none; }
+  .switcher button.active {
+    background: #d9a548;
+    color: #0f1419;
+    font-weight: 600;
+  }
+  .switcher button:hover:not(.active) { background: #161b22; color: #c5c8d4; }
+  .switcher .label { color: #5c6678; padding: 7px 14px 7px 18px; letter-spacing: 0.08em; font-size: 11px; }
+
+  /* ── terminal frame ── */
+  .term {
+    width: max-content;
+    max-width: 100%;
+    background: #0f1419;
+    border: 1px solid #1f2530;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .titlebar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px;
+    background: #11161d;
+    border-bottom: 1px solid #1f2530;
+    color: #5c6678;
+    font-size: 12px;
+  }
+  .titlebar .dots { display: flex; gap: 6px; margin-right: 10px; }
+  .titlebar .dots span { width: 11px; height: 11px; border-radius: 50%; }
+  .titlebar .dots span:nth-child(1) { background: #ff5f57; }
+  .titlebar .dots span:nth-child(2) { background: #febc2e; }
+  .titlebar .dots span:nth-child(3) { background: #28c840; }
+
+  pre.tui {
+    margin: 0;
+    padding: 16px 14px 14px;
+    color: #c5c8d4;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1.3;
+    white-space: pre;
+    tab-size: 4;
+  }
+
+  /* color spans */
+  .b   { color: #d9a548; }
+  .bb  { color: #d9a548; font-weight: 700; }
+  .ink { color: #c5c8d4; }
+  .ink2{ color: #8b93a7; }
+  .ink3{ color: #5c6678; }
+  .moss{ color: #7fb069; }
+  .rose{ color: #e26e6e; }
+  .blue{ color: #7aa2f7; }
+  .cyan{ color: #7dcfff; }
+  .rule{ color: #1f2530; }
+  .ruleS{color: #2a3140; }
+
+  .sel { background: #d9a548; color: #0f1419; font-weight: 600; }
+  .selSoft { background: rgba(217, 165, 72, 0.18); color: #d9a548; }
+  .selBlue { background: rgba(122, 162, 247, 0.18); color: #7aa2f7; }
+  .selMoss { background: rgba(127, 176, 105, 0.18); color: #7fb069; }
+  .selRose { background: rgba(226, 110, 110, 0.18); color: #e26e6e; }
+
+  .status { background: #d9a548; color: #0f1419; font-weight: 600; }
+  .statusInk { background: #1a2029; color: #8b93a7; }
+
+  .dot { color: #d9a548; }
+  .ok  { color: #7fb069; }
+  .miss{ color: #5c6678; }
+
+  @keyframes caret { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+  .caret { animation: caret 1.05s steps(1) infinite; color: #d9a548; }
+
+  .devnotes {
+    padding: 14px 18px 18px;
+    border-top: 1px solid #1f2530;
+    background: #0c1117;
+    color: #5c6678;
+    font-size: 12px;
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .devnotes .h { color: #8b93a7; margin-bottom: 6px; letter-spacing: 0.04em; }
+  .devnotes code { color: #c5c8d4; background: #161b22; padding: 1px 5px; border-radius: 2px; }
+
+  .scene { display: none; }
+  .scene.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="switcher" id="switcher">
+  <span class="label">SCENE</span>
+  <button data-scene="startup" class="active">startup</button>
+  <button data-scene="welcome">welcome</button>
+  <button data-scene="new">new project</button>
+  <button data-scene="project">project</button>
+  <button data-scene="chi">CHI 2026 run</button>
+  <button data-scene="config">config</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCENE 1 · STARTUP (LazyVim-style launcher)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="scene active" data-scene="startup">
+  <div class="term">
+    <div class="titlebar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span>jordan@studio</span> <span class="ink3">—</span> <span>probe</span> <span class="ink3">—</span> <span>120×34</span>
+    </div>
+<pre class="tui">
+
+                         <span class="bb">██████╗  ██████╗   ██████╗  ██████╗  ███████╗</span>
+                         <span class="bb">██╔══██╗ ██╔══██╗ ██╔═══██╗ ██╔══██╗ ██╔════╝</span>
+                         <span class="bb">██████╔╝ ██████╔╝ ██║   ██║ ██████╔╝ █████╗  </span>
+                         <span class="bb">██╔═══╝  ██╔══██╗ ██║   ██║ ██╔══██╗ ██╔══╝  </span>
+                         <span class="bb">██║      ██║  ██║ ╚██████╔╝ ██████╔╝ ███████╗</span>
+                         <span class="bb">╚═╝      ╚═╝  ╚═╝  ╚═════╝  ╚═════╝  ╚══════╝</span>
+
+                              <span class="ink3">v0.4.2 · the agentic research-design pipeline</span>
+
+                              <span class="ink3">┌───────────────────────────────────────────┐</span>
+                              <span class="ink3">│</span>  <span class="b">[n]</span>  <span class="ink">+ New project</span>     <span class="ink3">state a premise </span><span class="ink3">│</span>
+                              <span class="ink3">│</span>  <span class="b">[o]</span>  <span class="ink">↗ Open project</span>    <span class="ink3">pick local run </span> <span class="ink3">│</span>
+                              <span class="ink3">│</span>  <span class="b">[r]</span>  <span class="ink">↻ Recent</span>          <span class="ink3">3 runs · 12d</span>   <span class="ink3">│</span>
+                              <span class="ink3">│</span>  <span class="b">[d]</span>  <span class="ink">▶ Replay demo_run</span> <span class="ink3">cached · $0</span>    <span class="ink3">│</span>
+                              <span class="ink3">│</span>  <span class="b">[c]</span>  <span class="ink">⚙ Config</span>          <span class="ink3">probe.toml</span>     <span class="ink3">│</span>
+                              <span class="ink3">│</span>  <span class="b">[h]</span>  <span class="ink">? Help & docs</span>     <span class="ink3">man probe</span>      <span class="ink3">│</span>
+                              <span class="ink3">│</span>  <span class="b">[q]</span>  <span class="ink">× Quit</span>            <span class="ink3">goodbye</span>        <span class="ink3">│</span>
+                              <span class="ink3">└───────────────────────────────────────────┘</span>
+
+                              <span class="ink3">recent</span>
+                              <span class="ink3">─────────────────────────────────────────</span>
+                              <span class="ok">●</span> <span class="ink">demo_run    </span><span class="ink3"> ARIA-live disclosure   2d · $5.12</span>
+                              <span class="ok">●</span> <span class="ink">civic-trust </span><span class="ink3"> source provenance       5d · $4.04</span>
+                              <span class="ink2">○</span> <span class="ink2">pair-debug  </span><span class="ink3"> AI pair-programming    12d · $7.31</span>
+
+
+<span class="status"> NORMAL </span><span class="statusInk">                            press a hotkey or j/k to move · enter to select                            $0.00 / $200 cap </span></pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCENE 2 · WELCOME (first-run, key check)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="scene" data-scene="welcome">
+  <div class="term">
+    <div class="titlebar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span>jordan@studio</span> <span class="ink3">—</span> <span>probe --first-run</span> <span class="ink3">—</span> <span>120×34</span>
+    </div>
+<pre class="tui"><span class="rule">┌─ </span><span class="bb">PROBE</span><span class="ink3"> · welcome </span><span class="rule">───────────────────────────────────────────────────────────────────────────────────────</span> <span class="ink3">first-run setup </span><span class="rule">─┐</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>   <span class="ink">Hi. Probe is an agentic research-design pipeline that runs from your shell.</span>                                                            <span class="rule">│</span>
+<span class="rule">│</span>   <span class="ink3">It writes runs to <span class="ink">~/probe</span> and reads its config from <span class="ink">~/.config/probe/probe.toml</span>.</span>                                                          <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>   <span class="b">step 1</span><span class="ink3"> ─</span> <span class="ink">find an API key</span>                                                                                                            <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>     <span class="ok">✓</span>  <span class="ink">env · </span><span class="ink2">$ANTHROPIC_API_KEY</span>     <span class="ink">sk-ant-…7Q4f</span>     <span class="moss">connected · 142 tok ping</span>                                                <span class="rule">│</span>
+<span class="rule">│</span>     <span class="ink3">·</span>  <span class="ink2">env · </span><span class="ink3">$OPENAI_API_KEY</span>        <span class="ink3">unset · falls through</span>                                                                       <span class="rule">│</span>
+<span class="rule">│</span>     <span class="ink3">·</span>  <span class="ink2">env · </span><span class="ink3">$GOOGLE_API_KEY</span>        <span class="ink3">unset · falls through</span>                                                                       <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>     <span class="ink3">precedence: env → ~/.config/probe/probe.toml → paste-once. First match wins.</span>                                                          <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>   <span class="b">step 2</span><span class="ink3"> ─</span> <span class="ink">try a no-cost replay first</span>                                                                                                <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>     <span class="ink3">$</span> <span class="ink">probe replay demo_run</span>                                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>     <span class="ink3">replays a finished run from cache · zero API spend · ~30s</span>                                                                            <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>   <span class="b">step 3</span><span class="ink3"> ─</span> <span class="ink">start your own</span>                                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>     <span class="ink3">$</span> <span class="ink">probe new </span><span class="ink2">"how do remote workers stay focused during long video-call days?"</span>                                                       <span class="rule">│</span>
+<span class="rule">│</span>     <span class="ink3">opens the studio · interrogates premise · spans 7 stages</span>                                                                             <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>   <span class="ink3">┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐</span>          <span class="rule">│</span>
+<span class="rule">│</span>   <span class="ink3">│</span> <span class="ink2">›</span> <span class="ink">probe</span> <span class="caret">█</span>                                                                                                              <span class="ink3">│</span>          <span class="rule">│</span>
+<span class="rule">│</span>   <span class="ink3">└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>          <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>
+<span class="status"> NORMAL </span><span class="statusInk">  welcome                                                  enter · launcher    n · new    d · replay demo    c · config              ✓ key </span></pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCENE 3 · NEW PROJECT (premise → brainstorm)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="scene" data-scene="new">
+  <div class="term">
+    <div class="titlebar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span>jordan@studio</span> <span class="ink3">—</span> <span>probe new</span> <span class="ink3">—</span> <span>140×38</span>
+    </div>
+<pre class="tui"><span class="rule">┌─ </span><span class="bb">PROBE</span><span class="ink3"> › new project › </span><span class="ink">brainstorm</span><span class="rule"> ────────────────────────────────────────────────────────────────────────────</span> <span class="ink3">stage 1 · interrogator </span><span class="rule">─┐</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">premise</span>                                                                                                                                         <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink">┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐</span>      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink">│</span> How do remote workers stay focused during long video-call days?                                                                      <span class="ink">│</span>      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink">└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>      <span class="rule">│</span>
+<span class="rule">│</span>      <span class="ink3">[i] edit premise · [esc] cancel</span>                                                                                                            <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">interrogator </span><span class="ink2">— pick the angle to investigate first. you can rerun with another later.</span>                                                       <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="selSoft"> ▸ 1 </span> <span class="ink">attention & switching cost</span>                                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>        <span class="ink3">how meeting density fragments deep-work blocks; cost of context-switching between calls and IC work</span>                                     <span class="rule">│</span>
+<span class="rule">│</span>        <span class="ink3">methods: diary study · screen-time telemetry · post-meeting micro-surveys</span>                                                               <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>    <span class="ink3"> 2 </span> <span class="ink">camera-on vs camera-off social load</span>                                                                                                     <span class="rule">│</span>
+<span class="rule">│</span>        <span class="ink3">whether visual presence raises cognitive load enough to blunt focus afterward</span>                                                           <span class="rule">│</span>
+<span class="rule">│</span>        <span class="ink3">methods: 2×2 within-subjects · pupillometry proxy · self-report</span>                                                                        <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>    <span class="ink3"> 3 </span> <span class="ink">recovery rituals between meetings</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>        <span class="ink3">do micro-rituals (60–120s) restore focus baseline; what predicts adherence</span>                                                              <span class="rule">│</span>
+<span class="rule">│</span>        <span class="ink3">methods: mixed-methods · 4-week field deployment · ESM</span>                                                                                 <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>    <span class="ink3"> 4 </span> <span class="ink">async substitutes & meeting-load thresholds</span>                                                                                            <span class="rule">│</span>
+<span class="rule">│</span>        <span class="ink3">at what density does sync collaboration start net-harming output</span>                                                                       <span class="rule">│</span>
+<span class="rule">│</span>        <span class="ink3">methods: instrumented intervention · pre/post org-wide · DiD analysis</span>                                                                  <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>    <span class="ink3"> 5 </span> <span class="ink">+ write your own angle</span><span class="caret">█</span>                                                                                                                <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">cost estimate ─ enter selected angle: <span class="ink">$1.20 – $1.80</span>  ·  full pipeline (7 stages): <span class="ink">$11 – $19</span>  ·  budget left this month: <span class="ink">$157.82</span></span>     <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                  <span class="rule">│</span>
+<span class="rule">└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>
+<span class="status"> NORMAL </span><span class="statusInk">  brainstorm                  j/k · move    enter · select angle    a · custom angle    R · re-brainstorm    esc · back to premise        $0.00 </span></pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCENE 4 · PROJECT (stages tab + timeline tab inline)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="scene" data-scene="project">
+  <div class="term">
+    <div class="titlebar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span>jordan@studio</span> <span class="ink3">—</span> <span>probe open focus-rituals</span> <span class="ink3">—</span> <span>164×46</span>
+    </div>
+<pre class="tui"><span class="rule">┌─ </span><span class="bb">PROBE</span><span class="ink3"> › </span><span class="ink">focus-rituals</span><span class="rule"> ───────────────────────────────────────────────────</span> <span class="selSoft"> stages [⇧1] </span><span class="rule"> </span><span class="ink3"> timeline [⇧2] </span><span class="rule"> ─────────────</span> <span class="ink3">deadline </span><span class="ink">Jun 12</span><span class="ink3"> · </span><span class="b">32d left</span><span class="rule"> ─┐</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">STAGES</span>                          <span class="rule">│</span>  <span class="b">§</span> <span class="ink">04 evaluation</span>                                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 01 framing      </span><span class="ink3">  4d ago </span><span class="rule">│</span>  <span class="ink3">simulated pilot · friction surfaced ─ stale, last run 8d ago</span>                                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 02 literature   </span><span class="ink3">  2d ago </span><span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 03 methodology  </span><span class="ink3">  2d ago </span><span class="rule">│</span>  <span class="ink3">runs ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>     <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 03 artifacts    </span><span class="ink3">  2d ago </span><span class="rule">│</span>  <span class="b">▸</span> <span class="ink">r1</span><span class="ink3"> · pilot of 6, simulated · 8d ago · current</span>                                                                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="sel"> </span><span class="b">●</span><span class="sel"> 04 evaluation   </span><span class="ink3">  </span><span class="b">8d ago </span><span class="rule">│</span>     <span class="ink3">3 frictions surfaced · adherence model fit</span>                                                                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">○</span><span class="ink3"> 05 report       </span><span class="ink3">   never </span><span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>                                  <span class="rule">│</span>  <span class="ink3">findings ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>     <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">LEGEND</span>                          <span class="rule">│</span>  <span class="rose">▲ critical </span> <span class="ink">F1 · ESM window too short</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ok">● fresh   </span><span class="ink2">green</span>            <span class="rule">│</span>      <span class="ink3">losing the densest meeting days = losing the high-fatigue tail of the distribution</span>                                                  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="b">● stale   </span><span class="ink2">amber</span>            <span class="rule">│</span>      <span class="ink2">› fix:</span> <span class="ink">shorten window to 90s · optional "remind in 10 min" defer </span><span class="moss">[recommended]</span>                                                <span class="rule">│</span>
+<span class="rule">│</span>  <span class="cyan">● running </span><span class="ink2">cyan</span>             <span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">○ queued  </span><span class="ink3">dim</span>              <span class="rule">│</span>  <span class="b">▲ medium   </span> <span class="ink">F2 · perceived surveillance at onboarding</span>                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>                                  <span class="rule">│</span>      <span class="ink3">confusion compounds · biases sample toward high-trust workers · weakens external validity</span>                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">ACTIONS </span> <span class="ink2">on focused stage</span>  <span class="rule">│</span>      <span class="ink2">› fix:</span> <span class="ink">add 60s explainer screen BEFORE the OS prompt </span><span class="moss">[recommended]</span>                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> r </span><span class="ink3">· rerun this stage     </span> <span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> e </span><span class="ink3">· edit prompt          </span> <span class="rule">│</span>  <span class="ink2">▽ low      </span> <span class="ink">F3 · weekly digest open-rate</span>                                                                                                    <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> v </span><span class="ink3">· view artifacts       </span> <span class="rule">│</span>      <span class="ink3">supplemental, not primary data — but main retention lever</span>                                                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> d </span><span class="ink3">· diff vs previous     </span> <span class="rule">│</span>      <span class="ink2">› fix:</span> <span class="ink">move send to Wednesday morning </span><span class="moss">[recommended]</span>                                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> a </span><span class="ink3">· accept & mark fresh  </span> <span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>                                  <span class="rule">│</span>  <span class="ink3">┌── rerun ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐</span>      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">NAVIGATE</span>                        <span class="rule">│</span>  <span class="ink3">│</span> <span class="b">›</span> <span class="ink">re-pilot with shortened ESM windows and added explainer screen</span><span class="caret">█</span>                                                            <span class="ink3">│</span>      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> j/k</span><span class="ink3">  · move stage         </span><span class="rule">│</span>  <span class="ink3">└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> ⇧1</span><span class="ink3">   · stages tab         </span><span class="rule">│</span>     <span class="ink3">[enter] queue rerun · est. <span class="ink">$2.10</span> · uses cached lit & method · [esc] cancel</span>                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> ⇧2</span><span class="ink3">   · timeline tab       </span><span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> R</span><span class="ink3">    · rerun whole project</span><span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">TIMELINE  ─</span> <span class="ink2">deadline-anchored gantt · today is May 11 · drag :deadline=YYYY-MM-DD or hit </span><span class="ink2">⇧2</span><span class="ink2"> for fullscreen</span>                                                          <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>             <span class="ink3">apr 14         apr 21         apr 28         may 05         </span><span class="b">may 12 ◀ today</span><span class="ink3">         may 19         may 26         jun 02         </span><span class="rose">jun 12 ◀ deadline</span>      <span class="rule">│</span>
+<span class="rule">│</span>             <span class="ink3">│              │              │              │              │              │              │              │              │</span>                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">framing  </span>  <span class="moss">██████████</span><span class="ink3">    fresh</span>                                                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">literature</span> <span class="ink3">         </span><span class="moss">█████████████████</span><span class="ink3">     fresh</span>                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">methodology</span><span class="ink3">                </span><span class="moss">██████████████</span><span class="ink3">     fresh</span>                                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">artifacts</span>  <span class="ink3">                              </span><span class="moss">█████████████</span><span class="ink3">     fresh</span>                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">evaluation</span> <span class="ink3">                                              </span><span class="b">██████████</span><span class="ink3">  </span><span class="b">▒▒▒▒▒</span><span class="ink3">     stale → rerun queued</span>                                                                  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">report   </span>  <span class="ink3">                                                                          </span><span class="ink3">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>     queued                                  <span class="rule">│</span>
+<span class="rule">│</span>             <span class="ink3">                                                          </span><span class="b">│</span><span class="ink3">                                                                                            </span><span class="rose">│</span><span class="ink3">      </span>            <span class="rule">│</span>
+<span class="rule">│</span>             <span class="ink3">                                                          </span><span class="b">today</span><span class="ink3">                                                                                        </span><span class="rose">deadline</span>           <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">slack to deadline ─ <span class="ink">~12 days</span> after planned report finish · <span class="b">healthy</span> if you start report by may 22</span>                                                                <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>
+<span class="status"> NORMAL </span><span class="statusInk">  04 evaluation · stale                                          7 stages · 5 fresh · 1 stale · 1 queued                                       cost · $14.20 / $50 budget </span></pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCENE 5 · CHI 2026 RUN (a real-world example: pipeline tuned for an
+     ACM CHI paper submission, with subcommittee selection, R&R round
+     awareness, and the actual A/ARR/RR/RRX/X recommendation scale)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="scene" data-scene="chi">
+  <div class="term">
+    <div class="titlebar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span>jordan@studio</span> <span class="ink3">—</span> <span>probe open chi26-focus</span> <span class="ink3">—</span> <span>164×46</span>
+    </div>
+<pre class="tui"><span class="rule">┌─ </span><span class="bb">PROBE</span><span class="ink3"> › </span><span class="ink">chi26-focus-rituals</span><span class="rule"> ──────────────────────────────────────────────</span> <span class="selSoft"> stages [⇧1] </span><span class="rule"> </span><span class="ink3"> timeline [⇧2] </span><span class="rule"> ─────</span> <span class="ink3">target </span><span class="ink">CHI 2026 · Barcelona</span><span class="rule"> ─┐</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">venue profile · </span><span class="ink">acm-chi-2026</span><span class="ink3"> · loaded from </span><span class="ink">~/.config/probe/venues/acm-chi-2026.toml</span>                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐</span><span class="rule"> </span><span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">│</span> <span class="b">subcommittee</span> <span class="ink">Health</span> <span class="ink3">[primary]</span> <span class="ink3">·</span> <span class="ink">Critical Computing</span> <span class="ink3">[secondary]</span>      <span class="b">length</span> <span class="ink">long · 7,500w target</span> <span class="ink3">·</span> <span class="ink3">commensurate w/ contribution</span>                  <span class="ink3">│</span><span class="rule"> </span><span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">│</span> <span class="b">contribution</span> <span class="ink">empirical + design</span> <span class="ink3">·</span> <span class="ink">field deployment, 4w</span>          <span class="b">format</span> <span class="ink">single-column · anonymized · CHI 2026 template</span>                              <span class="ink3">│</span><span class="rule"> </span><span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">│</span> <span class="b">deadlines  </span> <span class="ink">abstract Sep 04 · full Sep 11 · reviews Nov 04 · resubmit Dec 04 · notification Jan 15</span>                                                                  <span class="ink3">│</span><span class="rule"> </span><span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span><span class="rule"> </span><span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">STAGES</span>                          <span class="rule">│</span>  <span class="b">§</span> <span class="ink">06 review-prep</span> <span class="ink3">─ simulated CHI committee read-through</span>                                                                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 01 framing      </span><span class="ink3">  4d ago </span><span class="rule">│</span>  <span class="ink3">probe runs three personas: 1AC, 2AC, external reviewer · all blinded to authorship per CHI policy</span>                                        <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 02 literature   </span><span class="ink3">  3d ago </span><span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 03 methodology  </span><span class="ink3">  2d ago </span><span class="rule">│</span>  <span class="ink3">predicted round-1 outcome ─ recommendation scale: A · ARR · RR · RRX · X</span>                                                                  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 04 artifacts    </span><span class="ink3">  2d ago </span><span class="rule">│</span>  <span class="ink3">┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐</span>          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> </span><span class="ok">●</span><span class="ink2"> 05 evaluation   </span><span class="ink3">  1d ago </span><span class="rule">│</span>  <span class="ink3">│</span> <span class="ink2">1AC </span> <span class="selSoft"> ARR </span> <span class="ink3">accept w/ minor or revise — leans accept</span>      <span class="ink2">2AC </span> <span class="selSoft"> RR  </span> <span class="ink3">revise & resubmit</span>                       <span class="ink3">│</span>          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="sel"> </span><span class="b">●</span><span class="sel"> 06 review-prep  </span><span class="ink3">    now </span><span class="rule">│</span>  <span class="ink3">│</span> <span class="ink2">R3 </span>  <span class="selSoft"> RR  </span> <span class="ink3">revise & resubmit</span>                              <span class="ink2">avg</span>  <span class="selSoft"> RR  </span> <span class="ink3">→ above threshold for round 2</span>                       <span class="ink3">│</span>          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">○</span><span class="ink3"> 07 rebuttal     </span><span class="ink3">  queued </span><span class="rule">│</span>  <span class="ink3">└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>          <span class="rule">│</span>
+<span class="rule">│</span>                                  <span class="rule">│</span>     <span class="ink3">CHI rule: ≥1 review at RR or higher from </span><span class="ink2">either</span><span class="ink3"> 1AC or 2AC clears the round-1 threshold · met (1AC=ARR)</span>                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">PERSONAS </span> <span class="ink2">simulated agents</span>  <span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> ●</span> <span class="ink">1AC          </span><span class="ink3">primary  </span><span class="rule">│</span>  <span class="ink3">predicted concerns ─ ranked by 1AC weight</span>                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> ●</span> <span class="ink">2AC          </span><span class="ink3">secondary</span><span class="rule">│</span>  <span class="rose">▲ critical </span> <span class="ink">C1 · transparency of analysis pipeline</span>                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> ●</span> <span class="ink">R3           </span><span class="ink3">external </span><span class="rule">│</span>      <span class="ink3">reviewers will ask for analysis code + ESM-prompt schedules in supplementary · raised by both 1AC and R3</span>                              <span class="rule">│</span>
+<span class="rule">│</span>                                  <span class="rule">│</span>      <span class="ink2">› fix:</span> <span class="ink">add OSF link with anon repo, prompt schedule json, agreement matrix </span><span class="moss">[recommended]</span>                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">ACTIONS </span> <span class="ink2">on focused stage</span>  <span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> r </span><span class="ink3">· rerun this stage     </span> <span class="rule">│</span>  <span class="b">▲ medium   </span> <span class="ink">C2 · contribution length-fit</span>                                                                                                    <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> e </span><span class="ink3">· edit prompt          </span> <span class="rule">│</span>      <span class="ink3">2AC notes the field-deployment narrative is thin for 7,500w · risk of "length not commensurate" critique</span>                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> v </span><span class="ink3">· view simulated reviews</span><span class="rule">│</span>      <span class="ink2">› fix:</span> <span class="ink">trim § 5.2 (-600w) or expand pre-registration & deviations narrative </span><span class="moss">[recommended]</span>                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> d </span><span class="ink3">· diff vs previous     </span> <span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> a </span><span class="ink3">· accept & mark fresh  </span> <span class="rule">│</span>  <span class="ink2">▽ low      </span> <span class="ink">C3 · subcommittee fit between Health and Critical Computing</span>                                                                    <span class="rule">│</span>
+<span class="rule">│</span>                                  <span class="rule">│</span>      <span class="ink3">SCs may transfer; CHI guidance says paper is judged on contribution, not committee fit · low risk of desk reject</span>                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">DESK-REJECT CHECKS</span>              <span class="rule">│</span>      <span class="ink2">› fix:</span> <span class="ink">keep Health primary; SCs will route correctly</span>                                                                                <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ok">✓</span> <span class="ink3">anonymization        </span><span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ok">✓</span> <span class="ink3">single-column tmpl   </span><span class="rule">│</span>  <span class="ink3">┌── rerun w/ rebuttal-aware persona ────────────────────────────────────────────────────────────────────────────────────────────┐</span>      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ok">✓</span> <span class="ink3">no concurrent subs   </span><span class="rule">│</span>  <span class="ink3">│</span> <span class="b">›</span> <span class="ink">re-run review-prep after I add OSF link and trim §5.2 by ~600 words</span><span class="caret">█</span>                                            <span class="ink3">│</span>      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ok">✓</span> <span class="ink3">prior pubs cited     </span><span class="rule">│</span>  <span class="ink3">└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ok">✓</span> <span class="ink3">length ≤ 12k words   </span><span class="rule">│</span>     <span class="ink3">[enter] queue rerun · est. <span class="ink">$3.40</span> · 3 personas · uses cached lit/method · [esc] cancel</span>                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ok">✓</span> <span class="ink3">LLM-use disclosed    </span><span class="rule">│</span>                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">TIMELINE  ─</span> <span class="ink2">CHI 2026 R&R cycle · today is Aug 28 · drag :submit=YYYY-MM-DD to slip · </span><span class="ink2">⇧2 fullscreen</span>                                                              <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>             <span class="ink3">aug 28         </span><span class="b">sep 04◂abs</span><span class="ink3">    </span><span class="rose">sep 11◂full</span><span class="ink3">   oct 02         oct 23         </span><span class="b">nov 04◂rev</span><span class="ink3">    nov 25         </span><span class="rose">dec 04◂resub</span><span class="ink3">   dec 25         </span><span class="b">jan 15◂notif</span><span class="ink3">   </span>     <span class="rule">│</span>
+<span class="rule">│</span>             <span class="ink3">│              │              │              │              │              │              │              │              │</span>                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">framing  </span>  <span class="moss">██████</span><span class="ink3">     fresh</span>                                                                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">literature</span> <span class="ink3">      </span><span class="moss">██████████</span><span class="ink3">     fresh</span>                                                                                                                                  <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">methodology</span><span class="ink3">           </span><span class="moss">█████████</span><span class="ink3">     fresh</span>                                                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">artifacts</span>  <span class="ink3">                </span><span class="moss">██████████</span><span class="ink3">     fresh</span>                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">evaluation</span> <span class="ink3">                          </span><span class="moss">██████</span><span class="ink3">     fresh</span>                                                                                                                      <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">review-prep</span><span class="ink3">                              </span><span class="b">█▒▒</span><span class="ink3">  ← running, 3 personas</span>                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">submit   </span>  <span class="ink3">                                </span><span class="rose">▼</span><span class="ink3">                                                                                                                  </span> <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">reviews  </span>  <span class="ink3">                                                                          </span><span class="ink3">▼ released, then 5w R&R window</span>                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2">rebuttal </span>  <span class="ink3">                                                                          </span><span class="ink3">░░░░░░░░░░░░░░░░░░░░░</span><span class="rose">▼</span><span class="ink3">     queued, 5w</span>                          <span class="rule">│</span>
+<span class="rule">│</span>             <span class="ink3">                              </span><span class="rose">│</span><span class="ink3">                                            </span><span class="b">│</span><span class="ink3">                            </span><span class="rose">│</span><span class="ink3">                            </span><span class="b">│</span><span class="ink3">           </span> <span class="rule">│</span>
+<span class="rule">│</span>             <span class="ink3">                              </span><span class="rose">full paper due</span><span class="ink3">                              </span><span class="b">reviews out</span><span class="ink3">                  </span><span class="rose">resubmit</span><span class="ink3">                       </span><span class="b">notify</span><span class="ink3">    </span>     <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">slack to full-paper deadline ─ <span class="ink">14 days</span> · <span class="b">tight</span> · review-prep rerun + 1 buffer rerun fits, no third</span>                                                                <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">round-2 reminder ─ <span class="ink">up to 50% of R&R papers may still be rejected</span> in round 2; treat reviews as if they will be acted on, not just rebutted</span>                              <span class="rule">│</span>
+<span class="rule">│</span>                                                                                                                                                                          <span class="rule">│</span>
+<span class="rule">└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>
+<span class="status"> NORMAL </span><span class="statusInk">  06 review-prep · running · CHI 2026                            avg-recommendation predicted: RR (above threshold)                          cost · $22.10 / $50 budget </span></pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SCENE 6 · CONFIG (the existing one, embedded for completeness)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="scene" data-scene="config">
+  <div class="term">
+    <div class="titlebar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span>jordan@studio</span> <span class="ink3">—</span> <span>probe config</span> <span class="ink3">—</span> <span>156×42</span>
+    </div>
+<pre class="tui"><span class="rule">┌─ </span><span class="bb">PROBE</span><span class="ink3"> · config </span><span class="rule">────────────────────────────────────────────────────────────────────────────────────────</span> <span class="ink3">~/.config/probe/probe.toml </span><span class="dot">●</span> <span class="ink2">unsaved </span><span class="rule">─┐</span>
+<span class="rule">│</span>                                                                                                                                                <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">SECTIONS</span>                  <span class="rule">│</span>  <span class="b">§</span> <span class="ink">API keys</span>                                                                                              <span class="rule">│</span>
+<span class="rule">│</span>  <span class="sel"> [k] ⌬ API keys           </span><span class="rule">│</span>  <span class="ink3">Probe checks env vars first, then this config. Env always wins — clear it to fall back.</span>             <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [m] ◆ Models             </span><span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [b] $ Budget             </span><span class="rule">│</span>  <span class="ink">Anthropic </span>   <span class="ok">●</span> <span class="ink2">env · $ANTHROPIC_API_KEY</span>   <span class="ink">sk-ant-…7Q4f</span>   <span class="ink3">tested 2 min ago</span>                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [a] ◐ Appearance         </span><span class="rule">│</span>              <span class="ink3">└── env is set; this overrides the stored value below.</span>                                    <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [h] ⏵ Behavior           </span><span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink2"> [i] i About              </span><span class="rule">│</span>  <span class="ink">OpenAI    </span>   <span class="ok">●</span> <span class="ink2">stored in config         </span>   <span class="ink">sk-…m9Lp    </span>   <span class="ink3">tested 2 min ago</span>                            <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>              <span class="ink3">└── falls through from $OPENAI_API_KEY (unset)</span>                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3">NAVIGATE</span>                  <span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">j/k</span><span class="ink3"> · move section      </span><span class="rule">│</span>  <span class="ink">Google    </span>   <span class="miss">○</span> <span class="ink3">unset                    </span>   <span class="ink3">—           </span>   <span class="ink3">tested —</span>                                    <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">tab</span><span class="ink3"> · next field        </span><span class="rule">│</span>              <span class="ink3">└── falls through from $GOOGLE_API_KEY (unset)</span>                                            <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">enter</span><span class="ink3"> · edit field      </span><span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">:e</span><span class="ink3"> · open raw toml      </span><span class="rule">│</span>  <span class="ink3">┌──────────────────────────────────────────────────────────────────────────────────────────────────┐</span> <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">^s</span><span class="ink3"> · save & apply       </span><span class="rule">│</span>  <span class="ink3">│</span> Edit Anthropic key                                                                               <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>  <span class="ink3"> </span><span class="ink2">esc</span><span class="ink3"> · back               </span><span class="rule">│</span>  <span class="ink3">│</span>                                                                                                  <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span> <span class="b">›</span> <span class="ink">sk-ant-api03-aBcDeFg</span><span class="caret">█</span>                                                                       <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span>                                                                                                  <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span> <span class="ink3">[enter] save · [^t] test connection · [esc] cancel</span>                                              <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">└──────────────────────────────────────────────────────────────────────────────────────────────────┘</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">┌── notes ────────────────────────────────────────────────────────────────────────────────────────┐</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span> <span class="b">i</span>  Probe never logs key material. Stored entries live in <span class="ink">~/.config/probe/probe.toml</span>          <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">│</span>    with <span class="ink">0600</span> perms. Env precedence is checked at every command.                              <span class="ink3">│</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>  <span class="ink3">└─────────────────────────────────────────────────────────────────────────────────────────────────┘</span> <span class="rule">│</span>
+<span class="rule">│</span>                            <span class="rule">│</span>                                                                                                       <span class="rule">│</span>
+<span class="rule">└────────────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>
+<span class="status"> NORMAL </span><span class="statusInk"> API keys                                JetBrains Mono · 14px                          [+]   2/3 keys ok       1:1 </span></pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     Notes for the dev (single block, applies to all four scenes)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="term" style="margin-top: 2px;">
+  <div class="devnotes">
+    <div class="h">notes for the dev</div>
+    – four scenes, one stack: same color tokens, same status-bar pattern, same `┌─ PROBE ─┐` header. Switch with the chip above; in the real TUI these are routes.<br>
+    – status line is always the bottom row, full width: <code>NORMAL</code> mode pill (inverse-video amber) → contextual text → right-side keymap or counters.<br>
+    – box-drawing uses U+2500 series throughout; selected sidebar/list rows use inverse-video amber (<code>#d9a548</code> bg, dark fg). Soft-selected rows use a 14% amber wash.<br>
+    – stage status colors match the GUI exactly: <span class="moss">●</span> fresh / <span class="b">●</span> stale / <span class="cyan">●</span> running / <span class="ink3">○</span> queued. Don't drift these between surfaces.<br>
+    – the <b>project</b> scene shows both tabs (stages above, gantt timeline inline below) so you can see the relationship at a glance — in the actual TUI these are <code>⇧1</code> / <code>⇧2</code> alternates of the main pane, not stacked.<br>
+    – gantt: bars are <code>█</code> (solid = fresh), <code>▒</code> (dashed = pending rerun), <code>░</code> (light = queued/not-started). Today and deadline are vertical guides; stale stages are amber.<br>
+    – every scene supports a <code>:e</code> command to drop into <code>$EDITOR</code> on the underlying TOML or run JSON; <code>NO_COLOR</code> falls back to monochrome.
+  </div>
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('#switcher button');
+  const scenes  = document.querySelectorAll('.scene');
+  buttons.forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.scene;
+      buttons.forEach(x => x.classList.toggle('active', x === b));
+      scenes.forEach(s => s.classList.toggle('active', s.dataset.scene === id));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>

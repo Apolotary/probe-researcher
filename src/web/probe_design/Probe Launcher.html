@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    background: #0f1419;
+    color: #c5c8d4;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 100vh;
+  }
+  #root { min-height: 100vh; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// LazyVim-style launcher — Variant A from the design canvas. The
+// menu items actually navigate to other web routes; this is the
+// entry point for `probe ui --web` and the canonical first screen
+// for both surfaces.
+
+const LOGO = String.raw`
+██████╗  ██████╗   ██████╗  ██████╗  ███████╗
+██╔══██╗ ██╔══██╗ ██╔═══██╗ ██╔══██╗ ██╔════╝
+██████╔╝ ██████╔╝ ██║   ██║ ██████╔╝ █████╗
+██╔═══╝  ██╔══██╗ ██║   ██║ ██╔══██╗ ██╔══╝
+██║      ██║  ██║ ╚██████╔╝ ██████╔╝ ███████╗
+╚═╝      ╚═╝  ╚═╝  ╚═════╝  ╚═════╝  ╚══════╝
+`;
+
+const palette = {
+  bg:        '#0f1419',
+  bg2:       '#161b22',
+  ink:       '#c5c8d4',
+  ink2:      '#8b93a7',
+  ink3:      '#5c6678',
+  amber:     '#d9a548',
+  brand:     '#d9a548',
+  brandSoft: 'rgba(217, 165, 72, 0.14)',
+  rule:      '#1f2530',
+};
+
+// Menu items with real destinations.
+const menu = [
+  { key: 'n', icon: '+', label: 'New project',     hint: 'state a premise',          href: '/ui/new'     },
+  { key: 'o', icon: '↗', label: 'Open project',    hint: 'pick local run',           href: '/ui/project' },
+  { key: 'r', icon: '↻', label: 'Recent',          hint: '3 runs · 12d',             href: '/ui/recent'  },
+  { key: 'd', icon: '▶', label: 'Replay demo_run', hint: 'cached · $0',              href: '/ui/dossier' },
+  { key: 'c', icon: '⚙', label: 'Config',          hint: '~/.config/probe/probe.toml', href: '/ui/config' },
+  { key: 'q', icon: '×', label: 'Quit',            hint: 'close window',             action: 'quit' },
+];
+
+function Launcher() {
+  const [hover, setHover] = useState(null);
+  const [pressed, setPressed] = useState(null);
+  // Cursor-based selection so Enter / arrow-key navigation works.
+  // Hover overrides cursor only for the visual highlight; cursor is
+  // what Enter activates.
+  const [cursor, setCursor] = useState(0);
+
+  function activate(item) {
+    setPressed(item.key);
+    setTimeout(() => setPressed(null), 140);
+    if (item.action === 'quit') {
+      // Browsers won't let scripts close tabs they didn't open. Best
+      // effort: try, and otherwise show a friendly notice.
+      window.close();
+      return;
+    }
+    if (item.href) {
+      window.location.href = item.href;
+    }
+  }
+
+  useEffect(() => {
+    const onKey = (e) => {
+      // Single-letter shortcuts still work everywhere.
+      const k = e.key.toLowerCase();
+      const item = menu.find((m) => m.key === k);
+      if (item) {
+        e.preventDefault();
+        activate(item);
+        return;
+      }
+      // Cursor + Enter for arrow-key fans.
+      if (e.key === 'ArrowDown' || k === 'j') {
+        e.preventDefault();
+        setCursor((c) => Math.min(menu.length - 1, c + 1));
+        return;
+      }
+      if (e.key === 'ArrowUp' || k === 'k') {
+        e.preventDefault();
+        setCursor((c) => Math.max(0, c - 1));
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        activate(menu[cursor]);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [cursor]);
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: palette.bg,
+      color: palette.ink,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      paddingTop: 80,
+    }}>
+      {/* Logo */}
+      <pre style={{
+        margin: 0,
+        color: palette.brand,
+        fontSize: 14,
+        lineHeight: 1.05,
+        letterSpacing: 0,
+        textShadow: `0 0 12px ${palette.brandSoft}`,
+        whiteSpace: 'pre',
+      }}>{LOGO}</pre>
+
+      {/* Tagline */}
+      <div style={{
+        marginTop: 8,
+        color: palette.ink3,
+        fontSize: 12.5,
+        letterSpacing: '0.04em',
+      }}>
+        v0.4.2 · the agentic research-design pipeline
+      </div>
+
+      {/* Menu */}
+      <div style={{ marginTop: 56, width: 520, display: 'flex', flexDirection: 'column' }}>
+        {menu.map((m, i) => {
+          const isHover = hover === m.key;
+          const isCursor = cursor === i;
+          const isActive = isHover || isCursor;
+          const isPressed = pressed === m.key;
+          return (
+            <button
+              key={m.key}
+              onMouseEnter={() => { setHover(m.key); setCursor(i); }}
+              onMouseLeave={() => setHover(null)}
+              onClick={() => activate(m)}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '28px 1fr 32px',
+                alignItems: 'center',
+                gap: 12,
+                padding: '8px 14px',
+                background: isPressed ? palette.brandSoft : 'transparent',
+                border: 'none',
+                borderLeft: `2px solid ${isActive || isPressed ? palette.brand : 'transparent'}`,
+                color: 'inherit',
+                fontFamily: 'inherit',
+                fontSize: 14,
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'background 80ms, border-color 80ms',
+              }}
+            >
+              <span style={{ color: isActive ? palette.brand : palette.ink2, fontSize: 14 }}>{m.icon}</span>
+              <span style={{ color: palette.ink }}>
+                <span style={{
+                  background: isActive ? palette.brand : 'transparent',
+                  color: isActive ? palette.bg : palette.ink,
+                  padding: isActive ? '0 2px' : '0',
+                }}>{m.label[0]}</span>{m.label.slice(1)}
+              </span>
+              <span style={{ color: palette.ink3, fontSize: 13, textAlign: 'right' }}>{m.key}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Doctor line */}
+      <div style={{ marginTop: 36, color: palette.ink3, fontSize: 12.5 }}>
+        <span style={{ color: palette.amber, marginRight: 6 }}>⚡</span>
+        Probe armed in 84ms · 17 patterns · 3 review templates · doctor ok
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Launcher />);
+</script>
+</body>
+</html>

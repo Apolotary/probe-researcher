@@ -30,6 +30,7 @@ import { importCommand } from './import_paper.js';
 import { reportPageCommand } from './report_page.js';
 import { interactiveDefault } from './interactive.js';
 import { webCommand } from './web.js';
+import { uiCommand } from './ui_app.js';
 
 const program = new Command();
 
@@ -58,6 +59,7 @@ program
   .option('--voice-only', 'only run forbidden-phrase check', false)
   .option('--provenance-only', 'only run provenance tag check', false)
   .option('--strict-inference', 'require every [AGENT_INFERENCE] element to sit within 5 preceding elements of an anchor tag (SOURCE_CARD, SIMULATION_REHEARSAL, TOOL_VERIFIED, RESEARCHER_INPUT) or cite a source card inline — opt-in rigor check from PROMPT_FOR_LLM_ADVISORS.md §3', false)
+  .option('--no-source-card-check', 'skip validating [SOURCE_CARD:<id>] against corpus/source_cards/ — only set this for fixtures stored outside the repo; the default enforces the provenance commitment')
   .action(lintCommand);
 
 program
@@ -164,6 +166,16 @@ program
   .option('--no-open', 'do not open the browser automatically')
   .description('Start a local web UI for browsing and editing runs. Binds 127.0.0.1 by default. Two-pane layout: sidebar with runs/stages/branches, main area with rendered artifacts and inline editor. Saves go straight to disk; the next pipeline stage reads the edited file.')
   .action(webCommand);
+
+program
+  .command('ui')
+  .option('--scene <id>', 'jump to a specific scene: startup | welcome | premise | brainstorm | literature | methodology | artifacts | evaluation | report | done | project | config')
+  .option('--web', 'open the HTML companion in a browser (full interactive Dossier prototype). Same probe.toml as the TUI.')
+  .option('-p, --port <port>', 'with --web: port to bind (default 4470)')
+  .option('--host <host>', 'with --web: host to bind (default 127.0.0.1)')
+  .option('--no-open', 'with --web: do not auto-open the browser')
+  .description('Launch the new Probe UI. The TUI runs the full live workflow — premise → brainstorm RQs → literature → methodology → artifacts → evaluation → report → done — with state carried across stages. Pass --web for the HTML companion (full Dossier prototype with the same flow). First-run users land on welcome; returning users on startup.')
+  .action(uiCommand);
 
 program
   .command('stats')

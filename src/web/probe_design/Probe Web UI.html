@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · Web UI directions</title>
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0eee9; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="components/data.jsx"></script>
+<script type="text/babel" src="components/dossier.jsx"></script>
+<script type="text/babel" src="components/bench.jsx"></script>
+<script type="text/babel" src="components/atlas.jsx"></script>
+<script type="text/babel">
+  const { DesignCanvas, DCSection, DCArtboard, DCPostIt } = window;
+  const {
+    DossierStyles, DossierHome, DossierPremise, DossierAudit, DossierGuidebook,
+    BenchStyles, BenchLiveRun, BenchDeepAudit, BenchReviewers,
+    AtlasStyles, AtlasCompare,
+  } = window;
+
+  function App() {
+    return (
+      <>
+        <DossierStyles />
+        <BenchStyles />
+        <AtlasStyles />
+        <DesignCanvas>
+          <DCSection id="intro" title="Probe · web UI redesign"
+            subtitle="Three directions for the researcher's interface. The full CLI spec says: reading posture is skeptical collaborator, not delegator. Each direction makes that posture feel native in a browser — but through a different visual register. Open any artboard fullscreen (top-right corner) to inspect. The Dossier direction is also available as a live interactive prototype — see post-it.">
+            <DCPostIt x={40} y={40} w={280} rotate={-1}>
+              <div style={{ fontWeight: 600, marginBottom: 6 }}>Live prototype →</div>
+              The Dossier direction is fully interactive. Stage pauses, branch kill, audit grouping, source-card side panel, guidebook badges.
+              <div style={{ marginTop: 10, fontFamily: 'ui-monospace, monospace', fontSize: 11 }}>
+                <a href="Dossier Prototype.html" style={{ color: '#5a4a2a', textDecoration: 'underline' }}>Dossier Prototype.html</a>
+              </div>
+            </DCPostIt>
+          </DCSection>
+
+          <DCSection id="dossier" title="Direction A · Dossier"
+            subtitle="Editorial / academic. Newsreader serif for prose, JetBrains Mono for tags and folios. Warm ivory paper, navy ink, amber rules. Treats the run as a bound journal — each stage a signature, each artifact a plate. Best match for the 'skeptical collaborator' posture the brief calls for.">
+            <DCArtboard id="dossier-home" label="01 · Home" width={1200} height={780}>
+              <DossierStyles />
+              <DossierHome />
+            </DCArtboard>
+            <DCArtboard id="dossier-premise" label="02 · Premise card · checkpoint paused" width={1200} height={780}>
+              <DossierStyles />
+              <DossierPremise />
+            </DCArtboard>
+            <DCArtboard id="dossier-audit" label="03 · Pattern audit · severity cards" width={1200} height={780}>
+              <DossierStyles />
+              <DossierAudit />
+            </DCArtboard>
+            <DCArtboard id="dossier-guidebook" label="04 · Guidebook · provenance badges" width={1200} height={780}>
+              <DossierStyles />
+              <DossierGuidebook />
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="bench" title="Direction B · Bench"
+            subtitle="Technical / IDE-like. IBM Plex Mono + Plex Sans. Dark graphite with measured severity hues. A workbench that surfaces the work: streaming stage content, pipeline DAG, per-branch kill, tool-call cards. For the researcher who lives in a terminal and wants more signal density, not less.">
+            <DCArtboard id="bench-live" label="05 · Live run · stage 5 streaming" width={1200} height={780}>
+              <BenchStyles />
+              <BenchLiveRun />
+            </DCArtboard>
+            <DCArtboard id="bench-audit" label="06 · Deep audit · tool-call stream" width={1200} height={780}>
+              <BenchStyles />
+              <BenchDeepAudit />
+            </DCArtboard>
+            <DCArtboard id="bench-rev" label="07 · Reviewer panel · split verdict" width={1200} height={780}>
+              <BenchStyles />
+              <BenchReviewers />
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="atlas" title="Direction C · Atlas"
+            subtitle="Cartographic. Inter Tight + Spectral for display. Warm off-white paper, a single measured vermilion accent. The pipeline as a map, the artifacts as pages, runs as territory. Best suited to run-comparison, symposium, and the longer horizons Probe's workshop tooling opens up.">
+            <DCArtboard id="atlas-compare" label="08 · Compare · two runs, disagreement-preserving" width={1200} height={780}>
+              <AtlasStyles />
+              <AtlasCompare />
+            </DCArtboard>
+          </DCSection>
+        </DesignCanvas>
+      </>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

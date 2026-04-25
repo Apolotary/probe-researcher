@@ -1,0 +1,798 @@
+/* global React */
+const { useState, useEffect } = React;
+
+// Stage 7 — Review
+// Simulates a CHI-style peer-review pass on the report from stage 6.
+// AC + 3 reviewers, per-reviewer recommendation in 5 buckets, plus a meta-review.
+// Author can: incorporate feedback (queues a report rerun with the chosen issues),
+// dismiss the review, or export the rebuttal letter.
+//
+// Exports:
+//   window.ReviewBody                 — the main pane body for the stage
+//   window.makeInitialReviewState()  — the seeded run shape
+//   window.reviewRerunPlaceholder()  — used by RerunDock
+//   window.synthesizeReviewSummary() — used by RerunDock when a rerun lands
+
+const palette = window.__probePalette;
+const kbdStyle = window.__probeKbd;
+const chipStyle = window.__probeChip;
+
+// Recommendation buckets — these mirror the verdict ladder used at venues like CHI.
+//   A    accept (rare)
+//   ARR  accept with revisions required (1AC verifies)
+//   RR   revise & resubmit (next cycle)
+//   RRX  revise & resubmit, but conditional on a major rethink
+//   X    reject
+const REC = {
+  A:   { label: 'accept',                short: 'A',   color: '#7fb069', desc: 'ready as-is' },
+  ARR: { label: 'accept w/ revisions',   short: 'ARR', color: '#a8c777', desc: '1AC verifies fixes' },
+  RR:  { label: 'revise & resubmit',     short: 'RR',  color: '#d9a548', desc: 'next cycle' },
+  RRX: { label: 'major revision',        short: 'RRX', color: '#c87838', desc: 'rethink core argument' },
+  X:   { label: 'reject',                short: 'X',   color: '#e26e6e', desc: 'venue mismatch or fatal flaw' },
+};
+
+const VERDICT = {
+  accept:        { label: 'accept',           color: '#7fb069', glyph: '✓' },
+  minor:         { label: 'minor revisions',  color: '#a8c777', glyph: '✓' },
+  major:         { label: 'major revisions',  color: '#d9a548', glyph: '~' },
+  reject:        { label: 'reject',           color: '#e26e6e', glyph: '✗' },
+};
+
+function makeInitialReviewState() {
+  const seed = seededReview();
+  return {
+    status: 'fresh',
+    lastRun: '3d ago',
+    currentRunId: seed.id,
+    runs: [seed],
+    seed,
+  };
+}
+
+function seededReview() {
+  return {
+    id: 'r1',
+    when: '3d ago',
+    label: 'simulated · 1AC + 3 reviewers',
+    summary: 'verdict · major revisions · 2× RR / 1× RRX / 1× ARR',
+    verdict: 'major',
+    venue: 'CHI 2026 (simulated)',
+    paperTitle: 'Threading the Day: Within-Day Fatigue in Remote Knowledge Work',
+    submittedAt: 'just now',
+    reviewerCount: 3,
+    chairs: 1,
+    reviewers: [
+      {
+        id: 'R1', role: 'reviewer', expertise: 4, confidence: 'high',
+        rec: 'RR',
+        oneLine: 'Strong wedge, under-powered pilot, somatic-first finding feels overclaimed.',
+        strengths: [
+          'The framing of agenda-presence as a tractable lever is novel and well-positioned against the ZEFS literature.',
+          'Calendar-aware ESM trigger is a real methodological contribution — most prior work samples once per day.',
+          'Member-checked exit interviews lend the qualitative arm credibility that pure thematic analysis would not.',
+        ],
+        weaknesses: [
+          'N=18 with d ≥ 0.5 is borderline for the ritual sub-study; authors acknowledge this but a power simulation is missing.',
+          'The "somatic-first vocabulary" claim rests on a single coding pass by one analyst. No inter-rater reliability reported.',
+          'Threats-to-validity section is brief — novelty effect of the ESM agent itself is plausibly large in week 1.',
+        ],
+        toAuthors:
+          'I enjoyed reading this and think it has a clear contribution shape. My main concern is the qualitative arm: the "somatic-first" finding is the most exciting in the paper, and it is exactly the one that needs the most methodological care. Please report inter-rater reliability for the body-mapping codes (or run a second pass with an outside coder), and consider tempering the abstract claim. I would also like to see a power simulation for the ritual sub-study before recommending acceptance — the current N feels generous but unverified.',
+        toChairs:
+          'Borderline RR. If authors can address the IRR + power concerns in a revision, I would lean ARR. The wedge is real.',
+      },
+      {
+        id: 'R2', role: 'reviewer', expertise: 3, confidence: 'medium',
+        rec: 'ARR',
+        oneLine: 'Methodologically clean, well-written. Some reviewer-2 nitpicks on positioning.',
+        strengths: [
+          'The mixed-methods design is the right choice and the authors justify it cleanly.',
+          'The qualitative findings are vivid; the somatic-first language is a contribution in itself.',
+          'Open-source agent + replication kit is exactly what this subfield needs.',
+        ],
+        weaknesses: [
+          'Related work over-emphasizes ZEFS at the expense of the broader recovery / micro-break literature. Sonnentag et al. deserve more than one citation.',
+          'The discussion paragraph on agenda-presence is the strongest in the paper but is buried behind two paragraphs of caveats. Move it up.',
+          'Figure 3 is unreadable in grayscale.',
+        ],
+        toAuthors:
+          'Recommending ARR. The paper is in good shape and the contribution is clear. Please broaden the related work to include the recovery literature beyond ZEFS, restructure the discussion so agenda-presence leads, and re-do Figure 3 with patterns rather than colors. None of these should require new data.',
+        toChairs:
+          'Easy ARR for me. Issues are presentational and one mid-sized restructuring of related work.',
+      },
+      {
+        id: 'R3', role: 'reviewer', expertise: 2, confidence: 'medium',
+        rec: 'RRX',
+        oneLine: 'Interesting but I am not convinced the simulated pilot is a sound scaffold for the claims made.',
+        strengths: [
+          'Clear writing, strong figures (mostly).',
+          'The audience-facing artifacts (DIARY_KIT, PROTOCOL) are unusually thoughtful for a methods-heavy paper.',
+        ],
+        weaknesses: [
+          'A 4-week simulated pilot with synthetic participants cannot answer the within-subjects ritual question; this needs a real deployment.',
+          'The framing positions this as field work but it is closer to a study-design proposal. Be honest about what the contribution is.',
+          'Several claims in the discussion ("dominant framing of meeting-fatigue as load-driven holds") are not actually supported by the data presented — they are inherited from the literature review.',
+        ],
+        toAuthors:
+          'I think there is a real paper here but it is not the paper currently submitted. Either reframe as a study-design contribution (with the IRB-ready protocol as the deliverable) and submit to a methods venue, or run the actual deployment and resubmit with real data. As written, the gap between the methods and the findings claims is too wide for me to recommend.',
+        toChairs:
+          'RRX. I would be open to a rewritten methods-paper version, but the current framing oversells a simulated pilot.',
+      },
+    ],
+    // The 1AC's meta-review pulls the three reviews together and proposes the verdict.
+    meta: {
+      ac: 'AC',
+      verdict: 'major',
+      summary:
+        'Three reviewers, three different verdicts (RR, ARR, RRX). All agree the framing and methodological scaffolding are strong. All three flag concerns about the gap between the simulated pilot and the discussion-level claims, though they vary in severity. R1\'s IRR concern and R3\'s "this is a methods paper" critique converge on the same underlying issue: the qualitative findings need either more methodological rigor or a more modest framing.',
+      proposed:
+        'Major revisions. The authors should (a) report inter-rater reliability for the body-mapping codes or run a second pass, (b) include a power simulation for the ritual sub-study, (c) temper claims that exceed what a simulated pilot can support, and (d) restructure related work + the discussion as R2 suggests. If executed, this is a CHI-quality contribution.',
+      consensusPoints: [
+        { tag: 'all-3', text: 'discussion claims overreach what a simulated pilot can support', priority: 'high' },
+        { tag: '2-of-3', text: 'methodological reporting gaps — IRR for qualitative codes, power simulation for ritual', priority: 'high' },
+        { tag: '2-of-3', text: 'related work under-cites the recovery / micro-break literature', priority: 'medium' },
+        { tag: '1-of-3', text: 'figure 3 needs grayscale-safe patterns', priority: 'low' },
+      ],
+    },
+  };
+}
+
+// Entry placeholders / synthesizer used by the rerun dock when this stage is rerun.
+function reviewRerunPlaceholder() {
+  return 'e.g. simulate harsher reviewers · target a specific venue · weight methods over novelty';
+}
+
+function synthesizeReviewSummary(prompt) {
+  const short = (prompt || '').slice(0, 80);
+  return `re-simulated panel · 1AC + 3 reviewers · "${short}"`;
+}
+
+// ─── Main body ─────────────────────────────────────────────────────────────
+
+function ReviewBody({ data, density }) {
+  // Pick the run currently selected (or the seed if no run yet exists).
+  const review =
+    data.runs.find((r) => r.id === data.currentRunId) ||
+    data.runs[data.runs.length - 1] ||
+    data.seed;
+  const isSeed = !data.runs.length;
+  const [openId, setOpenId] = useState('AC'); // which reviewer's panel is expanded
+
+  if (isSeed && data.status === 'queued') {
+    return <ReviewEmpty review={review} />;
+  }
+
+  return (
+    <>
+      <Section title="verdict" accent={VERDICT[review.verdict].color}>
+        <VerdictHeader review={review} />
+      </Section>
+
+      <Section title="meta-review · 1AC" accent="#d9a548">
+        <MetaReviewCard meta={review.meta} expanded={openId === 'AC'}
+          onToggle={() => setOpenId(openId === 'AC' ? null : 'AC')} />
+      </Section>
+
+      <Section title={`reviews · ${review.reviewers.length} reviewers`} accent="#7dcfff">
+        <div style={{ color: palette.ink3, fontSize: 11.5, marginTop: 4, marginBottom: 8 }}>
+          click a review to read it in full · recommendations span {summarizeRecs(review.reviewers)}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {review.reviewers.map((r) => (
+            <ReviewerCard key={r.id} reviewer={r}
+              expanded={openId === r.id}
+              onToggle={() => setOpenId(openId === r.id ? null : r.id)} />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="what now" accent={palette.amber}>
+        <ActionsRow review={review} />
+      </Section>
+    </>
+  );
+}
+
+// ─── Empty / queued state ──────────────────────────────────────────────────
+function ReviewEmpty({ review }) {
+  return (
+    <div style={{ marginTop: 22 }}>
+      <div style={{
+        padding: '18px 20px',
+        background: palette.bg2,
+        border: `1px solid ${palette.rule}`,
+        borderLeft: `3px solid ${palette.amber}`,
+        borderRadius: 3,
+      }}>
+        <div style={{
+          color: palette.amber, fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase', fontWeight: 600, marginBottom: 6,
+        }}>
+          ─── ready to simulate review
+        </div>
+        <div style={{ color: palette.ink, fontSize: 14, lineHeight: 1.6, marginBottom: 12 }}>
+          Probe will run a CHI-style review pass against the report from stage 6 — one
+          1AC plus three reviewers, each with their own expertise level, recommendation,
+          and written critique. The 1AC rolls them up into a verdict.
+        </div>
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 10, marginBottom: 14,
+        }}>
+          <PanelChip label="venue" value={review.venue} accent="#d9a548" />
+          <PanelChip label="paper" value={review.paperTitle} accent="#c5c8d4" truncate />
+          <PanelChip label="reviewers" value="3 + 1AC" accent="#7dcfff" />
+          <PanelChip label="cost" value="≈ $0.85" accent="#7fb069" />
+        </div>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '10px 12px', background: palette.bg, border: `1px solid ${palette.rule}`,
+          borderRadius: 3, color: palette.ink3, fontSize: 12,
+        }}>
+          <span style={{ color: palette.amber }}>›</span>
+          <span>use the rerun dock below to simulate the panel</span>
+          <kbd style={{ ...kbdStyle, marginLeft: 'auto' }}>↵</kbd>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 22 }}>
+        <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase', marginBottom: 6 }}>
+          ─── recommendation buckets
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {Object.entries(REC).map(([k, v]) => (
+            <div key={k} style={{
+              padding: '6px 12px', borderRadius: 3,
+              border: `1px solid ${palette.rule}`,
+              borderLeft: `3px solid ${v.color}`,
+              background: palette.bg2,
+              fontSize: 12,
+            }}>
+              <span style={{ color: v.color, fontWeight: 700, marginRight: 8 }}>{v.short}</span>
+              <span style={{ color: palette.ink }}>{v.label}</span>
+              <span style={{ color: palette.ink3, marginLeft: 8 }}>· {v.desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PanelChip({ label, value, accent, truncate }) {
+  return (
+    <div style={{
+      padding: '8px 12px', background: palette.bg,
+      border: `1px solid ${palette.rule}`, borderLeft: `3px solid ${accent}`,
+      borderRadius: 3,
+    }}>
+      <div style={{ color: palette.ink3, fontSize: 10, letterSpacing: '0.12em',
+        textTransform: 'uppercase' }}>{label}</div>
+      <div style={{ color: palette.ink, fontSize: 13, marginTop: 2,
+        whiteSpace: truncate ? 'nowrap' : 'normal',
+        overflow: truncate ? 'hidden' : 'visible',
+        textOverflow: truncate ? 'ellipsis' : 'clip' }}>{value}</div>
+    </div>
+  );
+}
+
+// ─── Verdict header ────────────────────────────────────────────────────────
+function VerdictHeader({ review }) {
+  const v = VERDICT[review.verdict];
+  return (
+    <div style={{
+      marginTop: 6, padding: '14px 16px',
+      background: palette.bg2,
+      border: `1px solid ${palette.rule}`,
+      borderLeft: `3px solid ${v.color}`,
+      borderRadius: 3,
+      display: 'grid',
+      gridTemplateColumns: '1fr auto',
+      gap: 16, alignItems: 'center',
+    }}>
+      <div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 28, height: 28, borderRadius: 3,
+            background: v.color, color: palette.bg,
+            fontSize: 16, fontWeight: 700,
+          }}>{v.glyph}</span>
+          <span style={{ color: v.color, fontSize: 18, fontWeight: 600,
+            letterSpacing: '0.02em' }}>{v.label}</span>
+          <span style={{ ...chipStyle, marginLeft: 4 }}>{review.venue}</span>
+        </div>
+        <div style={{ marginTop: 8, color: palette.ink, fontSize: 13.5, lineHeight: 1.55 }}>
+          {review.paperTitle}
+        </div>
+        <div style={{ marginTop: 4, color: palette.ink3, fontSize: 11.5 }}>
+          submitted {review.submittedAt} · {review.reviewerCount} reviewers + {review.chairs}AC
+        </div>
+      </div>
+      <RecBreakdown reviewers={review.reviewers} />
+    </div>
+  );
+}
+
+function RecBreakdown({ reviewers }) {
+  // Bar chart of recommendations across reviewers.
+  const order = ['A', 'ARR', 'RR', 'RRX', 'X'];
+  const counts = order.map((k) => reviewers.filter((r) => r.rec === k).length);
+  return (
+    <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end' }}>
+      {order.map((k, i) => {
+        const n = counts[i];
+        return (
+          <div key={k} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+            minWidth: 36,
+          }}>
+            <div style={{
+              height: 36, width: 16,
+              display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+            }}>
+              {[...Array(n)].map((_, j) => (
+                <div key={j} style={{
+                  height: 10, marginTop: 2, borderRadius: 1,
+                  background: REC[k].color,
+                }} />
+              ))}
+              {n === 0 && (
+                <div style={{ height: 2, background: palette.rule, borderRadius: 1 }} />
+              )}
+            </div>
+            <span style={{ color: n ? REC[k].color : palette.ink4,
+              fontSize: 10, fontWeight: 700 }}>{REC[k].short}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function summarizeRecs(reviewers) {
+  const order = ['A', 'ARR', 'RR', 'RRX', 'X'];
+  const counts = {};
+  reviewers.forEach((r) => { counts[r.rec] = (counts[r.rec] || 0) + 1; });
+  return order.filter((k) => counts[k]).map((k) => `${counts[k]}× ${k}`).join(' · ');
+}
+
+// ─── Meta-review ───────────────────────────────────────────────────────────
+function MetaReviewCard({ meta, expanded, onToggle }) {
+  const v = VERDICT[meta.verdict];
+  return (
+    <div style={{
+      marginTop: 6,
+      background: palette.bg2,
+      border: `1px solid ${expanded ? '#d9a548' : palette.rule}`,
+      borderLeft: `3px solid #d9a548`,
+      borderRadius: 3,
+      overflow: 'hidden',
+      transition: 'border-color 120ms',
+    }}>
+      <button onClick={onToggle} style={{
+        display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+        padding: '10px 12px', background: 'transparent', border: 'none',
+        color: 'inherit', fontFamily: 'inherit', fontSize: 13,
+        cursor: 'pointer', textAlign: 'left',
+      }}>
+        <span style={{
+          display: 'inline-block', width: 10, color: '#d9a548',
+          transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+          transition: 'transform 140ms',
+        }}>›</span>
+        <span style={{
+          width: 22, height: 22, borderRadius: 2, display: 'inline-flex',
+          alignItems: 'center', justifyContent: 'center',
+          background: '#d9a548', color: palette.bg, fontSize: 11, fontWeight: 700,
+        }}>{meta.ac}</span>
+        <span style={{ color: palette.ink, fontWeight: 600 }}>1AC meta-review</span>
+        <span style={{ ...chipStyle, color: v.color, borderColor: v.color }}>
+          proposes {v.label}
+        </span>
+        <span style={{ marginLeft: 'auto', color: palette.ink, fontSize: 12.5,
+          fontStyle: 'italic', maxWidth: '50%',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {meta.summary.slice(0, 80)}…
+        </span>
+      </button>
+      {expanded && (
+        <div className="fade-in" style={{
+          padding: '12px 16px 14px 35px',
+          borderTop: `1px dashed ${palette.rule}`,
+        }}>
+          <DetailBlock label="summary" accent="#d9a548">
+            {meta.summary}
+          </DetailBlock>
+          <DetailBlock label="proposed decision" accent="#d9a548">
+            {meta.proposed}
+          </DetailBlock>
+          <DetailBlock label={`consensus points · ${meta.consensusPoints.length}`} accent="#d9a548">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+              {meta.consensusPoints.map((c, i) => (
+                <ConsensusRow key={i} c={c} />
+              ))}
+            </div>
+          </DetailBlock>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ConsensusRow({ c }) {
+  const priColor =
+    c.priority === 'high' ? '#e26e6e' :
+    c.priority === 'medium' ? '#d9a548' : '#7fb069';
+  const tagColor =
+    c.tag === 'all-3' ? '#e26e6e' :
+    c.tag === '2-of-3' ? '#d9a548' : palette.ink3;
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '60px 60px 1fr',
+      alignItems: 'center', gap: 10,
+      padding: '7px 10px',
+      background: palette.bg,
+      border: `1px solid ${palette.rule}`,
+      borderRadius: 3, fontSize: 12.5,
+    }}>
+      <span style={{
+        display: 'inline-flex', justifyContent: 'center',
+        padding: '1px 0', borderRadius: 2,
+        border: `1px solid ${tagColor}`,
+        color: tagColor,
+        fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
+      }}>{c.tag}</span>
+      <span style={{
+        display: 'inline-flex', justifyContent: 'center',
+        padding: '1px 0', borderRadius: 2,
+        background: priColor + '22',
+        color: priColor,
+        fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+      }}>{c.priority}</span>
+      <span style={{ color: palette.ink }}>{c.text}</span>
+    </div>
+  );
+}
+
+// ─── Reviewer card ─────────────────────────────────────────────────────────
+function ReviewerCard({ reviewer: r, expanded, onToggle }) {
+  const rec = REC[r.rec];
+  return (
+    <div style={{
+      background: palette.bg2,
+      border: `1px solid ${expanded ? rec.color : palette.rule}`,
+      borderLeft: `3px solid ${rec.color}`,
+      borderRadius: 3,
+      overflow: 'hidden',
+      transition: 'border-color 120ms',
+    }}>
+      <button onClick={onToggle} style={{
+        display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+        padding: '10px 12px', background: 'transparent', border: 'none',
+        color: 'inherit', fontFamily: 'inherit', fontSize: 13,
+        cursor: 'pointer', textAlign: 'left',
+      }}>
+        <span style={{
+          display: 'inline-block', width: 10, color: rec.color,
+          transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+          transition: 'transform 140ms', flex: 'none',
+        }}>›</span>
+        <span style={{
+          width: 22, height: 22, borderRadius: 2, display: 'inline-flex',
+          alignItems: 'center', justifyContent: 'center', flex: 'none',
+          background: 'transparent', color: rec.color,
+          border: `1px solid ${rec.color}`, fontSize: 10, fontWeight: 700,
+        }}>{r.id}</span>
+        <span style={{
+          ...chipStyle, color: rec.color, borderColor: rec.color, flex: 'none',
+          textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: 10, fontWeight: 700,
+        }}>{rec.short} · {rec.label}</span>
+        <span style={{
+          color: palette.ink, fontSize: 12.5, fontStyle: 'italic',
+          flex: 1, minWidth: 0,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        }}>{r.oneLine}</span>
+        <span style={{ color: palette.ink4, fontSize: 11, flex: 'none' }}>
+          exp {r.expertise}/4 · {r.confidence}
+        </span>
+      </button>
+      {expanded && (
+        <div className="fade-in" style={{
+          padding: '12px 16px 14px 35px',
+          borderTop: `1px dashed ${palette.rule}`,
+        }}>
+          <DetailBlock label={`strengths · ${r.strengths.length}`} accent="#7fb069">
+            <ul style={{
+              margin: '4px 0 0', paddingLeft: 18, color: palette.ink, fontSize: 13,
+              lineHeight: 1.6,
+            }}>
+              {r.strengths.map((s, i) => <li key={i}>{s}</li>)}
+            </ul>
+          </DetailBlock>
+          <DetailBlock label={`weaknesses · ${r.weaknesses.length}`} accent="#e26e6e">
+            <ul style={{
+              margin: '4px 0 0', paddingLeft: 18, color: palette.ink, fontSize: 13,
+              lineHeight: 1.6,
+            }}>
+              {r.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          </DetailBlock>
+          <DetailBlock label="comments to authors" accent={rec.color}>
+            <div style={{
+              padding: '10px 12px', background: palette.bg,
+              borderLeft: `2px solid ${rec.color}`,
+              color: palette.ink, fontSize: 13, lineHeight: 1.65,
+              whiteSpace: 'pre-wrap',
+            }}>{r.toAuthors}</div>
+          </DetailBlock>
+          <DetailBlock label="comments to chairs · confidential" accent={palette.ink3}>
+            <div style={{
+              padding: '10px 12px', background: palette.bg,
+              border: `1px dashed ${palette.rule}`,
+              color: palette.ink2, fontSize: 12.5, lineHeight: 1.6,
+              fontStyle: 'italic',
+            }}>{r.toChairs}</div>
+          </DetailBlock>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── What-now actions ──────────────────────────────────────────────────────
+function ActionsRow({ review }) {
+  return (
+    <div style={{
+      marginTop: 6,
+      padding: '14px 16px',
+      background: palette.bg2, border: `1px solid ${palette.rule}`, borderRadius: 3,
+      display: 'flex', flexDirection: 'column', gap: 10,
+    }}>
+      <div style={{ color: palette.ink3, fontSize: 11.5 }}>
+        Three ways forward · pick one or do nothing — Probe never overwrites the report without your say-so.
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+        <ActionTile
+          label="incorporate feedback"
+          hint={`queues report rerun with ${review.meta.consensusPoints.filter((c) => c.priority !== 'low').length} consensus issues`}
+          accent="#7fb069"
+          primary
+        />
+        <ActionTile
+          label="export rebuttal"
+          hint=".md letter · responds point-by-point"
+          accent="#7dcfff"
+        />
+        <ActionTile
+          label="dismiss this review"
+          hint="archive · keeps report frozen"
+          accent={palette.ink3}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ActionTile({ label, hint, accent, primary }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        flex: '1 1 220px', minWidth: 220, padding: '10px 14px', textAlign: 'left',
+        background: primary && hover ? accent : palette.bg,
+        border: `1px solid ${hover ? accent : palette.rule}`,
+        borderLeft: `3px solid ${accent}`, borderRadius: 3,
+        color: primary && hover ? palette.bg : palette.ink,
+        fontFamily: 'inherit', cursor: 'pointer',
+        display: 'flex', flexDirection: 'column', gap: 2,
+        transition: 'background 120ms, border-color 120ms, color 120ms',
+      }}>
+      <span style={{
+        color: primary && hover ? palette.bg : accent,
+        fontSize: 13, fontWeight: 600, letterSpacing: '0.02em',
+      }}>{label}</span>
+      <span style={{
+        color: primary && hover ? 'rgba(0,0,0,0.7)' : palette.ink3,
+        fontSize: 11,
+      }}>{hint}</span>
+    </button>
+  );
+}
+
+// ─── Shared helpers ────────────────────────────────────────────────────────
+function DetailBlock({ label, accent, children }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{
+        color: accent, fontSize: 11, fontWeight: 600,
+        letterSpacing: '0.12em', textTransform: 'uppercase',
+        marginBottom: 4,
+      }}>
+        ─── {label}
+      </div>
+      <div style={{ color: palette.ink, fontSize: 13, lineHeight: 1.6 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, accent, children }) {
+  return (
+    <div style={{ marginTop: 22 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6,
+      }}>
+        <span style={{ color: accent, fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase' }}>
+          ─── {title}
+        </span>
+      </div>
+      <div style={{ color: palette.ink2, fontSize: 13.5, lineHeight: 1.6 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+window.ReviewBody = ReviewBody;
+window.makeInitialReviewState = makeInitialReviewState;
+window.reviewRerunPlaceholder = reviewRerunPlaceholder;
+window.synthesizeReviewSummary = synthesizeReviewSummary;
+window.PROBE_REVIEW_SEED = seededReview;
+
+// ─── Review (new-project flow wrapper) ───────────────────────────────────────
+// The base ReviewBody component expects a `data` prop with the seeded run.
+// In the new-project flow we want the review session to be GENERATED for the
+// current paper (paperTitle / RQs / chosen design / findings / discussion)
+// via /api/probe/review. This wrapper makes the call, then renders ReviewBody
+// against the result. Falls back to the seeded review on error.
+
+const ghostBtnStyle2 = {
+  background: 'transparent', border: 'none',
+  color: palette.ink3, fontFamily: 'inherit',
+  fontSize: 12, cursor: 'pointer',
+};
+
+function ReviewWrapper({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBack, onDone }) {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(makeInitialReviewState());
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetch('/api/probe/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        premise: mainRq,
+        rqs: selectedBranches || [],
+        designName: (chosenDesign && chosenDesign.name) || 'integrated study',
+        findings: (evalResult && evalResult.findings) || [],
+        paperTitle: (evalResult && evalResult.paperTitle) || 'Untitled paper',
+        discussion: (evalResult && evalResult.discussion) || '',
+      }),
+    })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('review ' + r.status)))
+      .then((live) => {
+        if (cancelled) return;
+        // Wrap the live review in the data envelope ReviewBody expects.
+        setData({
+          status: 'fresh',
+          lastRun: 'just now',
+          currentRunId: 'live',
+          runs: [{
+            id: 'live',
+            when: 'just now',
+            label: 'live · 1AC + 3 reviewers',
+            summary: 'verdict · ' + live.meta.verdict + ' revisions',
+            verdict: live.meta.verdict,
+            tldr: live.meta.summary.slice(0, 80) + '…',
+            reviewers: live.reviewers,
+            meta: live.meta,
+            paperTitle: live.paperTitle,
+            submittedAt: 'just now',
+            reviewerCount: 3,
+            chairs: 1,
+          }],
+          seed: makeInitialReviewState().seed,
+        });
+        setLoading(false);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setError(String(e.message || e));
+        setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [mainRq]);
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Crumb */}
+      <div style={{
+        borderBottom: `1px solid ${palette.rule}`,
+        padding: '12px 22px', display: 'flex', alignItems: 'center', gap: 12,
+        color: palette.ink3, fontSize: 12,
+      }}>
+        <span style={{ color: palette.amber, fontWeight: 600 }}>probe</span>
+        <span style={{ color: palette.ink4 }}>›</span>
+        <span style={{ color: palette.ink2 }}>new project</span>
+        <span style={{ color: palette.ink4 }}>›</span>
+        <span style={{ color: palette.ink2 }}>brainstorm</span>
+        <span style={{ color: palette.ink4 }}>›</span>
+        <span style={{ color: palette.ink2 }}>literature</span>
+        <span style={{ color: palette.ink4 }}>›</span>
+        <span style={{ color: palette.ink2 }}>methodology</span>
+        <span style={{ color: palette.ink4 }}>›</span>
+        <span style={{ color: palette.ink2 }}>artifacts</span>
+        <span style={{ color: palette.ink4 }}>›</span>
+        <span style={{ color: palette.ink2 }}>evaluation</span>
+        <span style={{ color: palette.ink4 }}>›</span>
+        <span style={{ color: palette.ink2 }}>report</span>
+        <span style={{ color: palette.ink4 }}>›</span>
+        <span style={{ color: palette.ink }}>review</span>
+        <span style={{ marginLeft: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
+          <span style={{ color: palette.ink3 }}>stage 7 · review</span>
+          <button onClick={onBack} style={ghostBtnStyle2}>
+            <kbd style={kbdStyle}>esc</kbd> back
+          </button>
+        </span>
+      </div>
+
+      <div style={{ flex: 1, padding: '28px 32px 40px', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+        {loading && (
+          <div style={{ padding: '14px 0', color: palette.ink3, fontSize: 13 }}>
+            {window.ModelStatusLine ? (
+              <window.ModelStatusLine
+                model="claude-sonnet-4-5"
+                phase={window.PhaseDots ? (
+                  <window.PhaseDots
+                    phases={['planning', 'reading paper', 'drafting reviews', 'verifying']}
+                    activeIdx={2}
+                    accent={palette.amber}
+                    compact
+                  />
+                ) : null}
+                accent={palette.amber}
+                running
+              />
+            ) : <span>convening review panel…</span>}
+          </div>
+        )}
+        {error && !loading && (
+          <div style={{ padding: '12px 14px', marginBottom: 12, background: 'rgba(226,110,110,0.06)', border: `1px solid ${palette.rose}`, borderLeft: `3px solid ${palette.rose}`, color: palette.ink, fontSize: 12.5, borderRadius: 3 }}>
+            <strong style={{ color: palette.rose }}>review API error: </strong>
+            {error}. Showing seeded review instead.
+          </div>
+        )}
+        <ReviewBody data={data} density="comfy" />
+
+        {/* Done footer */}
+        <div style={{ marginTop: 28, paddingTop: 16, borderTop: `1px solid ${palette.rule}`,
+          display: 'flex', gap: 12, alignItems: 'center' }}>
+          <button onClick={onDone} style={{
+            background: palette.amber, color: palette.bg, border: 'none',
+            padding: '8px 16px', borderRadius: 3,
+            fontFamily: 'inherit', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          }}>continue → done ›</button>
+          <button onClick={onBack} style={ghostBtnStyle2}>
+            <kbd style={kbdStyle}>esc</kbd> back to report
+          </button>
+          <span style={{ marginLeft: 'auto', color: palette.ink3, fontSize: 11.5 }}>
+            stage 7 of 7 · review
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.Review = ReviewWrapper;

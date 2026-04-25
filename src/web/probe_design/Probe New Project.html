@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · new project</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    background: #0f1419;
+    color: #c5c8d4;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  #root { min-height: 100vh; }
+  textarea, input { font-family: inherit; }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .fade-in { animation: fadeIn 240ms ease-out both; }
+  .pulse-dot { animation: blink 1s steps(1) infinite; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script src="probe-tokens.js"></script>
+<script type="text/babel" src="probe-spinner.jsx"></script>
+<script type="text/babel" src="probe-literature.jsx"></script>
+<script type="text/babel" src="probe-methodology.jsx"></script>
+<script type="text/babel" src="probe-artifacts.jsx"></script>
+<script type="text/babel" src="probe-evaluation.jsx"></script>
+<script type="text/babel" src="probe-report.jsx"></script>
+<script type="text/babel" src="probe-review.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const palette = {
+  bg:        '#0f1419',
+  bg2:       '#161b22',
+  ink:       '#c5c8d4',
+  ink2:      '#8b93a7',
+  ink3:      '#5c6678',
+  ink4:      '#3d4555',
+  amber:     '#d9a548',
+  amberSoft: 'rgba(217, 165, 72, 0.14)',
+  rose:      '#e26e6e',
+  moss:      '#7fb069',
+  cyan:      '#7dcfff',
+  rule:      '#1f2530',
+};
+
+const placeholder = 'How do remote workers stay focused during long video-call days?';
+
+const examples = [
+  'How do remote workers stay focused during long video-call days?',
+  'What makes a good code-review comment land well with a junior engineer?',
+  'How do home cooks decide which weeknight recipes are worth repeating?',
+];
+
+// Brainstormed sub-RQs the agent generates from the main RQ.
+// Static demo content — keyed off the example so we always have something to show.
+const stockBranches = (mainRq) => ([
+  {
+    letter: 'A',
+    angle:  'mechanism',
+    rq:     'Which specific call structures (back-to-back, no agenda, large attendee count) most strongly predict mid-day attentional drop-off?',
+    method: 'diary study + calendar log analysis',
+    n:      '12 remote knowledge workers · 2 weeks',
+  },
+  {
+    letter: 'B',
+    angle:  'intervention',
+    rq:     'Does a 90-second post-call decompression ritual improve self-reported focus in the next solo work block?',
+    method: 'within-subjects intervention',
+    n:      '20 participants · alternating weeks',
+  },
+  {
+    letter: 'C',
+    angle:  'lived experience',
+    rq:     'How do workers themselves describe the texture of "video-call fatigue" — is it cognitive, social, or somatic?',
+    method: 'semi-structured interview · thematic',
+    n:      '10 participants · 60-min sessions',
+  },
+]);
+
+// expose shared style tokens for the external Literature component
+window.__probePalette = palette;
+window.__probeKbd = null;       // filled below once defined
+window.__probeChip = null;
+window.__probeGhostBtn = null;
+
+function NewProject() {
+  const [route, setRoute] = useState('input');   // 'input' | 'brainstorm' | 'literature' | 'methodology' | 'artifacts' | 'evaluation' | 'done'
+  const [mainRq, setMainRq] = useState('');
+  const [selectedBranches, setSelectedBranches] = useState([]);
+  const [chosenDesign, setChosenDesign] = useState(null);
+  const [plan, setPlan] = useState(null);
+  const [evalResult, setEvalResult] = useState(null);
+  const [text, setText] = useState('');
+  const [caretOn, setCaretOn] = useState(true);
+  const taRef = useRef(null);
+
+  useEffect(() => {
+    const iv = setInterval(() => setCaretOn((c) => !c), 530);
+    return () => clearInterval(iv);
+  }, []);
+  useEffect(() => { if (route === 'input') taRef.current && taRef.current.focus(); }, [route]);
+
+  const onKey = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (text.trim()) {
+        setMainRq(text.trim());
+        setRoute('brainstorm');
+      }
+    }
+    // First Esc clears the text. Second Esc on empty navigates back
+    // to the launcher at /ui — so the user is never stuck.
+    if (e.key === 'Escape') {
+      if (text) {
+        setText('');
+      } else {
+        window.location.href = '/ui';
+      }
+    }
+  };
+
+  if (route === 'brainstorm') {
+    return <Brainstorm mainRq={mainRq} onBack={() => setRoute('input')}
+      onContinue={(branches) => { setSelectedBranches(branches); setRoute('literature'); }} />;
+  }
+  if (route === 'literature') {
+    return <window.Literature mainRq={mainRq} selectedBranches={selectedBranches}
+      onBack={() => setRoute('brainstorm')}
+      onContinue={() => setRoute('methodology')} />;
+  }
+  if (route === 'methodology') {
+    return <window.Methodology mainRq={mainRq} selectedBranches={selectedBranches}
+      onBack={() => setRoute('literature')}
+      onContinue={({ chosenDesign: cd, plan: pl }) => {
+        setChosenDesign(cd); setPlan(pl); setRoute('artifacts');
+      }} />;
+  }
+  if (route === 'artifacts') {
+    return <window.Artifacts chosenDesign={chosenDesign} plan={plan}
+      selectedBranches={selectedBranches}
+      onBack={() => setRoute('methodology')}
+      onContinue={() => setRoute('evaluation')} />;
+  }
+  if (route === 'evaluation') {
+    return <window.Evaluation chosenDesign={chosenDesign} plan={plan}
+      selectedBranches={selectedBranches}
+      onBack={() => setRoute('artifacts')}
+      onDone={(result) => { setEvalResult(result); setRoute('report'); }} />;
+  }
+  if (route === 'report') {
+    return <window.Report mainRq={mainRq} selectedBranches={selectedBranches}
+      chosenDesign={chosenDesign} plan={plan} evalResult={evalResult}
+      onBack={() => setRoute('evaluation')}
+      onDone={() => setRoute('review')} />;
+  }
+  // Review — stage 07. Inserted between report and done per CHANGES.md.
+  // window.Review is provided by probe-review.jsx.
+  if (route === 'review') {
+    if (window.Review) {
+      return <window.Review
+        mainRq={mainRq} selectedBranches={selectedBranches}
+        chosenDesign={chosenDesign} plan={plan} evalResult={evalResult}
+        onBack={() => setRoute('report')}
+        onDone={() => setRoute('done')} />;
+    }
+    // Fallback if probe-review.jsx hasn't loaded yet
+    return <div style={{ padding: 40, color: palette.ink3 }}>Loading review…</div>;
+  }
+  if (route === 'done') {
+    return <DonePane mainRq={mainRq} chosenDesign={chosenDesign}
+      onBack={() => setRoute('review')}
+      onRestart={() => { setRoute('input'); setText(''); setMainRq(''); setSelectedBranches([]); setChosenDesign(null); setPlan(null); }} />;
+  }
+
+  const wc = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Crumb steps={[['probe', palette.amber], ['new project', palette.ink2]]}
+             right={
+               <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                 <button
+                   onClick={() => { window.location.href = '/ui'; }}
+                   style={{
+                     background: 'transparent', border: 'none', cursor: 'pointer',
+                     color: palette.ink3, fontFamily: 'inherit', fontSize: 12.5,
+                     padding: 0,
+                   }}
+                   title="Return to launcher"
+                 >
+                   ← launcher
+                 </button>
+                 <span><kbd style={kbdStyle}>esc</kbd> {text ? 'clear' : 'back'}</span>
+               </span>
+             } />
+
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', padding: '48px 24px',
+      }}>
+        <div style={{
+          color: palette.ink3, fontSize: 11, letterSpacing: '0.16em',
+          textTransform: 'uppercase', marginBottom: 22,
+        }}>
+          ─────  new project  ─────
+        </div>
+
+        <h1 style={{
+          margin: 0, fontWeight: 500, fontSize: 28, letterSpacing: '-0.005em',
+          color: palette.ink, textAlign: 'center',
+        }}>
+          What do you want to research?
+        </h1>
+
+        <div style={{
+          color: palette.ink3, fontSize: 12.5, marginTop: 12, textAlign: 'center', maxWidth: 560,
+        }}>
+          One sentence. Probe will sharpen it, branch it into three angles, and pause for your input at every step.
+        </div>
+
+        <div style={{
+          marginTop: 40, width: 720, maxWidth: '90vw',
+          display: 'flex', alignItems: 'flex-start', gap: 10,
+          borderTop: `1px solid ${palette.rule}`, borderBottom: `1px solid ${palette.rule}`,
+          padding: '18px 4px', background: 'transparent',
+          position: 'relative',
+        }}>
+          <span style={{
+            color: palette.amber, fontWeight: 600, fontSize: 16, lineHeight: '24px',
+            paddingTop: 1, userSelect: 'none',
+          }}>›</span>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <textarea
+              ref={taRef}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={onKey}
+              rows={2}
+              style={{
+                width: '100%', minHeight: 24, padding: 0,
+                background: 'transparent', border: 'none', outline: 'none', resize: 'none',
+                color: palette.ink, fontSize: 16, lineHeight: '24px',
+                caretColor: palette.amber,
+              }}
+            />
+            {!text && (
+              <div style={{
+                position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: 'none',
+                color: palette.ink4, fontSize: 16, lineHeight: '24px', userSelect: 'none',
+              }}>
+                <span style={{
+                  display: 'inline-block', width: 8, height: 18, background: caretOn ? palette.amber : 'transparent',
+                  verticalAlign: '-3px', marginRight: 4,
+                }} />
+                {placeholder}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{
+          width: 720, maxWidth: '90vw', display: 'flex', alignItems: 'center', gap: 16,
+          marginTop: 10, color: palette.ink3, fontSize: 11.5,
+        }}>
+          <span>{wc} {wc === 1 ? 'word' : 'words'}</span>
+          <span style={{ color: palette.ink4 }}>·</span>
+          <span>{text.length} chars</span>
+          <span style={{ marginLeft: 'auto', display: 'flex', gap: 14 }}>
+            <span><kbd style={kbdStyle}>↵</kbd> brainstorm</span>
+            <span><kbd style={kbdStyle}>⇧↵</kbd> newline</span>
+            <span><kbd style={kbdStyle}>esc</kbd> clear</span>
+          </span>
+        </div>
+
+        <div style={{ marginTop: 40, width: 720, maxWidth: '90vw' }}>
+          <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            or try an example
+          </div>
+          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column' }}>
+            {examples.map((ex, i) => (
+              <button
+                key={i}
+                onClick={() => { setText(ex); taRef.current && taRef.current.focus(); }}
+                style={{
+                  display: 'grid', gridTemplateColumns: '24px 1fr 24px', alignItems: 'center', gap: 10,
+                  padding: '7px 8px', background: 'transparent', border: 'none',
+                  borderLeft: `2px solid transparent`,
+                  color: palette.ink2, fontFamily: 'inherit', fontSize: 13, textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = palette.amber; e.currentTarget.style.background = palette.bg2; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = 'transparent'; e.currentTarget.style.background = 'transparent'; }}
+              >
+                <span style={{ color: palette.ink3 }}>{i + 1}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex}</span>
+                <span style={{ color: palette.ink3, fontSize: 11, textAlign: 'right' }}>↵</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <StatusBar tail={<span>press <kbd style={kbdStyle}>↵</kbd> to begin</span>} />
+    </div>
+  );
+}
+
+// ─── Brainstorm screen: Main RQ → 3 sub-RQs + custom ───
+function Brainstorm({ mainRq, onBack, onContinue }) {
+  const [thinking, setThinking] = useState(true);
+  const [revealed, setRevealed] = useState(0); // how many branches have streamed in
+  const [selected, setSelected] = useState(new Set());
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customText, setCustomText] = useState('');
+  const [customs, setCustoms] = useState([]); // user-added RQs
+  const [branches, setBranches] = useState([]); // populated from /api/probe/brainstorm
+  const [apiError, setApiError] = useState(null);
+  const customRef = useRef(null);
+
+  const allBranches = [
+    ...branches,
+    ...customs.map((rq, i) => ({ letter: String.fromCharCode(65 + branches.length + i), angle: 'custom', rq, custom: true })),
+  ];
+
+  // Fire the brainstorm call ONCE per mount. Stream branches in
+  // visually as we receive them from the LLM. Falls back to stock
+  // content if the API is unavailable or the call errors.
+  useEffect(() => {
+    setThinking(true);
+    setRevealed(0);
+    setBranches([]);
+    let cancelled = false;
+    let revealTimers = [];
+    const finishWithBranches = (rqs) => {
+      if (cancelled) return;
+      setBranches(rqs);
+      setThinking(false);
+      revealTimers = rqs.map((_, i) => setTimeout(() => {
+        if (!cancelled) setRevealed(i + 1);
+      }, 200 + i * 350));
+    };
+    fetch('/api/probe/brainstorm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ premise: mainRq }),
+    })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('brainstorm ' + r.status)))
+      .then((data) => {
+        if (cancelled) return;
+        if (Array.isArray(data.rqs) && data.rqs.length) {
+          finishWithBranches(data.rqs.slice(0, 3));
+        } else {
+          throw new Error('empty rqs');
+        }
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setApiError(String(e.message || e));
+        finishWithBranches(stockBranches(mainRq));
+      });
+    return () => {
+      cancelled = true;
+      revealTimers.forEach(clearTimeout);
+    };
+  }, [mainRq]);
+
+  useEffect(() => {
+    if (customOpen && customRef.current) customRef.current.focus();
+  }, [customOpen]);
+
+  const toggle = (letter) => {
+    setSelected((s) => {
+      const next = new Set(s);
+      if (next.has(letter)) next.delete(letter); else next.add(letter);
+      return next;
+    });
+  };
+
+  const addCustom = () => {
+    const t = customText.trim();
+    if (!t) return;
+    setCustoms((cs) => [...cs, t]);
+    setCustomText('');
+    setCustomOpen(false);
+  };
+
+  const regenerate = () => {
+    setSelected(new Set());
+    setThinking(true);
+    setRevealed(0);
+    setBranches([]);
+    setApiError(null);
+    fetch('/api/probe/brainstorm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ premise: mainRq }),
+    })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('brainstorm ' + r.status)))
+      .then((data) => {
+        const rqs = (Array.isArray(data.rqs) && data.rqs.length) ? data.rqs.slice(0, 3) : stockBranches(mainRq);
+        setBranches(rqs);
+        setThinking(false);
+        rqs.forEach((_, i) => setTimeout(() => setRevealed(i + 1), 200 + i * 350));
+      })
+      .catch((e) => {
+        setApiError(String(e.message || e));
+        const rqs = stockBranches(mainRq);
+        setBranches(rqs);
+        setThinking(false);
+        rqs.forEach((_, i) => setTimeout(() => setRevealed(i + 1), 200 + i * 350));
+      });
+  };
+
+  // Global hotkeys — only fire when no input/textarea has focus
+  useEffect(() => {
+    const onKey = (e) => {
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      // Number keys → toggle branch by index (1 = A, 2 = B, …)
+      const digit = parseInt(e.key, 10);
+      if (!Number.isNaN(digit) && digit >= 1 && digit <= allBranches.length) {
+        const b = allBranches[digit - 1];
+        if (b && (digit - 1) < revealed || b.custom) {
+          e.preventDefault();
+          toggle(b.letter);
+          return;
+        }
+      }
+
+      if (e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        setCustomOpen(true);
+        return;
+      }
+      if (e.key.toLowerCase() === 'r') {
+        e.preventDefault();
+        regenerate();
+        return;
+      }
+      if (e.key === 'Enter' && selected.size > 0) {
+        e.preventDefault();
+        const picked = allBranches.filter((b) => selected.has(b.letter));
+        if (picked.length) onContinue && onContinue(picked);
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onBack();
+        return;
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [allBranches.length, revealed, selected, customOpen]);
+
+  // Main RQ wrapping: clamp to 3 lines for visual stability
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Crumb steps={[
+        ['probe', palette.amber],
+        ['new project', palette.ink2],
+        ['brainstorm', palette.ink],
+      ]} right={
+        <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <span style={{ color: palette.ink3 }}>stage 1 · interrogator</span>
+          <button onClick={onBack} style={ghostBtnStyle}><kbd style={kbdStyle}>esc</kbd> edit premise</button>
+        </span>
+      } />
+
+      <div style={{ flex: 1, padding: '36px 32px 60px', maxWidth: 1200, margin: '0 auto', width: '100%' }}>
+        <div style={{
+          color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase', marginBottom: 8,
+        }}>
+          ─── interrogator · branching the question ───
+        </div>
+        <h2 style={{ fontSize: 18, fontWeight: 500, margin: 0, color: palette.ink2 }}>
+          Three angles on your research question. Pick any number — Probe will design a study around each.
+        </h2>
+
+        {/* The branching diagram */}
+        <div style={{
+          marginTop: 36,
+          display: 'grid',
+          gridTemplateColumns: 'minmax(280px, 420px) 80px 1fr',
+          alignItems: 'center', gap: 0,
+          minHeight: 420,
+        }}>
+          {/* Main RQ block */}
+          <div style={{
+            position: 'relative', padding: '20px 22px',
+            border: `1px solid ${palette.amber}`, borderRadius: 4,
+            background: palette.amberSoft,
+            boxShadow: `0 0 0 4px ${palette.bg}, 0 0 24px -8px ${palette.amber}`,
+          }}>
+            <div style={{
+              color: palette.amber, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
+              fontWeight: 600,
+            }}>main RQ</div>
+            <div style={{
+              color: palette.ink, fontSize: 16, lineHeight: 1.5, marginTop: 10,
+            }}>
+              <span style={{ color: palette.amber, marginRight: 8 }}>›</span>
+              {mainRq}
+            </div>
+            {/* output stub anchored mid-right */}
+            <div style={{
+              position: 'absolute', right: -1, top: '50%', width: 12, height: 1,
+              background: palette.amber, transform: 'translateY(-0.5px)',
+            }} />
+          </div>
+
+          {/* ASCII connector column */}
+          <Connector branchCount={Math.max(allBranches.length, 3)} thinking={thinking} />
+
+          {/* Branches column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative' }}>
+            {thinking && allBranches.length === 3 && (
+              <div className="fade-in" style={{ padding: '4px 0 2px' }}>
+                <window.ModelStatusLine
+                  model="claude-sonnet-4-5"
+                  phase={
+                    <window.PhaseDots
+                      phases={['planning', 'sketching angles', 'drafting', 'verifying']}
+                      activeIdx={Math.min(revealed, 3)}
+                      accent={palette.amber}
+                      compact
+                    />
+                  }
+                  accent={palette.amber}
+                  running
+                />
+              </div>
+            )}
+
+            {allBranches.map((b, i) => {
+              const visible = i < revealed || b.custom;
+              if (!visible) return <div key={b.letter} style={{ height: 92 }} />;
+              const isSel = selected.has(b.letter);
+              return (
+                <button
+                  key={b.letter}
+                  onClick={() => toggle(b.letter)}
+                  className="fade-in"
+                  style={{
+                    textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
+                    padding: '14px 16px',
+                    background: isSel ? palette.amberSoft : palette.bg2,
+                    border: `1px solid ${isSel ? palette.amber : palette.rule}`,
+                    borderLeft: `3px solid ${isSel ? palette.amber : (b.custom ? palette.cyan : palette.ink4)}`,
+                    borderRadius: 4, color: palette.ink, transition: 'background 100ms, border-color 100ms',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <span style={{
+                      color: isSel ? palette.amber : palette.ink2, fontWeight: 600, fontSize: 13,
+                    }}>RQ {b.letter}</span>
+                    <span style={{ ...kbdStyle, fontSize: 10,
+                      borderColor: isSel ? palette.amber : palette.rule,
+                      color: isSel ? palette.amber : palette.ink3,
+                    }}>{i + 1}</span>
+                    <span style={chipStyle}>{b.angle}</span>
+                    {b.method && <span style={chipStyle}>{b.method}</span>}
+                    {b.n && <span style={{ ...chipStyle, color: palette.ink3 }}>{b.n}</span>}
+                    <span style={{
+                      marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      width: 16, height: 16, borderRadius: 2, fontSize: 11, fontWeight: 700,
+                      border: `1px solid ${isSel ? palette.amber : palette.ink4}`,
+                      background: isSel ? palette.amber : 'transparent',
+                      color: isSel ? palette.bg : palette.ink3,
+                    }}>{isSel ? '✓' : ''}</span>
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.55, color: palette.ink }}>
+                    {b.rq}
+                  </div>
+                </button>
+              );
+            })}
+
+            {/* Add custom RQ */}
+            {!customOpen ? (
+              <button onClick={() => setCustomOpen(true)} style={{
+                marginTop: 4, padding: '12px 16px',
+                background: 'transparent', border: `1px dashed ${palette.ink4}`,
+                borderRadius: 4, color: palette.ink2, fontFamily: 'inherit', fontSize: 13,
+                textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = palette.cyan; e.currentTarget.style.color = palette.ink; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = palette.ink4; e.currentTarget.style.color = palette.ink2; }}>
+                <span style={{ color: palette.cyan, fontSize: 16 }}>+</span>
+                <span>add a custom follow-up research question</span>
+                <span style={{ marginLeft: 'auto' }}><kbd style={kbdStyle}>c</kbd></span>
+              </button>
+            ) : (
+              <div className="fade-in" style={{
+                marginTop: 4, padding: '12px 14px',
+                background: palette.bg2, border: `1px solid ${palette.cyan}`,
+                borderLeft: `3px solid ${palette.cyan}`, borderRadius: 4,
+              }}>
+                <div style={{ color: palette.cyan, fontSize: 11, letterSpacing: '0.12em',
+                  textTransform: 'uppercase', marginBottom: 8 }}>your follow-up RQ</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                  <span style={{ color: palette.cyan, fontWeight: 600, paddingTop: 2 }}>›</span>
+                  <input
+                    ref={customRef}
+                    value={customText}
+                    onChange={(e) => setCustomText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') { e.preventDefault(); addCustom(); }
+                      if (e.key === 'Escape') { setCustomOpen(false); setCustomText(''); }
+                    }}
+                    placeholder="e.g. Does camera-on vs. camera-off change the focus penalty?"
+                    style={{
+                      flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                      color: palette.ink, fontSize: 14, lineHeight: 1.5,
+                      caretColor: palette.cyan,
+                    }}
+                  />
+                </div>
+                <div style={{
+                  marginTop: 10, display: 'flex', justifyContent: 'flex-end', gap: 8, fontSize: 11,
+                  color: palette.ink3,
+                }}>
+                  <button onClick={() => { setCustomOpen(false); setCustomText(''); }} style={ghostBtnStyle}>
+                    <kbd style={kbdStyle}>esc</kbd> cancel
+                  </button>
+                  <button onClick={addCustom} style={{
+                    background: palette.cyan, color: palette.bg, border: 'none', padding: '4px 10px',
+                    borderRadius: 3, fontFamily: 'inherit', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  }}>
+                    <kbd style={{ ...kbdStyle, background: 'rgba(0,0,0,0.2)', color: 'rgba(0,0,0,0.6)',
+                      borderColor: 'rgba(0,0,0,0.15)' }}>↵</kbd> add RQ
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Pipeline preview — what each selected RQ runs through */}
+        {selected.size > 0 && (
+          <div className="fade-in" style={{
+            marginTop: 28, padding: '14px 18px',
+            background: palette.bg2, border: `1px solid ${palette.rule}`,
+            borderRadius: 4, fontSize: 12, color: palette.ink3,
+            display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10,
+          }}>
+            <span style={{ color: palette.ink4, letterSpacing: '0.12em', textTransform: 'uppercase', fontSize: 10.5 }}>
+              full pipeline · per RQ
+            </span>
+            <span style={{ color: palette.ink2, fontFamily: 'inherit' }}>
+              framing › literature › methodology › artifacts › evaluation › report › <span style={{ color: palette.amber }}>review</span>
+            </span>
+            <span style={{ marginLeft: 'auto', color: palette.ink2, fontVariantNumeric: 'tabular-nums' }}>
+              est <span style={{ color: palette.ink }}>${(2.40 * selected.size).toFixed(2)} – ${(3.85 * selected.size).toFixed(2)}</span>
+              <span style={{ color: palette.ink4 }}> · ~{18 * selected.size}m wall</span>
+            </span>
+          </div>
+        )}
+
+        {/* Action bar */}
+        <div style={{
+          marginTop: 24, paddingTop: 16, borderTop: `1px solid ${palette.rule}`,
+          display: 'flex', alignItems: 'center', gap: 14, color: palette.ink3, fontSize: 12.5,
+        }}>
+          <span>{selected.size} of {allBranches.length} selected</span>
+          {selected.size > 0 && (
+            <span style={{ color: palette.ink2 }}>
+              {[...selected].sort().map((l) => `RQ ${l}`).join(' · ')}
+            </span>
+          )}
+          <span style={{ marginLeft: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
+            <span><kbd style={kbdStyle}>1</kbd><kbd style={kbdStyle}>2</kbd><kbd style={kbdStyle}>3</kbd> toggle</span>
+            <span><kbd style={kbdStyle}>c</kbd> custom</span>
+            <span><kbd style={kbdStyle}>r</kbd> regenerate</span>
+            <button onClick={() => {
+              const picked = allBranches.filter((b) => selected.has(b.letter));
+              if (picked.length) onContinue && onContinue(picked);
+            }} disabled={selected.size === 0} style={{
+              background: selected.size === 0 ? 'transparent' : palette.amber,
+              color: selected.size === 0 ? palette.ink4 : palette.bg,
+              border: `1px solid ${selected.size === 0 ? palette.rule : palette.amber}`,
+              padding: '5px 14px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
+              cursor: selected.size === 0 ? 'not-allowed' : 'pointer',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+            }}>
+              continue with selected
+              <kbd style={{ ...kbdStyle, background: selected.size === 0 ? palette.bg2 : 'rgba(0,0,0,0.2)',
+                color: selected.size === 0 ? palette.ink4 : 'rgba(0,0,0,0.7)',
+                borderColor: selected.size === 0 ? palette.rule : 'rgba(0,0,0,0.15)' }}>↵</kbd>
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <StatusBar
+        head={<><span style={{ color: thinking ? palette.amber : palette.moss }}>
+          {thinking ? '● thinking' : '● ready'}
+        </span><span>stage 1 of 7 · interrogator</span></>}
+        tail={<span>{revealed} / 3 angles produced{customs.length ? ` · +${customs.length} custom` : ''}</span>}
+      />
+    </div>
+  );
+}
+
+// ─── Final landing pane after the simulated evaluation finishes ───
+function DonePane({ mainRq, chosenDesign, onBack, onRestart }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); onBack(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Crumb steps={[
+        ['probe', palette.amber],
+        ['new project', palette.ink2],
+        ['brainstorm', palette.ink2],
+        ['literature', palette.ink2],
+        ['methodology', palette.ink2],
+        ['artifacts', palette.ink2],
+        ['evaluation', palette.ink2],
+        ['ready', palette.ink],
+      ]} right={
+        <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+          <span style={{ color: palette.moss }}>● project ready</span>
+          <button onClick={onBack} style={ghostBtnStyle}><kbd style={kbdStyle}>esc</kbd> back</button>
+        </span>
+      } />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', padding: '60px 24px', textAlign: 'center' }}>
+        <div style={{ color: palette.moss, fontSize: 11, letterSpacing: '0.16em',
+          textTransform: 'uppercase', marginBottom: 16 }}>─── pre-flight complete ───</div>
+        <h1 style={{ margin: 0, fontWeight: 500, fontSize: 28, color: palette.ink, maxWidth: 720 }}>
+          Your project is ready to leave the table.
+        </h1>
+        <div style={{ color: palette.ink2, fontSize: 14, marginTop: 16, maxWidth: 640, lineHeight: 1.6 }}>
+          Probe sharpened your question, surveyed the literature, designed the study,
+          drafted the artifacts, and ran a simulated pilot to surface obvious problems.
+          What ships next is up to you.
+        </div>
+        <div style={{
+          marginTop: 36, padding: '16px 18px', maxWidth: 640, width: '100%', boxSizing: 'border-box',
+          background: palette.bg2, border: `1px solid ${palette.rule}`,
+          borderLeft: `3px solid ${palette.amber}`, borderRadius: 4, textAlign: 'left',
+        }}>
+          <div style={{ color: palette.amber, fontSize: 11, letterSpacing: '0.12em',
+            textTransform: 'uppercase', marginBottom: 8 }}>your project</div>
+          <div style={{ color: palette.ink, fontSize: 14, lineHeight: 1.55 }}>
+            <span style={{ color: palette.amber, marginRight: 6 }}>›</span>{mainRq}
+          </div>
+          <div style={{ color: palette.ink3, fontSize: 12, marginTop: 10 }}>
+            study design · {chosenDesign?.name || '—'} · {chosenDesign?.duration || '—'}
+          </div>
+        </div>
+        <div style={{ marginTop: 36, display: 'flex', gap: 12 }}>
+          <button onClick={onBack} style={{
+            background: 'transparent', border: `1px solid ${palette.rule}`, color: palette.ink2,
+            padding: '7px 16px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, cursor: 'pointer',
+          }}>revisit a stage</button>
+          <button onClick={onRestart} style={{
+            background: palette.amber, border: `1px solid ${palette.amber}`, color: palette.bg,
+            padding: '7px 16px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
+            cursor: 'pointer',
+          }}>start a new project</button>
+        </div>
+      </div>
+      <StatusBar
+        head={<><span style={{ color: palette.moss }}>● ready</span><span>7 stages complete</span></>}
+        tail={<span>esc to revise · or start over</span>} />
+    </div>
+  );
+}
+
+// ─── ASCII-style connector that bridges the main RQ to the branches ───
+function Connector({ branchCount, thinking }) {
+  // Each row is ~92px (matches branch row height); we draw simple unicode lines
+  return (
+    <div aria-hidden="true" style={{
+      height: '100%', position: 'relative', color: thinking ? palette.ink4 : palette.ink3,
+      fontFamily: 'inherit', fontSize: 14, lineHeight: 1,
+    }}>
+      <svg viewBox="0 0 80 400" preserveAspectRatio="none" width="80" height="100%" style={{ display: 'block' }}>
+        {/* trunk: short line out of main RQ at vertical middle */}
+        <line x1="0" y1="200" x2="20" y2="200" stroke={palette.amber} strokeWidth="1.4" />
+        {/* fan to three branches */}
+        {[
+          { y: 56,  color: palette.ink3 },
+          { y: 200, color: palette.amber },
+          { y: 344, color: palette.ink3 },
+        ].map((p, i) => (
+          <g key={i}>
+            <path d={`M 20 200 Q 40 200 40 ${p.y} L 80 ${p.y}`}
+              fill="none" stroke={p.color}
+              strokeWidth={p.color === palette.amber ? 1.4 : 1}
+              strokeDasharray={thinking ? '3 3' : 'none'}
+              opacity={thinking ? 0.5 : 1}
+            />
+            <circle cx="80" cy={p.y} r="2" fill={p.color} />
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+// ─── Reusable bits ───
+function Crumb({ steps, right }) {
+  return (
+    <div style={{
+      padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 12,
+      borderBottom: `1px solid ${palette.rule}`, color: palette.ink3, fontSize: 12,
+    }}>
+      {steps.map(([s, c], i) => (
+        <React.Fragment key={i}>
+          <span style={{ color: c }}>{s}</span>
+          {i < steps.length - 1 && <span>›</span>}
+        </React.Fragment>
+      ))}
+      <span style={{ marginLeft: 'auto' }}>{right}</span>
+    </div>
+  );
+}
+
+function StatusBar({ head, tail }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 14,
+      padding: '6px 14px', background: palette.bg2, borderTop: `1px solid ${palette.rule}`,
+      fontSize: 11.5, color: palette.ink3,
+    }}>
+      {head || <><span style={{ color: palette.amber }}>⚡ ready</span><span>17 patterns</span><span>3 templates</span><span>est · 25m · ~$5</span></>}
+      <span style={{ marginLeft: 'auto' }}>{tail}</span>
+    </div>
+  );
+}
+
+const kbdStyle = {
+  display: 'inline-block', padding: '0 6px', margin: '0 2px',
+  border: `1px solid ${palette.rule}`, borderRadius: 3, fontSize: 11,
+  color: palette.ink2, background: palette.bg2, fontFamily: 'inherit', lineHeight: '16px',
+};
+const chipStyle = {
+  padding: '2px 8px', borderRadius: 2, background: palette.bg, border: `1px solid ${palette.rule}`,
+  color: palette.ink2, fontSize: 11,
+};
+const ghostBtnStyle = {
+  background: 'transparent', border: 'none', color: palette.ink3, fontFamily: 'inherit',
+  fontSize: 12, cursor: 'pointer',
+};
+window.__probeKbd = kbdStyle;
+window.__probeChip = chipStyle;
+window.__probeGhostBtn = ghostBtnStyle;
+
+ReactDOM.createRoot(document.getElementById('root')).render(<NewProject />);
+</script>
+</body>
+</html>

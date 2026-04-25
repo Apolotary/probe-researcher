@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · Halide</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: oklch(15.5% 0.010 255); }
+  body { font-family: Inter, system-ui, sans-serif; color: oklch(94% 0.005 255); }
+  #root { height: 100vh; }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-thumb { background: oklch(28% 0.012 255); border-radius: 4px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<!-- Back-to-launcher overlay so the user is never stuck. Esc also
+     navigates back if no other handler claims it. -->
+<a href="/ui" id="probe-back" style="
+  position: fixed; top: 12px; left: 14px; z-index: 9999;
+  padding: 6px 12px; border-radius: 999px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.86);
+  font: 12px Inter, system-ui, sans-serif;
+  text-decoration: none; backdrop-filter: blur(6px);
+">← launcher</a>
+<script>
+  // Esc → /ui, but only when no input is focused (so we don't break
+  // text fields inside the prototype).
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const t = document.activeElement;
+    const tag = (t && t.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    window.location.href = '/ui';
+  });
+</script>
+<div id="root"></div>
+<script type="text/babel" src="components/data.jsx"></script>
+<script type="text/babel" src="components/halide.jsx"></script>
+<script type="text/babel" src="components/halide-shell.jsx"></script>
+<script type="text/babel" src="components/halide-views.jsx"></script>
+<script type="text/babel" src="components/halide-app.jsx"></script>
+<script type="text/babel">
+  const Root = () => (<>
+    <window.HalideStyles />
+    <window.HalideApp />
+  </>);
+  ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+</script>
+</body>
+</html>

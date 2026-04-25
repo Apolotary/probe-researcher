@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · project · meeting fatigue study</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    background: #0f1419;
+    color: #c5c8d4;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  #root { min-height: 100vh; }
+  textarea, input { font-family: inherit; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #0f1419; }
+  ::-webkit-scrollbar-thumb { background: #1f2530; border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2a3242; }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  .fade-in { animation: fadeIn 240ms ease-out both; }
+  .pulse-dot { animation: blink 1s steps(1) infinite; }
+  .spin { animation: spin 1.2s linear infinite; display: inline-block; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="probe-tokens.js"></script>
+<script type="text/babel" src="probe-spinner.jsx"></script>
+<script type="text/babel" src="probe-review.jsx"></script>
+<script type="text/babel" src="probe-project-stages.jsx"></script>
+<script type="text/babel" src="probe-project-gantt.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+const palette = window.__probePalette;
+const kbdStyle = window.__probeKbd;
+const ghostBtnStyle = window.__probeGhostBtn;
+
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "density": "comfortable",
+  "showActivity": true,
+  "deadlineISO": "2026-06-12"
+}/*EDITMODE-END*/;
+
+function ProjectShell() {
+  const [tab, setTab] = useState('stages');         // 'stages' | 'timeline'
+  const [activeStageId, setActiveStageId] = useState('framing');
+  const [project, setProject] = useState(() => window.makeInitialProjectState());
+  const [density, setDensity] = useState(TWEAKS.density);
+  const [deadline, setDeadline] = useState(() => new Date(TWEAKS.deadlineISO + 'T00:00:00'));
+  const [today, setToday] = useState(() => {
+    // Anchor "today" 32 days before deadline so the gantt has a clear "now" line
+    const d = new Date(TWEAKS.deadlineISO + 'T00:00:00');
+    d.setDate(d.getDate() - 32);
+    return d;
+  });
+  const [durations, setDurations] = useState(() => window.PROBE_DEFAULT_DURATIONS);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+
+  // Edit-mode handshake
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (!e.data) return;
+      if (e.data.type === '__activate_edit_mode')   setTweaksOpen(true);
+      if (e.data.type === '__deactivate_edit_mode') setTweaksOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const persist = (patch) => {
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: patch }, '*');
+  };
+
+  // Tab hotkeys
+  useEffect(() => {
+    const onKey = (e) => {
+      const tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === '1' && e.shiftKey) { setTab('stages'); }
+      if (e.key === '2' && e.shiftKey) { setTab('timeline'); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  return (
+    <div data-screen-label="Probe Project" style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+    }}>
+      <ProjectHeader project={project} tab={tab} setTab={setTab} deadline={deadline} today={today} />
+
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        {tab === 'stages' && (
+          <window.ProjectStages
+            activeStageId={activeStageId}
+            setActiveStageId={setActiveStageId}
+            project={project}
+            setProject={setProject}
+            density={density} />
+        )}
+        {tab === 'timeline' && (
+          <window.ProjectTimeline
+            deadline={deadline}
+            setDeadline={(d) => {
+              setDeadline(d);
+              const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+              persist({ deadlineISO: iso });
+            }}
+            durations={durations}
+            setDurations={setDurations}
+            today={today}
+            setToday={setToday}
+            density={density}
+            project={project} />
+        )}
+      </div>
+
+      <StatusFooter project={project} deadline={deadline} today={today} />
+
+      {tweaksOpen && (
+        <TweaksPanel
+          density={density} setDensity={(v) => { setDensity(v); persist({ density: v }); }}
+          deadline={deadline} setDeadline={(d) => {
+            setDeadline(d);
+            const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            persist({ deadlineISO: iso });
+          }}
+          today={today} setToday={setToday}
+          project={project} setProject={setProject}
+          onClose={() => {
+            setTweaksOpen(false);
+            window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+          }} />
+      )}
+    </div>
+  );
+}
+
+// ─── Project header (name, breadcrumb, tabs) ───
+function ProjectHeader({ project, tab, setTab, deadline, today }) {
+  const helpers = window.PROBE_GANTT_HELPERS;
+  const dleft = helpers.diffDays(deadline, today);
+  return (
+    <div style={{
+      borderBottom: `1px solid ${palette.rule}`,
+      background: palette.bg,
+    }}>
+      {/* breadcrumb row */}
+      <div style={{
+        padding: '12px 22px', display: 'flex', alignItems: 'center', gap: 12,
+        color: palette.ink3, fontSize: 12,
+        borderBottom: `1px solid ${palette.rule}`,
+      }}>
+        <span style={{ color: palette.amber }}>probe</span>
+        <span>›</span>
+        <span style={{ color: palette.ink2 }}>projects</span>
+        <span>›</span>
+        <span style={{ color: palette.ink }}>meeting-fatigue · v3</span>
+        <span style={{ marginLeft: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
+          <span style={{ color: palette.ink3 }}>autosaved · 2m ago</span>
+          <span style={{ color: palette.ink3 }}>|</span>
+          <span style={{ color: dleft < 7 ? palette.rose : palette.ink2 }}>
+            ⏱ {dleft}d to submit
+          </span>
+        </span>
+      </div>
+
+      {/* title row */}
+      <div style={{
+        padding: '18px 22px 0', display: 'flex', alignItems: 'flex-end', gap: 18,
+      }}>
+        <div style={{ flex: 1 }}>
+          <div style={{
+            color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+          }}>
+            ─── research project
+          </div>
+          <h1 style={{
+            margin: '6px 0 0', fontWeight: 500, fontSize: 22,
+            color: palette.ink, letterSpacing: '-0.005em',
+          }}>
+            How do remote workers stay focused during long video-call days?
+          </h1>
+        </div>
+
+        {/* tabs */}
+        <div style={{ display: 'flex', gap: 0, marginRight: -1 }}>
+          {[
+            { id: 'stages',   label: 'stages',   hk: '⇧1' },
+            { id: 'timeline', label: 'timeline', hk: '⇧2' },
+          ].map((t) => {
+            const active = t.id === tab;
+            return (
+              <button key={t.id} onClick={() => setTab(t.id)} style={{
+                padding: '8px 18px',
+                background: active ? palette.bg2 : 'transparent',
+                border: `1px solid ${palette.rule}`,
+                borderBottom: active ? `1px solid ${palette.bg2}` : `1px solid ${palette.rule}`,
+                marginBottom: -1,
+                color: active ? palette.ink : palette.ink3,
+                fontFamily: 'inherit', fontSize: 12.5, cursor: 'pointer',
+                borderTopLeftRadius: 3, borderTopRightRadius: 3,
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                {t.label}
+                <kbd style={{ ...kbdStyle, fontSize: 10 }}>{t.hk}</kbd>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Status footer ───
+function StatusFooter({ project, deadline, today }) {
+  const stageDefs = window.PROBE_STAGE_DEFS;
+  const fresh = stageDefs.filter((s) => project[s.id].status === 'fresh').length;
+  const stale = stageDefs.filter((s) => project[s.id].status === 'stale').length;
+  const queued = stageDefs.filter((s) => project[s.id].status === 'queued').length;
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 14,
+      padding: '6px 14px', background: palette.bg2, borderTop: `1px solid ${palette.rule}`,
+      fontSize: 11.5, color: palette.ink3,
+    }}>
+      <span style={{ color: palette.moss }}>● {fresh} fresh</span>
+      {stale > 0 && <span style={{ color: palette.amber }}>● {stale} stale</span>}
+      {queued > 0 && <span style={{ color: palette.ink4 }}>● {queued} queued</span>}
+      <span>·</span>
+      <span>cost · $14.20 of $50 budget</span>
+      <span style={{ marginLeft: 'auto' }}>
+        <kbd style={kbdStyle}>⇧1</kbd> stages · <kbd style={kbdStyle}>⇧2</kbd> timeline
+      </span>
+    </div>
+  );
+}
+
+// ─── Tweaks panel ───
+function TweaksPanel({ density, setDensity, deadline, setDeadline, today, setToday, project, setProject, onClose }) {
+  const iso = (d) => {
+    const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${dd}`;
+  };
+  const setStaleAll = () => {
+    setProject((p) => {
+      const next = { ...p };
+      Object.keys(next).forEach((k) => { next[k] = { ...next[k], status: 'stale', lastRun: '8d ago' }; });
+      return next;
+    });
+  };
+  const setFreshAll = () => {
+    setProject((p) => {
+      const next = { ...p };
+      Object.keys(next).forEach((k) => { next[k] = { ...next[k], status: (k === 'report' || k === 'review') ? 'queued' : 'fresh' }; });
+      return next;
+    });
+  };
+  const advanceTime = (days) => {
+    setToday((t) => {
+      const n = new Date(t); n.setDate(n.getDate() + days); return n;
+    });
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', right: 18, bottom: 36, width: 290,
+      background: palette.bg2, border: `1px solid ${palette.rule}`, borderRadius: 4,
+      boxShadow: '0 10px 40px -10px rgba(0,0,0,0.6)',
+      color: palette.ink, fontSize: 12.5, zIndex: 100,
+    }}>
+      <div style={{
+        padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 8,
+        borderBottom: `1px solid ${palette.rule}`,
+      }}>
+        <span style={{ color: palette.amber }}>⚙</span>
+        <span style={{ fontWeight: 600 }}>Tweaks</span>
+        <button onClick={onClose} style={{
+          marginLeft: 'auto', background: 'transparent', border: 'none',
+          color: palette.ink3, cursor: 'pointer', fontFamily: 'inherit', fontSize: 14,
+        }}>×</button>
+      </div>
+      <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+        <TweakRow label="density">
+          <div style={{ display: 'flex', gap: 6 }}>
+            {['comfortable', 'compact'].map((v) => (
+              <button key={v} onClick={() => setDensity(v)} style={{
+                flex: 1, padding: '4px 8px',
+                background: density === v ? palette.amber : 'transparent',
+                color: density === v ? palette.bg : palette.ink2,
+                border: `1px solid ${density === v ? palette.amber : palette.rule}`,
+                fontFamily: 'inherit', fontSize: 11, cursor: 'pointer', borderRadius: 3,
+              }}>{v}</button>
+            ))}
+          </div>
+        </TweakRow>
+
+        <TweakRow label="submission deadline">
+          <input type="date" value={iso(deadline)}
+            onChange={(e) => e.target.value && setDeadline(new Date(e.target.value + 'T00:00:00'))}
+            style={{
+              width: '100%', background: palette.bg, border: `1px solid ${palette.rule}`,
+              color: palette.ink, fontFamily: 'inherit', fontSize: 12,
+              padding: '4px 8px', borderRadius: 3, outline: 'none', colorScheme: 'dark',
+            }} />
+        </TweakRow>
+
+        <TweakRow label="time-pass simulation">
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={() => advanceTime(-3)} style={btnSm()}>−3d</button>
+            <button onClick={() => advanceTime(-1)} style={btnSm()}>−1d</button>
+            <button onClick={() => advanceTime(1)}  style={btnSm()}>+1d</button>
+            <button onClick={() => advanceTime(7)}  style={btnSm()}>+7d</button>
+          </div>
+          <div style={{ marginTop: 6, color: palette.ink3, fontSize: 11 }}>
+            today is {today.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+          </div>
+        </TweakRow>
+
+        <TweakRow label="stage states">
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={setFreshAll} style={btnSm()}>all fresh</button>
+            <button onClick={setStaleAll} style={btnSm()}>all stale</button>
+          </div>
+        </TweakRow>
+
+      </div>
+    </div>
+  );
+}
+function btnSm() {
+  return {
+    flex: 1, padding: '4px 8px', background: 'transparent', color: palette.ink2,
+    border: `1px solid ${palette.rule}`, fontFamily: 'inherit', fontSize: 11,
+    cursor: 'pointer', borderRadius: 3,
+  };
+}
+function TweakRow({ label, children }) {
+  return (
+    <div>
+      <div style={{
+        color: palette.ink3, fontSize: 10.5, letterSpacing: '0.1em',
+        textTransform: 'uppercase', marginBottom: 5,
+      }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<ProjectShell />);
+</script>
+</body>
+</html>

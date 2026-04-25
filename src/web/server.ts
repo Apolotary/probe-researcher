@@ -27,8 +27,10 @@ import chalk from 'chalk';
 import { projectRoot, runDir, branchDir } from '../util/paths.js';
 import { palette } from '../ui/theme.js';
 import { buildIndexHtml } from './index_html.js';
+import { mountProbeApi } from './probe_api.js';
 
 const HALIDE_ROOT = path.join(projectRoot(), 'src', 'web', 'halide');
+const PROBE_UI_ROOT = path.join(projectRoot(), 'src', 'web', 'probe_design');
 
 export interface WebServerOptions {
   port?: number;
@@ -44,6 +46,10 @@ export async function startWebServer(opts: WebServerOptions = {}): Promise<void>
   const app = express();
   app.use(express.json({ limit: '2mb' }));
   app.use(express.text({ limit: '2mb', type: 'text/*' }));
+
+  // Probe UI backend — LLM-driven endpoints for the new flow.
+  // Mounted before any other /api routes.
+  mountProbeApi(app);
 
   // ── HTML index ────────────────────────────────────────────────────────
   // New default: the Halide (Dossier Prototype) dark UI — React + Babel
@@ -65,15 +71,71 @@ export async function startWebServer(opts: WebServerOptions = {}): Promise<void>
     res.send(buildIndexHtml());
   });
 
-  // Static assets for the Halide UI (jsx components + any future images).
-  // Must be registered before the catch-all API error handler but after
-  // the explicit routes above.
+  // ── New Probe UI — the live, interactive flow designed in Claude
+  // Design. Multi-stage workflow: premise input → brainstorm RQs →
+  // literature → methodology → artifacts → evaluation → report. The
+  // HTML and JSX live in src/web/probe_design/ verbatim from the
+  // handoff bundle so the prototype keeps its full interactivity.
+  //
+  // Named routes for the user's primary entry points:
+  //   /ui            — new project flow (the main thing)
+  //   /ui/startup    — LazyVim-style launcher
+  //   /ui/welcome    — first-run / settings + key state
+  //   /ui/project    — project page (steady state, stages + timeline)
+  //   /ui/config     — config / probe.toml settings
+  //   /ui/dossier    — full Dossier prototype (alternative app shell)
+  //   /ui/canvas     — design canvas showing all three directions
+  //
+  // Anything else under /ui/ falls through to static — that's how
+  // probe-literature.jsx, components/dossier.jsx, etc. resolve their
+  // relative imports (they're served from PROBE_UI_ROOT).
+  const uiRoute = (file: string) => async (_req: express.Request, res: express.Response) => {
+    try {
+      const html = await fs.readFile(path.join(PROBE_UI_ROOT, file), 'utf8');
+      res.set('Content-Type', 'text/html; charset=utf-8');
+      res.send(html);
+    } catch (e) {
+      res.status(500).send(`failed to load ${file}: ${String((e as Error).message)}`);
+    }
+  };
+  // Both surfaces start at the launcher (Variant A LazyVim-style).
+  // Menu picks navigate to the actual flows below.
+  app.get('/ui',         uiRoute('Probe Launcher.html'));
+  app.get('/ui/',        uiRoute('Probe Launcher.html'));
+  app.get('/ui/new',     uiRoute('Probe New Project.html')); // the workflow
+  app.get('/ui/startup', uiRoute('Probe Launcher.html'));    // alias for the launcher
+  app.get('/ui/welcome', uiRoute('Probe Welcome.html'));
+  app.get('/ui/project', uiRoute('Probe Project.html'));
+  app.get('/ui/config',  uiRoute('Probe Config.html'));
+  app.get('/ui/dossier', uiRoute('Dossier Prototype.html'));
+  app.get('/ui/canvas',  uiRoute('Probe Web UI.html'));
+
+  // Static mount for the design's JSX modules + assets. Must come
+  // AFTER the explicit named routes above so /ui/project picks the
+  // route handler instead of a 404 from the static fallback.
+  app.use(
+    '/ui',
+    express.static(PROBE_UI_ROOT, {
+      // Babel standalone reads <script type="text/babel" src="…"> via
+      // fetch and won't accept text/html or application/octet-stream
+      // for .jsx. Force text/plain so the in-browser transpiler picks
+      // it up.
+      setHeaders: (res, file) => {
+        if (file.endsWith('.jsx')) {
+          res.set('Content-Type', 'text/plain; charset=utf-8');
+        }
+      },
+    }),
+  );
+
+  // Static assets for the legacy Halide UI (kept for backward compat
+  // — the old `probe web` default still serves the halide index from
+  // /). Must be registered before the catch-all API error handler.
   app.use(
     '/components',
     express.static(path.join(HALIDE_ROOT, 'components'), {
       setHeaders: (res, file) => {
         if (file.endsWith('.jsx')) {
-          // Babel standalone consumes these as text/babel scripts.
           res.set('Content-Type', 'text/plain; charset=utf-8');
         }
       },

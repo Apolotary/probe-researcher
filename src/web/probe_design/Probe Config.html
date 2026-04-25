@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Probe · config</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500&display=swap');
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    background: #0f1419;
+    color: #c5c8d4;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  #root { min-height: 100vh; }
+  ::selection { background: rgba(217, 165, 72, 0.3); }
+  input, select, button { font-family: inherit; font-size: inherit; color: inherit; }
+  input:focus, select:focus, button:focus { outline: none; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo } = React;
+
+const palette = {
+  bg:        '#0f1419',
+  bg2:       '#161b22',
+  bg3:       '#1a2029',
+  ink:       '#c5c8d4',
+  ink2:      '#8b93a7',
+  ink3:      '#5c6678',
+  amber:     '#d9a548',
+  amberSoft: 'rgba(217, 165, 72, 0.14)',
+  rose:      '#e26e6e',
+  moss:      '#7fb069',
+  blue:      '#7aa2f7',
+  cyan:      '#7dcfff',
+  brand:     '#d9a548',
+  rule:      '#1f2530',
+  ruleSoft:  '#171c25',
+};
+
+// ─────────────────────────────────────────────────────────────────────
+// Sections
+// ─────────────────────────────────────────────────────────────────────
+const SECTIONS = [
+  { id: 'keys',       key: 'k', label: 'API keys',     icon: '⌬', hint: '2 providers · 1 from env' },
+  { id: 'models',     key: 'm', label: 'Models',       icon: '◆', hint: 'per-stage routing' },
+  { id: 'budget',     key: 'b', label: 'Budget',       icon: '$', hint: 'guardrails & alerts' },
+  { id: 'appearance', key: 'a', label: 'Appearance',   icon: '◐', hint: 'font · theme · density' },
+  { id: 'behavior',   key: 'h', label: 'Behavior',     icon: '⏵', hint: 'editor · workdir · prompts' },
+  { id: 'about',      key: 'i', label: 'About',        icon: 'i', hint: 'v0.4.2 · paths · build' },
+];
+
+// ─────────────────────────────────────────────────────────────────────
+// Default settings (mocked stored values)
+// ─────────────────────────────────────────────────────────────────────
+const DEFAULTS = {
+  keys: {
+    anthropic: { source: 'env', envName: 'ANTHROPIC_API_KEY', preview: 'sk-ant-…7Q4f', status: 'ok',      lastChecked: '2 min ago' },
+    openai:    { source: 'config', envName: 'OPENAI_API_KEY', preview: 'sk-…m9Lp',    status: 'ok',      lastChecked: '2 min ago' },
+    google:    { source: 'unset', envName: 'GOOGLE_API_KEY', preview: '',             status: 'missing', lastChecked: '—' },
+  },
+  models: {
+    literature:   'claude-sonnet-4-5',
+    methodology:  'claude-sonnet-4-5',
+    artifacts:    'claude-sonnet-4-5',
+    evaluation:   'claude-haiku-4-5',
+    report:       'claude-sonnet-4-5',
+  },
+  budget: {
+    maxPerRun: 25,
+    warnAt:    15,
+    confirmOver: 5,
+    monthlyCap: 200,
+  },
+  appearance: {
+    fontFamily: 'JetBrains Mono',
+    fontSize:   14,
+    theme:      'amber-dark',
+    density:    'comfy',
+    cursor:     'block',
+  },
+  behavior: {
+    editor:        '$EDITOR',
+    workdir:       '~/probe',
+    autoReplay:    false,
+    confirmSpend:  true,
+    streamLogs:    true,
+    sendTelemetry: false,
+  },
+};
+
+const FONT_FAMILIES = [
+  { id: 'JetBrains Mono', sample: 'JetBrains Mono' },
+  { id: 'IBM Plex Mono',  sample: 'IBM Plex Mono' },
+  { id: 'ui-monospace',   sample: 'System mono' },
+];
+
+const THEMES = [
+  { id: 'amber-dark', label: 'amber dark',  swatch: ['#0f1419', '#d9a548', '#7fb069'] },
+  { id: 'mono-dark',  label: 'mono dark',   swatch: ['#0f1419', '#c5c8d4', '#8b93a7'] },
+  { id: 'green-crt',  label: 'green crt',   swatch: ['#0a0f08', '#7fb069', '#4a7c3a'] },
+  { id: 'paper',      label: 'paper light', swatch: ['#f5f1e8', '#5c4423', '#7a5a2a'] },
+];
+
+const MODEL_OPTIONS = [
+  'claude-sonnet-4-5',
+  'claude-haiku-4-5',
+  'claude-opus-4',
+  'gpt-5',
+  'gpt-5-mini',
+  'gemini-2.5-pro',
+];
+
+// ─────────────────────────────────────────────────────────────────────
+// Top-level
+// ─────────────────────────────────────────────────────────────────────
+function Config() {
+  const [activeId, setActiveId] = useState('keys');
+  const [settings, setSettings] = useState(DEFAULTS);
+  const [dirty, setDirty]       = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  const update = (path, value) => {
+    setSettings(prev => {
+      const next = structuredClone(prev);
+      const parts = path.split('.');
+      let cur = next;
+      for (let i = 0; i < parts.length - 1; i++) cur = cur[parts[i]];
+      cur[parts[parts.length - 1]] = value;
+      return next;
+    });
+    setDirty(true);
+  };
+
+  // Keyboard nav
+  useEffect(() => {
+    const onKey = (e) => {
+      if (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      const k = e.key.toLowerCase();
+      const idx = SECTIONS.findIndex(s => s.id === activeId);
+      if (k === 'j' || e.key === 'ArrowDown') {
+        setActiveId(SECTIONS[(idx + 1) % SECTIONS.length].id);
+        e.preventDefault();
+      } else if (k === 'k' || e.key === 'ArrowUp') {
+        setActiveId(SECTIONS[(idx - 1 + SECTIONS.length) % SECTIONS.length].id);
+        e.preventDefault();
+      } else {
+        const hit = SECTIONS.find(s => s.key === k);
+        if (hit) setActiveId(hit.id);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeId]);
+
+  const onSave = () => {
+    setDirty(false);
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1200);
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'grid',
+      gridTemplateRows: 'auto 1fr auto',
+      fontFamily: settings.appearance.fontFamily + ', ui-monospace, monospace',
+      fontSize: settings.appearance.fontSize,
+      background: palette.bg,
+    }}>
+      <Header dirty={dirty} savedFlash={savedFlash} onSave={onSave} />
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '260px 1fr',
+        borderTop: `1px solid ${palette.rule}`,
+        borderBottom: `1px solid ${palette.rule}`,
+      }}>
+        <Sidebar activeId={activeId} setActiveId={setActiveId} />
+        <Main activeId={activeId} settings={settings} update={update} />
+      </div>
+      <StatusBar activeId={activeId} settings={settings} dirty={dirty} />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Header
+// ─────────────────────────────────────────────────────────────────────
+function Header({ dirty, savedFlash, onSave }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '14px 22px',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <span style={{ color: palette.brand, fontWeight: 700, letterSpacing: '0.04em' }}>PROBE</span>
+        <span style={{ color: palette.ink3 }}>›</span>
+        <span style={{ color: palette.ink, letterSpacing: '0.02em' }}>config</span>
+        <span style={{ color: palette.ink3, marginLeft: 12, fontSize: '0.85em' }}>
+          ~/.config/probe/probe.toml
+        </span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {savedFlash && (
+          <span style={{ color: palette.moss, fontSize: '0.85em' }}>✓ saved to disk</span>
+        )}
+        {dirty && !savedFlash && (
+          <span style={{ color: palette.amber, fontSize: '0.85em' }}>● unsaved changes</span>
+        )}
+        <KeyHint k="esc" label="back" />
+        <button onClick={onSave} disabled={!dirty} style={{
+          background: dirty ? palette.brand : 'transparent',
+          color: dirty ? palette.bg : palette.ink3,
+          border: `1px solid ${dirty ? palette.brand : palette.rule}`,
+          padding: '5px 14px',
+          fontWeight: 600,
+          letterSpacing: '0.04em',
+          cursor: dirty ? 'pointer' : 'not-allowed',
+        }}>
+          [s] save
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function KeyHint({ k, label }) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: palette.ink3, fontSize: '0.82em' }}>
+      <span style={{
+        border: `1px solid ${palette.rule}`,
+        background: palette.bg2,
+        padding: '1px 6px',
+        color: palette.ink2,
+        fontWeight: 600,
+      }}>{k}</span>
+      {label}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Sidebar
+// ─────────────────────────────────────────────────────────────────────
+function Sidebar({ activeId, setActiveId }) {
+  return (
+    <div style={{
+      borderRight: `1px solid ${palette.rule}`,
+      padding: '20px 0',
+      background: palette.bg,
+    }}>
+      <div style={{ padding: '0 22px 10px', color: palette.ink3, fontSize: '0.78em', letterSpacing: '0.12em' }}>
+        SECTIONS
+      </div>
+      {SECTIONS.map(s => {
+        const active = s.id === activeId;
+        return (
+          <div key={s.id} onClick={() => setActiveId(s.id)} style={{
+            cursor: 'pointer',
+            padding: '8px 22px',
+            display: 'grid',
+            gridTemplateColumns: '14px 18px 1fr',
+            gap: 10,
+            alignItems: 'center',
+            background: active ? palette.amberSoft : 'transparent',
+            borderLeft: `2px solid ${active ? palette.brand : 'transparent'}`,
+          }}>
+            <span style={{ color: palette.ink3, fontSize: '0.85em' }}>[{s.key}]</span>
+            <span style={{ color: active ? palette.brand : palette.ink2 }}>{s.icon}</span>
+            <div>
+              <div style={{ color: active ? palette.ink : palette.ink2 }}>{s.label}</div>
+              <div style={{ color: palette.ink3, fontSize: '0.78em', marginTop: 2 }}>{s.hint}</div>
+            </div>
+          </div>
+        );
+      })}
+      <div style={{ padding: '20px 22px 0', color: palette.ink3, fontSize: '0.78em' }}>
+        <div style={{ color: palette.ink3, letterSpacing: '0.12em', marginBottom: 8 }}>NAVIGATE</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div><span style={{ color: palette.ink2 }}>j/k</span> · move section</div>
+          <div><span style={{ color: palette.ink2 }}>tab</span> · next field</div>
+          <div><span style={{ color: palette.ink2 }}>:e</span> · edit raw toml</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Main
+// ─────────────────────────────────────────────────────────────────────
+function Main({ activeId, settings, update }) {
+  return (
+    <div style={{ padding: '28px 36px 40px', background: palette.bg, overflow: 'auto' }}>
+      {activeId === 'keys'       && <KeysPane       s={settings.keys}       update={update} />}
+      {activeId === 'models'     && <ModelsPane     s={settings.models}     update={update} />}
+      {activeId === 'budget'     && <BudgetPane     s={settings.budget}     update={update} />}
+      {activeId === 'appearance' && <AppearancePane s={settings.appearance} update={update} />}
+      {activeId === 'behavior'   && <BehaviorPane   s={settings.behavior}   update={update} />}
+      {activeId === 'about'      && <AboutPane />}
+    </div>
+  );
+}
+
+function PaneHeader({ title, sub }) {
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div style={{ color: palette.ink, fontSize: '1.15em', fontWeight: 600 }}>
+        <span style={{ color: palette.brand, marginRight: 8 }}>§</span>{title}
+      </div>
+      <div style={{ color: palette.ink3, marginTop: 4 }}>{sub}</div>
+    </div>
+  );
+}
+
+function FieldRow({ label, hint, children }) {
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '180px 1fr',
+      gap: 24,
+      padding: '14px 0',
+      borderTop: `1px solid ${palette.ruleSoft}`,
+      alignItems: 'start',
+    }}>
+      <div>
+        <div style={{ color: palette.ink }}>{label}</div>
+        {hint && <div style={{ color: palette.ink3, fontSize: '0.82em', marginTop: 4 }}>{hint}</div>}
+      </div>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+// ─────── Keys pane ───────
+function KeysPane({ s, update }) {
+  return (
+    <div>
+      <PaneHeader
+        title="API keys"
+        sub="Probe checks env vars first, then this config. Env always wins — clear it to fall back."
+      />
+      <KeyRow name="Anthropic" provider="anthropic" k={s.anthropic} update={update} />
+      <KeyRow name="OpenAI"    provider="openai"    k={s.openai}    update={update} />
+      <KeyRow name="Google"    provider="google"    k={s.google}    update={update} />
+
+      <div style={{ marginTop: 28, padding: 14, border: `1px dashed ${palette.rule}`, color: palette.ink2, fontSize: '0.86em' }}>
+        <span style={{ color: palette.amber }}>i</span>  Probe never logs key material. Stored entries
+        live in <span style={{ color: palette.ink }}>~/.config/probe/probe.toml</span> with <span style={{ color: palette.ink }}>0600</span> perms.
+      </div>
+    </div>
+  );
+}
+
+function KeyRow({ name, provider, k, update }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState('');
+  const statusColor = k.status === 'ok' ? palette.moss : k.status === 'missing' ? palette.ink3 : palette.rose;
+  const sourceLabel = k.source === 'env' ? `env · $${k.envName}` : k.source === 'config' ? 'stored in config' : 'unset';
+
+  return (
+    <FieldRow
+      label={name}
+      hint={k.source === 'env' ? `$${k.envName} is set; this overrides anything stored.` : `falls through to env $${k.envName}`}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <span style={{
+          width: 8, height: 8, borderRadius: '50%', background: statusColor, display: 'inline-block',
+          boxShadow: k.status === 'ok' ? `0 0 6px ${statusColor}` : 'none',
+        }}></span>
+        <span style={{ color: palette.ink2, minWidth: 130 }}>{sourceLabel}</span>
+        {!editing ? (
+          <>
+            <span style={{ color: palette.ink, fontFamily: 'inherit' }}>
+              {k.preview || <span style={{ color: palette.ink3 }}>—</span>}
+            </span>
+            <span style={{ color: palette.ink3, fontSize: '0.82em' }}>tested {k.lastChecked}</span>
+            <span style={{ flex: 1 }}></span>
+            <SmallBtn onClick={() => { setEditing(true); setVal(''); }}>
+              {k.source === 'unset' ? '+ paste key' : 'edit'}
+            </SmallBtn>
+            <SmallBtn>test</SmallBtn>
+            {k.source !== 'unset' && <SmallBtn variant="danger">clear</SmallBtn>}
+          </>
+        ) : (
+          <>
+            <input
+              autoFocus
+              value={val}
+              onChange={e => setVal(e.target.value)}
+              placeholder="sk-ant-…"
+              style={{
+                background: palette.bg2,
+                border: `1px solid ${palette.brand}`,
+                color: palette.ink,
+                padding: '5px 9px',
+                width: 320,
+                fontFamily: 'inherit',
+              }}
+            />
+            <SmallBtn onClick={() => {
+              if (val) update(`keys.${provider}.preview`, val.slice(0, 7) + '…' + val.slice(-4));
+              if (val) update(`keys.${provider}.source`, 'config');
+              if (val) update(`keys.${provider}.status`, 'ok');
+              setEditing(false);
+            }}>save</SmallBtn>
+            <SmallBtn onClick={() => setEditing(false)}>cancel</SmallBtn>
+          </>
+        )}
+      </div>
+    </FieldRow>
+  );
+}
+
+function SmallBtn({ children, onClick, variant }) {
+  const danger = variant === 'danger';
+  return (
+    <button onClick={onClick} style={{
+      background: 'transparent',
+      border: `1px solid ${palette.rule}`,
+      color: danger ? palette.rose : palette.ink2,
+      padding: '4px 10px',
+      cursor: 'pointer',
+      fontFamily: 'inherit',
+      fontSize: '0.86em',
+    }}>{children}</button>
+  );
+}
+
+// ─────── Models pane ───────
+function ModelsPane({ s, update }) {
+  const stages = [
+    { k: 'literature',  label: '01 literature',  hint: 'broad search + summarisation', ic: '◇' },
+    { k: 'methodology', label: '02 methodology', hint: 'study design, hypotheses',     ic: '◇' },
+    { k: 'artifacts',   label: '03 artifacts',   hint: 'mock-ups, scripts, prompts',   ic: '◇' },
+    { k: 'evaluation',  label: '04 evaluation',  hint: 'rubric scoring of outputs',    ic: '◇' },
+    { k: 'report',      label: '05 report',      hint: 'final write-up',               ic: '◇' },
+  ];
+  return (
+    <div>
+      <PaneHeader title="Models" sub="Route each pipeline stage to a different model. Cheap models for grunt work, smart ones for synthesis." />
+      {stages.map(st => (
+        <FieldRow key={st.k} label={st.label} hint={st.hint}>
+          <select
+            value={s[st.k]}
+            onChange={e => update(`models.${st.k}`, e.target.value)}
+            style={{
+              background: palette.bg2,
+              border: `1px solid ${palette.rule}`,
+              color: palette.ink,
+              padding: '6px 10px',
+              minWidth: 240,
+            }}
+          >
+            {MODEL_OPTIONS.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </FieldRow>
+      ))}
+    </div>
+  );
+}
+
+// ─────── Budget pane ───────
+function BudgetPane({ s, update }) {
+  return (
+    <div>
+      <PaneHeader title="Budget" sub="Probe halts a run if it exceeds these. Costs are tallied across all stages and providers." />
+      <FieldRow label="Max per run" hint="hard ceiling — abort if exceeded">
+        <CurrencyInput value={s.maxPerRun} onChange={v => update('budget.maxPerRun', v)} />
+      </FieldRow>
+      <FieldRow label="Warn at" hint="show a yellow banner once a run crosses this">
+        <CurrencyInput value={s.warnAt} onChange={v => update('budget.warnAt', v)} />
+      </FieldRow>
+      <FieldRow label="Confirm over" hint="prompt before kicking off any run estimated above this">
+        <CurrencyInput value={s.confirmOver} onChange={v => update('budget.confirmOver', v)} />
+      </FieldRow>
+      <FieldRow label="Monthly cap" hint="across all runs · resets on the 1st">
+        <CurrencyInput value={s.monthlyCap} onChange={v => update('budget.monthlyCap', v)} />
+      </FieldRow>
+
+      <div style={{ marginTop: 22, padding: 14, background: palette.bg2, border: `1px solid ${palette.rule}` }}>
+        <div style={{ color: palette.ink3, fontSize: '0.82em', letterSpacing: '0.08em', marginBottom: 8 }}>THIS MONTH</div>
+        <BudgetBar used={42.18} cap={s.monthlyCap} />
+      </div>
+    </div>
+  );
+}
+
+function CurrencyInput({ value, onChange }) {
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', border: `1px solid ${palette.rule}`, background: palette.bg2 }}>
+      <span style={{ color: palette.ink3, padding: '6px 0 6px 10px' }}>$</span>
+      <input type="number" value={value} onChange={e => onChange(parseFloat(e.target.value))} style={{
+        background: 'transparent', border: 'none', color: palette.ink, padding: '6px 10px', width: 100, fontFamily: 'inherit',
+      }}/>
+    </div>
+  );
+}
+
+function BudgetBar({ used, cap }) {
+  const pct = Math.min(100, (used / cap) * 100);
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', color: palette.ink2, marginBottom: 6 }}>
+        <span>${used.toFixed(2)} used</span>
+        <span style={{ color: palette.ink3 }}>${cap.toFixed(0)} cap · {pct.toFixed(0)}%</span>
+      </div>
+      <div style={{ height: 6, background: palette.bg3, position: 'relative' }}>
+        <div style={{
+          height: '100%', width: `${pct}%`,
+          background: pct > 80 ? palette.rose : pct > 50 ? palette.amber : palette.moss,
+        }}></div>
+      </div>
+    </div>
+  );
+}
+
+// ─────── Appearance pane ───────
+function AppearancePane({ s, update }) {
+  return (
+    <div>
+      <PaneHeader title="Appearance" sub="Looks. Apply on save; takes effect everywhere immediately." />
+
+      <FieldRow label="Font family" hint="anything mono is fine — pipeline output assumes fixed-width">
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {FONT_FAMILIES.map(f => (
+            <SegOption key={f.id} active={s.fontFamily === f.id} onClick={() => update('appearance.fontFamily', f.id)}>
+              <span style={{ fontFamily: `'${f.id}', ui-monospace, monospace` }}>{f.sample}</span>
+            </SegOption>
+          ))}
+        </div>
+      </FieldRow>
+
+      <FieldRow label="Font size" hint={`${s.fontSize}px — applies to body text and CLI output`}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, maxWidth: 460 }}>
+          <span style={{ color: palette.ink3, fontSize: '0.78em' }}>11</span>
+          <input type="range" min={11} max={20} step={1} value={s.fontSize}
+            onChange={e => update('appearance.fontSize', parseInt(e.target.value))}
+            style={{ flex: 1, accentColor: palette.brand }}/>
+          <span style={{ color: palette.ink3, fontSize: '0.78em' }}>20</span>
+          <span style={{ color: palette.ink, minWidth: 36, textAlign: 'right' }}>{s.fontSize}px</span>
+        </div>
+        <div style={{ marginTop: 12, padding: 12, background: palette.bg2, border: `1px solid ${palette.rule}`, color: palette.ink2 }}>
+          <span style={{ color: palette.brand }}>$</span> probe run --premise "a study of trust"
+        </div>
+      </FieldRow>
+
+      <FieldRow label="Theme" hint="changes won't ship until v0.5; preview only">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10, maxWidth: 540 }}>
+          {THEMES.map(t => (
+            <div key={t.id} onClick={() => update('appearance.theme', t.id)} style={{
+              cursor: 'pointer',
+              padding: 12,
+              border: `1px solid ${s.theme === t.id ? palette.brand : palette.rule}`,
+              background: s.theme === t.id ? palette.amberSoft : palette.bg2,
+            }}>
+              <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+                {t.swatch.map((c, i) => (
+                  <div key={i} style={{ width: 22, height: 22, background: c, border: `1px solid ${palette.rule}` }}></div>
+                ))}
+              </div>
+              <div style={{ color: s.theme === t.id ? palette.ink : palette.ink2, fontSize: '0.92em' }}>{t.label}</div>
+            </div>
+          ))}
+        </div>
+      </FieldRow>
+
+      <FieldRow label="Density" hint="row spacing in stage views and lists">
+        <Seg
+          options={[{ id: 'compact', label: 'compact' }, { id: 'comfy', label: 'comfy' }, { id: 'spacious', label: 'spacious' }]}
+          value={s.density}
+          onChange={v => update('appearance.density', v)}
+        />
+      </FieldRow>
+
+      <FieldRow label="Cursor" hint="terminal cursor shape inside Probe panes">
+        <Seg
+          options={[{ id: 'block', label: '█ block' }, { id: 'bar', label: '▎ bar' }, { id: 'underline', label: '_ underline' }]}
+          value={s.cursor}
+          onChange={v => update('appearance.cursor', v)}
+        />
+      </FieldRow>
+    </div>
+  );
+}
+
+function Seg({ options, value, onChange }) {
+  return (
+    <div style={{ display: 'inline-flex', border: `1px solid ${palette.rule}` }}>
+      {options.map(o => (
+        <SegOption key={o.id} active={value === o.id} onClick={() => onChange(o.id)} flat>
+          {o.label}
+        </SegOption>
+      ))}
+    </div>
+  );
+}
+
+function SegOption({ active, onClick, children, flat }) {
+  return (
+    <div onClick={onClick} style={{
+      cursor: 'pointer',
+      padding: '6px 14px',
+      background: active ? palette.amberSoft : palette.bg2,
+      border: flat ? 'none' : `1px solid ${active ? palette.brand : palette.rule}`,
+      color: active ? palette.ink : palette.ink2,
+      borderRight: flat ? `1px solid ${palette.rule}` : undefined,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+// ─────── Behavior pane ───────
+function BehaviorPane({ s, update }) {
+  return (
+    <div>
+      <PaneHeader title="Behavior" sub="How Probe runs day-to-day." />
+
+      <FieldRow label="Editor" hint="opens artifacts, methodology, report drafts">
+        <Seg
+          options={[
+            { id: '$EDITOR', label: '$EDITOR' },
+            { id: 'vim',     label: 'vim' },
+            { id: 'nvim',    label: 'nvim' },
+            { id: 'code',    label: 'vscode' },
+            { id: 'cursor',  label: 'cursor' },
+            { id: 'zed',     label: 'zed' },
+          ]}
+          value={s.editor}
+          onChange={v => update('behavior.editor', v)}
+        />
+      </FieldRow>
+
+      <FieldRow label="Working directory" hint="where new runs are written">
+        <input value={s.workdir} onChange={e => update('behavior.workdir', e.target.value)} style={{
+          background: palette.bg2, border: `1px solid ${palette.rule}`, color: palette.ink,
+          padding: '6px 10px', width: 360, fontFamily: 'inherit',
+        }}/>
+      </FieldRow>
+
+      <FieldRow label="Auto-replay" hint="re-open the last run on launch instead of the menu">
+        <Toggle on={s.autoReplay} onChange={v => update('behavior.autoReplay', v)} />
+      </FieldRow>
+
+      <FieldRow label="Confirm spend" hint="ask before any run that's projected over $5">
+        <Toggle on={s.confirmSpend} onChange={v => update('behavior.confirmSpend', v)} />
+      </FieldRow>
+
+      <FieldRow label="Stream agent logs" hint="show live token-stream output during a run">
+        <Toggle on={s.streamLogs} onChange={v => update('behavior.streamLogs', v)} />
+      </FieldRow>
+
+      <FieldRow label="Anonymous telemetry" hint="counts of runs and stage durations · no prompts, no keys">
+        <Toggle on={s.sendTelemetry} onChange={v => update('behavior.sendTelemetry', v)} />
+      </FieldRow>
+    </div>
+  );
+}
+
+function Toggle({ on, onChange }) {
+  return (
+    <div onClick={() => onChange(!on)} style={{
+      cursor: 'pointer',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 10,
+      userSelect: 'none',
+    }}>
+      <div style={{
+        width: 36, height: 18,
+        background: on ? palette.brand : palette.bg3,
+        border: `1px solid ${on ? palette.brand : palette.rule}`,
+        position: 'relative',
+        transition: 'background 0.15s',
+      }}>
+        <div style={{
+          position: 'absolute', top: 1, left: on ? 19 : 1,
+          width: 14, height: 14,
+          background: on ? palette.bg : palette.ink2,
+          transition: 'left 0.15s',
+        }}></div>
+      </div>
+      <span style={{ color: on ? palette.ink : palette.ink3, fontSize: '0.92em' }}>{on ? 'on' : 'off'}</span>
+    </div>
+  );
+}
+
+// ─────── About pane ───────
+function AboutPane() {
+  const facts = [
+    ['version',         'v0.4.2 (build 2026-04-12.a3f01)'],
+    ['runtime',         'node 22.4.0 · darwin arm64'],
+    ['config path',     '~/.config/probe/probe.toml'],
+    ['runs directory',  '~/probe/runs'],
+    ['cache directory', '~/Library/Caches/probe'],
+    ['log file',        '~/.local/state/probe/probe.log'],
+    ['license',         'Apache-2.0'],
+    ['source',          'github.com/<unset>/probe'],
+  ];
+  return (
+    <div>
+      <PaneHeader title="About" sub="Where Probe lives and what it's running on." />
+      <div style={{ background: palette.bg2, border: `1px solid ${palette.rule}` }}>
+        {facts.map(([k, v], i) => (
+          <div key={k} style={{
+            display: 'grid',
+            gridTemplateColumns: '160px 1fr',
+            padding: '10px 16px',
+            borderTop: i === 0 ? 'none' : `1px solid ${palette.ruleSoft}`,
+          }}>
+            <span style={{ color: palette.ink3 }}>{k}</span>
+            <span style={{ color: palette.ink }}>{v}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 24, display: 'flex', gap: 10 }}>
+        <SmallBtn>open log</SmallBtn>
+        <SmallBtn>copy diagnostics</SmallBtn>
+        <SmallBtn>edit toml in $EDITOR</SmallBtn>
+        <SmallBtn variant="danger">factory reset</SmallBtn>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Status bar
+// ─────────────────────────────────────────────────────────────────────
+function StatusBar({ activeId, settings, dirty }) {
+  const section = SECTIONS.find(s => s.id === activeId);
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '6px 22px',
+      color: palette.ink3,
+      fontSize: '0.82em',
+      background: palette.bg2,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+        <span><span style={{ color: palette.brand }}>NORMAL</span></span>
+        <span>{section?.label}</span>
+        <span>{settings.appearance.fontFamily} · {settings.appearance.fontSize}px</span>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+        <span>{dirty ? '[+]' : ''}</span>
+        <span>{Object.values(settings.keys).filter(k => k.status === 'ok').length}/3 keys ok</span>
+        <span>line 1, col 1</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Config />);
+</script>
+</body>
+</html>
