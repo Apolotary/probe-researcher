@@ -111,8 +111,22 @@ window.ProbeShell = function ProbeShell() {
   const [npStage, setNpStage] = useState('input');
   const configIframeSrc = 'Probe Config.html';
 
-  // mock key resolution state — would normally come from config
-  const keyState = { source: 'config', label: 'config.toml' };
+  // Real API-key resolution state, fetched from /api/probe/status.
+  // Defaults to 'none' so a fresh open without a key shows red until
+  // the status fetch resolves — better than flashing a misleading
+  // green dot.
+  const [keyState, setKeyState] = useState({ source: 'none', label: '— checking' });
+  useEffect(() => {
+    fetch('/api/probe/status')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (!d) return;
+        if (d.anthropic)      setKeyState({ source: 'env',    label: 'env' });
+        else if (d.hasApiKey) setKeyState({ source: 'config', label: 'config.toml' });
+        else                  setKeyState({ source: 'none',   label: 'no key set' });
+      })
+      .catch(() => setKeyState({ source: 'none', label: 'unreachable' }));
+  }, []);
 
   const onToggleCollapsed = useCallback(() => {
     setCollapsed((v) => !v);
