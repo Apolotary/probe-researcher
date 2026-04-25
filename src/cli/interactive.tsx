@@ -40,7 +40,7 @@ export type DispatchRequest =
   | { kind: 'import-with-path'; filePath: string }
   | { kind: 'exit' };
 
-function buildMenu(hasApi: boolean): MenuEntry[] {
+export function buildMenu(hasApi: boolean): MenuEntry[] {
   const entries: MenuEntry[] = [
     {
       id: 'run',
@@ -77,7 +77,10 @@ function buildMenu(hasApi: boolean): MenuEntry[] {
       label: 'Run the health check',
       hint: 'Typecheck + tests + linters + inventory. Offline.',
       needsApi: false,
-      dispatch: { kind: 'subcommand', argv: ['doctor'] },
+      // `doctor` without --once blocks on Ctrl+C, which prevents returning
+      // to the menu naturally. The menu wants the CI-friendly one-shot
+      // behavior so the report prints and control returns here.
+      dispatch: { kind: 'subcommand', argv: ['doctor', '--once'] },
     },
     {
       id: 'quit',
@@ -306,6 +309,59 @@ export async function runInteractiveMenu(): Promise<DispatchRequest> {
 }
 
 /**
+ * Build the (executable, args) tuple for re-invoking probe with new
+ * subcommand args. Uses the current Node binary and the current entry
+ * point so the menu works regardless of how the user launched probe:
+ *
+ *   - global npm link (probe binary on PATH)
+ *   - direct compiled run (`node dist/cli/index.js`)
+ *   - dev source run (`npm run probe`, `tsx src/cli/index.ts`)
+ *
+ * The previous implementation shelled out to a literal "probe", which
+ * silently failed in any of the latter cases — the menu would appear to
+ * do nothing because the catch block swallowed the ENOENT. Returning the
+ * current process's argv[0] / argv[1] keeps the dispatch consistent with
+ * however the user got here.
+ *
+ * Exported so unit tests can verify the dispatch shape without needing
+ * to spawn child processes.
+ */
+export function buildSubcommandSpawn(argv: string[]): { command: string; args: string[] } {
+  const entry = process.argv[1];
+  if (!entry) {
+    // Defensive: argv[1] is always set in a normal CLI invocation. If
+    // something invokes probe in a way that strips it, fall back to the
+    // literal binary name and let the user see the resulting error rather
+    // than silently no-op.
+    return { command: 'probe', args: argv };
+  }
+  return { command: process.execPath, args: [entry, ...argv] };
+}
+
+async function spawnSubcommand(argv: string[]): Promise<void> {
+  const { execFileSync } = await import('node:child_process');
+  const { command, args } = buildSubcommandSpawn(argv);
+  try {
+    execFileSync(command, args, { stdio: 'inherit' });
+  } catch (e) {
+    // Print the failure rather than swallowing it. Subcommands manage their
+    // own non-zero exit code via stderr, but spawn-level failures (ENOENT,
+    // permission denied, signal kill) need to surface here so the user
+    // doesn't see a menu silently looping.
+    const err = e as NodeJS.ErrnoException & { status?: number; signal?: string };
+    if (err.code === 'ENOENT') {
+      console.log(`subcommand failed to launch: ${command} not found`);
+    } else if (err.signal) {
+      console.log(`subcommand interrupted (${err.signal})`);
+    } else if (typeof err.status === 'number' && err.status !== 0) {
+      console.log(`subcommand exited with status ${err.status}`);
+    }
+    // Otherwise: subcommand exited zero or with a status it printed itself —
+    // nothing to add.
+  }
+}
+
+/**
  * Default entry. Runs the menu in a loop — after each action completes,
  * the menu comes back. This is the "claude-code but for papers"
  * feel: one persistent session, `q` / Quit is the only way out. The
@@ -319,29 +375,19 @@ export async function interactiveDefault(): Promise<void> {
     if (pick.kind === 'exit') return;
 
     if (pick.kind === 'subcommand') {
-      const { execFileSync } = await import('node:child_process');
       printSeparator();
-      try {
-        execFileSync('probe', pick.argv, { stdio: 'inherit' });
-      } catch {
-        /* subcommand manages its own exit */
-      }
+      await spawnSubcommand(pick.argv);
       await pauseForReturn();
       continue;
     }
 
     if (pick.kind === 'run-with-premise') {
-      const { execFileSync } = await import('node:child_process');
       const args = ['run'];
       if (pick.runId) args.push('--run-id', pick.runId);
       if (!pick.includeNovelty) args.push('--no-novelty');
       args.push(pick.premise);
       printSeparator();
-      try {
-        execFileSync('probe', args, { stdio: 'inherit' });
-      } catch {
-        /* subcommand manages its own exit */
-      }
+      await spawnSubcommand(args);
       await pauseForReturn();
       continue;
     }
@@ -351,12 +397,13 @@ export async function interactiveDefault(): Promise<void> {
       printSeparator();
       try {
         await fs.access(abs);
-        const { execFileSync } = await import('node:child_process');
-        execFileSync('probe', ['import', abs], { stdio: 'inherit' });
       } catch (e) {
-        console.log(`File not found or import failed: ${abs}`);
+        console.log(`File not found: ${abs}`);
         console.log(String((e as Error).message ?? ''));
+        await pauseForReturn();
+        continue;
       }
+      await spawnSubcommand(['import', abs]);
       await pauseForReturn();
       continue;
     }

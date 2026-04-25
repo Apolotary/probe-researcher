@@ -2,11 +2,23 @@ import fs from 'node:fs/promises';
 import chalk from 'chalk';
 import { checkProvenance } from '../lint/provenance.js';
 import { checkForbiddenPhrases } from '../lint/forbidden.js';
+import { loadKnownSourceCardIds } from '../lint/source_cards.js';
 
 interface LintOptions {
   voiceOnly?: boolean;
   provenanceOnly?: boolean;
   strictInference?: boolean;
+  /**
+   * Commander maps the `--no-source-card-check` flag to `sourceCardCheck:
+   * false`; the default is `true`. When false, the linter skips validating
+   * `[SOURCE_CARD:<id>]` references against the repo corpus. The default
+   * enforces the provenance commitment — `probe lint` is the linter that
+   * blocks fabricated citations, and silently allowing them would defeat
+   * the central guarantee. The opt-out exists for the rare case of linting
+   * markdown sourced outside the corpus (external fixtures, docs stored
+   * in another repo).
+   */
+  sourceCardCheck?: boolean;
 }
 
 export async function lintCommand(file: string, opts: LintOptions): Promise<void> {
@@ -16,7 +28,14 @@ export async function lintCommand(file: string, opts: LintOptions): Promise<void
   let voiceResult: { passed: boolean; violations: string[] } | null = null;
 
   if (!opts.voiceOnly) {
-    provenanceResult = checkProvenance(md, { strictInference: opts.strictInference });
+    const checkCards = opts.sourceCardCheck !== false;
+    const knownSourceCards = checkCards
+      ? await loadKnownSourceCardIds().catch(() => undefined)
+      : undefined;
+    provenanceResult = checkProvenance(md, {
+      strictInference: opts.strictInference,
+      knownSourceCards,
+    });
   }
   if (!opts.provenanceOnly) {
     voiceResult = checkForbiddenPhrases(md);

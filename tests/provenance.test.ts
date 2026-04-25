@@ -257,6 +257,105 @@ Handoff. [HUMAN_REQUIRED]`;
     });
   });
 
+  describe('typed-tag suffix parsing', () => {
+    it('does not treat an [IMPORTED_DRAFT:method] suffix as a source-card id', () => {
+      // Regression: TAG_RE_END used to slurp every `:id` suffix into
+      // sourceCardsReferenced, which caused IMPORTED_DRAFT subtypes (and any
+      // future typed tag) to be falsely validated against the corpus.
+      const md = `# Imported draft
+
+Method text from the paper. [IMPORTED_DRAFT:method]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { knownSourceCards: ['sanders_stappers_2014'] });
+      expect(r.passed).toBe(true);
+      expect(r.tagCounts.IMPORTED_DRAFT).toBe(1);
+      expect(r.sourceCardsReferenced).not.toContain('method');
+    });
+
+    it('does not treat an [UNCITED_ADJACENT:jakesch] suffix as a source-card id', () => {
+      const md = `# Guidebook
+
+Reviewer flagged adjacent literature. [UNCITED_ADJACENT:jakesch]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { knownSourceCards: ['sanders_stappers_2014'] });
+      expect(r.passed).toBe(true);
+      expect(r.sourceCardsReferenced).not.toContain('jakesch');
+    });
+
+    it('rejects a bare [SOURCE_CARD] tag with no id', () => {
+      const md = `# Guidebook
+
+Citation without id. [SOURCE_CARD]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md);
+      expect(r.passed).toBe(false);
+      expect(r.violations.some((v) => /SOURCE_CARD tag missing id/.test(v))).toBe(true);
+    });
+
+    it('validates inline [SOURCE_CARD:id] references against knownSourceCards', () => {
+      // Mid-paragraph inline citation followed by a different closing tag.
+      // The previous regex only checked the final tag, so an inline unknown
+      // id could leak through into the guidebook manifest.
+      const md = `# Guidebook
+
+As shown by prior work [SOURCE_CARD:not_a_real_card], the disclosure timing matters. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { knownSourceCards: ['sanders_stappers_2014'] });
+      expect(r.passed).toBe(false);
+      expect(r.violations.some((v) => /inline \[SOURCE_CARD:not_a_real_card\]/.test(v))).toBe(true);
+    });
+
+    it('records a known inline [SOURCE_CARD:id] in sourceCardsReferenced', () => {
+      const md = `# Guidebook
+
+As Jakesch shows [SOURCE_CARD:jakesch_2023_cowriting] in the co-writing setting, disclosure shifts attitudes. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, { knownSourceCards: ['jakesch_2023_cowriting'] });
+      expect(r.passed).toBe(true);
+      expect(r.sourceCardsReferenced).toContain('jakesch_2023_cowriting');
+    });
+
+    it('strict-inference rejects inline [SOURCE_CARD:not_real] anchoring an AGENT_INFERENCE', () => {
+      // Without validation, an unknown inline ID would silently satisfy
+      // strict-inference. With validation, the AGENT_INFERENCE has no valid
+      // anchor and the rule fires.
+      const md = `# Guidebook
+
+As shown by some made-up paper [SOURCE_CARD:not_a_real_card], disclosure timing matters. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, {
+        knownSourceCards: ['jakesch_2023_cowriting'],
+        strictInference: true,
+      });
+      expect(r.passed).toBe(false);
+      expect(
+        r.violations.some((v) => /inline \[SOURCE_CARD:not_a_real_card\]/.test(v)),
+      ).toBe(true);
+      expect(
+        r.violations.some((v) => /strict-inference mode requires one/.test(v)),
+      ).toBe(true);
+    });
+
+    it('strict-inference accepts a known inline [SOURCE_CARD:id]', () => {
+      const md = `# Guidebook
+
+As Jakesch shows [SOURCE_CARD:jakesch_2023_cowriting], disclosure timing matters. [AGENT_INFERENCE]
+
+Handoff. [HUMAN_REQUIRED]`;
+      const r = checkProvenance(md, {
+        knownSourceCards: ['jakesch_2023_cowriting'],
+        strictInference: true,
+      });
+      expect(r.passed).toBe(true);
+    });
+  });
+
   it('counts tags correctly', () => {
     const md = `# Guidebook
 

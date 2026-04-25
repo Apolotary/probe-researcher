@@ -1,9 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { readJson, runMarkdownStage, writeJson, writeText } from '../stage_util.js';
-import { branchDir, runDir, sourceCardDir } from '../../util/paths.js';
+import { branchDir, runDir } from '../../util/paths.js';
 import { checkForbiddenPhrases } from '../../lint/forbidden.js';
 import { checkProvenance } from '../../lint/provenance.js';
+import { loadKnownSourceCardIds } from '../../lint/source_cards.js';
 
 interface Stage8Args {
   runId: string;
@@ -44,7 +45,7 @@ export async function runStageGuidebook(args: Stage8Args): Promise<void> {
   const premisePath = path.join(runDir(args.runId), 'premise_card.json');
   const premise = await readJson(premisePath);
 
-  const knownCards = await loadKnownCardIds();
+  const knownCards = await loadKnownSourceCardIds();
 
   const userMessage =
     `run_id: ${args.runId}\nsurviving_branch: ${args.survivingBranchId}\n\n` +
@@ -87,12 +88,6 @@ export async function runStageGuidebook(args: Stage8Args): Promise<void> {
     knownCards,
   });
   await writeJson(path.join(runDir(args.runId), 'guidebook_manifest.json'), manifest);
-}
-
-async function loadKnownCardIds(): Promise<string[]> {
-  const dir = sourceCardDir();
-  const entries = await fs.readdir(dir);
-  return entries.filter((e) => e.endsWith('.yaml')).map((e) => e.replace(/\.yaml$/, ''));
 }
 
 function buildManifest(params: {

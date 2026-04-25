@@ -260,64 +260,23 @@ async function writeSyntheticStageArtifacts(runId: string, manifest: ImportedMan
   const bd = branchDir(runId, 'a');
   await fs.mkdir(path.join(bd, 'reviews'), { recursive: true });
 
-  // Stage 1 equivalent: premise_card.json.
-  const premiseCard = {
-    stage: '1_premise' as const,
-    schema_version: '1.0.0',
-    run_id: runId,
-    original_premise: manifest.inferred_premise_text,
-    sharpened_alternatives: [
-      {
-        alt_id: 'imported_as_is',
-        one_sentence: manifest.inferred_premise_text.slice(0, 290),
-        why_sharper: 'Imported verbatim from the researcher\'s draft; Probe is auditing rather than rewriting.',
-        falsifiability_gain: 'n/a — this is the researcher\'s existing framing.',
-      },
-    ],
-    provenance: {
-      source: 'probe_import',
-      imported_from: manifest.source_file,
-      classifier_model: manifest.provenance.classifier_model,
-    },
-  };
+  // Build each synthetic artifact via a pure builder, validate it against the
+  // canonical schema, then write. Validation runs BEFORE the write so an
+  // import that would emit a malformed artifact fails loudly with a schema
+  // error rather than producing a file that breaks `probe run --skip 1,2,3,4,5`
+  // downstream. Each builder is exported for unit testing.
+  const premiseCard = buildImportedPremiseCard(runId, manifest);
+  await assertValid('premise_card', premiseCard);
   await fs.writeFile(path.join(rd, 'premise_card.json'), JSON.stringify(premiseCard, null, 2));
 
-  // Stage 2 equivalent: branch_card.json (single branch 'a').
-  const branchCard = {
-    stage: '2_ideator' as const,
-    schema_version: '1.0.0',
-    run_id: runId,
-    branch_id: 'a' as const,
-    research_question: manifest.inferred_premise_text,
-    intervention_primitive: extractByBucket(manifest, 'prototype').slice(0, 500) || 'see imported_manifest.json',
-    human_system_relationship: 'Imported from paper draft — see imported_source.md for the researcher\'s own framing.',
-    method_family: extractByBucket(manifest, 'method').slice(0, 300) || 'see imported_manifest.json',
-    one_sentence_claim: manifest.inferred_premise_text.slice(0, 290),
-    grounding: [],
-    provenance: {
-      source: 'probe_import',
-      imported: true,
-    },
-  };
+  const branchCard = buildImportedBranchCard(runId, manifest);
+  await assertValid('branch_card', branchCard);
   await fs.writeFile(path.join(bd, 'branch_card.json'), JSON.stringify(branchCard, null, 2));
 
-  // Stage 4 equivalent: prototype_spec.json + .md.
-  const protoSpec = {
-    stage: '4_prototype' as const,
-    schema_version: '1.0.0',
-    run_id: runId,
-    branch_id: 'a' as const,
-    title: (extractByBucket(manifest, 'prototype').slice(0, 80) || 'Imported prototype from paper draft').trim(),
-    summary: extractByBucket(manifest, 'prototype') || 'See imported_source.md for the full prototype description.',
-    wizard_controls: [],
-    failure_cases: extractByBucket(manifest, 'limitations') || '',
-    analysis_plan: manifest.inferred_method_summary,
-    provenance: {
-      source: 'probe_import',
-      imported: true,
-    },
-  };
+  const protoSpec = buildImportedPrototypeSpec(runId, manifest);
+  await assertValid('prototype_spec', protoSpec);
   await fs.writeFile(path.join(bd, 'prototype_spec.json'), JSON.stringify(protoSpec, null, 2));
+
   const protoMd = buildPrototypeMdFromManifest(manifest);
   await fs.writeFile(path.join(bd, 'prototype_spec.md'), protoMd);
 
@@ -330,6 +289,232 @@ async function writeSyntheticStageArtifacts(runId: string, manifest: ImportedMan
   const findingsContent = extractByBucket(manifest, 'findings');
   const walkthrough = buildWalkthroughFromManifest(rehearsalContent, findingsContent, manifest);
   await fs.writeFile(path.join(bd, 'simulated_walkthrough.md'), walkthrough);
+}
+
+async function assertValid(schemaName: string, data: unknown): Promise<void> {
+  const result = await validateAgainst(schemaName, data);
+  if (!result.valid) {
+    throw new Error(
+      `synthetic ${schemaName} artifact failed schema validation:\n  ${result.errors.slice(0, 8).join('\n  ')}`,
+    );
+  }
+}
+
+/**
+ * Build a Stage 1 premise card from the imported paper's classified content.
+ *
+ * The schema demands several fields the original synthetic builder elided
+ * (`raw_premise`, `sharpest_question`, `claim`, `differentia`,
+ * `nearest_template`, `missing_evidence`, `sharpened_options`). The original
+ * also defined extra fields like `original_premise` and `sharpened_alternatives`
+ * that the schema's `additionalProperties: false` rule rejects. This builder
+ * emits the exact shape the canonical Stage 1 output would, but with
+ * imported-from-draft phrasing in each field so audit/review stages know
+ * they are critiquing an existing draft rather than a Probe-generated premise.
+ */
+export function buildImportedPremiseCard(runId: string, manifest: ImportedManifest): unknown {
+  const premiseText = manifest.inferred_premise_text.trim() || 'Imported paper draft has no extractable premise text.';
+  const sharpenedFromDraft = premiseText.length >= 15 ? premiseText : `${premiseText} (imported from ${manifest.source_file})`;
+
+  return {
+    stage: '1_premise',
+    schema_version: '1.0.0',
+    run_id: runId,
+    raw_premise: premiseText,
+    sharpest_question:
+      'Does the imported draft\'s premise hold up under capture-risk audit and adversarial review without rewriting it?',
+    claim:
+      'The imported draft proposes a contribution worth auditing as-is; Probe should critique the existing framing rather than rewrite it.',
+    differentia:
+      'Imported from a paper draft via `probe import` — this run inherits the researcher\'s framing rather than generating divergent alternatives.',
+    nearest_template:
+      extractByBucket(manifest, 'related_work').slice(0, 300) ||
+      'See imported_source.md for the draft\'s related-work positioning.',
+    missing_evidence: [
+      'Whether the draft\'s claimed contribution survives the capture-risk audit at the spec level.',
+      'Whether the method described in the draft is specific enough that an outside reviewer could replicate it.',
+    ],
+    sharpened_options: [
+      sharpenedFromDraft.slice(0, 290),
+      'Audit the draft as-is and let the reviewer panel surface what the researcher should sharpen before submission.',
+    ],
+    provenance: {
+      raw_premise: 'RESEARCHER_INPUT',
+      analysis: 'AGENT_INFERENCE',
+    },
+  };
+}
+
+/**
+ * Build a Stage 2 branch card for the single imported branch 'a'.
+ *
+ * The two formerly-free-text fields, `human_system_relationship` and
+ * `method_family`, must use the schema's enum values. We pick conservative
+ * defaults (`system_augments_human`, `formative`) because (a) most imported
+ * HCI drafts describe a system that augments a human practitioner, and (b)
+ * the audit phase is fundamentally a formative critique — sharpening the
+ * design before fieldwork — regardless of where the draft itself sits.
+ * The `why_divergent` text names the imported origin so the reviewer panel
+ * does not penalize the branch for failing to differ from absent siblings.
+ */
+export function buildImportedBranchCard(runId: string, manifest: ImportedManifest): unknown {
+  const premiseText = manifest.inferred_premise_text.trim();
+  const researchQuestion = premiseText.length >= 15
+    ? premiseText
+    : `Imported from ${manifest.source_file}: ${premiseText || 'see imported_source.md for the draft\'s research question.'}`;
+  const intervention = extractByBucket(manifest, 'prototype').slice(0, 500).trim() ||
+    'See imported_manifest.json and imported_source.md for the prototype the draft describes.';
+  const oneSentence = (premiseText.slice(0, 290) || `Imported draft from ${manifest.source_file}.`)
+    .padEnd(20, ' ')
+    .slice(0, 290);
+
+  return {
+    stage: '2_ideator',
+    schema_version: '1.0.0',
+    run_id: runId,
+    branch_id: 'a',
+    research_question: researchQuestion,
+    intervention_primitive: intervention,
+    human_system_relationship: 'system_augments_human',
+    method_family: 'formative',
+    one_sentence_claim: oneSentence,
+    why_divergent:
+      'Imported from a paper draft via `probe import`; this run inherits the researcher\'s existing framing rather than diverging from sibling branches that do not exist.',
+    grounding: [],
+    provenance: {
+      ideation: 'AGENT_INFERENCE',
+      grounding: 'SOURCE_CARD',
+    },
+  };
+}
+
+/**
+ * Build a Stage 4 prototype spec from the imported paper's method/prototype/
+ * limitations buckets. The schema requires structured fields (actors with
+ * roles from an enum, a context block, ≥3 task-flow steps, ≥1 wizard control,
+ * ≥2 observable signals, ≥2 failure cases, ≥1 material). The imported draft
+ * may not specify all of these in machine-readable form; rather than fail
+ * the import, this builder emits conservative placeholders that point the
+ * downstream audit at `imported_source.md` for the actual content. The
+ * placeholders are explicitly labelled so reviewers don't mistake them for
+ * the researcher's own design choices.
+ */
+export function buildImportedPrototypeSpec(runId: string, manifest: ImportedManifest): unknown {
+  const protoBucket = extractByBucket(manifest, 'prototype').trim();
+  const methodBucket = extractByBucket(manifest, 'method').trim();
+  const limitationsBucket = extractByBucket(manifest, 'limitations').trim();
+
+  const titleSeed = protoBucket.slice(0, 60).replace(/\s+/g, ' ').trim();
+  const title = titleSeed.length >= 8
+    ? `Imported: ${titleSeed}`
+    : `Imported prototype from ${path.basename(manifest.source_file)}`;
+
+  const settingText = (protoBucket.slice(0, 200) || methodBucket.slice(0, 200) || '').trim();
+  const setting = settingText.length >= 10
+    ? settingText
+    : 'Imported from paper draft — see imported_source.md for the full study setting and recruitment context.';
+
+  const sessionStructure =
+    (manifest.inferred_method_summary || methodBucket).slice(0, 600).trim() ||
+    'Imported from paper draft — see imported_source.md for the session structure the authors describe in their method section.';
+
+  const failurePrimary = limitationsBucket.slice(0, 280).trim() ||
+    'Imported draft does not enumerate study-design failure cases; reviewers should surface them before fielding.';
+  const wizardFallback = 'See imported_source.md and imported_manifest.json; the audit will surface specific fallbacks the draft must add.';
+
+  return {
+    stage: '4_prototype',
+    schema_version: '1.0.0',
+    run_id: runId,
+    branch_id: 'a',
+    title,
+    actors: [
+      {
+        role: 'participant',
+        description: 'Imported from paper draft — see imported_source.md for participant recruitment and demographics.',
+        count: 1,
+      },
+      {
+        role: 'facilitator',
+        description: 'Imported from paper draft — typically the researcher running the session; see imported_source.md.',
+        count: 1,
+      },
+    ],
+    context: {
+      setting: setting.length >= 10 ? setting.slice(0, 1000) : `${setting} (see imported_source.md)`,
+      device: 'See imported_source.md for the device and accessibility configuration the draft describes.',
+      duration_minutes: 60,
+      session_structure: sessionStructure.length >= 30 ? sessionStructure : `${sessionStructure} (full structure in imported_source.md)`,
+    },
+    task_flow: [
+      {
+        step: 1,
+        participant_action:
+          'Imported placeholder — see imported_source.md for the opening task the participant performs in the draft\'s method.',
+        system_response:
+          'Imported placeholder — see imported_source.md for the system\'s response at this step in the draft.',
+        wizard_decisions: ['See imported_source.md for the wizard decisions the draft describes at this step.'],
+      },
+      {
+        step: 2,
+        participant_action:
+          'Imported placeholder — see imported_source.md for the middle task in the draft\'s task flow.',
+        system_response:
+          'Imported placeholder — see imported_source.md for the system response in the middle of the draft\'s flow.',
+        wizard_decisions: ['See imported_source.md for the wizard decisions at this middle step.'],
+      },
+      {
+        step: 3,
+        participant_action:
+          'Imported placeholder — see imported_source.md for the closing task in the draft\'s flow.',
+        system_response:
+          'Imported placeholder — see imported_source.md for the system response at the closing step.',
+        wizard_decisions: ['See imported_source.md for the wizard decisions at the closing step.'],
+      },
+    ],
+    wizard_controls: [
+      {
+        control_name: 'imported_placeholder',
+        triggers: 'Imported from paper draft — see imported_source.md for the actual wizard triggers.',
+        effect: 'Imported from paper draft — see imported_source.md for the effect each wizard control has.',
+      },
+    ],
+    observable_signals: [
+      {
+        signal: 'imported_signal_1',
+        capture_method: 'screen_recording',
+        analysis_plan:
+          'Imported placeholder — see imported_source.md for the actual analysis plan the draft describes for this signal.',
+      },
+      {
+        signal: 'imported_signal_2',
+        capture_method: 'interviewer_notes',
+        analysis_plan:
+          'Imported placeholder — see imported_source.md for the qualitative analysis plan the draft describes.',
+      },
+    ],
+    failure_cases: [
+      {
+        scenario: failurePrimary.length >= 15 ? failurePrimary.slice(0, 1000) : `${failurePrimary} (see imported_source.md)`,
+        expected_behavior:
+          'See imported_source.md for the draft\'s expected behavior under this failure mode.',
+        wizard_fallback: wizardFallback,
+      },
+      {
+        scenario:
+          'Imported placeholder — see imported_source.md for additional study-design failure scenarios the draft surfaces.',
+        expected_behavior:
+          'See imported_source.md for the draft\'s expected behavior here.',
+        wizard_fallback: wizardFallback,
+      },
+    ],
+    materials_needed: [
+      'See imported_source.md for the full materials list the draft describes.',
+    ],
+    provenance: {
+      specification: 'AGENT_INFERENCE',
+    },
+  };
 }
 
 function extractByBucket(manifest: ImportedManifest, bucket: ImportedSection['bucket']): string {

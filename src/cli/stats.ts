@@ -18,6 +18,7 @@ import { projectRoot, runDir, branchDir } from '../util/paths.js';
 import { palette, verdictColor, branchColor } from '../ui/theme.js';
 import { checkProvenance } from '../lint/provenance.js';
 import { checkForbiddenPhrases } from '../lint/forbidden.js';
+import { loadKnownSourceCardIds } from '../lint/source_cards.js';
 
 const AXES = ['capacity', 'agency', 'exit', 'legibility'] as const;
 type Axis = (typeof AXES)[number];
@@ -250,7 +251,11 @@ export async function computeRunStats(runId: string): Promise<RunStats> {
   if (gbExists) {
     try {
       const md = await fs.readFile(gbPath, 'utf8');
-      const prov = checkProvenance(md);
+      // Stats lints repo-internal guidebooks, so SOURCE_CARD ids must be
+      // validated against the corpus — same rule as `probe lint` and
+      // `probe doctor`.
+      const knownSourceCards = await loadKnownSourceCardIds().catch(() => undefined);
+      const prov = checkProvenance(md, { knownSourceCards });
       provenancePassed = prov.passed;
       provenanceViolationCount = prov.violations.length;
       const voice = checkForbiddenPhrases(md);

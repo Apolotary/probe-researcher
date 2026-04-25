@@ -64,6 +64,30 @@ export function liveBranches(states: Map<string, BranchState>): string[] {
     .map((s) => s.branchId);
 }
 
+/**
+ * Idempotently add an `in_progress` entry to `states` for each branch id.
+ * Used by the pipeline immediately after Stage 2 succeeds (and again before
+ * Stages 3-7 as a safety net when Stage 2 was skipped). Existing entries are
+ * preserved untouched so a branch that has already moved to `blocked` /
+ * `failed` cannot be silently reset by a later call.
+ *
+ * Regression motivation: quitting at the Stage 2 step pause used to leave
+ * `states` empty, so `run_summary.json` did not list the freshly-generated
+ * branches. Pulling the initialization into a named helper makes the
+ * "populate before any potential exit point" invariant explicit.
+ */
+export function populateBranchStates(
+  states: Map<string, BranchState>,
+  branchIds: string[],
+): Map<string, BranchState> {
+  for (const id of branchIds) {
+    if (!states.has(id)) {
+      states.set(id, { branchId: id, status: 'in_progress' });
+    }
+  }
+  return states;
+}
+
 export function markStage(states: StageStatesMap, id: string, state: StageState): void {
   states[id] = state;
 }

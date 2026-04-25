@@ -22,6 +22,7 @@ import {
   markStage,
   perBranchNoVerdict,
   perBranchWithVerdict,
+  populateBranchStates,
   stageDoneLabel,
   stageSpinner,
 } from './per_branch.js';
@@ -56,7 +57,11 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
   // Per-branch state map — survives stages 3-7. Declared up here (not
   // after Stage 2) so the step() helper's userQuit path always has a
   // value to pass to finishRun, even if the user quits before Stage 2.
-  let states = new Map<string, BranchState>();
+  // populateBranchStates() (imported from per_branch.ts) idempotently
+  // adds an `in_progress` entry per branch id; we call it immediately
+  // after Stage 2 succeeds so quitting at the Stage 2 pause still emits
+  // a complete run_summary.json.
+  const states = new Map<string, BranchState>();
 
   /**
    * Called after each stage's preview + footer. In step mode, asks the
@@ -118,16 +123,16 @@ export async function runPipeline(options: RunOptions): Promise<PipelineResult> 
       },
     });
     branchIdsForPause = branchIds;
+    // Populate `states` BEFORE the step pause so that quitting here still
+    // produces a complete run_summary.json. Otherwise the user sees Stage 2
+    // succeed but the summary lists no branches.
+    populateBranchStates(states, branchIds);
     if (!(await step('2_ideator'))) return userQuit(runId, states, stageStates);
   } else {
     branchIds = await listBranches(runDir(runId));
     branchIdsForPause = branchIds;
+    populateBranchStates(states, branchIds);
   }
-
-  // Populate the per-branch state map now that branchIds are known.
-  states = new Map<string, BranchState>(
-    branchIds.map((id) => [id, { branchId: id, status: 'in_progress' }]),
-  );
 
   // Stages 3-5 — per-branch, no verdict (outcome is ok / failed).
   if (!skip.has('3')) {

@@ -55,10 +55,9 @@ export const VALID_TAGS = [
 export type ProvenanceTag = (typeof VALID_TAGS)[number];
 
 /**
- * Tag-anywhere matcher. Only used for diagnostic messages and for extracting
- * SOURCE_CARD ids — NOT for deciding whether an element is tagged. The rule
- * from PROBE.md is that the tag must be the last token of the element, so
- * enforcement uses TAG_RE_END.
+ * Tag-anywhere matcher. Only used for diagnostic messages — NOT for deciding
+ * whether an element is tagged. The rule from PROBE.md is that the tag must
+ * be the last token of the element, so enforcement uses TAG_RE_END.
  */
 const TAG_RE = new RegExp(`\\[(${VALID_TAGS.join('|')})(?::[a-z0-9_-]+)?\\]`);
 
@@ -68,10 +67,18 @@ const TAG_RE = new RegExp(`\\[(${VALID_TAGS.join('|')})(?::[a-z0-9_-]+)?\\]`);
  * one of the canonical tag strings inside its prose (e.g. a methodology
  * discussion that names `[SOURCE_CARD]` as a category) and having that pass
  * as its own provenance anchor.
+ *
+ * Two capture groups: [1] is the tag name, [2] is the optional `:id` suffix.
+ * Splitting them lets the linter only treat SOURCE_CARD suffixes as card IDs
+ * — typed tags like `[IMPORTED_DRAFT:method]` or `[UNCITED_ADJACENT:jakesch]`
+ * carry their own subtype, not a corpus reference.
  */
 const TAG_RE_END = new RegExp(
-  `\\[(${VALID_TAGS.join('|')})(?::[a-z0-9_-]+)?\\]\\s*$`,
+  `\\[(${VALID_TAGS.join('|')})(?::([a-z0-9_-]+))?\\]\\s*$`,
 );
+
+/** Inline `[SOURCE_CARD:id]` references that appear mid-text rather than as the closing tag. */
+const INLINE_SOURCE_CARD_RE = /\[SOURCE_CARD:([a-z0-9_-]+)\]/g;
 
 interface TextNode extends Node {
   type: 'text';
@@ -166,16 +173,44 @@ export function checkProvenance(
       return;
     }
     const tag = mEnd[1] as ProvenanceTag;
+    const suffix = mEnd[2];
     tagCounts[tag]++;
 
-    // Extract the :id suffix from the anchored match. mEnd[0] looks like
-    // "[SOURCE_CARD:some_id]" or "[AGENT_INFERENCE]"; capture group for the
-    // id was elided from TAG_RE_END so re-parse the matched token here.
-    const idMatch = mEnd[0].match(/:([a-z0-9_-]+)\]/);
-    if (idMatch?.[1]) {
-      sourceCardsReferenced.push(idMatch[1]);
-      if (opts.knownSourceCards && !opts.knownSourceCards.includes(idMatch[1])) {
-        violations.push(`SOURCE_CARD references unknown id: "${idMatch[1]}"`);
+    // Suffix semantics depend on the tag. SOURCE_CARD's suffix is a corpus
+    // reference and must be validated against `knownSourceCards`. Suffixes on
+    // other typed tags (IMPORTED_DRAFT:method, UNCITED_ADJACENT:jakesch) name
+    // a subtype or an external citation handle — they are not corpus IDs and
+    // must not be treated as such.
+    if (tag === 'SOURCE_CARD') {
+      if (!suffix) {
+        violations.push(
+          'SOURCE_CARD tag missing id — use [SOURCE_CARD:<id>] referencing a card in corpus/source_cards/',
+        );
+      } else {
+        sourceCardsReferenced.push(suffix);
+        if (opts.knownSourceCards && !opts.knownSourceCards.includes(suffix)) {
+          violations.push(`SOURCE_CARD references unknown id: "${suffix}"`);
+        }
+      }
+    }
+
+    // Inline [SOURCE_CARD:id] references appearing mid-text (before the final
+    // tag) are still corpus references the linter must validate. They show up
+    // in patterns like "as Jakesch shows [SOURCE_CARD:jakesch_2023_cowriting],
+    // …" inside an [AGENT_INFERENCE] paragraph. Validate every one against
+    // `knownSourceCards` and add them to `sourceCardsReferenced` so the
+    // guidebook manifest sees them.
+    const finalTagStart = text.length - mEnd[0].length;
+    const beforeFinal = text.slice(0, finalTagStart);
+    INLINE_SOURCE_CARD_RE.lastIndex = 0;
+    let inlineMatch: RegExpExecArray | null;
+    while ((inlineMatch = INLINE_SOURCE_CARD_RE.exec(beforeFinal)) !== null) {
+      const inlineId = inlineMatch[1];
+      sourceCardsReferenced.push(inlineId);
+      if (opts.knownSourceCards && !opts.knownSourceCards.includes(inlineId)) {
+        violations.push(
+          `inline [SOURCE_CARD:${inlineId}] references unknown id`,
+        );
       }
     }
 
@@ -207,11 +242,21 @@ export function checkProvenance(
       // Strict-inference mode: every AGENT_INFERENCE element must either
       // sit within STRICT_INFERENCE_WINDOW of a grounded anchor tag, or
       // cite a source card inline (e.g. "as Jakesch shows [SOURCE_CARD:jakesch_2023_cowriting], …").
+      // The inline card must itself be valid when knownSourceCards is given —
+      // an unknown ID has already been recorded as a violation above, but it
+      // must not silently satisfy the strict-inference rule.
       if (opts.strictInference) {
-        const inlineCardRe = /\[SOURCE_CARD:[a-z0-9_-]+\]/;
-        const hasInlineCard = inlineCardRe.test(text.slice(0, text.lastIndexOf('[')));
+        let hasValidInlineCard = false;
+        INLINE_SOURCE_CARD_RE.lastIndex = 0;
+        let m: RegExpExecArray | null;
+        while ((m = INLINE_SOURCE_CARD_RE.exec(beforeFinal)) !== null) {
+          if (!opts.knownSourceCards || opts.knownSourceCards.includes(m[1])) {
+            hasValidInlineCard = true;
+            break;
+          }
+        }
         const anchoredInWindow = recentTags.some((t) => ANCHOR_TAGS.has(t));
-        if (!hasInlineCard && !anchoredInWindow) {
+        if (!hasValidInlineCard && !anchoredInWindow) {
           violations.push(
             `AGENT_INFERENCE has no grounded anchor within ${STRICT_INFERENCE_WINDOW} preceding elements and no inline [SOURCE_CARD:id] — strict-inference mode requires one: "${text.slice(0, 120)}"`,
           );

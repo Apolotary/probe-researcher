@@ -20,6 +20,7 @@ import { projectRoot } from '../util/paths.js';
 import { palette, brand } from '../ui/theme.js';
 import { checkProvenance } from '../lint/provenance.js';
 import { checkForbiddenPhrases } from '../lint/forbidden.js';
+import { loadKnownSourceCardIds } from '../lint/source_cards.js';
 
 const pExecFile = promisify(execFile);
 
@@ -157,11 +158,16 @@ async function checkGuidebooks(root: string): Promise<CheckResult[]> {
   const entries = await fs.readdir(runsDir).catch(() => [] as string[]);
   const results: CheckResult[] = [];
 
+  // Validate `[SOURCE_CARD:<id>]` references against the repo corpus.
+  // Doctor checks shipped guidebooks, which are repo-internal — fabricated
+  // card IDs here are a hard failure, not a soft warning.
+  const knownSourceCards = await loadKnownSourceCardIds().catch(() => undefined);
+
   for (const e of entries) {
     const gb = path.join(runsDir, e, 'PROBE_GUIDEBOOK.md');
     try {
       const md = await fs.readFile(gb, 'utf8');
-      const prov = checkProvenance(md);
+      const prov = checkProvenance(md, { knownSourceCards });
       const voice = checkForbiddenPhrases(md);
       const passed = prov.passed && voice.passed;
       const detail = passed
