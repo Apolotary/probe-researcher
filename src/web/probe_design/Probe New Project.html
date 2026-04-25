@@ -161,6 +161,29 @@ function NewProject() {
     }
   }, [route]);
 
+  // Crumb-click handler. Used by every stage's <Crumb onStepClick={goTo} />
+  // so the user can jump back to any earlier step without going through
+  // a full back-button chain.
+  //
+  // Targets:
+  //   'probe' | 'home'  → ask parent shell to switch to home (or fall
+  //                        back to /ui when standalone)
+  //   'new project'      → reset to the input view
+  //   any stage id       → setRoute(stage)
+  const goTo = (target) => {
+    if (target === 'probe' || target === 'home') {
+      if (window.parent !== window) {
+        try { window.parent.postMessage({ type: 'probe-nav', target: 'home' }, '*'); } catch { /* */ }
+      } else {
+        window.location.href = '/ui';
+      }
+      return;
+    }
+    if (target === 'new project') { setRoute('input'); return; }
+    const stages = ['input', 'brainstorm', 'literature', 'methodology', 'artifacts', 'evaluation', 'report', 'review', 'done'];
+    if (stages.includes(target)) setRoute(target);
+  };
+
   const onKey = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -184,16 +207,16 @@ function NewProject() {
   };
 
   if (route === 'brainstorm') {
-    return <Brainstorm mainRq={mainRq} onBack={() => setRoute('input')}
+    return <Brainstorm mainRq={mainRq} onBack={() => setRoute('input')} goTo={goTo}
       onContinue={(branches) => { setSelectedBranches(branches); setRoute('literature'); }} />;
   }
   if (route === 'literature') {
-    return <window.Literature mainRq={mainRq} selectedBranches={selectedBranches}
+    return <window.Literature mainRq={mainRq} selectedBranches={selectedBranches} goTo={goTo}
       onBack={() => setRoute('brainstorm')}
       onContinue={() => setRoute('methodology')} />;
   }
   if (route === 'methodology') {
-    return <window.Methodology mainRq={mainRq} selectedBranches={selectedBranches}
+    return <window.Methodology mainRq={mainRq} selectedBranches={selectedBranches} goTo={goTo}
       onBack={() => setRoute('literature')}
       onContinue={({ chosenDesign: cd, plan: pl }) => {
         setChosenDesign(cd); setPlan(pl); setRoute('artifacts');
@@ -201,19 +224,19 @@ function NewProject() {
   }
   if (route === 'artifacts') {
     return <window.Artifacts chosenDesign={chosenDesign} plan={plan}
-      selectedBranches={selectedBranches}
+      selectedBranches={selectedBranches} goTo={goTo}
       onBack={() => setRoute('methodology')}
       onContinue={() => setRoute('evaluation')} />;
   }
   if (route === 'evaluation') {
     return <window.Evaluation chosenDesign={chosenDesign} plan={plan}
-      selectedBranches={selectedBranches}
+      selectedBranches={selectedBranches} goTo={goTo}
       onBack={() => setRoute('artifacts')}
       onDone={(result) => { setEvalResult(result); setRoute('report'); }} />;
   }
   if (route === 'report') {
     return <window.Report mainRq={mainRq} selectedBranches={selectedBranches}
-      chosenDesign={chosenDesign} plan={plan} evalResult={evalResult}
+      chosenDesign={chosenDesign} plan={plan} evalResult={evalResult} goTo={goTo}
       onBack={() => setRoute('evaluation')}
       onDone={() => setRoute('review')} />;
   }
@@ -223,25 +246,21 @@ function NewProject() {
     if (window.Review) {
       return <window.Review
         mainRq={mainRq} selectedBranches={selectedBranches}
-        chosenDesign={chosenDesign} plan={plan} evalResult={evalResult}
+        chosenDesign={chosenDesign} plan={plan} evalResult={evalResult} goTo={goTo}
         onBack={() => setRoute('report')}
         onDone={() => setRoute('done')} />;
     }
-    // Fallback if probe-review.jsx hasn't loaded yet
     return <div style={{ padding: 40, color: palette.ink3 }}>Loading review…</div>;
   }
   if (route === 'done') {
-    // Pass the full workflow state so the Done pane can save a demo
-    // recording that captures every stage (premise → review).
     const fullState = {
       premise: mainRq,
       selectedBranches,
       chosenDesign,
       plan,
       evalResult,
-      // Loose copy of any extra evalResult fields (paperTitle/discussion/conclusion/findings/personas)
     };
-    return <DonePane mainRq={mainRq} chosenDesign={chosenDesign}
+    return <DonePane mainRq={mainRq} chosenDesign={chosenDesign} goTo={goTo}
       fullState={fullState}
       onBack={() => setRoute('review')}
       onRestart={() => { setRoute('input'); setText(''); setMainRq(''); setSelectedBranches([]); setChosenDesign(null); setPlan(null); }} />;
@@ -251,7 +270,11 @@ function NewProject() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Crumb steps={[['probe', palette.amber], ['new project', palette.ink2]]}
+      <Crumb steps={[
+               ['probe', palette.amber, 'probe'],
+               ['new project', palette.ink2, 'new project'],
+             ]}
+             onStepClick={goTo}
              right={
                <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
                  <button
@@ -387,7 +410,7 @@ function NewProject() {
 }
 
 // ─── Brainstorm screen: Main RQ → 3 sub-RQs + custom ───
-function Brainstorm({ mainRq, onBack, onContinue }) {
+function Brainstorm({ mainRq, onBack, onContinue, goTo }) {
   const [thinking, setThinking] = useState(true);
   const [revealed, setRevealed] = useState(0); // how many branches have streamed in
   const [selected, setSelected] = useState(new Set());
@@ -540,10 +563,12 @@ function Brainstorm({ mainRq, onBack, onContinue }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Crumb steps={[
-        ['probe', palette.amber],
-        ['new project', palette.ink2],
-        ['brainstorm', palette.ink],
-      ]} right={
+        ['probe', palette.amber, 'probe'],
+        ['new project', palette.ink2, 'new project'],
+        ['brainstorm', palette.ink, 'brainstorm'],
+      ]}
+      onStepClick={goTo}
+      right={
         <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
           <span style={{ color: palette.ink3 }}>stage 1 · interrogator</span>
           <button onClick={onBack} style={ghostBtnStyle}><kbd style={kbdStyle}>esc</kbd> edit premise</button>
@@ -796,7 +821,7 @@ function Brainstorm({ mainRq, onBack, onContinue }) {
 }
 
 // ─── Final landing pane after the simulated evaluation finishes ───
-function DonePane({ mainRq, chosenDesign, fullState, onBack, onRestart }) {
+function DonePane({ mainRq, chosenDesign, fullState, onBack, onRestart, goTo }) {
   const [saveStatus, setSaveStatus] = useState(null);
 
   useEffect(() => {
@@ -830,15 +855,17 @@ function DonePane({ mainRq, chosenDesign, fullState, onBack, onRestart }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Crumb steps={[
-        ['probe', palette.amber],
-        ['new project', palette.ink2],
-        ['brainstorm', palette.ink2],
-        ['literature', palette.ink2],
-        ['methodology', palette.ink2],
-        ['artifacts', palette.ink2],
-        ['evaluation', palette.ink2],
-        ['ready', palette.ink],
-      ]} right={
+        ['probe', palette.amber, 'probe'],
+        ['new project', palette.ink2, 'new project'],
+        ['brainstorm', palette.ink2, 'brainstorm'],
+        ['literature', palette.ink2, 'literature'],
+        ['methodology', palette.ink2, 'methodology'],
+        ['artifacts', palette.ink2, 'artifacts'],
+        ['evaluation', palette.ink2, 'evaluation'],
+        ['ready', palette.ink, 'done'],
+      ]}
+      onStepClick={goTo}
+      right={
         <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
           <span style={{ color: palette.moss }}>● project ready</span>
           <button onClick={onBack} style={ghostBtnStyle}><kbd style={kbdStyle}>esc</kbd> back</button>
@@ -958,18 +985,32 @@ function Connector({ branchCount, thinking }) {
 }
 
 // ─── Reusable bits ───
-function Crumb({ steps, right }) {
+// Crumb supports clickable steps via onStepClick. Each step is a
+// triple [label, color, key]; the last step is treated as the
+// current location (not clickable). When the user clicks a non-last
+// step, onStepClick(key) fires.
+function Crumb({ steps, right, onStepClick }) {
   return (
     <div style={{
       padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 12,
       borderBottom: `1px solid ${palette.rule}`, color: palette.ink3, fontSize: 12,
     }}>
-      {steps.map(([s, c], i) => (
-        <React.Fragment key={i}>
-          <span style={{ color: c }}>{s}</span>
-          {i < steps.length - 1 && <span>›</span>}
-        </React.Fragment>
-      ))}
+      {steps.map((step, i) => {
+        const [s, c, key] = step;
+        const isLast = i === steps.length - 1;
+        const clickable = !isLast && onStepClick;
+        return (
+          <React.Fragment key={i}>
+            <span
+              onClick={clickable ? () => onStepClick(key || s) : undefined}
+              onMouseEnter={clickable ? (e) => { e.currentTarget.style.textDecoration = 'underline'; } : undefined}
+              onMouseLeave={clickable ? (e) => { e.currentTarget.style.textDecoration = 'none'; } : undefined}
+              style={{ color: c, cursor: clickable ? 'pointer' : 'default' }}
+            >{s}</span>
+            {i < steps.length - 1 && <span>›</span>}
+          </React.Fragment>
+        );
+      })}
       <span style={{ marginLeft: 'auto' }}>{right}</span>
     </div>
   );

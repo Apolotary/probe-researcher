@@ -987,7 +987,7 @@ const ghostBtnStyle2 = {
   fontSize: 12, cursor: 'pointer',
 };
 
-function ReviewWrapper({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBack, onDone }) {
+function ReviewWrapper({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBack, onDone, goTo }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(makeInitialReviewState());
   const [error, setError] = useState(null);
@@ -1049,23 +1049,34 @@ function ReviewWrapper({ mainRq, selectedBranches, chosenDesign, plan, evalResul
         padding: '12px 22px', display: 'flex', alignItems: 'center', gap: 12,
         color: palette.ink3, fontSize: 12,
       }}>
-        <span style={{ color: palette.amber, fontWeight: 600 }}>probe</span>
-        <span style={{ color: palette.ink4 }}>›</span>
-        <span style={{ color: palette.ink2 }}>new project</span>
-        <span style={{ color: palette.ink4 }}>›</span>
-        <span style={{ color: palette.ink2 }}>brainstorm</span>
-        <span style={{ color: palette.ink4 }}>›</span>
-        <span style={{ color: palette.ink2 }}>literature</span>
-        <span style={{ color: palette.ink4 }}>›</span>
-        <span style={{ color: palette.ink2 }}>methodology</span>
-        <span style={{ color: palette.ink4 }}>›</span>
-        <span style={{ color: palette.ink2 }}>artifacts</span>
-        <span style={{ color: palette.ink4 }}>›</span>
-        <span style={{ color: palette.ink2 }}>evaluation</span>
-        <span style={{ color: palette.ink4 }}>›</span>
-        <span style={{ color: palette.ink2 }}>report</span>
-        <span style={{ color: palette.ink4 }}>›</span>
-        <span style={{ color: palette.ink }}>review</span>
+        {[
+          ['probe',       palette.amber, 'probe'],
+          ['new project', palette.ink2,  'new project'],
+          ['brainstorm',  palette.ink2,  'brainstorm'],
+          ['literature',  palette.ink2,  'literature'],
+          ['methodology', palette.ink2,  'methodology'],
+          ['artifacts',   palette.ink2,  'artifacts'],
+          ['evaluation',  palette.ink2,  'evaluation'],
+          ['report',      palette.ink2,  'report'],
+          ['review',      palette.ink,   'review'],
+        ].map(([label, c, key], i, arr) => {
+          const isLast = i === arr.length - 1;
+          const clickable = !isLast && goTo;
+          return (
+            <React.Fragment key={i}>
+              <span
+                onClick={clickable ? () => goTo(key) : undefined}
+                onMouseEnter={clickable ? (e) => { e.currentTarget.style.textDecoration = 'underline'; } : undefined}
+                onMouseLeave={clickable ? (e) => { e.currentTarget.style.textDecoration = 'none'; } : undefined}
+                style={{
+                  color: c, cursor: clickable ? 'pointer' : 'default',
+                  fontWeight: i === 0 ? 600 : 'inherit',
+                }}
+              >{label}</span>
+              {i < arr.length - 1 && <span style={{ color: palette.ink4 }}>›</span>}
+            </React.Fragment>
+          );
+        })}
         <span style={{ marginLeft: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
           <span style={{ color: palette.ink3 }}>stage 7 · review</span>
           <button onClick={onBack} style={ghostBtnStyle2}>

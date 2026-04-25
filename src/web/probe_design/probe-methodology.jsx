@@ -170,7 +170,7 @@ function detailFor(component, selectedBranches) {
   return `${component.name}. Coverage: ${targets || 'support'}.`;
 }
 
-function Methodology({ mainRq, selectedBranches, onBack, onContinue }) {
+function Methodology({ mainRq, selectedBranches, onBack, onContinue, goTo }) {
   // Editable RQs — make a local copy so user can sharpen them in place.
   const [rqs, setRqs] = useState(() => selectedBranches.map((b) => ({ ...b })));
   const [mainRqLocal, setMainRqLocal] = useState(mainRq);
@@ -343,12 +343,13 @@ function Methodology({ mainRq, selectedBranches, onBack, onContinue }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Crumb steps={[
-        ['probe', palette.amber],
-        ['new project', palette.ink2],
-        ['brainstorm', palette.ink2],
-        ['literature', palette.ink2],
-        ['methodology', palette.ink],
-      ]} right={
+        ['probe', palette.amber, 'probe'],
+        ['new project', palette.ink2, 'new project'],
+        ['brainstorm', palette.ink2, 'brainstorm'],
+        ['literature', palette.ink2, 'literature'],
+        ['methodology', palette.ink, 'methodology'],
+      ]} onStepClick={goTo}
+      right={
         <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
           <span style={{ color: palette.ink3 }}>stage 3 · methodology</span>
           <button onClick={onBack} style={ghostBtnStyle}><kbd style={kbdStyle}>esc</kbd> back</button>
@@ -884,18 +885,28 @@ function SectionHeader({ title, hint }) {
   );
 }
 
-function Crumb({ steps, right }) {
+function Crumb({ steps, right, onStepClick }) {
   return (
     <div style={{
       padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 12,
       borderBottom: `1px solid ${palette.rule}`, color: palette.ink3, fontSize: 12,
     }}>
-      {steps.map(([s, c], i) => (
-        <React.Fragment key={i}>
-          <span style={{ color: c }}>{s}</span>
-          {i < steps.length - 1 && <span>›</span>}
-        </React.Fragment>
-      ))}
+      {steps.map((step, i) => {
+        const [s, c, key] = step;
+        const isLast = i === steps.length - 1;
+        const clickable = !isLast && onStepClick;
+        return (
+          <React.Fragment key={i}>
+            <span
+              onClick={clickable ? () => onStepClick(key || s) : undefined}
+              onMouseEnter={clickable ? (e) => { e.currentTarget.style.textDecoration = 'underline'; } : undefined}
+              onMouseLeave={clickable ? (e) => { e.currentTarget.style.textDecoration = 'none'; } : undefined}
+              style={{ color: c, cursor: clickable ? 'pointer' : 'default' }}
+            >{s}</span>
+            {i < steps.length - 1 && <span>›</span>}
+          </React.Fragment>
+        );
+      })}
       <span style={{ marginLeft: 'auto' }}>{right}</span>
     </div>
   );

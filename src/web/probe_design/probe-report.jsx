@@ -361,7 +361,7 @@ function downloadBlob(filename, blob) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBack, onDone }) {
+function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBack, onDone, goTo }) {
   const { evaluation = '', personas = [], n = 0 } = evalResult || {};
   const [discussion, setDiscussion] = useState(() => defaultDiscussion(selectedBranches));
   const [conclusion, setConclusion] = useState(() => defaultConclusion(selectedBranches));
@@ -458,15 +458,16 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Crumb steps={[
-        ['probe', palette.amber],
-        ['new project', palette.ink2],
-        ['brainstorm', palette.ink2],
-        ['literature', palette.ink2],
-        ['methodology', palette.ink2],
-        ['artifacts', palette.ink2],
-        ['evaluation', palette.ink2],
-        ['report', palette.ink],
-      ]} right={
+        ['probe', palette.amber, 'probe'],
+        ['new project', palette.ink2, 'new project'],
+        ['brainstorm', palette.ink2, 'brainstorm'],
+        ['literature', palette.ink2, 'literature'],
+        ['methodology', palette.ink2, 'methodology'],
+        ['artifacts', palette.ink2, 'artifacts'],
+        ['evaluation', palette.ink2, 'evaluation'],
+        ['report', palette.ink, 'report'],
+      ]} onStepClick={goTo}
+      right={
         <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
           <span style={{ color: palette.ink3 }}>stage 6 · report</span>
           <button onClick={onBack} style={ghostBtnStyle}><kbd style={kbdStyle}>esc</kbd> back</button>
@@ -815,18 +816,28 @@ function SectionHeader({ title, hint }) {
   );
 }
 
-function Crumb({ steps, right }) {
+function Crumb({ steps, right, onStepClick }) {
   return (
     <div style={{
       padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 12,
       borderBottom: `1px solid ${palette.rule}`, color: palette.ink3, fontSize: 12,
     }}>
-      {steps.map(([s, c], i) => (
-        <React.Fragment key={i}>
-          <span style={{ color: c }}>{s}</span>
-          {i < steps.length - 1 && <span>›</span>}
-        </React.Fragment>
-      ))}
+      {steps.map((step, i) => {
+        const [s, c, key] = step;
+        const isLast = i === steps.length - 1;
+        const clickable = !isLast && onStepClick;
+        return (
+          <React.Fragment key={i}>
+            <span
+              onClick={clickable ? () => onStepClick(key || s) : undefined}
+              onMouseEnter={clickable ? (e) => { e.currentTarget.style.textDecoration = 'underline'; } : undefined}
+              onMouseLeave={clickable ? (e) => { e.currentTarget.style.textDecoration = 'none'; } : undefined}
+              style={{ color: c, cursor: clickable ? 'pointer' : 'default' }}
+            >{s}</span>
+            {i < steps.length - 1 && <span>›</span>}
+          </React.Fragment>
+        );
+      })}
       <span style={{ marginLeft: 'auto' }}>{right}</span>
     </div>
   );

@@ -89,7 +89,7 @@ The contribution is threefold: (1) a calendar-structural account of within-day f
 Future work should replicate the somatic-first finding outside our sample, run a larger ritual trial, and design calendar-tooling experiments around agenda-presence as the primary lever.`;
 }
 
-function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone }) {
+function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo }) {
   const [n, setN] = useState(12);
   const [phase, setPhase] = useState('config'); // 'config' | 'running' | 'done'
   const [progress, setProgress] = useState(0);
@@ -161,14 +161,15 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone }) {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Crumb steps={[
-        ['probe', palette.amber],
-        ['new project', palette.ink2],
-        ['brainstorm', palette.ink2],
-        ['literature', palette.ink2],
-        ['methodology', palette.ink2],
-        ['artifacts', palette.ink2],
+        ['probe', palette.amber, 'probe'],
+        ['new project', palette.ink2, 'new project'],
+        ['brainstorm', palette.ink2, 'brainstorm'],
+        ['literature', palette.ink2, 'literature'],
+        ['methodology', palette.ink2, 'methodology'],
+        ['artifacts', palette.ink2, 'artifacts'],
         ['evaluation · simulated', palette.ink],
-      ]} right={
+      ]} onStepClick={goTo}
+      right={
         <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
           <span style={{ color: palette.ink3 }}>stage 5 · simulation</span>
           <button onClick={onBack} style={ghostBtnStyle}><kbd style={kbdStyle}>esc</kbd> back</button>
@@ -440,18 +441,28 @@ function SectionHeader({ title, hint }) {
   );
 }
 
-function Crumb({ steps, right }) {
+function Crumb({ steps, right, onStepClick }) {
   return (
     <div style={{
       padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 12,
       borderBottom: `1px solid ${palette.rule}`, color: palette.ink3, fontSize: 12,
     }}>
-      {steps.map(([s, c], i) => (
-        <React.Fragment key={i}>
-          <span style={{ color: c }}>{s}</span>
-          {i < steps.length - 1 && <span>›</span>}
-        </React.Fragment>
-      ))}
+      {steps.map((step, i) => {
+        const [s, c, key] = step;
+        const isLast = i === steps.length - 1;
+        const clickable = !isLast && onStepClick;
+        return (
+          <React.Fragment key={i}>
+            <span
+              onClick={clickable ? () => onStepClick(key || s) : undefined}
+              onMouseEnter={clickable ? (e) => { e.currentTarget.style.textDecoration = 'underline'; } : undefined}
+              onMouseLeave={clickable ? (e) => { e.currentTarget.style.textDecoration = 'none'; } : undefined}
+              style={{ color: c, cursor: clickable ? 'pointer' : 'default' }}
+            >{s}</span>
+            {i < steps.length - 1 && <span>›</span>}
+          </React.Fragment>
+        );
+      })}
       <span style={{ marginLeft: 'auto' }}>{right}</span>
     </div>
   );
