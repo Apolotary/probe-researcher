@@ -23,37 +23,49 @@ function inline(text) {
   let i = 0;
   let key = 0;
   while (i < text.length) {
-    // ** bold **
+    // ** bold ** — fgStrong on the new ramp; weight 600 keeps it
+    // distinguishable in Inter Tight without going full bold-black.
     let m = text.slice(i).match(/^\*\*([^*]+?)\*\*/);
     if (m) {
-      parts.push(<strong key={key++} style={{ color: mdPalette.ink, fontWeight: 600 }}>{m[1]}</strong>);
+      parts.push(<strong key={key++} style={{
+        color: mdPalette.fgStrong || mdPalette.ink, fontWeight: 600,
+      }}>{m[1]}</strong>);
       i += m[0].length;
       continue;
     }
-    // ` code `
+    // ` code ` — keep mono inline so identifiers, file paths, env
+    // vars, and CLI commands read as data inside prose. Cooler-blue
+    // accent (was cyan) per rec §08 demotion of amber.
     m = text.slice(i).match(/^`([^`]+?)`/);
     if (m) {
       parts.push(
         <code key={key++} style={{
-          fontFamily: 'ui-monospace, "JetBrains Mono", Menlo, monospace',
-          background: mdPalette.bg, color: mdPalette.cyan,
-          padding: '1px 5px', borderRadius: 2, fontSize: '0.95em',
+          fontFamily: mdPalette.fontMono || '"JetBrains Mono", ui-monospace, Menlo, monospace',
+          background: mdPalette.bg,
+          color: mdPalette.accentLink || mdPalette.cyan,
+          padding: '1px 5px', borderRadius: 2, fontSize: '0.92em',
         }}>{m[1]}</code>
       );
       i += m[0].length;
       continue;
     }
-    // *italic* — but not bullet markers (handled separately)
+    // *italic* — but not bullet markers (handled separately).
+    // Italic uses fgSecondary on the new ramp so emphasis reads as
+    // a half-step softer rather than as a different luminance band.
     m = text.slice(i).match(/^\*([^*\n]+?)\*/);
     if (m && !text.slice(i).startsWith('* ')) {
-      parts.push(<em key={key++} style={{ color: mdPalette.ink2 }}>{m[1]}</em>);
+      parts.push(<em key={key++} style={{
+        color: mdPalette.fgSecondary || mdPalette.ink2,
+      }}>{m[1]}</em>);
       i += m[0].length;
       continue;
     }
     // _underscore italic_
     m = text.slice(i).match(/^_([^_\n]+?)_/);
     if (m) {
-      parts.push(<em key={key++} style={{ color: mdPalette.ink2 }}>{m[1]}</em>);
+      parts.push(<em key={key++} style={{
+        color: mdPalette.fgSecondary || mdPalette.ink2,
+      }}>{m[1]}</em>);
       i += m[0].length;
       continue;
     }
@@ -166,19 +178,37 @@ function MarkdownText({ text, density }) {
   const tight = density === 'compact';
   const sectionGap = tight ? 8 : 12;
 
+  // Prose-mode rendering after the Claude Design readability audit:
+  // long-form text (paragraphs, blockquotes) renders in Inter Tight
+  // 15/24 with a 68ch measure cap; lists and headings keep mono +
+  // tighter sizes because they're navigational, not reading material.
+  // Inline runs (bold/italic/code) inside paragraphs inherit the sans
+  // family except code which switches to mono inline. The container
+  // sets max-width: 68ch so multi-paragraph text stays readable without
+  // each <p> needing its own width.
+  const sansFamily = mdPalette.fontSans || '"Inter Tight", "Inter", system-ui, sans-serif';
+  const monoFamily = mdPalette.fontMono || '"JetBrains Mono", ui-monospace, monospace';
+
   return (
-    <div style={{ color: mdPalette.ink, lineHeight: 1.6, fontSize: 13.5 }}>
+    <div style={{
+      color: mdPalette.fgBody || mdPalette.ink,
+      lineHeight: 1.62,
+      fontSize: 15,
+      maxWidth: mdPalette.proseMeasure || '68ch',
+    }}>
       {blocks.map((b, i) => {
         if (b.kind === 'h') {
-          const sizes = { 1: 18, 2: 16, 3: 14 };
+          const sizes = { 1: 22, 2: 17, 3: 15 };
           return (
             <div key={i} style={{
-              color: b.level === 1 ? mdPalette.amber : mdPalette.ink,
-              fontSize: sizes[b.level] || 14,
+              color: b.level === 1 ? mdPalette.amber : (mdPalette.fgStrong || mdPalette.ink),
+              fontFamily: sansFamily,
+              fontSize: sizes[b.level] || 15,
               fontWeight: 600,
               marginTop: i === 0 ? 0 : sectionGap + 4,
               marginBottom: 6,
-              letterSpacing: b.level === 1 ? '0.01em' : 0,
+              letterSpacing: b.level === 1 ? '-0.01em' : 0,
+              lineHeight: 1.25,
             }}>{inline(b.content)}</div>
           );
         }
@@ -186,15 +216,18 @@ function MarkdownText({ text, density }) {
           return (
             <div key={i} style={{
               borderLeft: `3px solid ${mdPalette.amber}`,
-              paddingLeft: 12, color: mdPalette.ink2,
+              paddingLeft: 12,
+              color: mdPalette.fgSecondary || mdPalette.ink2,
+              fontFamily: mdPalette.fontSerif || 'Charter, Georgia, serif',
               fontStyle: 'italic',
+              fontSize: 14.5,
               margin: `${sectionGap}px 0`,
             }}>{inline(b.content)}</div>
           );
         }
         if (b.kind === 'hr') {
           return <hr key={i} style={{
-            border: 'none', borderTop: `1px solid ${mdPalette.rule}`,
+            border: 'none', borderTop: `1px solid ${mdPalette.border || mdPalette.rule}`,
             margin: `${sectionGap}px 0`,
           }} />;
         }
@@ -203,7 +236,11 @@ function MarkdownText({ text, density }) {
           return (
             <Tag key={i} style={{
               margin: `${sectionGap / 2}px 0`,
-              paddingLeft: 22, color: mdPalette.ink,
+              paddingLeft: 22,
+              fontFamily: sansFamily,
+              fontSize: 15,
+              lineHeight: 1.55,
+              color: mdPalette.fgBody || mdPalette.ink,
             }}>
               {b.items.map((it, j) => (
                 <li key={j} style={{ marginBottom: 4 }}>{inline(it)}</li>
@@ -215,7 +252,11 @@ function MarkdownText({ text, density }) {
         return (
           <p key={i} style={{
             margin: `${sectionGap / 2}px 0`,
-            color: mdPalette.ink,
+            fontFamily: sansFamily,
+            fontSize: 15,
+            lineHeight: 1.62,
+            letterSpacing: '0.005em',
+            color: mdPalette.fgBody || mdPalette.ink,
           }}>{inline(b.content)}</p>
         );
       })}

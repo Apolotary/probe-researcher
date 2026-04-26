@@ -233,9 +233,21 @@ function Literature({ mainRq, selectedBranches, onBack, onContinue, goTo }) {
               </div>
             )}
 
-            {/* state of the art */}
+            {/* state of the art — long-form prose, the screen the
+                Claude Design audit flagged as the worst readability
+                moment. Sans 15/24 + 68ch measure cap from rec §02+§03;
+                citations like (Bailenson, 2021) inherit the prose
+                font but stay readable. */}
             <Section title="state of the art" hint="synthesis from agent read" reveal={stage >= 3}>
-              <p style={{ margin: 0, color: palette.ink, fontSize: 14, lineHeight: 1.65 }}>
+              <p style={{
+                margin: 0,
+                color: palette.fgBody || palette.ink,
+                fontFamily: palette.fontSans || '"Inter Tight", "Inter", system-ui, sans-serif',
+                fontSize: 15,
+                lineHeight: 1.62,
+                letterSpacing: '0.005em',
+                maxWidth: '68ch',
+              }}>
                 {lit.soa}
               </p>
             </Section>
