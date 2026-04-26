@@ -160,9 +160,9 @@ Spawns three real git worktrees — three divergent research programs — and ru
 
 ---
 
-## Closest HCI neighbors
+## Adjacent HCI literature
 
-Probe sits inside an active CHI 2026 conversation about LLMs as collaborators in research workflows. The three closest neighbors and how Probe differs:
+Probe sits inside an active recent conversation about LLMs as collaborators in research workflows. The three closest neighbors and how Probe differs:
 
 - **[Perspectra](https://arxiv.org/abs/2509.20553)** (Choosing Your Experts Enhances Critical Thinking in Multi-Agent Research Ideation) — multi-agent expert perspectives for *ideation*. Probe takes the same multi-agent expert primitive but points it at **adversarial venue-style review** of a complete study plan, with a forced-contrast disagreement audit on top.
 - **[Peeking Ahead of the Field Study](https://arxiv.org/abs/2602.16157)** (VLM personas for embodied HCI studies) — synthetic personas as **formative preparation**, not substitutes for participants. Probe inherits the same epistemic boundary verbatim: simulated outputs are tagged `[SIMULATION_REHEARSAL]` and a forbidden-phrase guard flags any drift into evidence-language. The framing throughout this README — *preflight method*, *rehearsal not evidence* — is downstream of this paper's positioning.
