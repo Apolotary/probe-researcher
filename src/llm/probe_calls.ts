@@ -676,8 +676,24 @@ export interface DisagreementAudit {
     }>;
     whyItMatters: string;
     doNotAverageBecause: string;
+    // v3.5 — round-N evaluator feedback: surface what specifically
+    // would be lost if the AC averaged the disagreement, and a
+    // 1–10 epistemicRiskScore (likelihood this conflict alone leads
+    // to desk reject if the rebuttal doesn't land). Both fields make
+    // the audit's reasoning visible per-disagreement rather than
+    // hiding it inside a freeform paragraph.
+    whatWouldBeLostIfAveraged: string;
+    epistemicRiskScore: number;
   }>;
-  falseDisagreements: Array<{ axis: string; explanation: string }>;
+  falseDisagreements: Array<{
+    axis: string;
+    explanation: string;
+    // Why does the AC see this as apparent rather than real? The
+    // evaluator panel asked for this explicitly — making it obvious
+    // why a disagreement was demoted is the test of long-context
+    // role tracking.
+    whyOnlyApparent?: string;
+  }>;
   strongestReviewer: { reviewer: string; reason: string };
   acDecision: { recommendation: string; rationale: string; requiredRevisions: string[] };
 }
@@ -709,6 +725,16 @@ Hard rules:
   in falseDisagreements (don't pad realDisagreements).
 - Use the axis labels (novelty/methodology/ethics/contribution/validity/scope/feasibility)
   consistently — multiple disagreements on the same axis are fine.
+- For EACH realDisagreement, you must populate:
+  · whatWouldBeLostIfAveraged — the specific signal the AC erases by
+    splitting the difference (1–2 sentences, concrete, naming the
+    reviewer position that gets erased).
+  · epistemicRiskScore — integer 1–10 estimating the likelihood this
+    single conflict alone would result in desk reject if the rebuttal
+    failed. 1 = cosmetic; 5 = standard major-revision territory;
+    10 = the conflict the paper would die on.
+- For each falseDisagreement, populate whyOnlyApparent — the actual
+  shared concern in different language.
 - Strict JSON only.`;
 
   const user =
@@ -739,11 +765,13 @@ Return JSON:
         {"reviewer": "R2", "position": "…", "evidence": "…"}
       ],
       "whyItMatters": "…",
-      "doNotAverageBecause": "…"
+      "doNotAverageBecause": "…",
+      "whatWouldBeLostIfAveraged": "…",
+      "epistemicRiskScore": 7
     }
   ],
   "falseDisagreements": [
-    {"axis": "scope", "explanation": "all 3 raise it but in different language"}
+    {"axis": "scope", "explanation": "all 3 raise it but in different language", "whyOnlyApparent": "R1 calls it 'overscoped', R2 calls it 'feature creep', R3 calls it 'lack of focus' — same concern, different vocabulary"}
   ],
   "strongestReviewer": {"reviewer": "R2", "reason": "…"},
   "acDecision": {

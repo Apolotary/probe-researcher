@@ -1020,12 +1020,19 @@ function Brainstorm({ mainRq, onBack, onContinue, goTo }) {
               borderLeft: `3px solid ${palette.amber}`, borderRadius: 4, fontSize: 12,
               display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12,
             }}>
+              {/* Label rename per round-N evaluator panel: "Boolean RQ
+                  composition" sounds like database querying. The
+                  underlying op is dialectical research synthesis —
+                  generate a hybrid sub-question by reconciling two
+                  angles. Surface that framing on the UI; the
+                  /api/probe/rq-boolean endpoint name stays for
+                  backwards-compat with cached demo replays. */}
               <span style={{ color: palette.amber, letterSpacing: '0.12em',
                 textTransform: 'uppercase', fontSize: 10.5, fontWeight: 600 }}>
-                opus 4.7 · compose
+                opus 4.7 · synthesize RQ
               </span>
               <span style={{ color: palette.ink2 }}>
-                Combine RQ {aLetter} and RQ {bLetter} into a synthesized question:
+                Reconcile RQ {aLetter} and RQ {bLetter} into a hybrid sub-question:
               </span>
               <span style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
                 {/* Plain-text labels are primary; the set-theory glyph

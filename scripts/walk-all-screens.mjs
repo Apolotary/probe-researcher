@@ -271,6 +271,38 @@ console.log('  goto review →', advanced);
 await pause(6000);
 await shot('14-review.png');
 
+// Scroll to the disagreement audit + Sonnet compare card and capture
+// the hero moment per the round-N evaluator panel. The iframe page is
+// the page itself (not embedded), so we scroll the window directly
+// rather than scrollIntoView on a node.
+await ev(`(() => {
+  const doc = ${docExpr()};
+  const win = doc.defaultView || window;
+  const audit = [...doc.querySelectorAll('*')].find((n) => /opus 4\\.7 · disagreement audit/i.test(n.textContent || '') && n.children.length < 20);
+  if (audit) {
+    const r = audit.getBoundingClientRect();
+    win.scrollTo(0, r.top + (win.scrollY || win.pageYOffset || 0) - 40);
+  }
+  return audit ? 'OK' : 'NOT_FOUND';
+})()`);
+await pause(1500);
+await shot('14b-review-audit.png');
+
+// Open the Sonnet compare disclosure and capture it.
+await ev(`(() => {
+  const doc = ${docExpr()};
+  const win = doc.defaultView || window;
+  const det = [...doc.querySelectorAll('details')].find((d) => /sonnet 4\\.6/i.test(d.textContent || ''));
+  if (det) {
+    det.open = true;
+    const r = det.getBoundingClientRect();
+    win.scrollTo(0, r.top + (win.scrollY || win.pageYOffset || 0) - 40);
+  }
+  return det ? 'OK' : 'NOT_FOUND';
+})()`);
+await pause(800);
+await shot('14c-review-compare.png');
+
 // ── 15. Config ────────────────────────────────────────────
 console.log('15. config');
 await navigate(`${PROBE}/ui/config`);

@@ -10,13 +10,41 @@ Built solo for the [Cerebral Valley **Built with Opus 4.7** hackathon](https://c
 
 ---
 
-## Try it in 30 seconds
+## For judges: fastest path (≤90 seconds, no API key)
 
 ```bash
 git clone https://github.com/Apolotary/probe-researcher.git
 cd probe-researcher && npm install && npm run build
 npx probe ui --web                # opens http://127.0.0.1:4470/ui
 ```
+
+1. Click **`▶ replay sample run`** in the left sidebar.
+2. Pick **`focus-rituals`** — the workflow opens with the bundled demo's premise pre-filled.
+3. Walk through the seven stages (brainstorm → review). Each is paced for inspection; total replay ≈14 s.
+4. **At the brainstorm stage**, select two RQ cards → click `merge A + B` → watch Opus 4.7 synthesize a hybrid sub-question.
+5. **At the review stage**, look at the amber **`opus 4.7 · disagreement audit`** card. That's the load-bearing Opus moment: separates real reviewer conflicts from apparent ones, with `whatWouldBeLostIfAveraged` and `epistemicRiskScore` per axis. Below it, expand **`▸ same panel · audited by sonnet 4.6`** to see how the same input renders without Opus's long-context discipline.
+
+No API key needed for replay. Live mode (typing your own premise) calls Anthropic directly.
+
+---
+
+## What's new in v2 (the hackathon-built artifact)
+
+These are the v2 features built April 21–26 2026 — the submitted work:
+
+- **`<DisagreementAuditCard>`** (Opus 4.7 only) — forced-contrast schema with `realDisagreements`, `falseDisagreements`, `whatWouldBeLostIfAveraged`, `epistemicRiskScore` (1–10) per axis, `whyOnlyApparent` per false disagreement, and an actionable `requiredRevisions` list.
+- **Opus vs Sonnet audit comparison** — `scripts/regen_audit_sonnet.ts` runs the same review panel through Sonnet 4.6 and saves the output; the review screen renders both side-by-side. Run the script yourself to verify the contrast.
+- **RQ synthesis** (Opus 4.7) — select two sub-RQs in brainstorm, choose merge / shared / minus to generate a third hybrid sub-question with rationale (Textoshop-style; arxiv 2409.17088).
+- **Per-stage model badges** — every stage renders an amber-bold `claude-opus-4-7` or muted `claude-sonnet-4-6` chip so model routing is visible to users, not buried in config.
+- **Replay infrastructure** — every Anthropic call's output is cached to disk; `▶ replay sample run` re-renders the full pipeline deterministically without spending any tokens.
+- **Provenance guard** — server-side forbidden-phrase scan rewrites evidence-language drift inline as `[⚠ SIMULATED · do not cite]` and surfaces a count badge on the report screen when it fires.
+- **97 vitest tests + 55-step e2e smoke harness** + atomic config layer with 0600 perms + per-IP rate limiting.
+
+Pre-existing reference material (the offline pipeline at `src/anthropic/`, `src/orchestrator/`, `src/lint/`, `src/render/`) is **not** part of the submission — see [`COMPLIANCE.md`](./COMPLIANCE.md) for the full scope-boundary disclosure.
+
+---
+
+## Try it in 30 seconds
 
 Click **`▶ replay sample run`** in the left sidebar → walk a 14-second demo of the full seven-stage pipeline — **no API key required, $0 spend**. Every cached payload was produced by a real Anthropic call; replay is a deterministic re-run with a small synthetic delay so stage transitions stay watchable.
 
@@ -55,12 +83,22 @@ The hackathon is about *creative use of Opus 4.7*. Probe routes Opus to the four
 
 **Then the Opus Disagreement Auditor runs over those three reviewers** and produces a structured analysis identifying:
 
-- **3 real disagreements** the AC must not average away (axes: `contribution`, `validity`, `methodology`)
-- **2 apparent disagreements** that look different but are the same objection in different language
+- **3 real disagreements** the AC must not average away — each annotated with `whatWouldBeLostIfAveraged` (the specific signal the AC erases by splitting the difference) and `epistemicRiskScore` (1–10, "how likely this single conflict alone is to cause desk reject")
+- **2 apparent disagreements** that look different but are the same objection in different language — each annotated with `whyOnlyApparent` (the actual shared concern)
 - The methodologically strongest reviewer
 - An AC decision with `requiredRevisions` items
 
-The forced-contrast schema is the difference between this and a generic "summarise the panel" prompt — the model is *required* to name disagreement and explain why it shouldn't be smoothed.
+The forced-contrast schema is the difference between this and a generic "summarise the panel" prompt — the model is *required* to name disagreement, quantify its risk, and explain what gets lost if it's smoothed.
+
+### Sonnet 4.6 ran the same audit. Here's what changed.
+
+`scripts/regen_audit_sonnet.ts` runs the byte-identical input through Sonnet 4.6 and writes the output to `assets/demos/focus-rituals-sonnet-audit.json`. The review screen renders both side-by-side. Run it yourself:
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-... npx tsx scripts/regen_audit_sonnet.ts
+```
+
+Honest result on the bundled `focus-rituals` panel: **Sonnet held the schema** — both arrays populated, `whatWouldBeLostIfAveraged` and `epistemicRiskScore` filled in, `whyOnlyApparent` populated on every false disagreement. *But* it took two prompt-output retries to produce valid JSON (Sonnet emitted missing-comma errors twice), needed `max_tokens: 6000` vs Opus's clean ~2.8k completion, and the per-axis loss-rationale runs noticeably more generic. The load-bearing claim retreats accordingly: **Opus produces a more nuanced audit with less overhead, but the schema isn't as constraint-forcing as we'd hoped**. The compare card on the review screen labels this honestly rather than overclaiming.
 
 ### Boolean RQ composition (v2) — adapted from Textoshop
 
@@ -68,22 +106,9 @@ When two sub-RQs are selected on the brainstorm stage, three buttons appear: **`
 
 ---
 
-## Built during the hackathon (April 21–26 2026)
+## Hackathon scope
 
-The submitted artifact is the **interactive web/TUI workflow** + the **live Anthropic web pipeline** + the **v2 Opus features**. Specifically:
-
-- `src/cli/ui_app.tsx`, `src/cli/ui_scenes/`, `src/cli/ui_state.ts` — TUI router + scenes + workflow state
-- `src/llm/probe_calls.ts` — async fns hitting the Anthropic SDK directly. **v2 additions:** `disagreementAudit`, `rqBoolean`
-- `src/web/server.ts`, `src/web/probe_api.ts` — Express server + `/api/probe/<stage>` endpoints. **v2 additions:** rate limits (30 req/min/IP), provenance guard for report/findings/review payloads, `/api/probe/models` for per-stage routing, `/api/probe/config` for live TOML round-trip
-- `src/web/probe_design/` — the design-handoff JSX + HTML. **v2 additions:** Opus-amber model badges, boolean-ops UI on brainstorm, replay-active pill, real recents from disk
-- `src/web/probe_demo.ts` + `assets/demos/focus-rituals.json` — save/replay infrastructure with the bundled gold demo (62KB, 9 stages, 3 reviewers, audit)
-- `src/config/probe_toml.ts` — atomic config layer with per-stage model resolver
-
-**Pre-existing (engine the new UI sits on, not part of the submission scope):**
-
-- `src/anthropic/client.ts`, `src/lint/`, `src/orchestrator/`, `src/render/` — the older offline pipeline behind `probe run`
-- `runs/` — 19 benchmark research runs documenting how Probe behaves at scale (kept as rigor reference)
-- `corpus/source_cards/`, `patterns/`, `agents/<role>.md` — the 12-source-card corpus, 16-pattern capture-risk library, agent prompts
+The submitted artifact is the interactive web/TUI workflow + the live Anthropic web pipeline + the v2 Opus features (audit card, RQ synthesis, replay, provenance guard). The pre-existing offline pipeline at `src/anthropic/`, `src/orchestrator/`, `src/lint/`, `src/render/` is **not** part of the submission — see [`COMPLIANCE.md`](./COMPLIANCE.md) for the full file-by-file scope-boundary disclosure.
 
 ---
 

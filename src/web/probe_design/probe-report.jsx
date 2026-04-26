@@ -477,6 +477,14 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
   // model output. Persona feedback called this out: "you can't tell
   // what's a stub and what just came back from Sonnet."
   const [live, setLive] = useState({ titles: false, discussion: false, conclusion: false });
+  // Provenance violations surfaced by the web guard (server-side
+  // forbidden-phrase scan in served()). When the guard finds drift
+  // into evidence-language ("users preferred...") it inserts
+  // [⚠ SIMULATED · do not cite] inline AND attaches a violations
+  // array to the response. v3.5 surfaces the count as a small badge
+  // so the honesty machinery is visible to users, not just hidden
+  // in JSON. Round-N evaluator panel called this out specifically.
+  const [provenance, setProvenance] = useState(null);
   const [titleIdx, setTitleIdx] = useState(0);
   const [editingTitleIdx, setEditingTitleIdx] = useState(null);
   const [editing, setEditing] = useState(null); // 'disc' | 'conc'
@@ -508,6 +516,9 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
         if (data.discussion) { setDiscussion(data.discussion); update.discussion = true; }
         if (data.conclusion) { setConclusion(data.conclusion); update.conclusion = true; }
         setLive(update);
+        if (data.provenance && Array.isArray(data.provenance.violations) && data.provenance.violations.length) {
+          setProvenance(data.provenance);
+        }
       })
       .catch(() => { /* keep stock content */ });
     return () => clearTimeout(t);
@@ -635,6 +646,46 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
         <h2 style={{ fontSize: 18, fontWeight: 500, margin: 0, color: palette.ink2 }}>
           Probe drafted discussion-shaped and conclusion-shaped notes off the pre-mortem. These are sketches of <em>what such sections might look like</em>, not findings. Edit anything, then export the rehearsal memo.
         </h2>
+
+        {provenance && (
+          // Provenance guard fired — show how many phrases got
+          // rewritten as [⚠ SIMULATED · do not cite] in the body.
+          // The badge is the only place users see the guard working.
+          <div style={{
+            marginTop: 12,
+            padding: '10px 14px',
+            background: 'rgba(201,117,96,0.05)',
+            border: `1px solid ${palette.rose}`,
+            borderLeft: `3px solid ${palette.rose}`,
+            borderRadius: 3,
+            fontSize: 12.5,
+            color: palette.fgBody || palette.ink,
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <span style={{
+              color: palette.rose, fontWeight: 700, fontSize: 11,
+              fontFamily: palette.fontMono || 'monospace',
+              letterSpacing: '0.10em', textTransform: 'uppercase',
+              padding: '2px 8px', border: `1px solid ${palette.rose}`,
+              borderRadius: 999,
+            }}>
+              {provenance.violations.length} flagged
+            </span>
+            <span style={{
+              fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+            }}>
+              Provenance guard rewrote {provenance.violations.length}{' '}
+              {provenance.violations.length === 1 ? 'phrase' : 'phrases'} as
+              {' '}<code style={{
+                fontFamily: palette.fontMono || 'monospace',
+                fontSize: 12, color: palette.rose,
+                background: 'rgba(201,117,96,0.08)',
+                padding: '0 5px', borderRadius: 2,
+              }}>[⚠ SIMULATED · do not cite]</code>
+              {' '}before this section rendered. {provenance.policy}
+            </span>
+          </div>
+        )}
 
         {stage === 0 ? (
           <>

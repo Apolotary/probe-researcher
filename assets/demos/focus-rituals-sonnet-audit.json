@@ -1,0 +1,115 @@
+{
+  "generatedAt": "2026-04-26T16:01:52.783Z",
+  "model": "claude-sonnet-4-6",
+  "elapsedSec": 63.4,
+  "inputUsage": {
+    "input_tokens": 2355,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "cache_creation": {
+      "ephemeral_5m_input_tokens": 0,
+      "ephemeral_1h_input_tokens": 0
+    },
+    "output_tokens": 3216,
+    "service_tier": "standard",
+    "inference_geo": "global"
+  },
+  "audit": {
+    "summary": "The panel splits on two genuinely incompatible judgments: R2 believes the ecological validity and translational value are sufficient for near-term acceptance once minor fixes are made, while R1 and R3 identify structural problems—crossover contamination and mechanistic overclaiming—that are not addressable by minor revisions. A second, non-collapsible conflict exists between R1 (who treats the intervention confound as a validity concern) and R3 (who treats it as a near-fatal theoretical void that renders RQ B 'nearly vacuous').",
+    "realDisagreements": [
+      {
+        "axis": "validity",
+        "reviewerPositions": [
+          {
+            "reviewer": "R2",
+            "position": "The ecological and translational value of the work is sufficient for acceptance with minor revisions; the paper's real-world relevance and longitudinal richness outweigh its methodological gaps.",
+            "evidence": "R2 one-line: 'Strong real-world relevance; minor methodological fixes would make this publishable quickly.' R2 lists all three weaknesses as addressable procedural gaps (reactivity quantification, inter-rater stats, construct conflation), none of which it frames as structurally disqualifying."
+          },
+          {
+            "reviewer": "R1",
+            "position": "The crossover contamination is critical and unresolved; without a sensitivity or carryover analysis the headline 22% fatigue-reduction figure cannot be trusted, making the quantitative contribution indeterminate.",
+            "evidence": "R1 weakness #1: 'F1 (Crossover Condition Contamination) is critical and unresolved… The paper acknowledges this but offers no sensitivity analysis to bound the contamination effect.'"
+          },
+          {
+            "reviewer": "R3",
+            "position": "The intervention confound (breathing vs. task-preview components bundled together) is not merely a validity caveat but renders the theoretical contribution of RQ B 'nearly vacuous'; this requires a dismantling design or component-level mediation, not just a limitation note.",
+            "evidence": "R3 weakness #2: 'Without a dismantling design or at minimum a component-level mediation analysis, it is impossible to attribute the intervention effect to either mechanism, rendering the theoretical contribution of RQ B nearly vacuous.'"
+          }
+        ],
+        "whyItMatters": "R2's 'minor fixes' framing implies the paper's causal and theoretical claims can stand after cosmetic additions; R1 and R3 hold that those claims are currently unsupportable and require new analysis or new data collection. Averaging toward 'major revision with a carryover analysis' papers over the fact that R3 believes the intervention design itself is theoretically bankrupt regardless of additional statistics.",
+        "doNotAverageBecause": "R2's acceptance-track verdict and R3's 'RQ B is nearly vacuous' verdict are mutually exclusive; a split-the-difference 'major revision' verdict could result in the authors adding a mediation footnote and resubmitting under R2's framing without ever addressing R3's fundamental dismantling-design objection.",
+        "whatWouldBeLostIfAveraged": "R3's position—that the bundled intervention makes it theoretically impossible to attribute the effect to either mechanism, not merely harder to interpret—gets erased. The AC would implicitly endorse the idea that a limitation acknowledgment is sufficient, which it is not if the theoretical contribution of RQ B depends on knowing which component drives the effect.",
+        "epistemicRiskScore": 8
+      },
+      {
+        "axis": "novelty",
+        "reviewerPositions": [
+          {
+            "reviewer": "R1",
+            "position": "The divergence between physiological and self-report indicators is a 'genuinely novel empirical contribution' that justifies the paper's place in the literature.",
+            "evidence": "R1 strength #1: 'the divergence of physiological and self-report indicators is a genuinely novel empirical contribution.'"
+          },
+          {
+            "reviewer": "R3",
+            "position": "The physiological measurements (HRV, sustained-attention task scores) are distal proxies, not mechanistic evidence; the mechanistic novelty claim in RQ A is unsupported and the language must be retracted unless neuroimaging or pupillometry is added.",
+            "evidence": "R3 weakness #1: 'RQ A claims to investigate cognitive and physiological mechanisms but the study measures proxies only… The paper does not adequately caveat this gap, repeatedly using the language of mechanism without mechanism-level data.'"
+          }
+        ],
+        "whyItMatters": "R1 frames the physiological-vs-self-report divergence as a novel empirical contribution worth publishing on; R3 frames the same data as insufficiently mechanistic to support the paper's own RQ framing. These are not compatible assessments of what the paper actually contributes theoretically.",
+        "doNotAverageBecause": "If averaged, the AC might require only a language softening ('correlates' for 'mechanisms'), satisfying R1 while appearing to satisfy R3. But R3's concern is not lexical—it is that the measurement apparatus cannot support any mechanistic inference, and the novelty claim collapses without it.",
+        "whatWouldBeLostIfAveraged": "R3's position that the contribution of RQ A is fundamentally mislabeled—and that honest recategorization would significantly diminish the paper's novelty score—gets collapsed into a cosmetic rewrite. R1's endorsement of the divergence finding as novel would then be used to justify retaining the mechanistic framing in substance even if the word 'mechanism' is replaced.",
+        "epistemicRiskScore": 6
+      },
+      {
+        "axis": "methodology",
+        "reviewerPositions": [
+          {
+            "reviewer": "R3",
+            "position": "End-of-day recall interviews introduce substantial retrospective bias for fine-grained attentional states; this is not a minor procedural inconvenience but systematically distorts the phenomenological validity of RQ C.",
+            "evidence": "R3 weakness #3: 'compressing interviews to end-of-day recall introduces substantial retrospective bias for fine-grained attentional states experienced hours earlier. This is not a minor procedural inconvenience; it systematically distorts the phenomenological validity of RQ C's narrative findings.'"
+          },
+          {
+            "reviewer": "R2",
+            "position": "The qualitative findings in RQ C are answered with 'unusual richness' and surface actionable environmental affordance categories; the qualitative contribution is treated as a strength, with inter-rater reliability as the only credibility gap.",
+            "evidence": "R2 strength #1: 'RQ C is answered with unusual richness… will be directly actionable for workplace designers and HR practitioners.' R2 does not flag retrospective bias as a concern at all."
+          }
+        ],
+        "whyItMatters": "R2 treats RQ C's qualitative findings as a core publishable contribution; R3 treats the data-collection method for those findings as introducing systematic distortion that undermines their phenomenological validity. These positions imply different revision scopes—R2 requires only reporting κ, while R3's concern implies either experience-sampling replacement or a fundamental caveat that degrades RQ C's standing.",
+        "doNotAverageBecause": "The AC cannot satisfy both reviewers by asking for inter-rater statistics (R2's fix) while leaving the recall-bias problem unaddressed (R3's concern). Doing so would implicitly endorse R2's view that the qualitative findings are trustworthy with housekeeping additions.",
+        "whatWouldBeLostIfAveraged": "R3's specific signal—that recall bias is a systematic validity threat to the phenomenological claims of RQ C, not a minor procedural note—gets erased. The paper would pass revision on qualitative grounds by satisfying R2's κ requirement while never confronting whether the end-of-day interview design is fit for purpose.",
+        "epistemicRiskScore": 5
+      }
+    ],
+    "falseDisagreements": [
+      {
+        "axis": "validity",
+        "explanation": "R1 foregrounds the missing confidence intervals and [SIMULATION_REHEARSAL] placeholders as a credibility crisis for effect-size claims. R3 foregrounds the underdescription of HRV operationalization (which metric, epoch length, artifact handling). R2 does not foreground either but notes the reactivity plateau is unquantified.",
+        "whyOnlyApparent": "All three reviewers are expressing the same underlying concern—that the quantitative results cannot be evaluated in their current form—through different entry points. R1 attacks the reported effect sizes, R3 attacks the measurement specification that would allow replication, and R2 attacks the temporal validity of early-phase data. The shared objection is: the numbers as presented are unauditable."
+      },
+      {
+        "axis": "scope",
+        "explanation": "R2 criticizes the conflation of synchronous meeting density with asynchronous task interruptions as limiting construct specificity. R3 criticizes the bundling of breathing and task-preview components as limiting theoretical attribution. These look like different scope complaints.",
+        "whyOnlyApparent": "Both reviewers are expressing the same concern about insufficient experimental decomposition: the paper does not separate its key independent variables (type of cognitive load source; type of intervention component) in ways that would allow meaningful attribution. The shared concern is construct conflation masking what is actually doing the explanatory work."
+      }
+    ],
+    "strongestReviewer": {
+      "reviewer": "R3",
+      "reason": "R3 identifies the two most structurally damaging problems in the paper—the mechanistic overclaiming in RQ A that misrepresents what HRV and sustained-attention scores can license theoretically, and the intervention confound that renders RQ B's contribution 'nearly vacuous'—with enough specificity (naming required alternatives: fNIRS, EEG alpha, pupillometry, dismantling design, component mediation) that the authors cannot address either concern with language edits alone. R3 also correctly elevates the end-of-day recall problem from a procedural note to a systematic validity threat. These three independent structural critiques are more consequential than R1's contamination concern or R2's housekeeping requests, and R3 provides the clearest falsifiability standards the paper would need to meet."
+    },
+    "acDecision": {
+      "recommendation": "major revisions",
+      "rationale": "R2's minor-revision verdict cannot be sustained given the structural objections from R1 and R3. The [SIMULATION_REHEARSAL] placeholders alone prevent quantitative evaluation. More seriously, R3's mechanistic overclaiming and intervention-confound objections are not addressable by language softening or additional statistics on the existing design—they require either (a) new measurement apparatus (pupillometry, fNIRS) to restore RQ A's mechanistic framing, or (b) an explicit theoretical retreat that reframes the contribution as correlational. The crossover contamination (R1) requires a Jones-Kenward or equivalent carryover analysis, not just an acknowledgment. The end-of-day recall problem (R3) requires either experience-sampling replacement or an explicit downgrade of RQ C's phenomenological claims. The paper has genuine longitudinal and ecological contributions worth preserving, but its current theoretical ambitions substantially exceed its measurement infrastructure.",
+      "requiredRevisions": [
+        "Replace all [SIMULATION_REHEARSAL] placeholders with actual empirical statistics including means, SDs, 95% CIs, and standardized effect sizes before any further review is possible.",
+        "Conduct a Jones-Kenward or equivalent carryover-effect analysis to bound the F1 crossover contamination threat; report sensitivity analyses showing how the 22% fatigue-reduction figure changes under conservative contamination assumptions.",
+        "Reframe RQ A's language from 'mechanisms' to 'behavioral and autonomic correlates' throughout, OR add a neurophysiological measure (pupillometry, EEG alpha-band, fNIRS) that licenses mechanistic inference—a terminology change alone will not satisfy R3.",
+        "Address the intervention confound in RQ B by either (a) reporting a component-level mediation analysis separating breathing from task-preview effects, or (b) explicitly downgrading the theoretical contribution of RQ B from mechanism attribution to proof-of-concept efficacy, with a dismantling design proposed as future work.",
+        "Fully specify the autonomic arousal operationalization: name the HRV metric (RMSSD, LF/HF, SDNN), epoch length, and motion-artifact handling protocol to enable replication.",
+        "Report qualitative inter-rater reliability (Cohen's κ or Krippendorff's α) for the coding scheme, and quantify the F2 reactivity plateau by comparing outcome distributions in weeks 1–2 versus weeks 3+ to determine whether early-phase data must be excluded or flagged.",
+        "Either replace end-of-day recall interviews with experience-sampling micro-interviews timed within 30 minutes of each call block, or explicitly reframe RQ C's phenomenological claims as retrospective reconstructions subject to recall bias—R3's objection cannot be resolved by inter-rater statistics alone.",
+        "Disaggregate 'heavy video-call days' by synchronous meeting density versus asynchronous interruption frequency, and report whether cognitive cost outcomes differ across these sub-conditions, addressing R2's construct-conflation concern."
+      ]
+    }
+  },
+  "note": "Generated by scripts/regen_audit_sonnet.ts to enable a side-by-side comparison with the Opus 4.7 audit in focus-rituals.json. The two inputs are byte-identical; only the model varies."
+}

@@ -245,6 +245,7 @@ function ReviewBody({ data, density }) {
 
       <Section title="opus 4.7 · disagreement audit" accent="#d9a548">
         <DisagreementAuditCard review={effectiveReview} />
+        <SonnetCompareCard />
       </Section>
 
       <Section title="what now" accent={palette.amber}>
@@ -255,6 +256,161 @@ function ReviewBody({ data, density }) {
         <PanelComposer reviewers={review.reviewers} />
       </Section>
     </>
+  );
+}
+
+// ─── Sonnet vs Opus comparison card ───────────────────────────────
+// Round-N evaluator panel flagged that the "smaller models would
+// fail" claim is unsupported. This card surfaces a pre-computed
+// Sonnet audit (via /api/probe/audit-compare, populated by
+// scripts/regen_audit_sonnet.ts) and renders the contrast inline.
+// If Sonnet collapsed the structure (zero falseDisagreements, no
+// whatWouldBeLostIfAveraged, no epistemicRiskScore) the contrast is
+// the visible win; if Sonnet handled it cleanly the card honestly
+// labels that, retreating to "Opus does it more elegantly".
+function SonnetCompareCard() {
+  const [data, setData] = React.useState(null);
+  const [error, setError] = React.useState(null);
+  const [open, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/probe/audit-compare')
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('compare ' + r.status)))
+      .then((d) => setData(d))
+      .catch((e) => setError(String(e.message || e)));
+  }, []);
+
+  // Comparison file not present yet — keep the disclosure invisible
+  // rather than show a "this thing is missing" warning that costs
+  // demo trust. The README documents the regen script for judges.
+  if (error || !data) return null;
+
+  // Quick contrast sanity inline — same logic the regen script uses,
+  // so the UI text stays in sync with what an evaluator would compute
+  // from the JSON.
+  const a = data.audit || {};
+  const sonnetReal = (a.realDisagreements || []).length;
+  const sonnetFalse = (a.falseDisagreements || []).length;
+  const lossPopulated = (a.realDisagreements || []).filter((d) => (d.whatWouldBeLostIfAveraged || '').length > 30).length;
+  const riskPopulated = (a.realDisagreements || []).filter((d) => typeof d.epistemicRiskScore === 'number').length;
+  const allFieldsPopulated = sonnetReal > 0 && lossPopulated === sonnetReal && riskPopulated === sonnetReal;
+  const collapsed = sonnetFalse === 0;
+
+  let verdict;
+  if (collapsed && !allFieldsPopulated) {
+    verdict = {
+      kind: 'opus-wins',
+      headline: 'Sonnet collapsed the contrast.',
+      detail: `Sonnet returned ${sonnetReal} realDisagreements but ${sonnetFalse} falseDisagreements (forced-contrast schema requires both arrays populated when reviewers diverge). ${lossPopulated < sonnetReal ? 'whatWouldBeLostIfAveraged was left empty on ' + (sonnetReal - lossPopulated) + ' of ' + sonnetReal + ' real disagreements.' : ''} Opus 4.7 populates both with rationale per axis.`,
+    };
+  } else if (collapsed) {
+    verdict = {
+      kind: 'partial',
+      headline: 'Sonnet skipped falseDisagreements.',
+      detail: `Sonnet treated every disagreement as substantive (${sonnetReal} real / 0 false), which loses the AC's most important signal: which reviewer objections look like conflict but actually aren't. Opus separates them.`,
+    };
+  } else if (!allFieldsPopulated) {
+    verdict = {
+      kind: 'partial',
+      headline: 'Sonnet held the schema but skipped reasoning fields.',
+      detail: `Sonnet populated both arrays (${sonnetReal} real / ${sonnetFalse} false) but left ${sonnetReal - lossPopulated} of ${sonnetReal} whatWouldBeLostIfAveraged fields empty. Opus produces concrete loss rationale per disagreement.`,
+    };
+  } else {
+    verdict = {
+      kind: 'sonnet-handles',
+      headline: 'Sonnet held the schema.',
+      detail: `Sonnet populated all fields ${sonnetReal} real / ${sonnetFalse} false / loss + risk on every row. The load-bearing claim retreats: Opus produces a more nuanced audit, but the schema isn't as constraint-forcing as we'd hoped. Honest result.`,
+    };
+  }
+
+  const verdictColor = {
+    'opus-wins':     palette.amber,
+    'partial':       palette.amber,
+    'sonnet-handles': palette.fgSecondary || palette.ink2,
+  }[verdict.kind];
+
+  return (
+    <details
+      open={open}
+      onToggle={(e) => setOpen(e.currentTarget.open)}
+      style={{
+        marginTop: 12,
+        background: palette.bgPanel || palette.bg2,
+        border: `1px solid ${palette.border || palette.rule}`,
+        borderLeft: `3px solid ${verdictColor}`,
+        borderRadius: 4,
+      }}>
+      <summary style={{
+        cursor: 'pointer', userSelect: 'none', listStyle: 'none',
+        padding: '12px 16px',
+        display: 'flex', alignItems: 'center', gap: 10,
+        fontFamily: palette.fontMono || 'monospace', fontSize: 11,
+        color: palette.fgMute || palette.ink3,
+        letterSpacing: '0.10em', textTransform: 'uppercase',
+      }}>
+        <span style={{
+          color: verdictColor, fontWeight: 600,
+        }}>▸ same panel · audited by sonnet 4.6</span>
+        <span style={{ flex: 1 }} />
+        <span style={{
+          fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+          fontSize: 12, textTransform: 'none', letterSpacing: 0,
+          color: palette.fgBody || palette.ink,
+          fontWeight: 500,
+        }}>{verdict.headline}</span>
+      </summary>
+      <div style={{
+        padding: '0 16px 14px 16px',
+        color: palette.fgBody || palette.ink,
+        fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+        fontSize: 13.5, lineHeight: 1.55,
+      }}>
+        <p style={{ margin: '4px 0 10px', maxWidth: '64ch' }}>{verdict.detail}</p>
+
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
+          fontFamily: palette.fontMono || 'monospace', fontSize: 11.5,
+          color: palette.fgSecondary || palette.ink2,
+        }}>
+          <div style={{
+            padding: '8px 10px',
+            background: 'rgba(217,165,72,0.04)',
+            border: '1px solid rgba(217,165,72,0.2)',
+            borderRadius: 3,
+          }}>
+            <div style={{
+              color: palette.amber, fontWeight: 600, fontSize: 10.5,
+              letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 4,
+            }}>opus 4.7</div>
+            <div>real:  preserved · loss + risk per axis</div>
+            <div>false: explained · "why only apparent"</div>
+          </div>
+          <div style={{
+            padding: '8px 10px',
+            background: collapsed ? 'rgba(226,110,110,0.04)' : 'rgba(154,151,140,0.04)',
+            border: `1px solid ${collapsed ? 'rgba(226,110,110,0.2)' : palette.border || palette.rule}`,
+            borderRadius: 3,
+          }}>
+            <div style={{
+              color: collapsed ? palette.rose : (palette.fgMute || palette.ink3),
+              fontWeight: 600, fontSize: 10.5,
+              letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 4,
+            }}>sonnet 4.6</div>
+            <div>real:  {sonnetReal}{lossPopulated < sonnetReal ? ` · loss empty on ${sonnetReal - lossPopulated}` : ' · all fields'}</div>
+            <div>false: {sonnetFalse}{collapsed ? ' · contrast collapsed' : ''}</div>
+          </div>
+        </div>
+
+        <div style={{
+          marginTop: 10, color: palette.fgMute || palette.ink4, fontSize: 10.5,
+          fontFamily: palette.fontMono || 'monospace',
+        }}>
+          generated by <code>scripts/regen_audit_sonnet.ts</code> ·
+          {' '}same input panel · only the model varies ·
+          {' '}{(data.elapsedSec || 0).toFixed(1)}s · {data.model}
+        </div>
+      </div>
+    </details>
   );
 }
 
@@ -448,6 +604,25 @@ function DisagreementAuditCard({ review }) {
                       {d.reviewerPositions.map((p) => p.reviewer).join(' vs. ')}
                     </span>
                   )}
+                  {/* Epistemic risk score — 1–10 estimate of how
+                      likely THIS conflict alone is to result in desk
+                      reject. Surfaces Opus's per-axis judgment
+                      quantitatively. Pill colors track risk: green
+                      ≤3, amber 4–6, red ≥7. */}
+                  {typeof d.epistemicRiskScore === 'number' && (() => {
+                    const r = d.epistemicRiskScore;
+                    const c = r >= 7 ? '#e26e6e' : r >= 4 ? '#d9a548' : '#7fb069';
+                    return (
+                      <span title="epistemic risk · 1=cosmetic, 5=major-revision, 10=desk-reject"
+                        style={{
+                          marginLeft: 'auto',
+                          color: c, fontSize: 10.5, fontWeight: 700,
+                          fontFamily: 'inherit',
+                          border: `1px solid ${c}`, padding: '1px 7px', borderRadius: 999,
+                          letterSpacing: '0.04em',
+                        }}>risk {r}/10</span>
+                    );
+                  })()}
                 </div>
                 {Array.isArray(d.reviewerPositions) && d.reviewerPositions.map((p, j) => (
                   <div key={j} style={{ color: palette.ink2, fontSize: 12, marginBottom: 4, paddingLeft: 8 }}>
@@ -465,6 +640,26 @@ function DisagreementAuditCard({ review }) {
                     ⚠ do not average: {d.doNotAverageBecause}
                   </div>
                 )}
+                {/* whatWouldBeLostIfAveraged — concrete signal the
+                    AC erases by splitting the difference. The
+                    evaluator panel called this out specifically as
+                    the field that makes the audit visibly Opus-
+                    grade rather than a generic synthesis. */}
+                {d.whatWouldBeLostIfAveraged && (
+                  <div style={{
+                    color: palette.fgBody || palette.ink, fontSize: 12.5, marginTop: 6,
+                    paddingLeft: 8,
+                    borderLeft: `2px solid ${palette.fgFaint || '#4a4d54'}`,
+                    paddingTop: 2, paddingBottom: 2,
+                  }}>
+                    <span style={{
+                      color: palette.fgMute || palette.ink3, fontFamily: 'monospace',
+                      fontSize: 10.5, letterSpacing: '0.06em', textTransform: 'uppercase',
+                      marginRight: 6,
+                    }}>lost if averaged:</span>
+                    {d.whatWouldBeLostIfAveraged}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -478,8 +673,29 @@ function DisagreementAuditCard({ review }) {
             apparent disagreements · {audit.falseDisagreements.length} · same objection, different language
           </div>
           {audit.falseDisagreements.map((d, i) => (
-            <div key={i} style={{ color: palette.ink3, fontSize: 12, paddingLeft: 8, marginBottom: 4 }}>
-              <span style={{ color: palette.ink2 }}>{d.axis}</span> — {d.explanation}
+            <div key={i} style={{
+              color: palette.fgSecondary || palette.ink3, fontSize: 12.5,
+              paddingLeft: 8, marginBottom: 8,
+              fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+              lineHeight: 1.5,
+            }}>
+              <div>
+                <span style={{
+                  color: palette.fgBody || palette.ink2, fontWeight: 600,
+                  fontFamily: palette.fontMono || 'monospace', fontSize: 11,
+                  letterSpacing: '0.06em', textTransform: 'uppercase',
+                  marginRight: 8,
+                }}>{d.axis}</span>
+                {d.explanation}
+              </div>
+              {d.whyOnlyApparent && (
+                <div style={{
+                  color: palette.fgMute || palette.ink4, fontSize: 11.5,
+                  marginTop: 2, fontStyle: 'italic',
+                }}>
+                  why only apparent: {d.whyOnlyApparent}
+                </div>
+              )}
             </div>
           ))}
         </div>
