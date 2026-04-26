@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/probe_logo.svg" alt="Probe — rehearsal stage for research" width="560"/>
+  <img src="./docs/screenshots/05-launcher.png" alt="Probe — the agentic research-design pipeline" width="780"/>
 </p>
 
 # Probe
@@ -12,34 +12,73 @@ Built for the [Cerebral Valley **Built with Opus 4.7** hackathon](https://cerebr
 
 ---
 
-## Hackathon submission · 60-second tour
+## Hackathon submission · the web UI is the demo
 
-> **Try it now (no install):** `git clone … && cd probe-researcher && npm install && npm run build && export ANTHROPIC_API_KEY=… && npx probe ui --web` then open `http://127.0.0.1:4470/ui`.
+The whole submission lives in one browser tab. Two ways in:
 
-> **Try it without an API key:** the same URL ships with a saved demo. Click `▶ replay sample run` in the left sidebar and walk through a 14-second pre-recorded run — no API spend.
+```bash
+git clone https://github.com/Apolotary/probe-researcher.git
+cd probe-researcher && npm install && npm run build
+export ANTHROPIC_API_KEY=…   # optional — the bundled demo runs without one
+npx probe ui --web           # opens http://127.0.0.1:4470/ui in your browser
+```
 
-What's new in this hackathon (built April 21–26, 2026): everything under `src/cli/ui_app.tsx`, `src/cli/ui_scenes/`, `src/cli/ui_state.ts`, `src/llm/probe_calls.ts`, `src/web/probe_api.ts`, `src/web/probe_design/`, `src/web/probe_demo.ts`, and `src/config/probe_toml.ts` — the new **probe ui** surface (TUI + web shell) and the live Anthropic API integration that drives every stage.
+| Path | What you get | API spend |
+|---|---|---|
+| **`▶ replay sample run`** in the sidebar | a 14-second walkthrough of a saved run (focus-rituals demo, 9 stages, 3 reviewers disagreeing) | **$0** |
+| Type a one-sentence premise → Enter | a real ~2-minute run with live Opus 4.7 + Sonnet 4.6 calls | ~$0.50 |
 
-The older offline pipeline (`probe run`, `probe lint`, the provenance linter) is the engine the new UI sits on top of. It existed before the hackathon and is documented further below; nothing about it was changed for the submission.
+<p align="center">
+  <img src="./docs/screenshots/01-home.png" alt="Probe v2 web shell — sidebar + new-project home view" width="900"/>
+  <br/>
+  <em>The shell. Sidebar with replay button + recents, hero input, three columns of suggested directions.</em>
+</p>
+
+### `▶ replay sample run` — the no-API-key path judges actually click
+
+Sidebar button → demo picker → pre-recorded run. The whole flow on the right is canned but every spinner and phase-dot still fires, so the cadence stays believable on camera.
+
+<p align="center">
+  <img src="./docs/screenshots/02-replay-picker.png" alt="Demo replay picker showing the bundled focus-rituals run" width="900"/>
+  <br/>
+  <em>One bundled demo ships with the repo so a fresh clone has a try-it-now path with zero API spend.</em>
+</p>
+
+While replay is active, a small **`● replay · focus-rituals ×`** badge sits in the top-right of every stage so the user always knows the responses are cached. Click the badge to exit replay and return home.
+
+<p align="center">
+  <img src="./docs/screenshots/04-replay-active.png" alt="Replay-active state with cyan pill badge in top-right" width="900"/>
+</p>
+
+### Walking the seven stages
+
+The main flow: brainstorm → literature → methodology → artifacts → evaluation → report → review. Each stage has a model spinner, a phase-dot strip, breadcrumb back-jumps, and an editable result. The **brainstorm** stage shows three RQs as facets of one integrated study (not three separate studies — that's the methodology-stage move):
+
+<p align="center">
+  <img src="./docs/screenshots/03-brainstorm.png" alt="Brainstorm stage — three sub-research-questions stream in" width="900"/>
+</p>
 
 ### What's interesting about it
 
-- **Three reviewers genuinely disagree.** The simulated peer-review panel (1 area chair + 3 reviewers, each parameterised by `field` × `affiliation` × `topic confidence`) routinely lands recommendations spread across `RR / ARR / RRX`. The area-chair meta-review reconciles them. This holds across runs because Opus 4.7 sustains the role-separation under length.
-- **Per-stage model selection.** `[models].mode` in `~/.config/probe/probe.toml` flips the whole pipeline between `sonnet` (cheap), `opus` (best), or `mixed` (Opus on orchestration stages — brainstorm/methodology/review — Sonnet on execution). Defaults to sonnet for fast demos.
-- **Save once, replay forever.** A real run takes ~2 minutes (9 LLM calls). On the Done page, click `● save as demo` to capture the entire state to `~/.config/probe/demos/<slug>.json`. Click `▶ replay sample run` in the sidebar to walk through it again in ~14 seconds with the same spinners and phase dots — no API spend.
+- **Three reviewers genuinely disagree.** The simulated peer-review panel (1 area chair + 3 reviewers, each parameterised by `field` × `affiliation` × `topic confidence`) routinely lands recommendations spread across `RR / ARR / RRX`. The area-chair meta-review reconciles them. This holds across runs because Opus 4.7 sustains role-separation under length.
+- **Per-stage model selection.** `[models].mode` in `~/.config/probe/probe.toml` flips the whole pipeline between `sonnet` (cheap), `opus` (best), or `mixed` (Opus on orchestration — brainstorm/methodology/review — Sonnet on execution). Defaults to sonnet for fast demos.
+- **Save once, replay forever.** A real run takes ~2 minutes. On the Done page, click `● save as demo` to capture the entire state to `~/.config/probe/demos/<slug>.json`. Replay walks through it in ~14 seconds with the same spinners — no API spend.
 - **Provenance, by force.** Everything synthesized is tagged `[SIMULATION_REHEARSAL]`. The provenance linter (carried over from the offline pipeline) refuses to ship guidebooks where simulated content uses evidence language.
+- **Graceful keyless replay.** Stages whose slice isn't cached AND whose live LLM call fails (no key) fall back to a shaped-but-empty payload — every stage on the frontend has a stock fallback, so a judge with no key sees zero 500s and zero console errors.
 
 ### 200-word submission summary
 
 Probe is a rehearsal stage for HCI study design. An HCI PhD student types one sentence — *"How do remote workers stay focused during long video-call days?"* — and Probe walks the premise through seven stages with Claude Opus 4.7: an interrogator that sharpens it into three sub-research-questions, a literature agent that surfaces gaps per RQ, a methodologist that proposes integrated study designs (one paper, layered methods, RQ-coverage matrix), an artifact agent that drafts the implementation plan + validation protocol + IRB memo, a simulated pilot that surfaces friction with N synthetic participants, a report drafter that produces Discussion + Conclusion + arXiv-ready LaTeX, and — the wow moment — a simulated peer-review panel where three reviewers from different fields *disagree*, and an area chair writes a meta-review reconciling them. Every stage is live-callable through Anthropic's SDK; every output is tagged `[SIMULATION_REHEARSAL]`; every run can be saved and replayed in 14 seconds for demos. Built during the hackathon: the full `probe ui` web shell + TUI + live API integration. The bet is that PhD students get six months back to spend on the study that survives the rehearsal.
 
----
+What's new in this hackathon (built April 21–26, 2026): everything under `src/cli/ui_app.tsx`, `src/cli/ui_scenes/`, `src/cli/ui_state.ts`, `src/llm/probe_calls.ts`, `src/web/probe_api.ts`, `src/web/probe_design/`, `src/web/probe_demo.ts`, and `src/config/probe_toml.ts` — the new **probe ui** surface (web shell + TUI) and the live Anthropic SDK integration driving every stage.
+
+The older offline pipeline (`probe run`, `probe lint`, the provenance linter) is the engine the new UI sits on top of. It existed before the hackathon and is documented further below; nothing about it was changed for the submission.
 
 ---
 
-## What it does
+## The offline pipeline (`probe run`) — pre-existing engine the new UI sits on
 
-You type:
+Everything above is the new `probe ui` web surface (built during the hackathon). For batch / CI / multi-branch use, the older offline CLI is still here:
 
 ```bash
 probe run "design a screen-reader-aware checkout flow for BLV users"
