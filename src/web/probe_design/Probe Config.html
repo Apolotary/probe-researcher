@@ -501,16 +501,31 @@ function PaneHeader({ title, sub }) {
 function FieldRow({ label, hint, children }) {
   return (
     <div style={{
+      // Per Claude Design audit §10.15: provider name fg-strong 15px,
+      // hint sans 13/19 fg-secondary so the three roles (label /
+      // status / hint) read at distinct weights. Row gets more
+      // vertical space (16 vs 14) to match the spacing scale.
       display: 'grid',
-      gridTemplateColumns: '180px 1fr',
+      gridTemplateColumns: '200px 1fr',
       gap: 24,
-      padding: '14px 0',
-      borderTop: `1px solid ${palette.ruleSoft}`,
+      padding: '16px 0',
+      borderTop: `1px solid ${palette.ruleSoft || palette.rule}`,
       alignItems: 'start',
     }}>
       <div>
-        <div style={{ color: palette.ink }}>{label}</div>
-        {hint && <div style={{ color: palette.ink3, fontSize: '0.82em', marginTop: 4 }}>{hint}</div>}
+        <div style={{
+          color: '#f0ecdf',  // fg-strong
+          fontSize: 15, fontWeight: 600,
+        }}>{label}</div>
+        {hint && (
+          <div style={{
+            color: '#9a978c',  // fg-secondary
+            fontFamily: '"Inter Tight", "Inter", system-ui, sans-serif',
+            fontSize: 13, lineHeight: 1.5,
+            marginTop: 4,
+            maxWidth: '52ch',
+          }}>{hint}</div>
+        )}
       </div>
       <div>{children}</div>
     </div>
@@ -605,16 +620,27 @@ function KeyRow({ name, provider, k, update, onKeyValueChange }) {
 
 function SmallBtn({ children, onClick, variant }) {
   const danger = variant === 'danger';
+  const [hover, setHover] = React.useState(false);
+  // Per audit §10.15: action buttons (edit/test/clear) get a real
+  // button surface — bg #1d222b, border #2f3540, padding 4px 10px —
+  // so they read as buttons rather than links. Hover lifts the surface
+  // and brightens the border.
   return (
-    <button onClick={onClick} style={{
-      background: 'transparent',
-      border: `1px solid ${palette.rule}`,
-      color: danger ? palette.rose : palette.ink2,
-      padding: '4px 10px',
-      cursor: 'pointer',
-      fontFamily: 'inherit',
-      fontSize: '0.86em',
-    }}>{children}</button>
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: hover ? '#252a33' : '#1d222b',
+        border: `1px solid ${danger ? palette.rose : (hover ? '#3a414e' : '#2f3540')}`,
+        color: danger ? palette.rose : '#d8d4c9',
+        padding: '5px 12px',
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+        fontSize: 12.5,
+        borderRadius: 3,
+        transition: 'background 100ms, border-color 100ms',
+      }}>{children}</button>
   );
 }
 

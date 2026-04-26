@@ -373,30 +373,58 @@ function PersonaPool({ personas, compact, dim }) {
       <SectionHeader title={`simulated personas · ${personas.length}`}
         hint="composite character sketches · not human participants" />
       <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8,
+        // Per audit §10.11–12: 5-up grid was too tight; the audit
+        // suggested 4-up. minmax 280 collapses to 4 cols at the
+        // typical 1100–1200px content width and lets the cards
+        // breathe vertically.
+        display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12,
         opacity: dim ? 0.6 : 1,
       }}>
         {personas.map((p, i) => (
           <div key={i} style={{
-            padding: '10px 12px', background: palette.bg2,
-            border: `1px solid ${palette.rule}`, borderRadius: 3, fontSize: 12,
+            padding: '14px 16px',
+            background: palette.bgPanel || palette.bg2,
+            border: `1px solid ${palette.border || palette.rule}`,
+            borderRadius: 4, fontSize: 12,
           }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-              <span style={{ color: palette.ink3, fontSize: 10 }}>P{String(i + 1).padStart(2, '0')}</span>
-              <span style={{ color: palette.ink, fontWeight: 600 }}>{p.name}</span>
+              <span style={{
+                color: palette.amber, fontSize: 10.5, fontWeight: 600,
+                letterSpacing: '0.06em',
+                fontFamily: palette.fontMono || 'monospace',
+              }}>P{String(i + 1).padStart(2, '0')}</span>
+              <span style={{
+                color: palette.fgStrong || palette.ink, fontWeight: 600, fontSize: 14,
+                fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+              }}>{p.name}</span>
             </div>
-            <div style={{ color: palette.amber, fontSize: 11, marginTop: 2 }}>{p.role}</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
-              {/* p.attrs is an array on stock personas but absent on
-                  LLM-generated ones (the API returns id/name/role/bias).
-                  Guard against undefined so the component doesn't crash
-                  the whole React tree when live personas land. */}
+            <div style={{
+              color: palette.fgSecondary || palette.ink2, fontSize: 12,
+              marginTop: 2,
+              fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+            }}>{p.role}</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
               {(p.attrs || []).map((a, j) => (
-                <span key={j} style={{ ...chipStyle, fontSize: 10, padding: '1px 6px' }}>{a}</span>
+                <span key={j} style={{
+                  display: 'inline-block',
+                  padding: '1px 7px',
+                  border: `1px solid ${palette.border || '#2c3a48'}`,
+                  borderRadius: 3,
+                  color: palette.accentInfo || '#a8c2dd',
+                  fontSize: 10.5,
+                  fontFamily: palette.fontMono || 'monospace',
+                  letterSpacing: '0.02em',
+                }}>{a}</span>
               ))}
             </div>
-            <div style={{ color: palette.ink3, fontSize: 11, marginTop: 6, lineHeight: 1.45, fontStyle: 'italic' }}>
-              "{p.bias}"
+            {/* Italic biographical quote in serif at this size for tonal
+                contrast against the data above (audit §10.12). */}
+            <div style={{
+              color: palette.fgBody || palette.ink, fontSize: 13,
+              marginTop: 10, lineHeight: 1.5, fontStyle: 'italic',
+              fontFamily: palette.fontSerif || 'Charter, Georgia, serif',
+            }}>
+              “{p.bias}”
             </div>
           </div>
         ))}

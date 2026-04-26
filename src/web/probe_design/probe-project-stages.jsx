@@ -390,30 +390,45 @@ function ProjectStages({ activeStageId, setActiveStageId, project, setProject, d
             <button key={s.id}
               onClick={() => setActiveStageId(s.id)}
               style={{
+                // Per audit §10.16: row height ≥56px (was ~38–44),
+                // name fg-strong 14px, "last run · 4d ago" on its
+                // own line in fg-mute 11px mono, status pip
+                // right-aligned. Sidebar stops competing with the
+                // main column.
                 display: 'block', width: '100%', textAlign: 'left',
-                background: active ? palette.bg2 : 'transparent',
-                border: 'none', borderLeft: `2px solid ${active ? s.accent : 'transparent'}`,
-                padding: density === 'compact' ? '7px 14px' : '10px 14px',
-                color: active ? palette.ink : palette.ink2,
-                fontFamily: 'inherit', fontSize: 13, cursor: 'pointer',
+                background: active ? (palette.bgPanel || palette.bg2) : 'transparent',
+                border: 'none',
+                borderLeft: `3px solid ${active ? s.accent : 'transparent'}`,
+                padding: density === 'compact' ? '10px 14px' : '14px 14px',
+                color: active ? (palette.fgStrong || palette.ink) : (palette.fgBody || palette.ink2),
+                fontFamily: 'inherit', fontSize: 14, cursor: 'pointer',
+                minHeight: 56,
               }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{
-                  width: 18, height: 18, borderRadius: 3, display: 'inline-flex',
+                  width: 20, height: 20, borderRadius: 3, display: 'inline-flex',
                   alignItems: 'center', justifyContent: 'center',
                   background: active ? s.accent : 'transparent',
                   color: active ? palette.bg : s.accent,
                   border: `1px solid ${s.accent}`, fontSize: 10, fontWeight: 700,
+                  flexShrink: 0,
                 }}>{s.glyph}</span>
-                <span style={{ flex: 1 }}>{s.label}</span>
+                <span style={{
+                  flex: 1, color: active ? (palette.fgStrong || palette.ink) : (palette.fgBody || palette.ink),
+                  fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+                  fontWeight: active ? 600 : 500, fontSize: 14,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>{s.label}</span>
                 <StatusPip status={sd.status} />
               </div>
               <div style={{
-                color: palette.ink3, fontSize: 11, marginTop: 4, paddingLeft: 26,
-                lineHeight: 1.35,
+                color: palette.fgSecondary || palette.ink3, fontSize: 12, marginTop: 4, paddingLeft: 30,
+                lineHeight: 1.4,
+                fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
               }}>{s.blurb}</div>
               <div style={{
-                color: palette.ink4, fontSize: 10.5, marginTop: 2, paddingLeft: 26,
+                color: palette.fgMute || palette.ink4, fontSize: 11, marginTop: 4, paddingLeft: 30,
+                fontFamily: palette.fontMono || 'monospace',
               }}>last run · {sd.lastRun}</div>
             </button>
           );

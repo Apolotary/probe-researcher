@@ -716,20 +716,46 @@ function DesignCard({ d, index, isSel, rqs, onPick }) {
         </div>
       </div>
 
-      {/* strengths + tensions */}
-      <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      {/* Strengths + tensions per audit §10.07–08:
+          - Column heading is UPPER-mono eyebrow + a colored dot so
+            the "good vs concern" semantic reads at a glance.
+          - Bullet copy in Inter Tight 14.5/22 fg-body so the
+            comparison engine actually sustains reading attention. */}
+      <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
         <div>
-          <div style={{ color: palette.moss, fontSize: 10.5, letterSpacing: '0.14em',
-            textTransform: 'uppercase', marginBottom: 4 }}>strengths</div>
-          <ul style={{ margin: 0, paddingLeft: 16, color: palette.ink2, fontSize: 12.5, lineHeight: 1.55 }}>
-            {d.strengths.map((s, i) => <li key={i}>{s}</li>)}
+          <div style={{
+            color: palette.fgMute || palette.ink3, fontSize: 10.5, letterSpacing: '0.14em',
+            textTransform: 'uppercase', marginBottom: 6,
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontFamily: palette.fontMono || 'monospace',
+          }}>
+            <span style={{ color: palette.moss, fontSize: 11 }}>●</span> strengths
+          </div>
+          <ul style={{
+            margin: 0, paddingLeft: 18,
+            color: palette.fgBody || palette.ink,
+            fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+            fontSize: 14.5, lineHeight: 1.55,
+          }}>
+            {d.strengths.map((s, i) => <li key={i} style={{ marginBottom: 2 }}>{s}</li>)}
           </ul>
         </div>
         <div>
-          <div style={{ color: palette.rose, fontSize: 10.5, letterSpacing: '0.14em',
-            textTransform: 'uppercase', marginBottom: 4 }}>tensions</div>
-          <ul style={{ margin: 0, paddingLeft: 16, color: palette.ink2, fontSize: 12.5, lineHeight: 1.55 }}>
-            {d.tensions.map((s, i) => <li key={i}>{s}</li>)}
+          <div style={{
+            color: palette.fgMute || palette.ink3, fontSize: 10.5, letterSpacing: '0.14em',
+            textTransform: 'uppercase', marginBottom: 6,
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontFamily: palette.fontMono || 'monospace',
+          }}>
+            <span style={{ color: palette.rose, fontSize: 11 }}>●</span> tensions
+          </div>
+          <ul style={{
+            margin: 0, paddingLeft: 18,
+            color: palette.fgBody || palette.ink,
+            fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+            fontSize: 14.5, lineHeight: 1.55,
+          }}>
+            {d.tensions.map((s, i) => <li key={i} style={{ marginBottom: 2 }}>{s}</li>)}
           </ul>
         </div>
       </div>

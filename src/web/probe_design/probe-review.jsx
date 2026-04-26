@@ -745,9 +745,16 @@ function MetaReviewCard({ meta, expanded, onToggle }) {
               : meta.proposed}
           </DetailBlock>
           <DetailBlock label={`consensus points · ${meta.consensusPoints.length}`} accent="#d9a548">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+            {/* Per audit §10.14: severity is a left-edge color block,
+                not an inline word. Rows separated by 1px dividers, no
+                cards-around-each-row chrome. */}
+            <div style={{
+              display: 'flex', flexDirection: 'column',
+              border: `1px solid ${palette.border || palette.rule}`,
+              borderRadius: 3, marginTop: 6, overflow: 'hidden',
+            }}>
               {meta.consensusPoints.map((c, i) => (
-                <ConsensusRow key={i} c={c} />
+                <ConsensusRow key={i} c={c} first={i === 0} />
               ))}
             </div>
           </DetailBlock>
@@ -757,7 +764,7 @@ function MetaReviewCard({ meta, expanded, onToggle }) {
   );
 }
 
-function ConsensusRow({ c }) {
+function ConsensusRow({ c, first }) {
   const priColor =
     c.priority === 'high' ? '#e26e6e' :
     c.priority === 'medium' ? '#d9a548' : '#7fb069';
@@ -766,29 +773,45 @@ function ConsensusRow({ c }) {
     c.tag === '2-of-3' ? '#d9a548' : palette.ink3;
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '60px 60px 1fr',
-      alignItems: 'center', gap: 10,
-      padding: '7px 10px',
-      background: palette.bg,
-      border: `1px solid ${palette.rule}`,
-      borderRadius: 3, fontSize: 12.5,
+      // Severity reads as a left-edge color block (audit §10.14).
+      // Tag pill stays inline as a small data marker; the actual
+      // severity word ("high"/"medium"/"low") is dropped — the
+      // color block carries that signal. Background-by-priority is a
+      // subtle wash so high-priority rows stand out from medium/low.
+      display: 'grid',
+      gridTemplateColumns: '4px 60px 1fr',
+      alignItems: 'stretch', gap: 10,
+      padding: 0,
+      borderTop: first ? 'none' : `1px solid ${palette.border || palette.rule}`,
+      background: c.priority === 'high'
+        ? `${priColor}10`
+        : 'transparent',
+      fontSize: 13,
+      minHeight: 48,
     }}>
+      {/* Left-edge color block — the "severity" indicator. */}
       <span style={{
-        display: 'inline-flex', justifyContent: 'center',
-        padding: '1px 0', borderRadius: 2,
+        background: priColor,
+        opacity: c.priority === 'low' ? 0.4 : 1,
+      }} />
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        padding: '0 6px',
+        margin: '12px 0',
+        borderRadius: 2,
         border: `1px solid ${tagColor}`,
         color: tagColor,
         fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
+        height: 'fit-content',
+        alignSelf: 'center',
       }}>{c.tag}</span>
       <span style={{
-        display: 'inline-flex', justifyContent: 'center',
-        padding: '1px 0', borderRadius: 2,
-        background: priColor + '22',
-        color: priColor,
-        fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
-        textTransform: 'uppercase',
-      }}>{c.priority}</span>
-      <span style={{ color: palette.ink }}>{c.text}</span>
+        color: palette.fgBody || palette.ink,
+        fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+        fontSize: 14, lineHeight: 1.55,
+        padding: '12px 12px 12px 0',
+        alignSelf: 'center',
+      }}>{c.text}</span>
     </div>
   );
 }

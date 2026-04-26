@@ -446,11 +446,15 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue, g
       } />
 
       <div style={{ flex: 1, padding: '28px 32px 80px', maxWidth: 1100, margin: '0 auto', width: '100%' }}>
-        <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
-          textTransform: 'uppercase', marginBottom: 8 }}>
-          ─── artifact agents · drafting handoff documents ───
+        {/* Per Claude Design audit §07: drop the ASCII-dashes eyebrow
+            on data-heavy screens (artifacts is one). Replaced with a
+            tight UPPER-mono label flush-left so it still anchors the
+            stage but doesn't compete with the cards below it. */}
+        <div style={{ color: palette.fgMute || palette.ink3, fontSize: 11,
+          letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 6 }}>
+          artifact agents
         </div>
-        <h2 style={{ fontSize: 18, fontWeight: 500, margin: 0, color: palette.ink2 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 500, margin: 0, color: palette.fgStrong || palette.ink }}>
           Probe wrote the documents your design needs. Edit anything, then copy or download.
         </h2>
 
@@ -476,21 +480,32 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue, g
             <DraftingRow wants={wants} />
           </>
         ) : (
-          <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{
+            // Per audit §09 — list rows separated by 1px dividers,
+            // not gap. Bottom border closes the list visually.
+            marginTop: 22, display: 'flex', flexDirection: 'column',
+            border: `1px solid ${palette.border || palette.rule}`,
+            borderRadius: 4, overflow: 'hidden',
+          }}>
             {wants.map((id, i) => {
               const def = ARTIFACT_DEFS[id];
               const open = openId === id;
               const isEditing = editing === id;
               return (
                 <div key={id} className="fade-in" style={{
-                  border: `1px solid ${palette.rule}`,
+                  // Per Claude Design audit §09: drop the all-around
+                  // border/card-around-each-row pattern, use a single
+                  // 1px divider only between rows + a left accent rail.
+                  // Bumps row height to 48px-ish (padding 16px vert),
+                  // demotes filename/subtitle to fg-mute on a second
+                  // line, lifts title to fg-strong.
+                  borderTop: i === 0 ? 'none' : `1px solid ${palette.border || palette.rule}`,
                   borderLeft: `3px solid ${def.color}`,
-                  background: palette.bg2, borderRadius: 4,
+                  paddingLeft: 0,
+                  background: 'transparent',
+                  borderRadius: 0,
                 }}>
-                  {/* Header row — entire row toggles open/close. role/tabIndex
-                      promote it to a real button for keyboard users; the kbd
-                      number badge gets its own explicit click so users who
-                      click "1/2/3" expecting a button don't fall through. */}
+                  {/* Header row — entire row toggles open/close. */}
                   <div
                     role="button"
                     tabIndex={isEditing ? -1 : 0}
@@ -504,8 +519,12 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue, g
                     }}
                     style={{
                       cursor: isEditing ? 'default' : 'pointer',
-                      padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '14px 16px',
+                      display: 'grid',
+                      gridTemplateColumns: '24px auto auto 1fr auto auto',
+                      alignItems: 'center', gap: 10,
                       outline: 'none',
+                      minHeight: 48,
                     }}>
                     <span
                       onClick={(e) => {
@@ -513,13 +532,32 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue, g
                         e.stopPropagation();
                         setOpenId((o) => o === id ? null : id);
                       }}
-                      style={{ ...kbdStyle, fontSize: 10, color: palette.ink3, cursor: isEditing ? 'default' : 'pointer' }}>{i + 1}</span>
-                    <span style={{ color: def.color, fontSize: 16, lineHeight: 1, marginRight: 4 }}>▸</span>
-                    <span style={{ color: palette.ink, fontWeight: 600, fontSize: 14 }}>{def.title}</span>
+                      style={{
+                        color: palette.fgMute || palette.ink3,
+                        fontSize: 11,
+                        textAlign: 'center',
+                        cursor: isEditing ? 'default' : 'pointer',
+                      }}>{i + 1}</span>
+                    <span style={{ color: def.color, fontSize: 14, lineHeight: 1 }}>▸</span>
+                    <span style={{
+                      color: palette.fgStrong || palette.ink,
+                      fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+                      fontWeight: 600, fontSize: 15,
+                    }}>{def.title}</span>
+                    <span style={{
+                      color: palette.fgMute || palette.ink3, fontSize: 12.5,
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>{def.subtitle}</span>
                     <span style={{ ...chipStyle, color: def.color, borderColor: def.color }}>{def.kind}</span>
-                    <span style={{ color: palette.ink3, fontSize: 12 }}>· {def.subtitle}</span>
-                    <span style={{ color: palette.ink3, fontSize: 11, marginLeft: 'auto' }}>{def.filename}</span>
-                    <span style={{ color: palette.ink3, fontSize: 11, transform: open ? 'rotate(90deg)' : 'none', display: 'inline-block', transition: 'transform 120ms' }}>›</span>
+                    <span style={{
+                      color: palette.fgMute || palette.ink3, fontSize: 11,
+                      fontFamily: palette.fontMono || 'monospace',
+                    }}>{def.filename}</span>
+                    <span style={{
+                      color: palette.fgMute || palette.ink3, fontSize: 11,
+                      transform: open ? 'rotate(90deg)' : 'none',
+                      display: 'inline-block', transition: 'transform 120ms',
+                    }}>›</span>
                   </div>
 
                   {open && (

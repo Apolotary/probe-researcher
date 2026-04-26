@@ -27,34 +27,41 @@ function SuggestionRow({ item, idx, onPick }) {
   const [hover, setHover] = useState(false);
   return (
     <button
-      // Click a suggestion → fill the home-page textarea right here.
-      // The user wanted the home page to act like a premise screen
-      // by itself: pick a starter, edit it in place, then press Enter
-      // to advance straight to brainstorm. Earlier we navigated to a
-      // separate iframe page on click, which felt like an extra step.
       onClick={() => onPick(item.prompt)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
+        // Per audit §10.01: bump suggestion item from 12px → 14px,
+        // body text in fg-body so the densest text on the page is
+        // actually readable. "edit" link demoted to fg-mute at rest,
+        // accent-link on hover (cooler blue), never amber.
         display: 'grid',
-        gridTemplateColumns: '20px 1fr 16px',
+        gridTemplateColumns: '24px 1fr 32px',
         alignItems: 'baseline', gap: 10,
         width: '100%', textAlign: 'left',
-        padding: '8px 10px',
-        background: hover ? palette.bg2 : 'transparent',
+        padding: '10px 10px',
+        background: hover ? (palette.bgPanel || palette.bg2) : 'transparent',
         border: 'none',
         borderLeft: `2px solid ${hover ? palette.amber : 'transparent'}`,
         color: 'inherit', fontFamily: 'inherit', cursor: 'pointer',
       }}
     >
-      <span style={{ color: palette.ink3, fontSize: 12 }}>{idx + 1}</span>
       <span style={{
-        color: hover ? palette.ink : palette.ink2,
-        fontSize: 13, lineHeight: 1.45,
+        color: palette.fgMute || palette.ink3, fontSize: 12,
+        fontFamily: palette.fontMono || 'monospace',
+      }}>{idx + 1}</span>
+      <span style={{
+        color: hover ? (palette.fgStrong || palette.ink) : (palette.fgBody || palette.ink),
+        fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+        fontSize: 14, lineHeight: 1.5,
       }}>
         {item.prompt}
       </span>
-      <span style={{ color: palette.ink3, fontSize: 11, textAlign: 'right', opacity: hover ? 1 : 0.5 }}>edit</span>
+      <span style={{
+        color: hover ? (palette.accentLink || palette.cyan) : (palette.fgMute || palette.ink3),
+        fontSize: 11, textAlign: 'right',
+        fontFamily: palette.fontMono || 'monospace',
+      }}>edit</span>
     </button>
   );
 }
@@ -234,15 +241,25 @@ window.ProbeHome = function ProbeHome({ onLaunchPrompt }) {
         }}>
           {suggestions.groups.map((group) => (
             <div key={group.key}>
+              {/* Per audit §10.01: column heading is UPPER-mono
+                  eyebrow at 11px (semantic anchor), and the hint
+                  underneath shifts to sans body so it doesn't compete
+                  for the eye. Heading color demotes from amber to
+                  fg-mute — amber's job is "primary action," not
+                  "every column header." */}
               <div style={{
-                color: palette.amber, fontSize: 11, letterSpacing: '0.08em',
-                textTransform: 'uppercase', marginBottom: 4,
+                color: palette.fgMute || palette.ink3,
+                fontFamily: palette.fontMono || 'monospace',
+                fontSize: 11, letterSpacing: '0.16em',
+                textTransform: 'uppercase', marginBottom: 6,
               }}>
                 {group.label}
               </div>
               <div style={{
-                color: palette.ink4, fontSize: 11, marginBottom: 10,
-                lineHeight: 1.45,
+                color: palette.fgSecondary || palette.ink2,
+                fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+                fontSize: 13, marginBottom: 12,
+                lineHeight: 1.5, maxWidth: '36ch',
               }}>
                 {group.hint}
               </div>

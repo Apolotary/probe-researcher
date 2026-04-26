@@ -1262,29 +1262,30 @@ function DonePane({ mainRq, chosenDesign, fullState, onBack, onRestart, goTo }) 
 
 // ─── ASCII-style connector that bridges the main RQ to the branches ───
 function Connector({ branchCount, thinking }) {
-  // Each row is ~92px (matches branch row height); we draw simple unicode lines
+  // Per audit §10.05: connector lines from MAIN to RQ A/B/C should
+  // be 1px #2a2f38, not amber — amber's job is "primary action /
+  // picked", not "everywhere there's a connection." The trunk and
+  // all three branches now share a single neutral stroke; selection
+  // amber lives only on the RQ cards themselves.
+  const stroke = thinking ? '#2a2f38' : '#2f3540';
   return (
     <div aria-hidden="true" style={{
-      height: '100%', position: 'relative', color: thinking ? palette.ink4 : palette.ink3,
+      height: '100%', position: 'relative',
+      color: palette.fgFaint || palette.ink4,
       fontFamily: 'inherit', fontSize: 14, lineHeight: 1,
     }}>
       <svg viewBox="0 0 80 400" preserveAspectRatio="none" width="80" height="100%" style={{ display: 'block' }}>
         {/* trunk: short line out of main RQ at vertical middle */}
-        <line x1="0" y1="200" x2="20" y2="200" stroke={palette.amber} strokeWidth="1.4" />
-        {/* fan to three branches */}
-        {[
-          { y: 56,  color: palette.ink3 },
-          { y: 200, color: palette.amber },
-          { y: 344, color: palette.ink3 },
-        ].map((p, i) => (
+        <line x1="0" y1="200" x2="20" y2="200" stroke={stroke} strokeWidth="1" />
+        {/* fan to three branches — all neutral */}
+        {[{ y: 56 }, { y: 200 }, { y: 344 }].map((p, i) => (
           <g key={i}>
             <path d={`M 20 200 Q 40 200 40 ${p.y} L 80 ${p.y}`}
-              fill="none" stroke={p.color}
-              strokeWidth={p.color === palette.amber ? 1.4 : 1}
+              fill="none" stroke={stroke} strokeWidth={1}
               strokeDasharray={thinking ? '3 3' : 'none'}
-              opacity={thinking ? 0.5 : 1}
+              opacity={thinking ? 0.6 : 1}
             />
-            <circle cx="80" cy={p.y} r="2" fill={p.color} />
+            <circle cx="80" cy={p.y} r="1.6" fill={stroke} />
           </g>
         ))}
       </svg>

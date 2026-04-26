@@ -244,6 +244,13 @@ function ProjectTimeline({
                 const y = TOP_PAD + i * ROW_H + (ROW_H - 22) / 2;
                 const atRisk = lay.end < today; // already in the past = behind
                 const inProgress = today >= lay.start && today <= lay.end;
+                // Per audit §10.16–17: bar labels need fg-strong on a
+                // slightly desaturated bar fill so they're always
+                // legible. Mix the bar color with 35% black to make
+                // a calmer fill that white text reads against, and
+                // bump the label color from page-bg (was nearly
+                // invisible on lighter bars) to fg-strong.
+                const desat = STAGE_COLORS[s.id] + 'b3'; // ~70% alpha → desat
                 return (
                   <div key={s.id} style={{ position: 'absolute', left: 0, top: 0 }}>
                     <div
@@ -251,12 +258,15 @@ function ProjectTimeline({
                       style={{
                         position: 'absolute', left: x, top: y,
                         width: w, height: 22, borderRadius: 4,
-                        background: STAGE_COLORS[s.id],
-                        opacity: atRisk ? 0.5 : 1,
+                        background: desat,
+                        border: `1px solid ${STAGE_COLORS[s.id]}`,
+                        opacity: atRisk ? 0.55 : 1,
                         boxShadow: inProgress ? `0 0 0 2px rgba(125,207,255,0.4)` : 'none',
                         display: 'flex', alignItems: 'center', gap: 6, padding: '0 8px',
-                        color: ganttPalette.bg, fontSize: 11, fontWeight: 600,
+                        color: ganttPalette.fgStrong || '#f0ecdf',
+                        fontSize: 11, fontWeight: 600,
                         cursor: 'grab',
+                        textShadow: '0 1px 0 rgba(0,0,0,0.4)',
                       }}>
                       <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {s.id} · {fmt(lay.start)} → {fmt(lay.end)}

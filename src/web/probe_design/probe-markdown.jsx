@@ -22,10 +22,57 @@ function inline(text) {
   const parts = [];
   let i = 0;
   let key = 0;
+  // Provenance tags like [SIMULATION_REHEARSAL], [RESEARCHER_INPUT],
+  // [SOURCE_CARD:abc] — render as small bracketed pills so they read
+  // as metadata rather than as part of the sentence flow. Per Claude
+  // Design audit §10.13, the discussion-shaped notes paragraph runs
+  // ~110ch and contains these inline-italic markers — that's "two
+  // strikes." Pill styling makes them visually distinct without
+  // killing prose flow.
+  const PROV_TAG = /^\[(RESEARCHER_INPUT|SOURCE_CARD(?::[^\]]+)?|SIMULATION_REHEARSAL|AGENT_INFERENCE|HUMAN_REQUIRED|DO_NOT_CLAIM|UNCITED_ADJACENT|TOOL_VERIFIED)\]/;
+  // Color the pill by its kind — simulated/inference are warm,
+  // researcher/tool-verified read as solid, source-card looks
+  // citation-like.
+  const PILL_COLORS = {
+    SIMULATION_REHEARSAL: { fg: '#b88a2c', border: '#4a3d20', bg: 'rgba(184,138,44,0.06)' },
+    AGENT_INFERENCE:      { fg: '#9a978c', border: '#3a3530', bg: 'rgba(154,151,140,0.05)' },
+    RESEARCHER_INPUT:     { fg: '#7eaad2', border: '#2c3a48', bg: 'rgba(126,170,210,0.06)' },
+    SOURCE_CARD:          { fg: '#7ab686', border: '#2c4a33', bg: 'rgba(122,182,134,0.06)' },
+    HUMAN_REQUIRED:       { fg: '#c97560', border: '#4a2a22', bg: 'rgba(201,117,96,0.06)' },
+    DO_NOT_CLAIM:         { fg: '#c97560', border: '#4a2a22', bg: 'rgba(201,117,96,0.06)' },
+    UNCITED_ADJACENT:     { fg: '#a8c2dd', border: '#2c3a48', bg: 'rgba(168,194,221,0.06)' },
+    TOOL_VERIFIED:        { fg: '#7ab686', border: '#2c4a33', bg: 'rgba(122,182,134,0.06)' },
+  };
+
   while (i < text.length) {
+    // [PROVENANCE_TAG] — inline metadata pill (must run before the
+    // markdown matchers so it doesn't get swallowed by them).
+    let m = text.slice(i).match(PROV_TAG);
+    if (m) {
+      const kind = m[1].split(':')[0];
+      const c = PILL_COLORS[kind] || PILL_COLORS.AGENT_INFERENCE;
+      parts.push(
+        <span key={key++} style={{
+          display: 'inline-block',
+          fontFamily: mdPalette.fontMono || '"JetBrains Mono", monospace',
+          fontSize: '10.5px',
+          color: c.fg,
+          border: `1px solid ${c.border}`,
+          background: c.bg,
+          padding: '0 5px',
+          borderRadius: 2,
+          margin: '0 2px',
+          letterSpacing: '0.04em',
+          verticalAlign: '1px',
+        }}>{m[1].toLowerCase().replace(/_/g, ' ')}</span>
+      );
+      i += m[0].length;
+      continue;
+    }
+
     // ** bold ** — fgStrong on the new ramp; weight 600 keeps it
     // distinguishable in Inter Tight without going full bold-black.
-    let m = text.slice(i).match(/^\*\*([^*]+?)\*\*/);
+    m = text.slice(i).match(/^\*\*([^*]+?)\*\*/);
     if (m) {
       parts.push(<strong key={key++} style={{
         color: mdPalette.fgStrong || mdPalette.ink, fontWeight: 600,
@@ -77,13 +124,14 @@ function inline(text) {
     // of the inline regexes above, `nextTrigger` is 0. Without
     // guarding this, the loop pushes an empty slice and i += 0 — i.e.
     // no progress — until parts.length overflows and React throws
-    // `RangeError: Invalid array length`. The artifact bodies the
-    // Sonnet model produces are particularly susceptible because they
-    // contain bullets like "* X" inside list paragraphs and markdown-
-    // looking emphasis fragments. Always advance by at least one
-    // character so the worst case is a stray asterisk rendered as
-    // text rather than a crashed React tree.
-    const nextTrigger = text.slice(i).search(/[*`_]/);
+    // `RangeError: Invalid array length`. Always advance by at least
+    // one character so the worst case is a stray trigger char rendered
+    // as text rather than a crashed React tree.
+    //
+    // `[` is in the trigger set so the provenance-tag matcher gets a
+    // chance at every bracket (otherwise plain-text scanning would
+    // swallow them and the inline pills never fire).
+    const nextTrigger = text.slice(i).search(/[*`_\[]/);
     if (nextTrigger === -1) {
       parts.push(text.slice(i));
       break;
