@@ -434,7 +434,6 @@ function NewProject() {
           <span>{text.length} chars</span>
           <span style={{ marginLeft: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
             <span><kbd style={kbdStyle}>↵</kbd> brainstorm</span>
-            <span><kbd style={kbdStyle}>⌘↵</kbd> skip · use as-is</span>
             <span><kbd style={kbdStyle}>esc</kbd> clear</span>
           </span>
         </div>
@@ -442,9 +441,10 @@ function NewProject() {
         {/* Skip-brainstorm row — explicit affordance for researchers who
             already have a sharp question and don't want three sub-RQ
             facets. Wraps the premise as RQ A and jumps straight to the
-            literature stage. */}
+            literature stage. The ⌘↵ shortcut is shown on the button
+            itself rather than duplicated in the keyboard-hints row. */}
         <div style={{
-          width: 720, maxWidth: '90vw', marginTop: 6,
+          width: 720, maxWidth: '90vw', marginTop: 12,
           display: 'flex', justifyContent: 'flex-end',
         }}>
           <button
@@ -454,14 +454,18 @@ function NewProject() {
               background: 'transparent',
               border: `1px solid ${text.trim() ? palette.cyan : palette.rule}`,
               color: text.trim() ? palette.cyan : palette.ink4,
-              padding: '5px 12px', borderRadius: 3, fontFamily: 'inherit', fontSize: 11.5,
+              padding: '6px 14px', borderRadius: 3, fontFamily: 'inherit', fontSize: 12,
               cursor: text.trim() ? 'pointer' : 'not-allowed',
-              display: 'flex', alignItems: 'center', gap: 8,
+              display: 'flex', alignItems: 'center', gap: 10,
             }}
             title="Run the pipeline using your premise as the sole research question — no three-way branching"
           >
-            <span>skip brainstorm — use my question as the only RQ</span>
-            <span style={{ color: palette.ink4 }}>→</span>
+            <span>skip brainstorm — run with this question as-is</span>
+            <kbd style={{
+              ...kbdStyle, fontSize: 10,
+              borderColor: text.trim() ? palette.cyan : palette.rule,
+              color: text.trim() ? palette.cyan : palette.ink4,
+            }}>⌘↵</kbd>
           </button>
         </div>
 

@@ -123,18 +123,26 @@ function ReplayPicker() {
         </span>
       </div>
 
-      <div style={{ flex: 1, padding: '40px 24px', maxWidth: 720, margin: '0 auto', width: '100%' }}>
+      <div style={{
+        flex: 1, padding: '64px 24px 32px', maxWidth: 720, margin: '0 auto',
+        width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start',
+      }}>
         <div style={{
           color: palette.ink3, fontSize: 11, letterSpacing: '0.16em',
           textTransform: 'uppercase', marginBottom: 14,
         }}>──── saved demo recordings ────</div>
-        <h1 style={{ margin: 0, fontWeight: 500, fontSize: 22, color: palette.ink }}>
+        <h1 style={{ margin: 0, fontWeight: 500, fontSize: 24, color: palette.ink }}>
           Pick a demo to replay
         </h1>
         <p style={{ color: palette.ink2, fontSize: 13.5, lineHeight: 1.6, marginTop: 10 }}>
-          Replay uses the saved API responses. Spinners and phase dots still
-          render at ~1.5s per stage so the cadence stays believable on camera,
-          but no Anthropic credit is spent.
+          A replay walks the entire seven-stage pipeline using saved API responses.
+          Spinners and phase dots still render at ~1.5s per stage so the cadence
+          stays believable on camera, but no Anthropic credit is spent.
+        </p>
+        <p style={{ color: palette.ink3, fontSize: 12.5, lineHeight: 1.6, marginTop: 6 }}>
+          Click a recording below — the workflow opens with the cached premise pre-filled.
+          A small <span style={{ color: palette.cyan }}>● replay</span> badge in the
+          top-right marks every stage as cached output, not live.
         </p>
 
         {demos === null && (

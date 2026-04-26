@@ -76,51 +76,51 @@ window.PROBE_SUGGESTIONS = {
   seed: 'meeting-fatigue · code-review-tone · standup-rituals',
   groups: [
     {
-      key: 'continue',
-      label: 'continue your work',
-      hint: 'follow-ups derived from your last three projects',
+      key: 'workplace',
+      label: 'workplace & focus',
+      hint: 'starter prompts for studies of attention, meetings, and remote work',
       items: [
         {
-          tag: 'follow-up · meeting fatigue',
+          tag: 'attention',
           title: 'Camera-on vs camera-off',
-          why:  'You found agenda-less calls hurt focus. The next variable is video presence — does it amplify or absorb the cost?',
+          why:  'A standing question for video-call research. Does video presence amplify or absorb the focus cost?',
           prompt: 'Does turning the camera off during long meetings reduce attentional fatigue, or does it shift the cost elsewhere?',
         },
         {
-          tag: 'follow-up · code-review tone',
-          title: 'When does praise read as patronising?',
-          why:  'Your literature pass surfaced a thread on "false positives" — worth its own study.',
+          tag: 'feedback',
+          title: 'When praise reads as patronising',
+          why:  'Tone calibration in code review — false positives can hurt as much as false negatives.',
           prompt: 'When does positive feedback in code review come across as condescending to junior engineers?',
         },
         {
-          tag: 'follow-up · standup rituals',
+          tag: 'team-awareness',
           title: 'What async standups quietly drop',
-          why:  'Your evaluation flagged "shared context" as the weak signal. Probe what specifically gets lost.',
+          why:  'Async ritualisation tradeoffs. Which kinds of team awareness survive the format shift, and which evaporate?',
           prompt: 'What kinds of team awareness disappear when standups move from synchronous to async, and which kinds are unaffected?',
         },
       ],
     },
     {
       key: 'adjacent',
-      label: 'adjacent angles',
-      hint:  'topics one hop from the spaces you already work in',
+      label: 'communication norms',
+      hint:  'starter prompts for studies of how people coordinate at a distance',
       items: [
         {
-          tag: 'adjacent',
+          tag: 'response-norms',
           title: 'Slack reply latency norms',
-          why:  'Sits next to your meeting-fatigue and async-standup work — same axis, different surface.',
+          why:  'The unspoken rules around when a reply is "fast enough" to count as responsive.',
           prompt: 'What unspoken norms govern how quickly people feel obligated to reply on Slack?',
         },
         {
-          tag: 'adjacent',
+          tag: 'onboarding',
           title: 'Onboarding the first PR',
-          why:  'Adjacent to code-review tone — the first PR is where the dynamic gets set.',
+          why:  'A new engineer\'s first pull-request sets the tone for everything that follows.',
           prompt: 'What makes the first pull-request a new engineer ships feel like a welcome rather than a hazing?',
         },
         {
-          tag: 'adjacent',
+          tag: 'meeting-drift',
           title: 'When 1:1s lose their grip',
-          why:  'Calendars, attention, ritualisation — same furniture, different room.',
+          why:  'Recurring meetings drift toward status updates over time. What reverses the drift?',
           prompt: 'Why do recurring 1:1 meetings drift into status updates over time, and what reverses the drift?',
         },
       ],
@@ -128,7 +128,7 @@ window.PROBE_SUGGESTIONS = {
     {
       key: 'wild',
       label: 'wild cards',
-      hint:  'cross-domain provocations — pick one to stretch',
+      hint:  'cross-domain provocations — pick one to stretch your sample',
       items: [
         {
           tag: 'wildcard',
