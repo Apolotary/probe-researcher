@@ -42,19 +42,15 @@ runs/*/branches/*/DONE.marker
 runs/*/branches/*/FAILED.marker
 runs/*/branches/*/IN_PROGRESS.marker
 
-# Branch worktrees are checked-out copies of the main repo. Only track the
-# Probe artifacts inside them, not the entire repo tree.
+# Branch worktrees are checked-out copies of the main repo. They live as
+# real `git worktree add` directories, so the parent repo should NEVER
+# track them — not as files, not as gitlinks (submodule pointers). The
+# trailing slash on the directory rule below is the load-bearing bit:
+# without it, `git add` on a worktree directory captures it as a 160000
+# mode submodule pointer, and GitHub Desktop then nags about "submodule
+# changes" every time the worktree's HEAD advances.
+runs/*/branches/*/
 runs/*/branches/*/*
-!runs/*/branches/*/branch_card.json
-!runs/*/branches/*/prototype_spec.json
-!runs/*/branches/*/prototype_spec.md
-!runs/*/branches/*/simulated_walkthrough.md
-!runs/*/branches/*/audit.json
-!runs/*/branches/*/audit.md
-!runs/*/branches/*/meta_review.json
-!runs/*/branches/*/WORKSHOP_NOT_RECOMMENDED.md
-!runs/*/branches/*/reviews/
-!runs/*/branches/*/reviews/*.json
 
 # Worktree metadata — worktree dirs themselves are inside runs/ and ARE tracked,
 # but each worktree's .git file would double-track. Worktrees are created at runtime.
