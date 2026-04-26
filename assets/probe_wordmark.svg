@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 200" width="720" height="200" role="img" aria-label="probe">
+  <defs>
+    <style>
+      /* Colours chosen to read on both light and dark README backgrounds.
+         The amber chevron + warm word matches the launcher screenshot
+         and the sidebar's top-left "› probe" wordmark exactly. */
+      .mark    { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, ui-monospace, monospace; font-weight: 600; font-size: 96px; letter-spacing: -0.02em; }
+      .chevron { fill: #d9a548; }
+      .word    { fill: #d9a548; opacity: 0.92; }
+      .tag     { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, ui-monospace, monospace; font-weight: 400; font-size: 13px; letter-spacing: 0.16em; fill: #888c94; }
+      .rule    { stroke: #888c94; stroke-width: 1; opacity: 0.35; }
+    </style>
+  </defs>
+
+  <!-- Sidebar-style "› probe" wordmark, scaled up. -->
+  <text x="48" y="120" class="mark">
+    <tspan class="chevron">›</tspan><tspan class="word" dx="18">probe</tspan>
+  </text>
+
+  <!-- Subtitle bar with thin rule to anchor the lockup. -->
+  <line x1="48" y1="148" x2="672" y2="148" class="rule" />
+  <text x="48" y="174" class="tag">A REHEARSAL STAGE FOR HCI STUDY DESIGN · OPUS 4.7</text>
+</svg>
