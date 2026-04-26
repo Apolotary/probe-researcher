@@ -28,6 +28,7 @@
 <body>
 <div id="root"></div>
 <script src="probe-tokens.js"></script>
+<script type="text/babel" src="probe-shell-data.jsx"></script>
 <script type="text/babel" src="probe-spinner.jsx"></script>
 <script type="text/babel" src="probe-markdown.jsx"></script>
 <script type="text/babel" src="probe-provenance.jsx"></script>
@@ -95,6 +96,42 @@ window.__probePalette = palette;
 window.__probeKbd = null;       // filled below once defined
 window.__probeChip = null;
 window.__probeGhostBtn = null;
+
+// Premise-screen suggestion row. Matches the home page's
+// SuggestionRow visually but the click fills the local textarea
+// rather than navigating, so users who reach this screen can still
+// preview a different starter without losing what they typed.
+function PremiseSuggestion({ item, idx, onPick }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onClick={() => onPick(item.prompt)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '20px 1fr 32px',
+        alignItems: 'baseline', gap: 10,
+        width: '100%', textAlign: 'left',
+        padding: '8px 10px',
+        background: hover ? palette.bg2 : 'transparent',
+        border: 'none',
+        borderLeft: `2px solid ${hover ? palette.amber : 'transparent'}`,
+        color: 'inherit', fontFamily: 'inherit', cursor: 'pointer',
+      }}
+    >
+      <span style={{ color: palette.ink3, fontSize: 12 }}>{idx + 1}</span>
+      <span style={{
+        color: hover ? palette.ink : palette.ink2,
+        fontSize: 13, lineHeight: 1.45,
+      }}>{item.prompt}</span>
+      <span style={{
+        color: palette.ink3, fontSize: 11, textAlign: 'right',
+        opacity: hover ? 1 : 0.5,
+      }}>edit</span>
+    </button>
+  );
+}
 
 function NewProject() {
   const [route, setRoute] = useState('input');   // 'input' | 'brainstorm' | 'literature' | 'methodology' | 'artifacts' | 'evaluation' | 'done'
@@ -363,9 +400,16 @@ function NewProject() {
                </span>
              } />
 
+      {/* Layout note: when the suggestions grid is visible we want the
+          page to top-align so the grid takes its natural height; when
+          hidden (user has typed) we let the textarea + skip-row
+          breathe with extra padding. justifyContent stays 'flex-start'
+          either way — the older 'center' value caused the grid to
+          push the title off-screen on shorter laptops. */}
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', padding: '48px 24px',
+        alignItems: 'center', justifyContent: 'flex-start',
+        padding: '64px 24px 48px',
       }}>
         <div style={{
           color: palette.ink3, fontSize: 11, letterSpacing: '0.16em',
@@ -471,37 +515,100 @@ function NewProject() {
           </button>
         </div>
 
-        <div style={{ marginTop: 40, width: 720, maxWidth: '90vw' }}>
-          <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            or try an example
+        {/* Suggested directions — same 3-column grid the home page
+            uses, shown here so the iframe-embedded premise screen
+            doesn't fall back to a different (older) examples list.
+            UI consistency was load-bearing in user testing: clicking a
+            suggestion at home and landing here showed two different
+            "looks" within seconds. The grid is hidden once the
+            textarea has substantive text (>= 8 chars) so the user
+            isn't re-offered suggestions while editing. */}
+        {window.PROBE_SUGGESTIONS && text.trim().length < 8 && (
+          <div style={{
+            marginTop: 40, maxWidth: 1080, width: '92vw',
+          }}>
+            <div style={{
+              color: palette.ink3, fontSize: 11, letterSpacing: '0.12em',
+              textTransform: 'uppercase', marginBottom: 14,
+              display: 'flex', alignItems: 'baseline', gap: 12,
+            }}>
+              <span>or try a suggested direction</span>
+              <span style={{ flex: 1, height: 1, background: palette.rule }} />
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: 28,
+            }}>
+              {window.PROBE_SUGGESTIONS.groups.map((group) => (
+                <div key={group.key}>
+                  <div style={{
+                    color: palette.amber, fontSize: 11, letterSpacing: '0.08em',
+                    textTransform: 'uppercase', marginBottom: 4,
+                  }}>
+                    {group.label}
+                  </div>
+                  <div style={{
+                    color: palette.ink4, fontSize: 11, marginBottom: 10,
+                    lineHeight: 1.45,
+                  }}>
+                    {group.hint}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {group.items.map((item, i) => (
+                      <PremiseSuggestion
+                        key={item.title}
+                        item={item}
+                        idx={i}
+                        onPick={(prompt) => {
+                          setText(prompt);
+                          taRef.current && taRef.current.focus();
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column' }}>
-            {examples
-              // Skip the example that exactly matches what's already in the
-              // textarea — happens during demo replay where the premise is
-              // pre-filled, and the duplicate suggestion below it is noise.
-              .filter((ex) => ex.trim() !== text.trim())
-              .map((ex, i) => (
-              <button
-                key={i}
-                onClick={() => { setText(ex); taRef.current && taRef.current.focus(); }}
-                style={{
-                  display: 'grid', gridTemplateColumns: '24px 1fr 24px', alignItems: 'center', gap: 10,
-                  padding: '7px 8px', background: 'transparent', border: 'none',
-                  borderLeft: `2px solid transparent`,
-                  color: palette.ink2, fontFamily: 'inherit', fontSize: 13, textAlign: 'left',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = palette.amber; e.currentTarget.style.background = palette.bg2; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = 'transparent'; e.currentTarget.style.background = 'transparent'; }}
-              >
-                <span style={{ color: palette.ink3 }}>{i + 1}</span>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex}</span>
-                <span style={{ color: palette.ink3, fontSize: 11, textAlign: 'right' }}>↵</span>
-              </button>
-            ))}
+        )}
+
+        {/* Compact fallback — when the user has already typed enough
+            we hide the grid so it doesn't take vertical space, but we
+            keep a single row of one-off examples in case the user
+            wants to try a totally different direction. The list is
+            filtered to skip any example that exactly matches what
+            they've already typed. */}
+        {(!window.PROBE_SUGGESTIONS || text.trim().length >= 8) && (
+          <div style={{ marginTop: 24, width: 720, maxWidth: '90vw' }}>
+            <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              or try a different direction
+            </div>
+            <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column' }}>
+              {examples
+                .filter((ex) => ex.trim() !== text.trim())
+                .map((ex, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setText(ex); taRef.current && taRef.current.focus(); }}
+                    style={{
+                      display: 'grid', gridTemplateColumns: '24px 1fr 40px', alignItems: 'center', gap: 10,
+                      padding: '7px 8px', background: 'transparent', border: 'none',
+                      borderLeft: `2px solid transparent`,
+                      color: palette.ink2, fontFamily: 'inherit', fontSize: 13, textAlign: 'left',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderLeftColor = palette.amber; e.currentTarget.style.background = palette.bg2; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderLeftColor = 'transparent'; e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <span style={{ color: palette.ink3 }}>{i + 1}</span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex}</span>
+                    <span style={{ color: palette.ink3, fontSize: 11, textAlign: 'right' }}>edit</span>
+                  </button>
+                ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <StatusBar tail={<span>press <kbd style={kbdStyle}>↵</kbd> to begin</span>} />

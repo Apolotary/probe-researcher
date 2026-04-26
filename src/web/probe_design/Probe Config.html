@@ -334,7 +334,28 @@ function Header({ dirty, savedFlash, onSave }) {
       padding: '14px 22px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <span style={{ color: palette.brand, fontWeight: 700, letterSpacing: '0.04em' }}>PROBE</span>
+        {/* 'probe' in lowercase to match the rest of the app, and
+            clickable so users can return to the home view. The button
+            has no chrome — it reads as a quiet inline link, hover
+            underlines. postMessage to the parent shell when embedded;
+            direct nav as fallback. */}
+        <button
+          onClick={() => {
+            if (window.parent && window.parent !== window) {
+              try { window.parent.postMessage({ type: 'probe-nav', target: 'home' }, '*'); return; }
+              catch { /* fall through */ }
+            }
+            window.location.href = '/ui';
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+          title="return to home"
+          style={{
+            background: 'transparent', border: 'none', padding: 0, margin: 0,
+            color: palette.brand, fontFamily: 'inherit', fontWeight: 600,
+            letterSpacing: '0.02em', cursor: 'pointer',
+          }}
+        >probe</button>
         <span style={{ color: palette.ink3 }}>›</span>
         <span style={{ color: palette.ink, letterSpacing: '0.02em' }}>config</span>
         <span style={{ color: palette.ink3, marginLeft: 12, fontSize: '0.85em' }}>

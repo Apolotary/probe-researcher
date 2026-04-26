@@ -155,14 +155,27 @@ window.ProbeSidebar = function ProbeSidebar(props) {
       borderRight: `1px solid ${palette.rule}`, background: palette.bg,
       display: 'flex', flexDirection: 'column',
     }}>
-      {/* HEAD */}
+      {/* HEAD. Clicking the 'probe' wordmark returns to home from
+          anywhere — same convention as a typical app brand link. */}
       <div style={{ padding: '14px 14px 10px', borderBottom: `1px solid ${palette.rule}` }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,
           color: palette.ink, fontSize: 13, fontWeight: 600,
         }}>
-          <span style={{ color: palette.amber }}>›</span>
-          <span>probe</span>
+          <button
+            onClick={() => onNavigate('home')}
+            onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+            title="return to home"
+            style={{
+              background: 'transparent', border: 'none', padding: 0, margin: 0,
+              color: 'inherit', font: 'inherit', cursor: 'pointer',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+            }}
+          >
+            <span style={{ color: palette.amber }}>›</span>
+            <span>probe</span>
+          </button>
           <span style={{ marginLeft: 'auto', color: palette.ink4, fontSize: 11 }}>v0.4</span>
           <button
             onClick={onToggleCollapsed}
