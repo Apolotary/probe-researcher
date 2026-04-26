@@ -396,17 +396,18 @@ function Sidebar({ activeId, setActiveId }) {
       {SECTIONS.map(s => {
         const active = s.id === activeId;
         return (
-          <div key={s.id} onClick={() => setActiveId(s.id)} style={{
+          <div key={s.id} onClick={() => setActiveId(s.id)}
+            title={`${s.label} · keyboard shortcut: ${s.key}`}
+            style={{
             cursor: 'pointer',
             padding: '8px 22px',
             display: 'grid',
-            gridTemplateColumns: '14px 18px 1fr',
-            gap: 10,
+            gridTemplateColumns: '18px 1fr',
+            gap: 12,
             alignItems: 'center',
             background: active ? palette.amberSoft : 'transparent',
             borderLeft: `2px solid ${active ? palette.brand : 'transparent'}`,
           }}>
-            <span style={{ color: palette.ink3, fontSize: '0.85em' }}>[{s.key}]</span>
             <span style={{ color: active ? palette.brand : palette.ink2 }}>{s.icon}</span>
             <div>
               <div style={{ color: active ? palette.ink : palette.ink2 }}>{s.label}</div>
@@ -415,14 +416,36 @@ function Sidebar({ activeId, setActiveId }) {
           </div>
         );
       })}
-      <div style={{ padding: '20px 22px 0', color: palette.ink3, fontSize: '0.78em' }}>
-        <div style={{ color: palette.ink3, letterSpacing: '0.12em', marginBottom: 8 }}>NAVIGATE</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div><span style={{ color: palette.ink2 }}>j/k</span> · move section</div>
-          <div><span style={{ color: palette.ink2 }}>tab</span> · next field</div>
-          <div><span style={{ color: palette.ink2 }}>:e</span> · edit raw toml</div>
-        </div>
+      {/* Keyboard-shortcut hints kept but de-emphasized — section is
+          collapsible so non-Vim users don't see the [k][m][b] / j/k /
+          :e jargon by default. Hover the icons above to see the
+          per-section shortcut letter. Click "keyboard shortcuts" to
+          expand the full nav cheatsheet. */}
+      <KeyboardHints />
+    </div>
+  );
+}
+
+function KeyboardHints() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ padding: '20px 22px 0', color: palette.ink3, fontSize: '0.78em' }}>
+      <div onClick={() => setOpen((v) => !v)} style={{
+        cursor: 'pointer', color: palette.ink3, letterSpacing: '0.12em',
+        display: 'flex', alignItems: 'center', gap: 6, userSelect: 'none',
+      }}>
+        <span style={{ color: palette.ink4 }}>{open ? '▾' : '▸'}</span>
+        <span>KEYBOARD SHORTCUTS</span>
       </div>
+      {open && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+          <div><span style={{ color: palette.ink2 }}>k / m / b / a / h / i</span> · jump to section</div>
+          <div><span style={{ color: palette.ink2 }}>j/k or ↑↓</span> · move section</div>
+          <div><span style={{ color: palette.ink2 }}>tab</span> · next field</div>
+          <div><span style={{ color: palette.ink2 }}>s</span> · save</div>
+          <div><span style={{ color: palette.ink2 }}>esc</span> · back</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -886,14 +909,15 @@ function StatusBar({ activeId, settings, dirty }) {
       background: palette.bg2,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-        <span><span style={{ color: palette.brand }}>NORMAL</span></span>
-        <span>{section?.label}</span>
+        {/* Removed the "NORMAL" Vim-mode indicator — pure flavor that
+            confused non-Vim users. Section name + font readout are
+            kept because they're orienting, not jargon. */}
+        <span style={{ color: palette.brand, fontWeight: 600 }}>{section?.label}</span>
         <span>{settings.appearance.fontFamily} · {settings.appearance.fontSize}px</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-        <span>{dirty ? '[+]' : ''}</span>
+        <span>{dirty ? 'unsaved changes' : ''}</span>
         <span>{Object.values(settings.keys).filter(k => k.status === 'ok').length}/3 keys ok</span>
-        <span>line 1, col 1</span>
       </div>
     </div>
   );

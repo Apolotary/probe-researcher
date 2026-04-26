@@ -506,14 +506,18 @@ function VerdictHeader({ review }) {
     }}>
       <div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-          <span style={{
+          <span
+            title={`${v.label}: ${v.desc}`}
+            style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 28, height: 28, borderRadius: 3,
             background: v.color, color: palette.bg,
-            fontSize: 16, fontWeight: 700,
+            fontSize: 16, fontWeight: 700, cursor: 'help',
           }}>{v.glyph}</span>
-          <span style={{ color: v.color, fontSize: 18, fontWeight: 600,
-            letterSpacing: '0.02em' }}>{v.label}</span>
+          <span
+            title={`${v.label}: ${v.desc}`}
+            style={{ color: v.color, fontSize: 18, fontWeight: 600,
+            letterSpacing: '0.02em', cursor: 'help' }}>{v.label}</span>
           <span style={{ ...chipStyle, marginLeft: 4 }}>{review.venue}</span>
         </div>
         <div style={{ marginTop: 8, color: palette.ink, fontSize: 13.5, lineHeight: 1.55 }}>
@@ -537,9 +541,11 @@ function RecBreakdown({ reviewers }) {
       {order.map((k, i) => {
         const n = counts[i];
         return (
-          <div key={k} style={{
+          <div key={k}
+            title={`${REC[k].short} — ${REC[k].label} · ${REC[k].desc}`}
+            style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-            minWidth: 36,
+            minWidth: 36, cursor: 'help',
           }}>
             <div style={{
               height: 36, width: 16,
@@ -703,9 +709,12 @@ function ReviewerCard({ reviewer: r, expanded, onToggle }) {
           background: 'transparent', color: rec.color,
           border: `1px solid ${rec.color}`, fontSize: 10, fontWeight: 700,
         }}>{r.id}</span>
-        <span style={{
+        <span
+          title={`${rec.short} — ${rec.label} · ${rec.desc}`}
+          style={{
           ...chipStyle, color: rec.color, borderColor: rec.color, flex: 'none',
           textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: 10, fontWeight: 700,
+          cursor: 'help',
         }}>{rec.short} · {rec.label}</span>
         <span style={{
           color: palette.ink, fontSize: 12.5, fontStyle: 'italic',

@@ -221,13 +221,22 @@ window.ProbeSidebar = function ProbeSidebar(props) {
         </a>
       </div>
 
-      {/* RECENTS */}
+      {/* RECENTS — header switches between "demos · samples" and "recent"
+          based on whether any non-bundled saves exist. Calling a single
+          bundled sample "recent" was misleading for first-time visitors;
+          this re-labels honestly without hiding the section. */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '4px 0' }}>
-        <div style={{
+        <div
+          title={recents.every((r) => /sample|bundled/i.test(r.stageLabel || ''))
+            ? 'Bundled sample demos that ship with the repo. Run a live study and click "save as demo" on the done page to add your own.'
+            : 'Your saved demo recordings.'}
+          style={{
           padding: '12px 14px 4px', display: 'flex', alignItems: 'center', gap: 8,
           color: palette.ink3, fontSize: 11, letterSpacing: '0.10em', textTransform: 'uppercase',
         }}>
-          <span>recent</span>
+          <span>{recents.length > 0 && recents.every((r) => /sample|bundled/i.test(r.stageLabel || ''))
+            ? 'demos · samples'
+            : 'recent'}</span>
           <span style={{ flex: 1, height: 1, background: palette.rule }} />
           <span style={{ color: palette.ink4, fontSize: 10 }}>{recents.length}</span>
         </div>
