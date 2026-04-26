@@ -723,6 +723,100 @@
       ],
       "n": 12,
       "evaluation": ""
+    },
+    "disagreementAudit": {
+      "summary": "Reviewers agree the placeholder statistics are disqualifying as-is, but split sharply on whether the study's measurement apparatus and design can support its claims at all (R3), whether causal inference is salvageable with sensitivity analysis (R1), or whether the contribution is essentially ready pending minor methodological reporting fixes (R2).",
+      "realDisagreements": [
+        {
+          "axis": "contribution",
+          "reviewerPositions": [
+            {
+              "reviewer": "R2",
+              "position": "The translational and qualitative contributions (deployable 5-min protocol, environmental affordance categories) are publishable with minor fixes to coding transparency and reactivity quantification.",
+              "evidence": "R2 strengths #1 and #3; recommendation ARR"
+            },
+            {
+              "reviewer": "R3",
+              "position": "The theoretical contribution of RQ B is 'nearly vacuous' because breathing and task-preview components are confounded, and RQ A's mechanistic framing is unsupported — these are not surface fixes.",
+              "evidence": "R3 weakness #2; recommendation RRX"
+            }
+          ],
+          "whyItMatters": "This determines whether the paper is a near-ready applied contribution or a study whose theoretical scaffolding needs to be rebuilt before any version can be accepted.",
+          "doNotAverageBecause": "Splitting the difference at 'major revisions' obscures that R3's objection requires either new measurement (pupillometry/fNIRS) or substantial reframing, while R2's objection requires only a codebook appendix. The AC must decide which standard governs."
+        },
+        {
+          "axis": "validity",
+          "reviewerPositions": [
+            {
+              "reviewer": "R1",
+              "position": "The central threat to validity is crossover contamination of the 22% effect size; bounded by a sensitivity/carryover analysis, the causal claim can stand.",
+              "evidence": "R1 weakness #1, calls for sensitivity analysis"
+            },
+            {
+              "reviewer": "R3",
+              "position": "The deeper validity threat is construct validity — HRV and sustained-attention scores are distal correlates, not mechanisms — which no carryover analysis can repair.",
+              "evidence": "R3 weakness #1 on proxies vs. mechanism"
+            }
+          ],
+          "whyItMatters": "R1 frames the validity problem as statistical and fixable in revision; R3 frames it as a category error in how the construct is operationalized. The required revisions differ in kind, not degree.",
+          "doNotAverageBecause": "A sensitivity analysis does not address proxy-vs-mechanism critique, and a reframing to 'correlates' does not address carryover bias. Both must be handled separately rather than collapsed into a generic 'strengthen analysis' bullet."
+        },
+        {
+          "axis": "methodology",
+          "reviewerPositions": [
+            {
+              "reviewer": "R3",
+              "position": "End-of-day recall systematically distorts RQ C's phenomenological validity and is a serious flaw, not a minor procedural issue.",
+              "evidence": "R3 weakness #3 on F3"
+            },
+            {
+              "reviewer": "R2",
+              "position": "RQ C is the paper's strongest answered question, with 'unusual richness' in qualitative narratives.",
+              "evidence": "R2 strength #1"
+            }
+          ],
+          "whyItMatters": "The reviewers disagree about whether the qualitative findings are the paper's most credible output or its most retrospectively biased.",
+          "doNotAverageBecause": "If R3 is right, the qualitative thematic claims need ESM or diary methods, not just a κ statistic; if R2 is right, a codebook and reliability score suffice. These are different revision asks."
+        }
+      ],
+      "falseDisagreements": [
+        {
+          "axis": "validity",
+          "explanation": "All three reviewers flag the [SIMULATION_REHEARSAL] placeholders as disqualifying for quantitative evaluation — this is unanimous, not a disagreement, and should not be padded into the conflict list."
+        },
+        {
+          "axis": "methodology",
+          "explanation": "R1's HRV-metric underspecification and R2's missing inter-rater reliability are both instances of the same underlying objection: methods reporting is too thin for replication or evaluation. Different surface targets, same critique."
+        }
+      ],
+      "strongestReviewer": {
+        "reviewer": "R3",
+        "reason": "R3 isolates the confound between breathing and task-preview and the proxy-vs-mechanism gap — issues that R1 and R2 do not surface and that, if unaddressed, undermine the paper's theoretical claims regardless of how cleanly the statistics are reported."
+      },
+      "acDecision": {
+        "recommendation": "major revisions",
+        "rationale": "The unanimous placeholder-statistics issue alone precludes acceptance, but the substantive disagreements between R3 (construct validity, intervention confound) and R2 (near-ready applied contribution) must be resolved by the authors choosing a defensible scope: either reframe to correlates and limitations, or add measurement and a dismantling design. The AC should not pretend these are equivalent paths.",
+        "requiredRevisions": [
+          "Replace all [SIMULATION_REHEARSAL] placeholders with actual descriptive and inferential statistics, including 95% CIs and effect sizes.",
+          "Report a carryover-effect / sensitivity analysis bounding F1 crossover contamination of the intervention effect.",
+          "Either add a mechanism-level measure (pupillometry, fNIRS, or EEG) or systematically reframe RQ A from 'mechanisms' to 'correlates' throughout, with a corresponding limitations paragraph.",
+          "Either run a component-level mediation separating breathing from task-preview, or explicitly flag the confound as a primary limitation and reduce the strength of RQ B's theoretical claims.",
+          "Fully specify HRV operationalization (metric, epoch, motion-artifact handling) and report qualitative inter-rater reliability (κ or α) with the codebook.",
+          "Quantify the F2 reactivity plateau by comparing early vs. late longitudinal phases, and address R3's retrospective-recall concern either via ESM micro-interviews or by acknowledging it as a phenomenological-validity limitation."
+        ]
+      }
+    },
+    "rqBoolean": {
+      "A+B-union": {
+        "letter": "X",
+        "angle": "hybrid · mechanism-linked intervention",
+        "rq": "Do the cognitive-physiological signatures of focus degradation across consecutive video calls (attentional load, autonomic arousal, task-switching cost) causally moderate the efficacy of a 5-minute structured transition ritual versus unstructured breaks — i.e., does the ritual restore attention specifically by down-regulating arousal and resetting task-set, and only for participants/calls exhibiting those degradation markers?",
+        "method": "Within-subject counterbalanced A/B trial of ritual vs. free-rest inter-call gaps, instrumented with continuous HRV and webcam pupillometry plus SART probes and NASA-TLX, analysed with multilevel mediation/moderation models linking pre-gap physiological state to post-gap attention recovery",
+        "n": "n≈22 · single cohort, full workday, both biometrics and randomised gap conditions",
+        "rationale": "Rather than separately characterising mechanisms (A) or testing the ritual's average effect (B), this asks whether the mechanism explains and predicts who benefits — turning two parallel studies into one mediation/moderation design that yields actionable targeting rules."
+      }
     }
-  }
+  },
+  "modelMode": "mixed",
+  "regeneratedAt": "2026-04-26T07:36:07.019Z"
 }

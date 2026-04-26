@@ -171,6 +171,8 @@ export function slice(stage: string, args: Record<string, unknown> = {}): unknow
     discussion?: string;
     conclusion?: string;
     reviewSession?: unknown;
+    disagreementAudit?: unknown;
+    rqBoolean?: Record<string, unknown>;
   };
   switch (stage) {
     case 'brainstorm':
@@ -199,6 +201,22 @@ export function slice(stage: string, args: Record<string, unknown> = {}): unknow
       } : null;
     case 'review':
       return s.reviewSession ?? null;
+    // v2 cached payloads — judges replaying without an API key see the
+    // disagreement audit and the boolean RQ composition without falling
+    // through to an empty placeholder.
+    case 'disagreement-audit':
+      return s.disagreementAudit ?? null;
+    case 'rq-boolean': {
+      // The cached map is keyed by "<lettera>+<letterb>-<op>". For any
+      // (a, b, op) the frontend asks for, look up that key first; if
+      // missing, fall through to live (or empty payload via served()).
+      const op = (args.op ?? '') as string;
+      const a = (args.a ?? {}) as { letter?: string };
+      const b = (args.b ?? {}) as { letter?: string };
+      if (!s.rqBoolean) return null;
+      const key = `${a.letter ?? '?'}+${b.letter ?? '?'}-${op}`;
+      return s.rqBoolean[key] ?? null;
+    }
     default:
       return null;
   }
