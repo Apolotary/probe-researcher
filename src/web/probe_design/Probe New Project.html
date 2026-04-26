@@ -30,6 +30,7 @@
 <script src="probe-tokens.js"></script>
 <script type="text/babel" src="probe-spinner.jsx"></script>
 <script type="text/babel" src="probe-markdown.jsx"></script>
+<script type="text/babel" src="probe-provenance.jsx"></script>
 <script type="text/babel" src="probe-literature.jsx"></script>
 <script type="text/babel" src="probe-methodology.jsx"></script>
 <script type="text/babel" src="probe-artifacts.jsx"></script>
@@ -897,10 +898,16 @@ function Brainstorm({ mainRq, onBack, onContinue, goTo }) {
                 Combine RQ {aLetter} and RQ {bLetter} into a synthesized question:
               </span>
               <span style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+                {/* Plain-text labels are primary; the set-theory glyph
+                    (∪/∩/−) is decorative. Multiple LLM evaluators
+                    flagged the symbols-first treatment as "too cute"
+                    and a barrier to first-time users who haven't taken
+                    set theory. The hint also names the parent letters
+                    so the user sees what each op does to A vs B. */}
                 {[
-                  { op: 'union',     glyph: '∪', label: 'merge', hint: 'one hybrid RQ covering both angles' },
-                  { op: 'intersect', glyph: '∩', label: 'shared', hint: 'extract the assumption both depend on' },
-                  { op: 'subtract',  glyph: '−', label: 'subtract', hint: `${aLetter}'s framing without ${bLetter}'s confound` },
+                  { op: 'union',     glyph: '∪', label: `merge ${aLetter} + ${bLetter}`, hint: 'one hybrid RQ covering both angles' },
+                  { op: 'intersect', glyph: '∩', label: `shared in ${aLetter} & ${bLetter}`, hint: 'extract the assumption both depend on' },
+                  { op: 'subtract',  glyph: '−', label: `${aLetter} minus ${bLetter}`, hint: `${aLetter}'s framing without ${bLetter}'s confound` },
                 ].map(({ op, glyph, label, hint }) => (
                   <button key={op}
                     onClick={() => composeRq(op)}
@@ -910,11 +917,11 @@ function Brainstorm({ mainRq, onBack, onContinue, goTo }) {
                       background: 'transparent', border: `1px solid ${palette.amber}`,
                       color: palette.amber, padding: '5px 12px', borderRadius: 3,
                       fontFamily: 'inherit', fontSize: 12, cursor: boolThinking ? 'wait' : 'pointer',
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      display: 'inline-flex', alignItems: 'center', gap: 8,
                       opacity: boolThinking && boolThinking !== op ? 0.4 : 1,
                     }}>
-                    <span style={{ fontWeight: 700 }}>{glyph}</span>
                     <span>{label}</span>
+                    <span style={{ fontWeight: 700, opacity: 0.5, fontSize: 11 }}>{glyph}</span>
                     {boolThinking === op && <span style={{ color: palette.cyan }}>…</span>}
                   </button>
                 ))}

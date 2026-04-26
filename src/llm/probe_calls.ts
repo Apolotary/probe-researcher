@@ -765,6 +765,117 @@ Return JSON:
   };
 }
 
+/* ── rebuttal handler (v3.4) ─────────────────────────────────────── */
+//
+// When the user challenges a reviewer in the panel, this call asks
+// Opus to play the reviewer's role and decide whether the rebuttal
+// lands. Returns either an updated reviewer card (rec / weaknesses /
+// toAuthors revised) or a "rejected" outcome with rationale. Either
+// way, the panel re-runs disagreement-audit so the meta-decision can
+// flip if the rebuttal moved a reviewer.
+//
+// Crucially: the outcome is NOT pre-decided. The reviewer is told to
+// take rebuttals seriously when they cite evidence the reviewer
+// missed; to hold their position when the rebuttal is rhetorical or
+// repeats their existing critique. This is what makes the affordance
+// non-theatrical — the rebuttal can fail.
+
+export interface RebuttalOutcome {
+  outcome: 'updated' | 'rejected';
+  updated: ReviewerCard;
+  rationale: string;
+}
+
+export async function rebut(input: {
+  reviewer: ReviewerCard;
+  rebuttal: string;
+}): Promise<RebuttalOutcome> {
+  const r = input.reviewer;
+  const system =
+    `You are reviewer ${r.id} in a peer-review panel. The author has
+just sent you a rebuttal addressing your review. Your job is to
+honestly evaluate whether the rebuttal moves your position.
+
+Hard rules:
+- Update your stance ONLY if the rebuttal cites specific evidence,
+  argument, or context that you missed in your original review.
+- Hold your position when the rebuttal is rhetorical, restates
+  things you already considered, or asks you to give the work
+  benefit of the doubt without new evidence.
+- If you update, your new recommendation can move at most ONE
+  bucket (e.g. RR → ARR, RRX → RR), never multiple. Major
+  position changes require multiple rebuttals across rounds.
+- If you update, also revise the relevant entries in your
+  "weaknesses" array (mark the addressed ones as resolved by
+  rephrasing) and your toAuthors paragraph.
+- Be honest with yourself. A real reviewer holds the line on
+  technical disagreements; they update on factual corrections.
+- Strict JSON only. Do not include any commentary outside the JSON.`;
+  const user =
+    `Your original review of "${r.field || 'this paper'}":
+recommendation: ${r.rec}
+one-liner: ${r.oneLine}
+strengths: ${(r.strengths || []).join(' | ')}
+weaknesses: ${(r.weaknesses || []).join(' | ')}
+to authors: ${r.toAuthors}
+
+Author rebuttal:
+"""
+${input.rebuttal}
+"""
+
+Return JSON:
+\`\`\`json
+{
+  "outcome": "updated|rejected",
+  "rationale": "<one paragraph explaining whether the rebuttal moved you and why, ≤120 words>",
+  "updated": {
+    "id": "${r.id}",
+    "rec": "<A|ARR|RR|RRX|X — only changed if outcome=updated>",
+    "field": ${JSON.stringify(r.field || '')},
+    "affiliation": ${JSON.stringify(r.affiliation || 'academic')},
+    "topicConfidence": ${JSON.stringify(r.topicConfidence || 'confident')},
+    "oneLine": "<≤16-word summary; revised if outcome=updated>",
+    "strengths": ["…","…","…"],
+    "weaknesses": ["…","…","…"],
+    "toAuthors": "<paragraph reflecting your post-rebuttal stance, ≤140 words>",
+    "toChairs": "<short note to chairs reflecting current position, ≤40 words>"
+  }
+}
+\`\`\``;
+  const text = await callLLM({ stage: 'review', system, user, maxTokens: 1800 });
+  const parsed = extractJSON(text) as Partial<RebuttalOutcome>;
+  const outcome: 'updated' | 'rejected' = parsed.outcome === 'updated' ? 'updated' : 'rejected';
+  // If rejected, return the original reviewer untouched. If updated, validate
+  // the rec is one of the legal buckets and that it didn't jump more than one
+  // bucket (the prompt forbids it; we enforce it server-side).
+  const upd = parsed.updated || ({} as ReviewerCard);
+  const order: ReviewerCard['rec'][] = ['A', 'ARR', 'RR', 'RRX', 'X'];
+  const oldIdx = order.indexOf(r.rec);
+  const newRec = order.includes(upd.rec as ReviewerCard['rec']) ? upd.rec as ReviewerCard['rec'] : r.rec;
+  const newIdx = order.indexOf(newRec);
+  const clampedRec = outcome === 'updated' && Math.abs(newIdx - oldIdx) <= 1 ? newRec : r.rec;
+  const updated: ReviewerCard = outcome === 'updated' ? {
+    id: r.id,
+    rec: clampedRec,
+    field: upd.field || r.field,
+    affiliation: (upd.affiliation as ReviewerCard['affiliation']) || r.affiliation,
+    topicConfidence: (upd.topicConfidence as ReviewerCard['topicConfidence']) || r.topicConfidence,
+    oneLine: upd.oneLine || r.oneLine,
+    strengths: Array.isArray(upd.strengths) ? upd.strengths : r.strengths,
+    weaknesses: Array.isArray(upd.weaknesses) ? upd.weaknesses : r.weaknesses,
+    toAuthors: upd.toAuthors || r.toAuthors,
+    toChairs: upd.toChairs || r.toChairs,
+  } : r;
+  return {
+    outcome,
+    updated,
+    rationale: parsed.rationale || (outcome === 'updated'
+      ? 'Reviewer updated their position in light of the rebuttal.'
+      : 'Reviewer maintains their position.'),
+  };
+}
+
 /* ── teaser SVG (hero figure for the project page) ───────────────── */
 
 export async function teaser(input: {

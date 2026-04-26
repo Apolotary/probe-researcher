@@ -186,6 +186,29 @@ function ReviewBody({ data, density }) {
   const isSeed = !data.runs.length;
   const [openId, setOpenId] = useState('AC'); // which reviewer's panel is expanded
 
+  // v3.4: track rebuttals per-reviewer-id so the disagreement audit can
+  // re-run when a rebuttal lands (its updated reviewer outcome flips
+  // the meta-decision, possibly). The rebuttalNonce changes whenever a
+  // rebuttal resolves; the audit card subscribes via prop.
+  const [rebuttals, setRebuttals] = useState({});
+  const handleRebuttalResolved = (reviewerId, data) => {
+    setRebuttals((prev) => ({ ...prev, [reviewerId]: data }));
+  };
+
+  // Build an "effective" review: replace any reviewer for whom a rebuttal
+  // has produced an updated stance. The original reviewer travels in
+  // .original so the audit can still display the pre-rebuttal position.
+  const effectiveReview = React.useMemo(() => {
+    const reviewers = (review.reviewers || []).map((r) => {
+      const reb = rebuttals[r.id];
+      if (reb && reb.outcome === 'updated' && reb.updated) {
+        return { ...reb.updated, _rebuttedFrom: r.rec, _rebuttalRationale: reb.rationale };
+      }
+      return r;
+    });
+    return { ...review, reviewers };
+  }, [review, rebuttals]);
+
   if (isSeed && data.status === 'queued') {
     return <ReviewEmpty review={review} />;
   }
@@ -193,29 +216,35 @@ function ReviewBody({ data, density }) {
   return (
     <>
       <Section title="verdict" accent={VERDICT[review.verdict].color}>
-        <VerdictHeader review={review} />
+        <VerdictHeader review={effectiveReview} />
       </Section>
 
       <Section title="meta-review · 1AC" accent="#d9a548">
-        <MetaReviewCard meta={review.meta} expanded={openId === 'AC'}
+        <MetaReviewCard meta={effectiveReview.meta} expanded={openId === 'AC'}
           onToggle={() => setOpenId(openId === 'AC' ? null : 'AC')} />
       </Section>
 
-      <Section title={`reviews · ${review.reviewers.length} reviewers`} accent="#7dcfff">
+      <Section title={`reviews · ${effectiveReview.reviewers.length} reviewers`} accent="#7dcfff">
         <div style={{ color: palette.ink3, fontSize: 11.5, marginTop: 4, marginBottom: 8 }}>
-          click a review to read it in full · recommendations span {summarizeRecs(review.reviewers)}
+          click a review to read it in full · recommendations span {summarizeRecs(effectiveReview.reviewers)}
+          {Object.keys(rebuttals).length > 0 && (
+            <span style={{ marginLeft: 10, color: '#7fb069' }}>
+              · {Object.values(rebuttals).filter((r) => r.outcome === 'updated').length} rebuttal{Object.values(rebuttals).filter((r) => r.outcome === 'updated').length === 1 ? '' : 's'} accepted
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {review.reviewers.map((r) => (
+          {(review.reviewers || []).map((r) => (
             <ReviewerCard key={r.id} reviewer={r}
               expanded={openId === r.id}
-              onToggle={() => setOpenId(openId === r.id ? null : r.id)} />
+              onToggle={() => setOpenId(openId === r.id ? null : r.id)}
+              onRebuttalResolved={handleRebuttalResolved} />
           ))}
         </div>
       </Section>
 
       <Section title="opus 4.7 · disagreement audit" accent="#d9a548">
-        <DisagreementAuditCard review={review} />
+        <DisagreementAuditCard review={effectiveReview} />
       </Section>
 
       <Section title="what now" accent={palette.amber}>
@@ -293,6 +322,13 @@ function DisagreementAuditCard({ review }) {
     );
   }
 
+  // Lineage strip — addresses "why did this audit run, what input
+  // did it use?" feedback from the persona evaluations. Surfaces
+  // exactly what the audit reads from and what model produced it,
+  // so the card doesn't feel magical or opaque.
+  const reviewerIds = (review.reviewers || []).map((r) => r.id).join(' + ');
+  const replayMode = window.__probeStageMode === 'mixed' ? 'live or replay' : window.__probeStageMode;
+
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', gap: 10,
@@ -304,6 +340,83 @@ function DisagreementAuditCard({ review }) {
         textTransform: 'uppercase', fontWeight: 600 }}>
         forced-contrast schema · do-not-average policy
       </div>
+
+      {/* Audit lineage — shows the user exactly what the model read,
+          what schema it produced, and which model generated it. */}
+      <div style={{
+        color: palette.ink3, fontSize: 11, fontFamily: 'inherit',
+        padding: '6px 8px', background: 'rgba(217,165,72,0.04)',
+        border: '1px dashed rgba(217,165,72,0.25)', borderRadius: 3,
+        lineHeight: 1.5,
+      }}>
+        <span style={{ color: palette.ink2 }}>generated from</span>{' '}
+        <span style={{ color: palette.ink, fontFamily: 'inherit' }}>{reviewerIds || '?'} + AC meta-review</span>
+        {' · '}
+        <span style={{ color: palette.ink2 }}>schema</span>{' '}
+        <span style={{ color: palette.ink, fontFamily: 'inherit' }}>realDisagreements / falseDisagreements / strongestReviewer / acDecision</span>
+        {' · '}
+        <span style={{ color: palette.ink2 }}>model</span>{' '}
+        <span style={{ color: '#d9a548', fontWeight: 600, fontFamily: 'inherit' }}>claude-opus-4-7</span>
+      </div>
+
+      {/* v3.3 — "tuned to encourage spread" admission. The persona
+          panel kept asking "is the disagreement real or just baked
+          into the prompt?" — this disclosure shows the actual prompt
+          fragment that nudges divergence and points the user to the
+          variance sanity test for the null-condition baseline. */}
+      <details style={{
+        margin: 0, fontSize: 11.5, color: palette.ink3,
+      }}>
+        <summary style={{
+          cursor: 'pointer', userSelect: 'none', listStyle: 'none',
+          padding: '5px 8px',
+          border: '1px dashed rgba(217,165,72,0.25)', borderRadius: 3,
+          background: 'rgba(217,165,72,0.03)',
+          color: palette.ink3,
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <span>▸</span>
+          <span>show prompt · why these reviewers disagree</span>
+          <span style={{
+            marginLeft: 'auto', color: palette.ink4, fontSize: 10,
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+          }}>tuned to encourage spread</span>
+        </summary>
+        <div style={{
+          padding: '10px 12px', marginTop: 6,
+          background: 'rgba(217,165,72,0.03)',
+          border: '1px solid rgba(217,165,72,0.18)',
+          borderRadius: 3, color: palette.ink2, fontSize: 11.5, lineHeight: 1.55,
+        }}>
+          <div style={{
+            color: palette.ink3, fontSize: 10.5, letterSpacing: '0.08em',
+            textTransform: 'uppercase', marginBottom: 4,
+          }}>fragment from stage-7 system prompt</div>
+          <pre style={{
+            margin: '4px 0 8px', padding: '8px 10px',
+            background: 'rgba(0,0,0,0.20)', borderRadius: 2,
+            fontFamily: 'inherit', fontSize: 11, color: palette.cyan,
+            whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+          }}>{`Reviewers must DISAGREE meaningfully — assign distinct recommendations and distinct specialization profiles so the panel critiques the paper from different angles.`}</pre>
+          <div style={{ color: palette.ink2, fontSize: 11.5, lineHeight: 1.6 }}>
+            <strong style={{ color: palette.amber }}>Caveat.</strong> The reviewers
+            were prompted to take divergent angles. The disagreements detected here
+            are real differences in their generated outputs, but their initial
+            divergence is structurally encouraged. To check that this
+            audit isn't <em>only</em> picking up prompt bias, run the
+            null-condition variance test:
+            <code style={{
+              display: 'inline-block', margin: '2px 0 0',
+              padding: '1px 8px', background: 'rgba(0,0,0,0.20)',
+              border: `1px solid ${palette.rule}`, borderRadius: 2,
+              color: palette.cyan, fontSize: 10.5,
+            }}>probe sanity disagreement-variance --mock</code>
+            {' '}— it replays stage 7 with three identical reviewer specs and
+            confirms the diverse condition produces meaningfully wider
+            spread (see <code style={{ color: palette.cyan }}>V3_BACKLOG.md</code> §v3.2).
+          </div>
+        </div>
+      </details>
 
       {audit.summary && (
         <div style={{ color: palette.ink, fontSize: 13, lineHeight: 1.55 }}>
@@ -681,8 +794,44 @@ function ConsensusRow({ c }) {
 }
 
 // ─── Reviewer card ─────────────────────────────────────────────────────────
-function ReviewerCard({ reviewer: r, expanded, onToggle }) {
-  const rec = REC[r.rec];
+function ReviewerCard({ reviewer: r, expanded, onToggle, onRebuttalResolved }) {
+  // Local rebuttal state. v3.4 promotes this from "textbox that goes
+  // nowhere" to a real interaction: the user can ask Probe to address
+  // the rebuttal, which calls /api/probe/rebut and updates the
+  // reviewer's recommendation + comments in place. The disagreement
+  // audit re-runs upstream so the meta-decision can flip if the
+  // rebuttal lands.
+  const [challengeOpen, setChallengeOpen] = useState(false);
+  const [challengeText, setChallengeText] = useState('');
+  const [resolution, setResolution] = useState(null);  // null | 'pending' | object
+  const [error, setError] = useState(null);
+  // The reviewer card optimistically uses the *resolved* fields when a
+  // rebuttal has been addressed; falls back to the original review.
+  const live = resolution && resolution.kind === 'updated' ? resolution.updated : r;
+  const rec = REC[live.rec] || REC[r.rec];
+
+  const askProbeToAddress = async () => {
+    if (!challengeText.trim()) return;
+    setResolution({ kind: 'pending' });
+    setError(null);
+    try {
+      const resp = await fetch('/api/probe/rebut', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviewer: r, rebuttal: challengeText }),
+      });
+      if (!resp.ok) throw new Error(`rebut ${resp.status}`);
+      const data = await resp.json();
+      setResolution({ kind: data.outcome || 'updated', updated: data.updated || r, rationale: data.rationale });
+      // Tell the parent — it'll re-run the disagreement audit so the
+      // meta-decision reflects the new reviewer stance.
+      onRebuttalResolved && onRebuttalResolved(r.id, data);
+    } catch (e) {
+      setError(String(e.message || e));
+      setResolution(null);
+    }
+  };
+
   return (
     <div style={{
       background: palette.bg2,
@@ -767,6 +916,106 @@ function ReviewerCard({ reviewer: r, expanded, onToggle }) {
                 ? <window.MarkdownText text={r.toChairs} />
                 : r.toChairs}
             </div>
+          </DetailBlock>
+
+          {/* Rebuttal affordance — lets the user disagree with the
+              simulated reviewer in writing. Closes the asymmetry the
+              persona evaluations flagged: previously the tool flowed
+              one direction (reviewer says X, user accepts), and the
+              simulated review acquired authority by being unanswerable.
+              Now the user records their own counter-position next to
+              the reviewer's text, so both voices travel together when
+              the artifact is exported or shared. */}
+          <DetailBlock label="your response (challenge or accept)" accent="#7dcfff">
+            {!challengeOpen && !challengeText && !resolution && (
+              <button
+                onClick={() => setChallengeOpen(true)}
+                style={{
+                  background: 'transparent', border: '1px solid #7dcfff',
+                  color: '#7dcfff', padding: '6px 12px', borderRadius: 3,
+                  fontFamily: 'inherit', fontSize: 12, cursor: 'pointer',
+                }}>
+                challenge this reviewer →
+              </button>
+            )}
+            {(challengeOpen || challengeText) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <textarea
+                  value={challengeText}
+                  onChange={(e) => setChallengeText(e.target.value)}
+                  placeholder={`Why do you disagree with ${r.id}? What evidence or argument would you bring back?`}
+                  rows={3}
+                  disabled={resolution && resolution.kind === 'pending'}
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    background: palette.bg, color: palette.ink,
+                    border: '1px solid rgba(125,207,255,0.4)',
+                    borderRadius: 3, padding: '8px 10px',
+                    fontFamily: 'inherit', fontSize: 13, lineHeight: 1.55,
+                    resize: 'vertical', outline: 'none',
+                    caretColor: '#7dcfff',
+                  }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={askProbeToAddress}
+                    disabled={!challengeText.trim() || (resolution && resolution.kind === 'pending')}
+                    style={{
+                      background: challengeText.trim() ? '#7dcfff' : 'transparent',
+                      border: '1px solid #7dcfff',
+                      color: challengeText.trim() ? '#0f1419' : '#7dcfff',
+                      padding: '6px 12px', borderRadius: 3,
+                      fontFamily: 'inherit', fontSize: 12, fontWeight: 600,
+                      cursor: challengeText.trim() ? 'pointer' : 'not-allowed',
+                      opacity: challengeText.trim() ? 1 : 0.5,
+                    }}>
+                    {resolution && resolution.kind === 'pending'
+                      ? 'asking Probe to address rebuttal…'
+                      : 'ask Probe to address rebuttal'}
+                  </button>
+                  {resolution && resolution.kind !== 'pending' && (
+                    <span style={{ color: palette.ink3, fontSize: 11 }}>
+                      auditor will re-evaluate the panel with this rebuttal applied.
+                    </span>
+                  )}
+                </div>
+                {error && (
+                  <div style={{ color: '#e26e6e', fontSize: 11.5 }}>
+                    rebuttal failed: {error}
+                  </div>
+                )}
+                {resolution && resolution.kind === 'updated' && (
+                  <div style={{
+                    padding: '10px 12px', background: 'rgba(127,176,105,0.08)',
+                    border: '1px solid rgba(127,176,105,0.3)',
+                    borderLeft: `3px solid #7fb069`, borderRadius: 3,
+                    color: palette.ink2, fontSize: 12, lineHeight: 1.55,
+                  }}>
+                    <div style={{
+                      color: '#7fb069', fontSize: 10.5, fontWeight: 600,
+                      letterSpacing: '0.10em', textTransform: 'uppercase',
+                      marginBottom: 6,
+                    }}>rebuttal accepted · {r.id} updated · {r.rec} → {live.rec}</div>
+                    <div>{resolution.rationale || 'Reviewer position revised in light of your rebuttal.'}</div>
+                  </div>
+                )}
+                {resolution && resolution.kind === 'rejected' && (
+                  <div style={{
+                    padding: '10px 12px', background: 'rgba(226,110,110,0.06)',
+                    border: '1px solid rgba(226,110,110,0.3)',
+                    borderLeft: `3px solid #e26e6e`, borderRadius: 3,
+                    color: palette.ink2, fontSize: 12, lineHeight: 1.55,
+                  }}>
+                    <div style={{
+                      color: '#e26e6e', fontSize: 10.5, fontWeight: 600,
+                      letterSpacing: '0.10em', textTransform: 'uppercase',
+                      marginBottom: 6,
+                    }}>rebuttal not accepted · {r.id} holds {r.rec}</div>
+                    <div>{resolution.rationale || 'Reviewer maintains their position.'}</div>
+                  </div>
+                )}
+              </div>
+            )}
           </DetailBlock>
         </div>
       )}

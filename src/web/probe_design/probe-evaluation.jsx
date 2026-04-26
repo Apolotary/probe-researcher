@@ -167,11 +167,11 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
         ['literature', palette.ink2, 'literature'],
         ['methodology', palette.ink2, 'methodology'],
         ['artifacts', palette.ink2, 'artifacts'],
-        ['evaluation · simulated', palette.ink],
+        ['pre-mortem · simulated', palette.ink],
       ]} onStepClick={goTo}
       right={
         <span style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-          <span style={{ color: palette.ink3 }}>stage 5 · simulation</span>
+          <span style={{ color: palette.ink3 }}>stage 5 · pre-mortem</span>
           <button onClick={onBack} style={ghostBtnStyle}><kbd style={kbdStyle}>esc</kbd> back</button>
         </span>
       } />
@@ -180,10 +180,10 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
         <SimulatedBanner />
         <div style={{ color: palette.ink3, fontSize: 11, letterSpacing: '0.14em',
           textTransform: 'uppercase', margin: '14px 0 8px' }}>
-          ─── simulated evaluation · pilot before you commit ───
+          ─── pre-mortem · risks to anticipate before recruitment ───
         </div>
         <h2 style={{ fontSize: 18, fontWeight: 500, margin: 0, color: palette.ink2 }}>
-          Probe will spin up synthetic participants, walk them through your protocol, and draft your findings.
+          Probe will simulate composite personas walking through your protocol and surface pre-mortem risks. These are hypothesized failure modes — not findings, not user data.
         </h2>
 
         {phase === 'config' && (
@@ -196,7 +196,7 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
             <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 360 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                  <span style={{ color: palette.ink, fontSize: 14 }}>synthetic participants</span>
+                  <span style={{ color: palette.ink, fontSize: 14 }}>simulated personas (composite, not human)</span>
                   <span style={{ color: palette.amber, fontSize: 22, fontWeight: 600, fontFamily: 'inherit' }}>{n}</span>
                   <span style={{ color: palette.ink3, fontSize: 11.5 }}>· range 6 – 30</span>
                 </div>
@@ -253,8 +253,9 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
           <div className="fade-in" style={{ marginTop: 22 }}>
             <PersonaPool personas={personas} compact />
 
-            <SectionEditable label="evaluation · findings" hint="quant + qual synthesis across all RQs"
+            <SectionEditable label="pre-mortem · risks (simulated, not findings)" hint="hypothesized failure modes — useful for tightening the protocol; not evidence"
               value={evaluation} setValue={setEvaluation}
+              defaultTag="SIMULATION_REHEARSAL"
               isEditing={editing === 'eval'} setEditing={(v) => setEditing(v ? 'eval' : null)} />
           </div>
         )}
@@ -267,7 +268,7 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
         padding: '10px 22px', display: 'flex', alignItems: 'center', gap: 14,
         color: palette.ink3, fontSize: 12.5,
       }}>
-        <span style={{ color: palette.rose }}>simulated · pilot only</span>
+        <span style={{ color: palette.rose }}>pre-mortem only · not evidence, not findings</span>
         <span style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
           {phase === 'done' && (
             <>
@@ -331,11 +332,11 @@ function RunningPanel({ personas, progress }) {
           marginTop: 12, display: 'flex', flexDirection: 'column', gap: 4,
           fontSize: 12, color: palette.ink2,
         }}>
-          <PhaseLine done={progress > 0.15}    active={progress <= 0.15} label="spinning up synthetic participants" />
-          <PhaseLine done={progress > 0.45}    active={progress > 0.15 && progress <= 0.45} label="walking each through onboarding + consent" />
-          <PhaseLine done={progress > 0.75}    active={progress > 0.45 && progress <= 0.75} label="simulating 4 weeks of fielding" />
-          <PhaseLine done={progress > 0.9}     active={progress > 0.75 && progress <= 0.9}  label="conducting exit interviews" />
-          <PhaseLine done={progress >= 1}      active={progress > 0.9}                       label="synthesizing evaluation · discussion · conclusion" />
+          <PhaseLine done={progress > 0.15}    active={progress <= 0.15} label="spinning up simulated personas (composite, not human)" />
+          <PhaseLine done={progress > 0.45}    active={progress > 0.15 && progress <= 0.45} label="walking each through your protocol on paper" />
+          <PhaseLine done={progress > 0.75}    active={progress > 0.45 && progress <= 0.75} label="probing for protocol failure modes" />
+          <PhaseLine done={progress > 0.9}     active={progress > 0.75 && progress <= 0.9}  label="surfacing capture risks + edge cases" />
+          <PhaseLine done={progress >= 1}      active={progress > 0.9}                       label="synthesizing pre-mortem · risks · open questions" />
         </div>
       </div>
       <PersonaPool personas={personas} dim />
@@ -358,8 +359,8 @@ function PhaseLine({ done, active, label }) {
 function PersonaPool({ personas, compact, dim }) {
   return (
     <div style={{ marginTop: compact ? 0 : 14 }}>
-      <SectionHeader title={`synthetic participants · ${personas.length}`}
-        hint="diverse roles · meeting loads · attitudes" />
+      <SectionHeader title={`simulated personas · ${personas.length}`}
+        hint="composite character sketches · not human participants" />
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8,
         opacity: dim ? 0.6 : 1,
@@ -393,7 +394,8 @@ function PersonaPool({ personas, compact, dim }) {
   );
 }
 
-function SectionEditable({ label, hint, value, setValue, isEditing, setEditing }) {
+function SectionEditable({ label, hint, value, setValue, isEditing, setEditing, defaultTag }) {
+  const useTagged = !!defaultTag && !!window.TaggedView;
   return (
     <div className="fade-in" style={{ marginTop: 28 }}>
       <SectionHeader title={label} hint={hint} />
@@ -417,6 +419,8 @@ function SectionEditable({ label, hint, value, setValue, isEditing, setEditing }
               border: `1px solid ${palette.rule}`, padding: '10px 12px', borderRadius: 3,
               outline: 'none', resize: 'vertical', lineHeight: 1.6, caretColor: palette.amber,
             }} />
+        ) : useTagged ? (
+          <window.TaggedView text={value} defaultTag={defaultTag} />
         ) : (
           window.MarkdownText
             ? <window.MarkdownText text={value} />

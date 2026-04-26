@@ -15,7 +15,7 @@ import express from 'express';
 import {
   brainstorm, literature, methodology, plan,
   artifacts, personas, findings, report, review,
-  disagreementAudit, rqBoolean, teaser,
+  disagreementAudit, rqBoolean, teaser, rebut,
   hasApiKey,
   type RqOp,
 } from '../llm/probe_calls.js';
@@ -554,6 +554,71 @@ export function mountProbeApi(app: express.Express): void {
         discussion: body.discussion,
       });
     });
+  });
+
+  // Rebuttal handler — v3.4. The user has challenged a reviewer; this
+  // call asks the model (playing the reviewer's role) to honestly
+  // evaluate whether the rebuttal moves their position. Returns
+  // { outcome: 'updated' | 'rejected', updated: ReviewerCard, rationale }.
+  // The rebuttal can fail — that's the point. A reviewer who flips
+  // every time they're argued with is theater; the prompt forces an
+  // evidence-based update threshold and clamps recommendation moves
+  // to one bucket per rebuttal round.
+  router.post('/rebut', async (req, res) => {
+    const body = (req.body ?? {}) as {
+      reviewer?: { id?: string; rec?: string; field?: string;
+        affiliation?: string; topicConfidence?: string;
+        oneLine?: string; strengths?: string[]; weaknesses?: string[];
+        toAuthors?: string; toChairs?: string };
+      rebuttal?: string;
+    };
+    if (!body.reviewer || !body.reviewer.id || !body.rebuttal) {
+      res.status(400).json({ error: 'reviewer (full object) and rebuttal (text) required' });
+      return;
+    }
+    // Cached demo runs short-circuit to a deterministic synthetic
+    // outcome so judges without an API key can exercise the affordance.
+    // The synthetic logic: long rebuttals citing "evidence" / "but" /
+    // "missed" or quoted text are biased toward 'updated'; short ones
+    // toward 'rejected'.
+    if (demo.isReplaying()) {
+      await demo.delay();
+      const reb = body.rebuttal || '';
+      const cites = /evidence|figure|table|but|however|missed|overlook|cite|in fact|actually|specifically|"[^"]+"/i.test(reb);
+      const long = reb.length >= 80;
+      const accept = cites && long;
+      const order = ['A', 'ARR', 'RR', 'RRX', 'X'] as const;
+      const cur = order.indexOf((body.reviewer.rec as typeof order[number]) || 'RR');
+      const newRec = accept ? order[Math.max(0, cur - 1)] : order[cur];
+      res.json({
+        outcome: accept ? 'updated' : 'rejected',
+        rationale: accept
+          ? 'The rebuttal cites specific evidence the original review did not address, and reframes the strongest weakness in a way that warrants a one-bucket softening of the recommendation.'
+          : 'The rebuttal restates the position rather than introducing new evidence; the reviewer holds their original recommendation, but appreciates the engagement.',
+        updated: {
+          ...body.reviewer,
+          rec: newRec,
+          oneLine: accept ? `Updated after rebuttal — ${body.reviewer.oneLine || 'position softened'}` : body.reviewer.oneLine,
+          toAuthors: accept
+            ? `${body.reviewer.toAuthors || ''}\n\nPost-rebuttal: I take the author's response on board. The specific evidence cited addresses my central concern about the methodological scaffolding, and I am updating my recommendation by one bucket. The remaining weaknesses still warrant attention but are no longer disqualifying.`
+            : `${body.reviewer.toAuthors || ''}\n\nPost-rebuttal: I have read the author's response and continue to hold my position. The rebuttal restates rather than answers the central concern.`,
+        },
+      });
+      return;
+    }
+    if (!hasApiKey()) {
+      res.status(503).json({ error: 'no API key — rebuttal requires live model access' });
+      return;
+    }
+    try {
+      const out = await rebut({
+        reviewer: body.reviewer as Parameters<typeof rebut>[0]['reviewer'],
+        rebuttal: body.rebuttal,
+      });
+      res.json(out);
+    } catch (e) {
+      res.status(500).json({ error: String((e as Error).message || e) });
+    }
   });
 
   // Teaser SVG generator — used by the report stage's "project page"

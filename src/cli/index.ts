@@ -30,6 +30,7 @@ import { reportPageCommand } from './report_page.js';
 import { interactiveDefault } from './interactive.js';
 import { webCommand } from './web.js';
 import { uiCommand } from './ui_app.js';
+import { sanityVarianceCommand } from './sanity_variance.js';
 
 const program = new Command();
 
@@ -170,6 +171,19 @@ program
   .option('--no-open', 'with --web: do not auto-open the browser')
   .description('Launch the new Probe UI. The TUI runs the full live workflow — premise → brainstorm RQs → literature → methodology → artifacts → evaluation → report → done — with state carried across stages. Pass --web for the HTML companion (full Dossier prototype with the same flow). First-run users land on welcome; returning users on startup.')
   .action(uiCommand);
+
+program
+  .command('sanity')
+  .argument('<test>', 'sanity test name: disagreement-variance')
+  .option('--demo <name>', 'demo to run against (default: focus-rituals)')
+  .option('--mock', 'deterministic mock numbers (no API key needed)')
+  .option('-k, --k <n>', 'trials per condition (default 3)')
+  .description('Null-condition variance test for the disagreement audit. Runs stage-7 K times with identical reviewer specs vs diverse, computes pairwise distance, exits 0 on PASS / 1 on FAIL. Use --mock for the seeded baseline.')
+  .action((test, opts) => {
+    if (test === 'disagreement-variance') return sanityVarianceCommand(opts);
+    console.error(`unknown sanity test: ${test}`);
+    process.exit(2);
+  });
 
 program
   .command('stats')

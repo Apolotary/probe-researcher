@@ -5,8 +5,9 @@
  * latency × 9 stages = 1.5–3 min minimum), too long for a 3-minute
  * demo video. This module lets the user run a workflow once with the
  * real API, save the resulting state to disk, then replay it
- * instantly with synthetic spinner delays so the cadence stays
- * believable on camera.
+ * deterministically. Stage transitions are paced so each stage is
+ * visible and inspectable rather than a flash; cached payloads
+ * themselves return effectively instantly under the hood.
  *
  * Storage: JSON files under ~/.config/probe/demos/<slug>.json.
  * Each file holds the full ProbeWorkflowState plus metadata.
