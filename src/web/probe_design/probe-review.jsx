@@ -214,6 +214,10 @@ function ReviewBody({ data, density }) {
         </div>
       </Section>
 
+      <Section title="opus 4.7 · disagreement audit" accent="#d9a548">
+        <DisagreementAuditCard review={review} />
+      </Section>
+
       <Section title="what now" accent={palette.amber}>
         <ActionsRow review={review} />
       </Section>
@@ -222,6 +226,183 @@ function ReviewBody({ data, density }) {
         <PanelComposer reviewers={review.reviewers} />
       </Section>
     </>
+  );
+}
+
+// ─── Disagreement Audit (Opus 4.7) ────────────────────────────────
+// Renders the structured forced-contrast audit returned by
+// /api/probe/disagreement-audit. The audit is the project's
+// strongest Opus-specific moment: the model has to identify which
+// reviewer disagreements are real vs. apparent, name what the AC
+// must NOT average away, and pick the strongest reviewer.
+//
+// The schema (realDisagreements / falseDisagreements / strongestReviewer
+// / acDecision) is forced-contrast: the model can't degenerate into
+// polite consensus without explicitly violating the schema.
+function DisagreementAuditCard({ review }) {
+  const [audit, setAudit] = React.useState(null);
+  const [running, setRunning] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
+  // Auto-fire on mount — the cached payload is in the bundled demo,
+  // and even on a live run the audit is the demo's headline Opus
+  // moment, so it should appear without a click.
+  React.useEffect(() => {
+    if (!review?.reviewers?.length) return;
+    setRunning(true);
+    fetch('/api/probe/disagreement-audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        paperTitle: review.paperTitle || 'Untitled',
+        premise: review.premise || '',
+        reviewers: review.reviewers,
+        meta: review.meta || {},
+        discussion: review.discussion || '',
+      }),
+    })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('audit ' + r.status)))
+      .then((data) => {
+        setAudit(data);
+        setRunning(false);
+      })
+      .catch((e) => {
+        setError(String(e.message || e));
+        setRunning(false);
+      });
+  }, [review?.reviewers?.length]);
+
+  if (running && !audit) {
+    return (
+      <div style={{
+        padding: '14px 16px', background: palette.bg2,
+        border: '1px solid rgba(217,165,72,0.3)', borderLeft: '3px solid #d9a548',
+        borderRadius: 4, color: palette.ink3, fontSize: 12.5,
+      }}>
+        <span style={{ color: '#d9a548', fontWeight: 600 }}>claude-opus-4-7</span>
+        <span style={{ marginLeft: 8 }}>· auditing disagreement across {review.reviewers.length} reviewers + AC…</span>
+      </div>
+    );
+  }
+
+  if (error || !audit) {
+    return (
+      <div style={{ color: palette.ink3, fontSize: 12 }}>
+        Audit unavailable {error ? `(${error})` : ''} — schema requires reviewer text + AC verdict.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 10,
+      padding: '14px 16px', background: palette.bg2,
+      border: '1px solid rgba(217,165,72,0.4)', borderLeft: '3px solid #d9a548',
+      borderRadius: 4,
+    }}>
+      <div style={{ color: '#d9a548', fontSize: 11, letterSpacing: '0.10em',
+        textTransform: 'uppercase', fontWeight: 600 }}>
+        forced-contrast schema · do-not-average policy
+      </div>
+
+      {audit.summary && (
+        <div style={{ color: palette.ink, fontSize: 13, lineHeight: 1.55 }}>
+          {audit.summary}
+        </div>
+      )}
+
+      {Array.isArray(audit.realDisagreements) && audit.realDisagreements.length > 0 && (
+        <div>
+          <div style={{ color: palette.ink2, fontSize: 11, letterSpacing: '0.10em',
+            textTransform: 'uppercase', marginBottom: 6 }}>
+            real disagreements · {audit.realDisagreements.length} · do not average away
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {audit.realDisagreements.map((d, i) => (
+              <div key={i} style={{
+                padding: '10px 12px', background: 'rgba(217,165,72,0.05)',
+                border: '1px solid rgba(217,165,72,0.2)',
+                borderLeft: '2px solid #d9a548', borderRadius: 3,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                  <span style={{
+                    color: '#d9a548', fontSize: 10.5, fontWeight: 600,
+                    letterSpacing: '0.10em', textTransform: 'uppercase',
+                    border: '1px solid #d9a548', padding: '1px 8px', borderRadius: 999,
+                  }}>{d.axis}</span>
+                  {Array.isArray(d.reviewerPositions) && d.reviewerPositions.length > 0 && (
+                    <span style={{ color: palette.ink3, fontSize: 11 }}>
+                      {d.reviewerPositions.map((p) => p.reviewer).join(' vs. ')}
+                    </span>
+                  )}
+                </div>
+                {Array.isArray(d.reviewerPositions) && d.reviewerPositions.map((p, j) => (
+                  <div key={j} style={{ color: palette.ink2, fontSize: 12, marginBottom: 4, paddingLeft: 8 }}>
+                    <span style={{ color: '#7dcfff', fontWeight: 600, marginRight: 6 }}>{p.reviewer}:</span>
+                    {p.position}
+                  </div>
+                ))}
+                {d.whyItMatters && (
+                  <div style={{ color: palette.ink2, fontSize: 12, marginTop: 6, fontStyle: 'italic' }}>
+                    why it matters: {d.whyItMatters}
+                  </div>
+                )}
+                {d.doNotAverageBecause && (
+                  <div style={{ color: '#e26e6e', fontSize: 12, marginTop: 4 }}>
+                    ⚠ do not average: {d.doNotAverageBecause}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {Array.isArray(audit.falseDisagreements) && audit.falseDisagreements.length > 0 && (
+        <div>
+          <div style={{ color: palette.ink2, fontSize: 11, letterSpacing: '0.10em',
+            textTransform: 'uppercase', marginBottom: 6 }}>
+            apparent disagreements · {audit.falseDisagreements.length} · same objection, different language
+          </div>
+          {audit.falseDisagreements.map((d, i) => (
+            <div key={i} style={{ color: palette.ink3, fontSize: 12, paddingLeft: 8, marginBottom: 4 }}>
+              <span style={{ color: palette.ink2 }}>{d.axis}</span> — {d.explanation}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {audit.strongestReviewer?.reviewer && (
+        <div style={{ color: palette.ink2, fontSize: 12, paddingTop: 6, borderTop: '1px solid rgba(217,165,72,0.15)' }}>
+          <span style={{ color: '#7dcfff', fontWeight: 600 }}>strongest reviewer:</span>{' '}
+          {audit.strongestReviewer.reviewer} — {audit.strongestReviewer.reason}
+        </div>
+      )}
+
+      {audit.acDecision?.recommendation && (
+        <div style={{
+          padding: '10px 12px', background: 'rgba(125,207,255,0.06)',
+          border: '1px solid rgba(125,207,255,0.3)', borderRadius: 3,
+        }}>
+          <div style={{ color: '#7dcfff', fontSize: 11, fontWeight: 600,
+            letterSpacing: '0.10em', textTransform: 'uppercase', marginBottom: 4 }}>
+            ac decision · {audit.acDecision.recommendation}
+          </div>
+          {audit.acDecision.rationale && (
+            <div style={{ color: palette.ink2, fontSize: 12, marginBottom: 6 }}>
+              {audit.acDecision.rationale}
+            </div>
+          )}
+          {Array.isArray(audit.acDecision.requiredRevisions) && audit.acDecision.requiredRevisions.length > 0 && (
+            <ul style={{ margin: '4px 0 0 0', paddingLeft: 18, color: palette.ink2, fontSize: 12 }}>
+              {audit.acDecision.requiredRevisions.map((rev, i) => (
+                <li key={i} style={{ marginBottom: 2 }}>{rev}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
