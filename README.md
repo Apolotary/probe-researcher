@@ -177,20 +177,4 @@ For deeper related-work context, see [`RESEARCH_CONTEXT.md`](./RESEARCH_CONTEXT.
 
 ---
 
-## Citing this work
-
-```bibtex
-@article{ryskeldiev2026probe,
-  title   = {Probe: Rehearsal-Stage Triage for Screen-Based Interactive Research},
-  author  = {Ryskeldiev, Bektur},
-  year    = {2026},
-  journal = {arXiv preprint},
-  note    = {Built at the Cerebral Valley Claude Opus 4.7 hackathon}
-}
-```
-
-A machine-readable citation lives in [`CITATION.cff`](./CITATION.cff). License: Apache 2.0 — see [`LICENSE`](./LICENSE) and [`NOTICE`](./NOTICE). Architecture deep-dive: [`CLAUDE.md`](./CLAUDE.md).
-
-## Author
-
-Bektur Ryskeldiev — HCI / accessibility research.
+License: Apache 2.0 — see [`LICENSE`](./LICENSE) and [`NOTICE`](./NOTICE). Architecture deep-dive: [`CLAUDE.md`](./CLAUDE.md).

@@ -57,11 +57,31 @@ function inline(text) {
       i += m[0].length;
       continue;
     }
-    // Otherwise plain text up to the next markdown trigger
+    // Otherwise plain text up to the next markdown trigger.
+    //
+    // Subtle correctness bug fixed here: if the trigger character at
+    // position `i` (e.g. an unbalanced `*` like "**bold" with no
+    // closing pair, or a stray `_` inside a word) didn't match any
+    // of the inline regexes above, `nextTrigger` is 0. Without
+    // guarding this, the loop pushes an empty slice and i += 0 — i.e.
+    // no progress — until parts.length overflows and React throws
+    // `RangeError: Invalid array length`. The artifact bodies the
+    // Sonnet model produces are particularly susceptible because they
+    // contain bullets like "* X" inside list paragraphs and markdown-
+    // looking emphasis fragments. Always advance by at least one
+    // character so the worst case is a stray asterisk rendered as
+    // text rather than a crashed React tree.
     const nextTrigger = text.slice(i).search(/[*`_]/);
     if (nextTrigger === -1) {
       parts.push(text.slice(i));
       break;
+    }
+    if (nextTrigger === 0) {
+      // The trigger char itself didn't match any inline pattern —
+      // emit it verbatim and step over it.
+      parts.push(text[i]);
+      i += 1;
+      continue;
     }
     parts.push(text.slice(i, i + nextTrigger));
     i += nextTrigger;
