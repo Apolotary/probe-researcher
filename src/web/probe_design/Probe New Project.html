@@ -223,7 +223,26 @@ function NewProject() {
     if (stages.includes(target)) setRoute(target);
   };
 
+  // Skip the brainstorm interrogator and use the typed premise as the
+  // sole research question (RQ A). Useful when the researcher already
+  // has a sharp question and doesn't need three sub-RQ facets.
+  const skipBrainstorm = () => {
+    const t = text.trim();
+    if (!t) return;
+    setMainRq(t);
+    setSelectedBranches([{
+      letter: 'A', rq: t, angle: 'main', method: '', n: '',
+    }]);
+    setRoute('literature');
+  };
+
   const onKey = (e) => {
+    // ⌘↵ / Ctrl+↵ → skip brainstorm and run with main RQ only
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      skipBrainstorm();
+      return;
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (text.trim()) {
@@ -413,11 +432,37 @@ function NewProject() {
           <span>{wc} {wc === 1 ? 'word' : 'words'}</span>
           <span style={{ color: palette.ink4 }}>·</span>
           <span>{text.length} chars</span>
-          <span style={{ marginLeft: 'auto', display: 'flex', gap: 14 }}>
+          <span style={{ marginLeft: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>
             <span><kbd style={kbdStyle}>↵</kbd> brainstorm</span>
-            <span><kbd style={kbdStyle}>⇧↵</kbd> newline</span>
+            <span><kbd style={kbdStyle}>⌘↵</kbd> skip · use as-is</span>
             <span><kbd style={kbdStyle}>esc</kbd> clear</span>
           </span>
+        </div>
+
+        {/* Skip-brainstorm row — explicit affordance for researchers who
+            already have a sharp question and don't want three sub-RQ
+            facets. Wraps the premise as RQ A and jumps straight to the
+            literature stage. */}
+        <div style={{
+          width: 720, maxWidth: '90vw', marginTop: 6,
+          display: 'flex', justifyContent: 'flex-end',
+        }}>
+          <button
+            onClick={skipBrainstorm}
+            disabled={!text.trim()}
+            style={{
+              background: 'transparent',
+              border: `1px solid ${text.trim() ? palette.cyan : palette.rule}`,
+              color: text.trim() ? palette.cyan : palette.ink4,
+              padding: '5px 12px', borderRadius: 3, fontFamily: 'inherit', fontSize: 11.5,
+              cursor: text.trim() ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}
+            title="Run the pipeline using your premise as the sole research question — no three-way branching"
+          >
+            <span>skip brainstorm — use my question as the only RQ</span>
+            <span style={{ color: palette.ink4 }}>→</span>
+          </button>
         </div>
 
         <div style={{ marginTop: 40, width: 720, maxWidth: '90vw' }}>
