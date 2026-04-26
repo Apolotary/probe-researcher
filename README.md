@@ -160,6 +160,23 @@ Spawns three real git worktrees — three divergent research programs — and ru
 
 ---
 
+## Closest HCI neighbors
+
+Probe sits inside an active CHI 2026 conversation about LLMs as collaborators in research workflows. The three closest neighbors and how Probe differs:
+
+- **[Perspectra](https://arxiv.org/abs/2509.20553)** (Choosing Your Experts Enhances Critical Thinking in Multi-Agent Research Ideation) — multi-agent expert perspectives for *ideation*. Probe takes the same multi-agent expert primitive but points it at **adversarial venue-style review** of a complete study plan, with a forced-contrast disagreement audit on top.
+- **[Peeking Ahead of the Field Study](https://arxiv.org/abs/2602.16157)** (VLM personas for embodied HCI studies) — synthetic personas as **formative preparation**, not substitutes for participants. Probe inherits the same epistemic boundary verbatim: simulated outputs are tagged `[SIMULATION_REHEARSAL]` and a forbidden-phrase guard refuses to let them claim evidence. The framing throughout this README — *preflight method*, *rehearsal not evidence* — is downstream of this paper's positioning.
+- **[Cocoa](https://arxiv.org/abs/2412.10999)** (Co-Planning and Co-Execution with AI Agents) — agents as **co-planners** in a shared research-design artifact, not chat assistants. Probe's seven-stage workflow is co-planning infrastructure: every stage's output is editable and feeds the next.
+
+Two additional papers shaped specific design choices:
+
+- **[Just-in-Time Objectives](https://arxiv.org/abs/2510.14591)** — argues LLM systems improve when each interaction has a specialized in-the-moment objective rather than a general-purpose assistant role. Each Probe stage is a separate objective (sharpen the question · find the gap · pick the method · draft the artifacts · simulate friction · write the report · rehearse peer review). The seven-stage structure is exactly this paper's prescription.
+- **[The Siren Song of LLMs](https://arxiv.org/abs/2509.10830)** (dark patterns in LLMs) — names the danger of persuasive false confidence in AI-mediated dialogue. Probe's most important risk is exactly this: a simulated peer-review panel that approves a weak study could give a researcher cover to skip a real review. The honesty machinery (provenance tags, forbidden-phrase guard, replay pill, modelMode metadata) is the architectural answer.
+
+For deeper related-work context, see [`RESEARCH_CONTEXT.md`](./RESEARCH_CONTEXT.md).
+
+---
+
 ## Citing this work
 
 ```bibtex
