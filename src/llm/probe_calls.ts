@@ -23,18 +23,27 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { detectProvider, NoApiKeysError } from './provider.js';
-import { modelForStage, type UiStage } from '../config/probe_toml.js';
+import { modelForStage, resolveKey, type UiStage } from '../config/probe_toml.js';
 import type {
   SubRQ, LiteratureBlock, CandidateDesign, StudyPlan, Artifact,
   Persona, Friction,
 } from '../cli/ui_state.js';
 
+/**
+ * Anthropic SDK client cached by the resolved key value. We re-cache on
+ * key change so that editing `~/.config/probe/probe.toml` during a live
+ * session takes effect on the next call without a server restart.
+ */
 let anthropicClient: Anthropic | null = null;
+let cachedKeyValue = '';
 function anthropic(): Anthropic {
-  if (!anthropicClient) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set');
-    anthropicClient = new Anthropic({ apiKey });
+  const resolved = resolveKey('anthropic');
+  if (resolved.source === 'unset' || !resolved.value) {
+    throw new Error('Anthropic key not set (env $ANTHROPIC_API_KEY or stored in ~/.config/probe/probe.toml)');
+  }
+  if (!anthropicClient || resolved.value !== cachedKeyValue) {
+    anthropicClient = new Anthropic({ apiKey: resolved.value });
+    cachedKeyValue = resolved.value;
   }
   return anthropicClient;
 }
@@ -48,13 +57,20 @@ interface CallOpts {
 }
 
 async function callLLM({ stage, system, user, maxTokens = 2048 }: CallOpts): Promise<string> {
-  const provider = detectProvider();
-  if (!provider.canCallApi) throw new NoApiKeysError();
-  if (provider.name !== 'anthropic') {
-    // For now we only wire Anthropic — OpenAI fallback could be added
-    // by mirroring the dispatch logic in src/anthropic/client.ts. The
-    // UI surface degrades gracefully to canned content in that case.
-    throw new Error(`probe_calls: only the anthropic provider is wired; got ${provider.name}`);
+  // Live-web stage calls require Anthropic specifically. We don't fall
+  // through to the env-promoted OpenAI provider here because the JSON-
+  // fenced dispatch flow this module uses isn't wired for OpenAI yet —
+  // see src/anthropic/client.ts for the offline equivalent. If the user
+  // only has an OpenAI key, the frontend's stock-content fallback path
+  // takes over (every stage component handles 500 → canned output).
+  const anthropicKey = resolveKey('anthropic');
+  if (anthropicKey.source === 'unset') {
+    const provider = detectProvider();
+    if (!provider.canCallApi) throw new NoApiKeysError();
+    throw new Error(
+      `probe_calls: live web stages require an Anthropic key; ` +
+      `got '${provider.name}'. Set ANTHROPIC_API_KEY or store it in ~/.config/probe/probe.toml.`,
+    );
   }
   // Per-stage model resolution from probe.toml. The user can flip the
   // whole pipeline with [models].mode = 'sonnet' | 'opus' | 'mixed',

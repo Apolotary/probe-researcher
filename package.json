@@ -17,7 +17,9 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "prepack": "npm run build",
     "dev": "tsx src/cli/index.ts",
     "start": "node dist/cli/index.js",
     "test": "vitest run",
@@ -70,8 +72,18 @@
     "corpus/",
     "patterns/",
     "schemas/",
+    "src/web/probe_design/",
+    "src/web/halide/",
+    "assets/probe_logo.svg",
+    "assets/probe_wordmark.svg",
+    "assets/demos/",
+    "docs/screenshots/",
     "README.md",
     "CLAUDE.md",
+    "PROBE.md",
+    "COOKBOOK.md",
+    "RESEARCH_CONTEXT.md",
+    "CITATION.cff",
     "LICENSE",
     "NOTICE"
   ]

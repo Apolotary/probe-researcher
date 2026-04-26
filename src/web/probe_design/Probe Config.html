@@ -120,6 +120,60 @@ const MODEL_OPTIONS = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────
+// Backend ↔ form merge
+// ─────────────────────────────────────────────────────────────────────
+// The backend speaks snake_case (TOML canonical) and returns redacted
+// keys. The form holds camelCase. This walks one level deep, keeping
+// fields the backend doesn't know about (UI-only annotations) intact.
+function mergeFromBackend(prev, server) {
+  const next = structuredClone(prev);
+  if (server.keys) {
+    for (const provider of Object.keys(server.keys)) {
+      const k = server.keys[provider];
+      next.keys[provider] = {
+        ...next.keys[provider],
+        source:   k.source,
+        preview:  k.preview || '',
+        status:   k.source === 'unset' ? 'missing' : 'ok',
+        lastChecked: k.sourceLabel || next.keys[provider]?.lastChecked || '—',
+      };
+    }
+  }
+  if (server.models) Object.assign(next.models, server.models);
+  if (server.budget) {
+    const b = server.budget;
+    next.budget = {
+      maxPerRun:    b.max_per_run    ?? next.budget.maxPerRun,
+      warnAt:       b.warn_at        ?? next.budget.warnAt,
+      confirmOver:  b.confirm_over   ?? next.budget.confirmOver,
+      monthlyCap:   b.monthly_cap    ?? next.budget.monthlyCap,
+    };
+  }
+  if (server.appearance) {
+    const a = server.appearance;
+    next.appearance = {
+      fontFamily: a.font_family ?? next.appearance.fontFamily,
+      fontSize:   a.font_size   ?? next.appearance.fontSize,
+      theme:      a.theme       ?? next.appearance.theme,
+      density:    a.density     ?? next.appearance.density,
+      cursor:     a.cursor      ?? next.appearance.cursor,
+    };
+  }
+  if (server.behavior) {
+    const b = server.behavior;
+    next.behavior = {
+      editor:        b.editor        ?? next.behavior.editor,
+      workdir:       b.workdir       ?? next.behavior.workdir,
+      autoReplay:    b.auto_replay    ?? next.behavior.autoReplay,
+      confirmSpend:  b.confirm_spend  ?? next.behavior.confirmSpend,
+      streamLogs:    b.stream_logs    ?? next.behavior.streamLogs,
+      sendTelemetry: b.send_telemetry ?? next.behavior.sendTelemetry,
+    };
+  }
+  return next;
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // Top-level
 // ─────────────────────────────────────────────────────────────────────
 function Config() {
@@ -127,6 +181,21 @@ function Config() {
   const [settings, setSettings] = useState(DEFAULTS);
   const [dirty, setDirty]       = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [pendingKeyWrites, setPendingKeyWrites] = useState({});  // provider → raw key (never round-tripped)
+  const [saveError, setSaveError] = useState(null);
+
+  // Hydrate from /api/probe/config on mount so the form reflects what's
+  // actually in ~/.config/probe/probe.toml. Failures fall back to mock
+  // DEFAULTS so the screen still renders if the server is unreachable.
+  useEffect(() => {
+    fetch('/api/probe/config')
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!data) return;
+        setSettings((prev) => mergeFromBackend(prev, data));
+      })
+      .catch(() => { /* keep mock defaults */ });
+  }, []);
 
   const update = (path, value) => {
     setSettings(prev => {
@@ -137,6 +206,13 @@ function Config() {
       cur[parts[parts.length - 1]] = value;
       return next;
     });
+    setDirty(true);
+  };
+
+  // Stash a raw key write to send on next save. The backend accepts
+  // raw keys for write-only and only ever returns the masked preview.
+  const updateKeyValue = (provider, rawKey) => {
+    setPendingKeyWrites((p) => ({ ...p, [provider]: rawKey }));
     setDirty(true);
   };
 
@@ -162,9 +238,59 @@ function Config() {
   }, [activeId]);
 
   const onSave = () => {
-    setDirty(false);
-    setSavedFlash(true);
-    setTimeout(() => setSavedFlash(false), 1200);
+    setSaveError(null);
+    // Build the patch from our current settings. snake_case is the
+    // canonical TOML form (auto_replay, font_family, etc.), so we
+    // translate from the camelCase shapes the UI uses.
+    const patch = {
+      models: {
+        literature:  settings.models.literature,
+        methodology: settings.models.methodology,
+        artifacts:   settings.models.artifacts,
+        evaluation:  settings.models.evaluation,
+        report:      settings.models.report,
+      },
+      budget: {
+        max_per_run:  settings.budget.maxPerRun,
+        warn_at:      settings.budget.warnAt,
+        confirm_over: settings.budget.confirmOver,
+        monthly_cap:  settings.budget.monthlyCap,
+      },
+      appearance: {
+        font_family: settings.appearance.fontFamily,
+        font_size:   settings.appearance.fontSize,
+        theme:       settings.appearance.theme,
+        density:     settings.appearance.density,
+        cursor:      settings.appearance.cursor,
+      },
+      behavior: {
+        editor:         settings.behavior.editor,
+        workdir:        settings.behavior.workdir,
+        auto_replay:    settings.behavior.autoReplay,
+        confirm_spend:  settings.behavior.confirmSpend,
+        stream_logs:    settings.behavior.streamLogs,
+        send_telemetry: settings.behavior.sendTelemetry,
+      },
+    };
+    if (Object.keys(pendingKeyWrites).length > 0) {
+      patch.keys = pendingKeyWrites;
+    }
+    fetch('/api/probe/config', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    })
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('save ' + r.status)))
+      .then((data) => {
+        setSettings((prev) => mergeFromBackend(prev, data));
+        setPendingKeyWrites({});
+        setDirty(false);
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 1200);
+      })
+      .catch((e) => {
+        setSaveError(String(e.message || e));
+      });
   };
 
   return (
@@ -177,6 +303,13 @@ function Config() {
       background: palette.bg,
     }}>
       <Header dirty={dirty} savedFlash={savedFlash} onSave={onSave} />
+      {saveError && (
+        <div style={{
+          padding: '8px 16px', background: 'rgba(226,110,110,0.10)',
+          color: palette.rose || '#e26e6e', fontSize: '0.85em',
+          borderTop: '1px solid rgba(226,110,110,0.4)',
+        }}>save failed · {saveError} · changes are still in the form</div>
+      )}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '260px 1fr',
@@ -184,7 +317,7 @@ function Config() {
         borderBottom: `1px solid ${palette.rule}`,
       }}>
         <Sidebar activeId={activeId} setActiveId={setActiveId} />
-        <Main activeId={activeId} settings={settings} update={update} />
+        <Main activeId={activeId} settings={settings} update={update} updateKeyValue={updateKeyValue} />
       </div>
       <StatusBar activeId={activeId} settings={settings} dirty={dirty} />
     </div>
@@ -297,10 +430,10 @@ function Sidebar({ activeId, setActiveId }) {
 // ─────────────────────────────────────────────────────────────────────
 // Main
 // ─────────────────────────────────────────────────────────────────────
-function Main({ activeId, settings, update }) {
+function Main({ activeId, settings, update, updateKeyValue }) {
   return (
     <div style={{ padding: '28px 36px 40px', background: palette.bg, overflow: 'auto' }}>
-      {activeId === 'keys'       && <KeysPane       s={settings.keys}       update={update} />}
+      {activeId === 'keys'       && <KeysPane       s={settings.keys}       update={update} onKeyValueChange={updateKeyValue ?? (() => {})} />}
       {activeId === 'models'     && <ModelsPane     s={settings.models}     update={update} />}
       {activeId === 'budget'     && <BudgetPane     s={settings.budget}     update={update} />}
       {activeId === 'appearance' && <AppearancePane s={settings.appearance} update={update} />}
@@ -341,16 +474,16 @@ function FieldRow({ label, hint, children }) {
 }
 
 // ─────── Keys pane ───────
-function KeysPane({ s, update }) {
+function KeysPane({ s, update, onKeyValueChange }) {
   return (
     <div>
       <PaneHeader
         title="API keys"
         sub="Probe checks env vars first, then this config. Env always wins — clear it to fall back."
       />
-      <KeyRow name="Anthropic" provider="anthropic" k={s.anthropic} update={update} />
-      <KeyRow name="OpenAI"    provider="openai"    k={s.openai}    update={update} />
-      <KeyRow name="Google"    provider="google"    k={s.google}    update={update} />
+      <KeyRow name="Anthropic" provider="anthropic" k={s.anthropic} update={update} onKeyValueChange={onKeyValueChange} />
+      <KeyRow name="OpenAI"    provider="openai"    k={s.openai}    update={update} onKeyValueChange={onKeyValueChange} />
+      <KeyRow name="Google"    provider="google"    k={s.google}    update={update} onKeyValueChange={onKeyValueChange} />
 
       <div style={{ marginTop: 28, padding: 14, border: `1px dashed ${palette.rule}`, color: palette.ink2, fontSize: '0.86em' }}>
         <span style={{ color: palette.amber }}>i</span>  Probe never logs key material. Stored entries
@@ -360,7 +493,7 @@ function KeysPane({ s, update }) {
   );
 }
 
-function KeyRow({ name, provider, k, update }) {
+function KeyRow({ name, provider, k, update, onKeyValueChange }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState('');
   const statusColor = k.status === 'ok' ? palette.moss : k.status === 'missing' ? palette.ink3 : palette.rose;
@@ -407,9 +540,15 @@ function KeyRow({ name, provider, k, update }) {
               }}
             />
             <SmallBtn onClick={() => {
-              if (val) update(`keys.${provider}.preview`, val.slice(0, 7) + '…' + val.slice(-4));
-              if (val) update(`keys.${provider}.source`, 'config');
-              if (val) update(`keys.${provider}.status`, 'ok');
+              if (val) {
+                // Stash the raw key for the next PATCH /api/probe/config.
+                // Local preview is cosmetic — backend response after save
+                // overwrites it with the canonical masked form.
+                onKeyValueChange?.(provider, val);
+                update(`keys.${provider}.preview`, val.slice(0, 7) + '…' + val.slice(-4));
+                update(`keys.${provider}.source`, 'config');
+                update(`keys.${provider}.status`, 'ok');
+              }
               setEditing(false);
             }}>save</SmallBtn>
             <SmallBtn onClick={() => setEditing(false)}>cancel</SmallBtn>

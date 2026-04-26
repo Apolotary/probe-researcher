@@ -7,12 +7,16 @@
  * The legacy startup/welcome/project/config scenes are kept as
  * sub-flows reachable from the launcher menu.
  *
- * For the workflow content (synthesized RQs, literature, etc.) we use
- * canned templates that incorporate the user's typed premise. This
- * gives the live-feel of working through the pipeline without
- * requiring an API key in this build. Hooking in a real LLM is a
- * matter of replacing src/cli/ui_state.ts → makeBrainstorm() etc.
- * with real calls.
+ * Two paths through this router:
+ *   - **TUI** (default): each scene reads from `src/cli/ui_state.ts`,
+ *     which has both canned `make*` templates AND live `live*` generators.
+ *     Live generators call `src/llm/probe_calls.ts` against the Anthropic
+ *     SDK; canned templates are used as fallback when no key is present.
+ *   - **--web**: routes to `src/web/server.ts` which mounts the
+ *     `/api/probe/<stage>` Express endpoints on top of the same
+ *     `probe_calls.ts`. The browser-side React iframes call those
+ *     endpoints directly; the offline `probe run` engine and provenance
+ *     linter under `runs/` are not in this path.
  */
 
 import React, { useState } from 'react';
@@ -129,14 +133,21 @@ export async function uiCommand(opts: UICommandOptions): Promise<void> {
   if (opts.web) {
     const { startWebServer } = await import('../web/server.js');
     const port = opts.port ? parseInt(opts.port, 10) : 4470;
-    void startWebServer({
-      port: Number.isFinite(port) ? port : 4470,
-      host: opts.host ?? '127.0.0.1',
-      open: false,
-    });
-    // Give the listener a tick to bind, then open /ui.
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    const url = `http://${opts.host ?? '127.0.0.1'}:${Number.isFinite(port) ? port : 4470}/ui`;
+    const host = opts.host ?? '127.0.0.1';
+    const resolvedPort = Number.isFinite(port) ? port : 4470;
+    // AWAIT the bind. startWebServer rejects on port-in-use / EADDRINUSE
+    // / EACCES so a clear error surfaces instead of the previous behavior
+    // (fire-and-forget + 250ms sleep + open browser at a dead port).
+    try {
+      await startWebServer({ port: resolvedPort, host, open: false });
+    } catch (e) {
+      const msg = (e as NodeJS.ErrnoException)?.code === 'EADDRINUSE'
+        ? `port ${resolvedPort} is already in use — pick another with --port <N>`
+        : String((e as Error).message ?? e);
+      console.error(`probe ui --web: ${msg}`);
+      process.exit(1);
+    }
+    const url = `http://${host}:${resolvedPort}/ui`;
     if (opts.open !== false) {
       const { spawn } = await import('node:child_process');
       const cmd = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
@@ -146,8 +157,8 @@ export async function uiCommand(opts: UICommandOptions): Promise<void> {
         /* user can click the printed URL */
       }
     }
-    // Keep the process alive — the server's never-resolving promise
-    // already does this, but we're not awaiting it.
+    // Keep the process alive — the server holds the listener; we just
+    // need to not return.
     await new Promise(() => { /* noop */ });
     return;
   }

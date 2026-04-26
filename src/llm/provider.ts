@@ -32,9 +32,22 @@ export interface ProviderInfo {
   description: string;
 }
 
+import { resolveKey } from '../config/probe_toml.js';
+
+/**
+ * Detect the active provider, taking BOTH environment variables and stored
+ * config keys into account (env wins). Returns the most-capable provider
+ * that has any usable key.
+ *
+ * Note for the new web UI surface: live `/api/probe/<stage>` calls only
+ * dispatch to Anthropic right now (see `src/llm/probe_calls.ts`). OpenAI
+ * detection is preserved here because the older offline pipeline can still
+ * use it, but the web stage path will throw if it sees a non-Anthropic
+ * provider — and the frontend's stock-content fallback handles that case.
+ */
 export function detectProvider(): ProviderInfo {
-  const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
-  const hasOpenAI = !!process.env.OPENAI_API_KEY;
+  const hasAnthropic = resolveKey('anthropic').source !== 'unset';
+  const hasOpenAI = resolveKey('openai').source !== 'unset';
   const forced = process.env.PROBE_PROVIDER;
 
   if (forced === 'anthropic' && hasAnthropic) return anthropicInfo();
@@ -44,6 +57,16 @@ export function detectProvider(): ProviderInfo {
   if (hasAnthropic) return anthropicInfo();
   if (hasOpenAI) return openaiInfo('fallback');
   return demoInfo();
+}
+
+/**
+ * Whether the live-web `/api/probe/<stage>` path can actually serve a real
+ * LLM response. Currently requires an Anthropic key (env or stored config)
+ * — see `probe_calls.ts`. Used by `/api/probe/status` so the frontend can
+ * tell judges with only an OpenAI key that the web path needs Anthropic.
+ */
+export function canRunLiveWeb(): boolean {
+  return resolveKey('anthropic').source !== 'unset';
 }
 
 function anthropicInfo(): ProviderInfo {

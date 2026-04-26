@@ -17,20 +17,87 @@ import {
   artifacts, personas, findings, report, review, teaser,
   hasApiKey,
 } from '../llm/probe_calls.js';
+import { canRunLiveWeb } from '../llm/provider.js';
+import {
+  resolveKey, readConfig, writeConfig,
+  PROVIDERS, type Provider, type ProbeConfig,
+} from '../config/probe_toml.js';
 import * as demo from './probe_demo.js';
 
 export function mountProbeApi(app: express.Express): void {
   const router = express.Router();
   router.use(express.json({ limit: '2mb' }));
 
-  // GET /api/probe/status — does the server have a usable API key?
+  // GET /api/probe/status — what keys are usable, and where do they come
+  // from? Resolves through the same `resolveKey()` path the live-web call
+  // dispatcher uses, so the surface this exposes never lies relative to
+  // what `/api/probe/<stage>` will actually accept. `canRunLiveUi` is the
+  // boolean the frontend should treat as authoritative — `hasApiKey` is
+  // the looser provider-layer signal and stays for backward compat.
   router.get('/status', (_req, res) => {
+    const a = resolveKey('anthropic');
+    const o = resolveKey('openai');
     res.json({
       hasApiKey: hasApiKey(),
-      anthropic: !!process.env.ANTHROPIC_API_KEY,
-      openai: !!process.env.OPENAI_API_KEY,
+      canRunLiveUi: canRunLiveWeb(),
+      anthropic: a.source !== 'unset',
+      anthropicSource: a.source,
+      openai: o.source !== 'unset',
+      openaiSource: o.source,
       demo: demo.status(),
     });
+  });
+
+  // ─── Config endpoints (read/patch ~/.config/probe/probe.toml) ────
+  // The web Config screen used to be a local mock — edits disappeared
+  // on reload. These endpoints make it real:
+  //   GET /api/probe/config  → redacted view (keys masked, never raw)
+  //   PATCH /api/probe/config → accepts partial settings, deep-merges,
+  //                              persists via writeConfig() (atomic, 0600)
+  // Key writes accept raw values (write-only) and the response always
+  // returns the redacted shape — raw key material never round-trips
+  // back to the browser.
+
+  function redactConfig(cfg: ProbeConfig) {
+    const keys: Record<Provider, { source: string; preview: string; sourceLabel: string }> = {} as never;
+    for (const p of PROVIDERS) {
+      const r = resolveKey(p, cfg);
+      keys[p] = { source: r.source, preview: r.preview, sourceLabel: r.sourceLabel };
+    }
+    return {
+      keys,
+      models: cfg.models,
+      budget: cfg.budget,
+      appearance: cfg.appearance,
+      behavior: cfg.behavior,
+    };
+  }
+
+  router.get('/config', (_req, res) => {
+    try {
+      res.json(redactConfig(readConfig()));
+    } catch (e) {
+      res.status(500).json({ error: String((e as Error).message) });
+    }
+  });
+
+  router.patch('/config', (req, res) => {
+    try {
+      const patch = (req.body ?? {}) as Partial<ProbeConfig>;
+      const current = readConfig();
+      // Shallow merge per top-level group — keeps unknown fields safe.
+      const merged: ProbeConfig = {
+        keys:       { ...current.keys,       ...(patch.keys       ?? {}) },
+        models:     { ...current.models,     ...(patch.models     ?? {}) },
+        budget:     { ...current.budget,     ...(patch.budget     ?? {}) },
+        appearance: { ...current.appearance, ...(patch.appearance ?? {}) },
+        behavior:   { ...current.behavior,   ...(patch.behavior   ?? {}) },
+      };
+      writeConfig(merged);
+      res.json(redactConfig(merged));
+    } catch (e) {
+      res.status(500).json({ error: String((e as Error).message) });
+    }
   });
 
   // ─── Demo save / replay endpoints ─────────────────────────────────
