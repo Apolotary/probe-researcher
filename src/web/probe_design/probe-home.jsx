@@ -115,6 +115,19 @@ window.ProbeHome = function ProbeHome({ onLaunchPrompt }) {
           One sentence. Probe will sharpen it, branch it into three angles, and pause for your input at every step.
         </div>
 
+        {/* First-time-visitor hint. The replay path is the recommended
+            entry point for anyone who doesn't have an Anthropic key
+            yet — judges, advisors, peers — but a fresh visitor on /ui
+            won't know to look at the sidebar. One amber-tinted line
+            below the subtitle points them at the no-cost path. */}
+        <div style={{
+          color: palette.ink3, fontSize: 12, marginTop: 14, textAlign: 'center',
+        }}>
+          <span style={{ color: palette.ink2 }}>First time? </span>
+          Click <span style={{ color: palette.amber, fontWeight: 600 }}>▶ replay sample run</span>
+          <span style={{ color: palette.ink2 }}> in the left sidebar — a 14-second walkthrough, no API key needed.</span>
+        </div>
+
         <div style={{
           marginTop: 36, display: 'flex', alignItems: 'flex-start', gap: 10,
           borderTop: `1px solid ${palette.rule}`, borderBottom: `1px solid ${palette.rule}`,
@@ -183,9 +196,13 @@ window.ProbeHome = function ProbeHome({ onLaunchPrompt }) {
           <span style={{ flex: 1, height: 1, background: palette.rule }} />
         </div>
 
+        {/* Auto-collapse the suggestions grid on narrower viewports.
+            At 1280px-wide laptops the third column was getting clipped;
+            auto-fit with a 280px minimum collapses to 2 cols around
+            1100px and 1 col around 800px without a media query. */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: 28,
         }}>
           {suggestions.groups.map((group) => (

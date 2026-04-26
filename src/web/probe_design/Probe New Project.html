@@ -474,7 +474,12 @@ function NewProject() {
             or try an example
           </div>
           <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column' }}>
-            {examples.map((ex, i) => (
+            {examples
+              // Skip the example that exactly matches what's already in the
+              // textarea — happens during demo replay where the premise is
+              // pre-filled, and the duplicate suggestion below it is noise.
+              .filter((ex) => ex.trim() !== text.trim())
+              .map((ex, i) => (
               <button
                 key={i}
                 onClick={() => { setText(ex); taRef.current && taRef.current.focus(); }}
@@ -1189,7 +1194,7 @@ function StatusBar({ head, tail }) {
       padding: '6px 14px', background: palette.bg2, borderTop: `1px solid ${palette.rule}`,
       fontSize: 11.5, color: palette.ink3,
     }}>
-      {head || <><span style={{ color: palette.amber }}>⚡ ready</span><span>17 patterns</span><span>3 templates</span><span>est · 25m · ~$5</span></>}
+      {head || <><span style={{ color: palette.amber }}>⚡ ready</span><span>~2 min wall</span><span>~$0.30 per live run</span><span>$0 in replay</span></>}
       <span style={{ marginLeft: 'auto' }}>{tail}</span>
     </div>
   );
