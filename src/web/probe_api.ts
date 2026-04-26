@@ -15,8 +15,9 @@ import express from 'express';
 import {
   brainstorm, literature, methodology, plan,
   artifacts, personas, findings, report, review,
-  disagreementAudit, teaser,
+  disagreementAudit, rqBoolean, teaser,
   hasApiKey,
+  type RqOp,
 } from '../llm/probe_calls.js';
 import { canRunLiveWeb } from '../llm/provider.js';
 import {
@@ -327,6 +328,9 @@ export function mountProbeApi(app: express.Express): void {
         strongestReviewer: { reviewer: '', reason: '' },
         acDecision: { recommendation: '', rationale: '', requiredRevisions: [] },
       };
+      case 'rq-boolean': return {
+        letter: 'X', angle: '—', rq: '', method: '', n: '', rationale: '',
+      };
       case 'teaser':       return { svg: null, caption: null };
       default:             return {};
     }
@@ -340,7 +344,8 @@ export function mountProbeApi(app: express.Express): void {
   const stageLimiter = makeStageLimiter(30, 60_000);
   router.use(['/brainstorm', '/literature', '/methodology', '/plan',
               '/artifacts', '/personas', '/findings', '/report',
-              '/review', '/disagreement-audit', '/teaser'], stageLimiter);
+              '/review', '/disagreement-audit', '/rq-boolean',
+              '/teaser'], stageLimiter);
 
   router.post('/brainstorm', async (req, res) => {
     const { premise } = (req.body ?? {}) as { premise?: string };
@@ -480,6 +485,39 @@ export function mountProbeApi(app: express.Express): void {
         findings: body.findings ?? [],
         paperTitle: body.paperTitle ?? 'Untitled paper',
         discussion: body.discussion ?? '',
+      });
+    });
+  });
+
+  // RQ boolean composition — adapted from Textoshop's drawing-software-as-
+  // text-tool idea (arxiv 2409.17088). Lets a researcher compose two of
+  // the three brainstormed sub-RQs with set-style operations:
+  //   union     (A ∪ B): hybrid covering both angles
+  //   intersect (A ∩ B): the shared assumption
+  //   subtract  (A − B): A's framing with B's confound removed
+  // Routed to Opus via the 'review' stage path so the long-context
+  // synthesis is visibly model-load-bearing in mixed mode.
+  router.post('/rq-boolean', async (req, res) => {
+    const body = (req.body ?? {}) as {
+      premise?: string;
+      op?: RqOp;
+      a?: { letter: string; rq: string; angle: string; method: string; n: string };
+      b?: { letter: string; rq: string; angle: string; method: string; n: string };
+    };
+    if (!body.premise || !body.op || !body.a || !body.b) {
+      res.status(400).json({ error: 'premise, op, a, b required' });
+      return;
+    }
+    if (!['union', 'intersect', 'subtract'].includes(body.op)) {
+      res.status(400).json({ error: 'op must be one of union | intersect | subtract' });
+      return;
+    }
+    await served(res, 'rq-boolean', body, async () => {
+      return await rqBoolean({
+        premise: body.premise!,
+        op: body.op as RqOp,
+        a: body.a!,
+        b: body.b!,
       });
     });
   });

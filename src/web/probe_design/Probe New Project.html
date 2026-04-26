@@ -513,6 +513,9 @@ function Brainstorm({ mainRq, onBack, onContinue, goTo }) {
   const [customs, setCustoms] = useState([]); // user-added RQs
   const [branches, setBranches] = useState([]); // populated from /api/probe/brainstorm
   const [apiError, setApiError] = useState(null);
+  // Track which boolean op (union/intersect/subtract) is in flight so
+  // we can disable the row while an Opus composition is running.
+  const [boolThinking, setBoolThinking] = useState(null);
   const customRef = useRef(null);
 
   const allBranches = [
@@ -847,6 +850,73 @@ function Brainstorm({ mainRq, onBack, onContinue, goTo }) {
             )}
           </div>
         </div>
+
+        {/* Boolean RQ ops — appears when exactly two RQs are selected.
+            Calls /api/probe/rq-boolean (Opus 4.7) to compose them with
+            set-style operations: union (∪), intersect (∩), subtract (−).
+            Result is added to the brainstorm list as a custom RQ.
+            Pattern adapted from Textoshop (arxiv 2409.17088). */}
+        {selected.size === 2 && (() => {
+          const [aLetter, bLetter] = [...selected].sort();
+          const a = allBranches.find((br) => br.letter === aLetter);
+          const b = allBranches.find((br) => br.letter === bLetter);
+          if (!a || !b) return null;
+          const composeRq = (op) => {
+            setBoolThinking(op);
+            fetch('/api/probe/rq-boolean', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ premise: mainRq, op, a, b }),
+            })
+              .then((r) => r.ok ? r.json() : Promise.reject(new Error('compose ' + r.status)))
+              .then((newRq) => {
+                if (newRq && newRq.rq) {
+                  setCustoms((cs) => [...cs, `[${op}] ${newRq.rq}${newRq.rationale ? '\n— ' + newRq.rationale : ''}`]);
+                }
+                setBoolThinking(null);
+              })
+              .catch(() => setBoolThinking(null));
+          };
+          return (
+            <div className="fade-in" style={{
+              marginTop: 28, padding: '14px 18px',
+              background: 'rgba(217,165,72,0.08)', border: `1px solid ${palette.amber}`,
+              borderLeft: `3px solid ${palette.amber}`, borderRadius: 4, fontSize: 12,
+              display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12,
+            }}>
+              <span style={{ color: palette.amber, letterSpacing: '0.12em',
+                textTransform: 'uppercase', fontSize: 10.5, fontWeight: 600 }}>
+                opus 4.7 · compose
+              </span>
+              <span style={{ color: palette.ink2 }}>
+                Combine RQ {aLetter} and RQ {bLetter} into a synthesized question:
+              </span>
+              <span style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+                {[
+                  { op: 'union',     glyph: '∪', label: 'merge', hint: 'one hybrid RQ covering both angles' },
+                  { op: 'intersect', glyph: '∩', label: 'shared', hint: 'extract the assumption both depend on' },
+                  { op: 'subtract',  glyph: '−', label: 'subtract', hint: `${aLetter}'s framing without ${bLetter}'s confound` },
+                ].map(({ op, glyph, label, hint }) => (
+                  <button key={op}
+                    onClick={() => composeRq(op)}
+                    disabled={!!boolThinking}
+                    title={hint}
+                    style={{
+                      background: 'transparent', border: `1px solid ${palette.amber}`,
+                      color: palette.amber, padding: '5px 12px', borderRadius: 3,
+                      fontFamily: 'inherit', fontSize: 12, cursor: boolThinking ? 'wait' : 'pointer',
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      opacity: boolThinking && boolThinking !== op ? 0.4 : 1,
+                    }}>
+                    <span style={{ fontWeight: 700 }}>{glyph}</span>
+                    <span>{label}</span>
+                    {boolThinking === op && <span style={{ color: palette.cyan }}>…</span>}
+                  </button>
+                ))}
+              </span>
+            </div>
+          );
+        })()}
 
         {/* Pipeline preview — what each selected RQ runs through */}
         {selected.size > 0 && (

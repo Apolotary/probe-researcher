@@ -564,6 +564,94 @@ Return JSON:
   };
 }
 
+/* ── boolean ops on research questions (Opus-only) ──────────────── */
+//
+// "Stolen" from Textoshop (arxiv 2409.17088): instead of treating the
+// three brainstormed sub-RQs as fixed lanes, let the researcher
+// compose them with set-style operations. Implemented as a single
+// Opus call so the model holds both source RQs in context and writes
+// the synthesized output as part of one judgment, not two prompts
+// glued with string ops.
+//
+//   union  (A ∪ B): merge into one hybrid RQ that covers both angles
+//   intersect (A ∩ B): extract the shared assumption / mechanism
+//   subtract (A − B): keep A's framing minus B's confound
+//
+// Schema forces the model to emit a NEW SubRQ shape so downstream
+// stages (literature, methodology) treat it like any other selected
+// branch.
+
+export type RqOp = 'union' | 'intersect' | 'subtract';
+
+export async function rqBoolean(input: {
+  premise: string;
+  op: RqOp;
+  a: SubRQ;
+  b: SubRQ;
+}): Promise<SubRQ & { rationale: string }> {
+  const opNames: Record<RqOp, string> = {
+    union:     'union (A ∪ B) — a hybrid RQ that covers both angles in one study',
+    intersect: 'intersect (A ∩ B) — the shared assumption or mechanism that BOTH RQs depend on',
+    subtract:  'subtract (A − B) — A\'s framing with B\'s confound or stance removed',
+  };
+
+  const system =
+    `You are the RQ composition agent for an HCI rehearsal tool. The
+researcher selected two sub-research-questions and wants to compose
+them with a set-style operation. Your job is to produce ONE new
+sub-RQ that genuinely synthesizes A and B according to the operation
+— do not paraphrase one of them, do not produce a vague combination.
+
+Be specific. The output rq should be a sharper, more directional
+question than either input alone. Strict JSON only.`;
+
+  const user =
+    `Original premise: ${input.premise}
+
+Operation: ${opNames[input.op]}
+
+A:
+  letter: ${input.a.letter}
+  angle:  ${input.a.angle}
+  rq:     ${input.a.rq}
+  method: ${input.a.method}
+  n:      ${input.a.n}
+
+B:
+  letter: ${input.b.letter}
+  angle:  ${input.b.angle}
+  rq:     ${input.b.rq}
+  method: ${input.b.method}
+  n:      ${input.b.n}
+
+Return JSON:
+\`\`\`json
+{
+  "letter": "X",
+  "angle": "hybrid · short label",
+  "rq": "the composed sub-RQ as a sharp question",
+  "method": "method family that suits the composed RQ",
+  "n": "rough N · short note",
+  "rationale": "1-2 sentences explaining what this composition adds vs. picking either A or B alone"
+}
+\`\`\``;
+
+  // Stage 'review' so mixed-mode routes this to Opus 4.7 — the
+  // contrast/synthesis here is exactly the long-context judgment
+  // Opus is best at, and the user's "creative Opus use" pitch
+  // benefits from this being visibly Opus-routed.
+  const text = await callLLM({ stage: 'review', system, user, maxTokens: 1024 });
+  const parsed = extractJSON(text) as Partial<SubRQ & { rationale: string }>;
+  return {
+    letter:    parsed.letter ?? 'X',
+    angle:     parsed.angle ?? `${input.op} · ${input.a.letter}+${input.b.letter}`,
+    rq:        parsed.rq ?? `${input.a.rq} (${input.op}) ${input.b.rq}`,
+    method:    parsed.method ?? input.a.method,
+    n:         parsed.n ?? input.a.n,
+    rationale: parsed.rationale ?? '',
+  };
+}
+
 /* ── disagreement auditor (Opus-only meta-review of the panel) ───── */
 //
 // After the three reviewers have spoken, this Opus-only call ingests
