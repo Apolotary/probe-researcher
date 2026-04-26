@@ -472,13 +472,33 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue, g
                   borderLeft: `3px solid ${def.color}`,
                   background: palette.bg2, borderRadius: 4,
                 }}>
-                  {/* header row */}
-                  <div onClick={() => !isEditing && setOpenId((o) => o === id ? null : id)}
+                  {/* Header row — entire row toggles open/close. role/tabIndex
+                      promote it to a real button for keyboard users; the kbd
+                      number badge gets its own explicit click so users who
+                      click "1/2/3" expecting a button don't fall through. */}
+                  <div
+                    role="button"
+                    tabIndex={isEditing ? -1 : 0}
+                    onClick={() => !isEditing && setOpenId((o) => o === id ? null : id)}
+                    onKeyDown={(e) => {
+                      if (isEditing) return;
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setOpenId((o) => o === id ? null : id);
+                      }
+                    }}
                     style={{
                       cursor: isEditing ? 'default' : 'pointer',
                       padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10,
+                      outline: 'none',
                     }}>
-                    <span style={{ ...kbdStyle, fontSize: 10, color: palette.ink3 }}>{i + 1}</span>
+                    <span
+                      onClick={(e) => {
+                        if (isEditing) return;
+                        e.stopPropagation();
+                        setOpenId((o) => o === id ? null : id);
+                      }}
+                      style={{ ...kbdStyle, fontSize: 10, color: palette.ink3, cursor: isEditing ? 'default' : 'pointer' }}>{i + 1}</span>
                     <span style={{ color: def.color, fontSize: 16, lineHeight: 1, marginRight: 4 }}>▸</span>
                     <span style={{ color: palette.ink, fontWeight: 600, fontSize: 14 }}>{def.title}</span>
                     <span style={{ ...chipStyle, color: def.color, borderColor: def.color }}>{def.kind}</span>

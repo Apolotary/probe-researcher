@@ -102,6 +102,7 @@ window.ProbeShell = function ProbeShell() {
   const [route, setRoute] = useState('home');           // 'home' | 'newproject' | 'project' | 'config'
   const [activeProjectId, setActiveProjectId] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
+  const newProjectIframeRef = useRef(null);
   // When the user manually toggles the sidebar, stop auto-managing it on stage changes.
   const [autoCollapse, setAutoCollapse] = useState(true);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -172,6 +173,15 @@ window.ProbeShell = function ProbeShell() {
     return () => window.removeEventListener('message', onMsg);
   }, []);
 
+  // Re-focus the new-project iframe whenever it becomes the active route
+  // (e.g. user clicked sidebar then came back). onLoad only fires on
+  // initial load, not on route toggles, so this is the ongoing handle.
+  useEffect(() => {
+    if (route === 'newproject' && newProjectIframeRef.current) {
+      try { newProjectIframeRef.current.contentWindow?.focus(); } catch { /* */ }
+    }
+  }, [route]);
+
   // Auto-collapse sidebar when user is past the brainstorm step in the new-project flow.
   // Only acts when autoCollapse is still true (user hasn't manually overridden).
   useEffect(() => {
@@ -228,12 +238,24 @@ window.ProbeShell = function ProbeShell() {
           />
         </div>
 
-        {/* NEW PROJECT (iframe) — only mounted once user clicks a suggestion or types a prompt */}
+        {/* NEW PROJECT (iframe) — only mounted once user clicks a suggestion
+            or types a prompt. ref + onLoad focus the iframe's contentWindow
+            so per-stage keyboard shortcuts (1/2/3 to open artifacts, ↵ to
+            advance, ← → to switch RQ) fire even if the user clicked the
+            sidebar last. Without this, clicks on parent shell elements
+            (sidebar, replay badge, etc.) leave the iframe unfocused and
+            keypresses go to the parent's no-op handler. */}
         {newProjectIframeSrc && (
           <iframe
+            ref={newProjectIframeRef}
             key={newProjectIframeSrc}
             src={newProjectIframeSrc}
             title="new project"
+            onLoad={(e) => {
+              if (route === 'newproject') {
+                try { e.currentTarget.contentWindow?.focus(); } catch { /* cross-origin no-op */ }
+              }
+            }}
             style={{
               position: 'absolute', inset: 0, width: '100%', height: '100%',
               border: 'none', background: palette.bg,
