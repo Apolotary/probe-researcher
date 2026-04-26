@@ -23,15 +23,16 @@ function HomeCaret() {
   );
 }
 
-function SuggestionRow({ item, idx, onLaunch }) {
+function SuggestionRow({ item, idx, onPick }) {
   const [hover, setHover] = useState(false);
   return (
     <button
-      // 'edit' mode → fill the premise textarea but stay on the
-      // premise screen so the user can tweak before advancing.
-      // Tradeoff feedback from a real walk-through: the suggestions
-      // are *starters*, not commitments.
-      onClick={() => onLaunch(item.prompt, 'edit')}
+      // Click a suggestion → fill the home-page textarea right here.
+      // The user wanted the home page to act like a premise screen
+      // by itself: pick a starter, edit it in place, then press Enter
+      // to advance straight to brainstorm. Earlier we navigated to a
+      // separate iframe page on click, which felt like an extra step.
+      onClick={() => onPick(item.prompt)}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
@@ -67,7 +68,29 @@ window.ProbeHome = function ProbeHome({ onLaunchPrompt }) {
   const submit = () => {
     const t = text.trim();
     if (!t) return;
+    // Default 'go' mode → iframe opens with auto-advance to brainstorm.
+    // The user has explicitly committed (typed + Enter or picked +
+    // Enter), so skip the intermediate premise step.
     onLaunchPrompt(t);
+  };
+
+  const pickSuggestion = (prompt) => {
+    setText(prompt);
+    // Refocus the textarea + put the cursor at the end so the user
+    // can immediately edit. Sometimes the focus moves to the clicked
+    // suggestion button; this restores it explicitly.
+    if (taRef.current) {
+      taRef.current.focus();
+      // setTimeout so React's setText commit happens first, otherwise
+      // selectionStart points at the old (empty) value and ends up at
+      // position 0 instead of the end of the new text.
+      setTimeout(() => {
+        try {
+          const len = (prompt || '').length;
+          taRef.current.setSelectionRange(len, len);
+        } catch { /* not all environments support it */ }
+      }, 0);
+    }
   };
 
   const onKey = (e) => {
@@ -229,7 +252,7 @@ window.ProbeHome = function ProbeHome({ onLaunchPrompt }) {
                     key={item.title}
                     item={item}
                     idx={i}
-                    onLaunch={onLaunchPrompt}
+                    onPick={pickSuggestion}
                   />
                 ))}
               </div>
