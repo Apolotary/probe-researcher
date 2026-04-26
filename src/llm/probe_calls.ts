@@ -564,6 +564,119 @@ Return JSON:
   };
 }
 
+/* ── disagreement auditor (Opus-only meta-review of the panel) ───── */
+//
+// After the three reviewers have spoken, this Opus-only call ingests
+// every reviewer block plus the AC's meta-review and produces a
+// structured audit:
+//   - axis-by-axis "real vs. apparent" disagreements
+//   - which reviewer is most methodologically persuasive on each axis
+//   - which disagreements the AC must NOT collapse into a bland average
+//
+// This is the demo's strongest Opus 4.7 anchor: long-context judgment
+// across role-separated outputs, with a schema that forces contrast
+// rather than allowing the model to generate polite consensus.
+
+export interface DisagreementAudit {
+  summary: string;
+  realDisagreements: Array<{
+    axis: 'novelty' | 'methodology' | 'ethics' | 'contribution' | 'validity' | 'scope' | 'feasibility';
+    reviewerPositions: Array<{
+      reviewer: string;
+      position: string;
+      evidence: string;
+    }>;
+    whyItMatters: string;
+    doNotAverageBecause: string;
+  }>;
+  falseDisagreements: Array<{ axis: string; explanation: string }>;
+  strongestReviewer: { reviewer: string; reason: string };
+  acDecision: { recommendation: string; rationale: string; requiredRevisions: string[] };
+}
+
+export async function disagreementAudit(input: {
+  paperTitle: string;
+  premise: string;
+  reviewers: Array<{
+    id: string; rec: string; field?: string;
+    affiliation?: string; topicConfidence?: string;
+    oneLine?: string; strengths?: string[]; weaknesses?: string[];
+  }>;
+  meta: { ac?: string; verdict?: string; summary?: string; proposed?: string };
+  discussion?: string;
+}): Promise<DisagreementAudit> {
+  const system =
+    `You are an area-chair disagreement auditor for an HCI peer-review rehearsal tool.
+
+Your job is NOT to summarize the reviewers politely. Your job is to identify
+where they truly disagree, where they only appear to disagree, and what a
+human researcher should do next.
+
+Hard rules:
+- Do not invent empirical evidence. Treat all simulated content as rehearsal.
+- Preserve reviewer disagreement where it is legitimate.
+- Do not collapse conflicting judgments into a bland consensus.
+- Explicitly name at least one disagreement that should NOT be averaged away.
+- If all reviewers are making the same objection in different language, say so
+  in falseDisagreements (don't pad realDisagreements).
+- Use the axis labels (novelty/methodology/ethics/contribution/validity/scope/feasibility)
+  consistently — multiple disagreements on the same axis are fine.
+- Strict JSON only.`;
+
+  const user =
+    `Paper: ${input.paperTitle}
+Premise: ${input.premise}
+
+REVIEWERS:
+${input.reviewers.map((r) => `
+  [${r.id}] rec=${r.rec} · ${r.field ?? '?'} · ${r.affiliation ?? '?'} · ${r.topicConfidence ?? '?'}
+  one-line: ${r.oneLine ?? ''}
+  strengths: ${(r.strengths ?? []).join(' | ')}
+  weaknesses: ${(r.weaknesses ?? []).join(' | ')}
+`).join('\n')}
+
+AREA CHAIR ${input.meta.ac ?? 'AC'} (verdict: ${input.meta.verdict ?? '—'}):
+${input.meta.summary ?? ''}
+proposed action: ${input.meta.proposed ?? ''}
+
+Return JSON:
+\`\`\`json
+{
+  "summary": "1-2 sentence overview of where the disagreement actually is",
+  "realDisagreements": [
+    {
+      "axis": "methodology",
+      "reviewerPositions": [
+        {"reviewer": "R1", "position": "…", "evidence": "quotes weakness #2"},
+        {"reviewer": "R2", "position": "…", "evidence": "…"}
+      ],
+      "whyItMatters": "…",
+      "doNotAverageBecause": "…"
+    }
+  ],
+  "falseDisagreements": [
+    {"axis": "scope", "explanation": "all 3 raise it but in different language"}
+  ],
+  "strongestReviewer": {"reviewer": "R2", "reason": "…"},
+  "acDecision": {
+    "recommendation": "major revisions",
+    "rationale": "…",
+    "requiredRevisions": ["…", "…"]
+  }
+}
+\`\`\``;
+
+  const text = await callLLM({ stage: 'review', system, user, maxTokens: 3000 });
+  const parsed = extractJSON(text) as Partial<DisagreementAudit>;
+  return {
+    summary: parsed.summary ?? '',
+    realDisagreements: Array.isArray(parsed.realDisagreements) ? parsed.realDisagreements : [],
+    falseDisagreements: Array.isArray(parsed.falseDisagreements) ? parsed.falseDisagreements : [],
+    strongestReviewer: parsed.strongestReviewer ?? { reviewer: '', reason: '' },
+    acDecision: parsed.acDecision ?? { recommendation: '', rationale: '', requiredRevisions: [] },
+  };
+}
+
 /* ── teaser SVG (hero figure for the project page) ───────────────── */
 
 export async function teaser(input: {

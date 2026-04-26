@@ -100,18 +100,25 @@ const ORCHESTRATION_STAGES: ReadonlySet<UiStage> = new Set([
 export const DEFAULT_CONFIG: ProbeConfig = {
   keys: { anthropic: '', openai: '', google: '' },
   models: {
-    // Demo default: all sonnet 4.6 (fast + cheap). Switch to 'opus'
-    // for best-quality, 'mixed' for opus on orchestration stages.
-    mode:        'sonnet',
-    brainstorm:  SONNET,
+    // Demo default: 'mixed' — Opus 4.7 on orchestration stages
+    // (brainstorm / methodology / review) where role-separated judgment
+    // matters most, Sonnet 4.6 on execution stages (literature /
+    // artifacts / personas / findings / report) where structured-output
+    // throughput matters more. This makes the headline Opus 4.7 claim
+    // ("three reviewers genuinely disagree because the model holds
+    // role-separation under length") visibly load-bearing in any live
+    // run, not just opt-in. Switch to 'opus' for best-quality, 'sonnet'
+    // for cheapest, 'custom' for per-stage pinning.
+    mode:        'mixed',
+    brainstorm:  OPUS,
     literature:  SONNET,
-    methodology: SONNET,
+    methodology: OPUS,
     plan:        SONNET,
     artifacts:   SONNET,
     personas:    SONNET,
     findings:    SONNET,
     report:      SONNET,
-    review:      SONNET,
+    review:      OPUS,
     evaluation:  SONNET, // legacy alias
   },
   budget: {

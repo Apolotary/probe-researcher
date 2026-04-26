@@ -14,19 +14,66 @@
 import express from 'express';
 import {
   brainstorm, literature, methodology, plan,
-  artifacts, personas, findings, report, review, teaser,
+  artifacts, personas, findings, report, review,
+  disagreementAudit, teaser,
   hasApiKey,
 } from '../llm/probe_calls.js';
 import { canRunLiveWeb } from '../llm/provider.js';
 import {
-  resolveKey, readConfig, writeConfig,
-  PROVIDERS, type Provider, type ProbeConfig,
+  resolveKey, readConfig, writeConfig, modelForStage,
+  PROVIDERS, type Provider, type ProbeConfig, type UiStage,
 } from '../config/probe_toml.js';
+import { FORBIDDEN_PHRASES } from '../lint/forbidden.js';
 import * as demo from './probe_demo.js';
+
+// Per-IP rate limiter for the live-LLM stage endpoints. Cost-runaway
+// protection: a public probe-researcher.com would otherwise let a
+// single hostile client spend hundreds of dollars in seconds. The
+// /demo/* and /status endpoints are deliberately NOT limited because
+// they're cheap and judge-facing.
+function makeStageLimiter(maxPerWindow: number, windowMs: number) {
+  const hits = new Map<string, number[]>();
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const ip = (req.ip || req.socket.remoteAddress || 'unknown') as string;
+    const now = Date.now();
+    const cutoff = now - windowMs;
+    const bucket = (hits.get(ip) || []).filter((t) => t > cutoff);
+    if (bucket.length >= maxPerWindow) {
+      res.status(429).json({
+        error: 'rate limit exceeded',
+        detail: `live LLM endpoints capped at ${maxPerWindow} requests per ${windowMs / 1000}s per IP`,
+        retryAfterSec: Math.ceil((bucket[0] + windowMs - now) / 1000),
+      });
+      return;
+    }
+    bucket.push(now);
+    hits.set(ip, bucket);
+    next();
+  };
+}
 
 export function mountProbeApi(app: express.Express): void {
   const router = express.Router();
   router.use(express.json({ limit: '2mb' }));
+
+  // GET /api/probe/models — per-stage resolved model IDs for the active
+  // config. The frontend ModelStatusLine reads this on mount so each
+  // stage's spinner shows the actual model that will run, not a
+  // hardcoded label. Without this endpoint, switching probe.toml to
+  // mode='opus' would still show "claude-sonnet-4-6" everywhere.
+  router.get('/models', (_req, res) => {
+    try {
+      const stages: UiStage[] = [
+        'brainstorm', 'literature', 'methodology', 'plan',
+        'artifacts', 'personas', 'findings', 'report', 'review',
+      ];
+      const models: Record<string, string> = {};
+      for (const s of stages) models[s] = modelForStage(s);
+      res.json({ models, mode: readConfig().models.mode });
+    } catch (e) {
+      res.status(500).json({ error: String((e as Error).message) });
+    }
+  });
 
   // GET /api/probe/status — what keys are usable, and where do they come
   // from? Resolves through the same `resolveKey()` path the live-web call
@@ -143,6 +190,61 @@ export function mountProbeApi(app: express.Express): void {
     res.json({ active: false });
   });
 
+  // ─── Provenance guard for web JSON output ────────────────────────
+  // The offline pipeline's lint runs against shipped guidebook
+  // markdown. The web UI generates report/findings text directly into
+  // JSON and renders it inside the iframe — this never touches the
+  // markdown linter. To close the gap honestly, we run the same
+  // forbidden-phrase regex set against the web output before it's
+  // returned. Hits get tagged inline with `[⚠ SIMULATED · do not cite]`
+  // rather than rejected outright (would defeat the demo flow), but
+  // the tag is visible to the user and the response includes a
+  // structured `provenance.violations` array the frontend can surface.
+
+  function scanForForbidden(text: string): string[] {
+    const hits: string[] = [];
+    if (typeof text !== 'string' || text.length === 0) return hits;
+    for (const re of FORBIDDEN_PHRASES) {
+      const m = text.match(re);
+      if (m && !hits.includes(m[0])) hits.push(m[0]);
+    }
+    return hits;
+  }
+
+  // Walk a payload; for every string field that LOOKS like simulated
+  // output (>40 chars and not a key/id/url), scan for forbidden
+  // phrases and rewrite hits with the safe-cite tag.
+  function guardSimulatedText<T extends object>(payload: T, allViolations: string[]): T {
+    const out = JSON.parse(JSON.stringify(payload)) as Record<string, unknown>;
+    const visit = (node: unknown, path: string): unknown => {
+      if (typeof node === 'string') {
+        if (node.length < 40) return node;
+        if (/^https?:\/\//.test(node)) return node;
+        const hits = scanForForbidden(node);
+        if (hits.length === 0) return node;
+        for (const h of hits) {
+          allViolations.push(`${path}: "${h}"`);
+        }
+        let safe = node;
+        for (const re of FORBIDDEN_PHRASES) {
+          safe = safe.replace(re, (m) => `${m} [⚠ SIMULATED · do not cite]`);
+        }
+        return safe;
+      }
+      if (Array.isArray(node)) {
+        return node.map((item, i) => visit(item, `${path}[${i}]`));
+      }
+      if (node && typeof node === 'object') {
+        const o = node as Record<string, unknown>;
+        const next: Record<string, unknown> = {};
+        for (const k of Object.keys(o)) next[k] = visit(o[k], `${path}.${k}`);
+        return next;
+      }
+      return node;
+    };
+    return visit(out, '$') as T;
+  }
+
   // ─── Stage helper ───────────────────────────────────────────────
   // If a demo is active, serve the cached slice with a synthetic
   // delay; otherwise fall through to the live LLM call.
@@ -154,6 +256,12 @@ export function mountProbeApi(app: express.Express): void {
   // stock fallbacks for every stage and treats empty payloads as
   // "use stock", which keeps the demo flow from showing console
   // errors during replay.
+  // Stages that produce simulated-finding-style language. The
+  // provenance guard scans these payloads for forbidden phrases on
+  // their way out to the browser; report and findings are the
+  // highest-risk because they're the ones a researcher might cite.
+  const STAGES_TO_GUARD = new Set(['report', 'findings', 'review']);
+
   async function served<T>(
     res: express.Response,
     stage: string,
@@ -161,17 +269,33 @@ export function mountProbeApi(app: express.Express): void {
     live: () => Promise<T>,
   ): Promise<void> {
     const replayingNow = demo.isReplaying();
+    const finalize = (payload: T) => {
+      if (STAGES_TO_GUARD.has(stage) && payload && typeof payload === 'object') {
+        const violations: string[] = [];
+        const guarded = guardSimulatedText(payload as object, violations) as T;
+        if (violations.length > 0) {
+          (guarded as Record<string, unknown>).provenance = {
+            guard: 'forbidden-phrase scan',
+            violations,
+            policy: 'evidence-language phrases tagged with [⚠ SIMULATED · do not cite]',
+          };
+        }
+        res.json(guarded);
+        return;
+      }
+      res.json(payload);
+    };
     try {
       if (replayingNow) {
         const cached = demo.slice(stage, args);
         if (cached !== null) {
           await demo.delay();
-          res.json(cached);
+          finalize(cached as T);
           return;
         }
       }
       const out = await live();
-      res.json(out);
+      finalize(out);
     } catch (e) {
       if (replayingNow) {
         // Demo missing slice + live failed (likely no API key) → soft
@@ -198,6 +322,11 @@ export function mountProbeApi(app: express.Express): void {
       case 'findings':     return { findings: [] };
       case 'report':       return { titleOptions: [], discussion: '', conclusion: '' };
       case 'review':       return { reviewers: [], meta: null };
+      case 'disagreement-audit': return {
+        summary: '', realDisagreements: [], falseDisagreements: [],
+        strongestReviewer: { reviewer: '', reason: '' },
+        acDecision: { recommendation: '', rationale: '', requiredRevisions: [] },
+      };
       case 'teaser':       return { svg: null, caption: null };
       default:             return {};
     }
@@ -205,6 +334,13 @@ export function mountProbeApi(app: express.Express): void {
 
   // Each handler short-circuits to the cached demo slice when a demo
   // is active (see `served` above). Otherwise it calls the live LLM.
+
+  // Apply the rate limiter to every stage endpoint below. ~$0.01/call
+  // bottom end → 30/min/IP keeps a single IP under ~$18/hour worst case.
+  const stageLimiter = makeStageLimiter(30, 60_000);
+  router.use(['/brainstorm', '/literature', '/methodology', '/plan',
+              '/artifacts', '/personas', '/findings', '/report',
+              '/review', '/disagreement-audit', '/teaser'], stageLimiter);
 
   router.post('/brainstorm', async (req, res) => {
     const { premise } = (req.body ?? {}) as { premise?: string };
@@ -344,6 +480,40 @@ export function mountProbeApi(app: express.Express): void {
         findings: body.findings ?? [],
         paperTitle: body.paperTitle ?? 'Untitled paper',
         discussion: body.discussion ?? '',
+      });
+    });
+  });
+
+  // Disagreement Auditor — Opus-only meta-meta-review of the panel.
+  // Takes the three reviewer blocks plus the AC's meta-review and
+  // returns a structured audit highlighting which disagreements the
+  // AC must NOT collapse into a bland average. This is the demo's
+  // strongest "Opus 4.7 doing something other models would struggle
+  // with" anchor — long-context judgment over role-separated outputs
+  // with a forced-contrast schema.
+  router.post('/disagreement-audit', async (req, res) => {
+    const body = (req.body ?? {}) as {
+      paperTitle?: string;
+      premise?: string;
+      reviewers?: Array<{
+        id: string; rec: string; field?: string;
+        affiliation?: string; topicConfidence?: string;
+        oneLine?: string; strengths?: string[]; weaknesses?: string[];
+      }>;
+      meta?: { ac?: string; verdict?: string; summary?: string; proposed?: string };
+      discussion?: string;
+    };
+    if (!body.paperTitle || !Array.isArray(body.reviewers) || !body.meta) {
+      res.status(400).json({ error: 'paperTitle, reviewers, meta required' });
+      return;
+    }
+    await served(res, 'disagreement-audit', body, async () => {
+      return await disagreementAudit({
+        paperTitle: body.paperTitle!,
+        premise: body.premise ?? '',
+        reviewers: body.reviewers!,
+        meta: body.meta!,
+        discussion: body.discussion,
       });
     });
   });

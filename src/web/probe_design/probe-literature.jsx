@@ -218,7 +218,7 @@ function Literature({ mainRq, selectedBranches, onBack, onContinue, goTo }) {
             {!live && window.ModelStatusLine && (
               <div className="fade-in" style={{ padding: '10px 4px 0' }}>
                 <window.ModelStatusLine
-                  model="claude-sonnet-4-6"
+                  stage="literature"
                   phase={window.PhaseDots ? (
                     <window.PhaseDots
                       phases={['planning', 'searching', 'ranking', 'drafting']}

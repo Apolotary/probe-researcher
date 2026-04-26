@@ -123,7 +123,19 @@ function CollapsedSidebar({ active, onNavigate, onToggle }) {
 
 window.ProbeSidebar = function ProbeSidebar(props) {
   const { active, activeProjectId, onNavigate, collapsed, onToggleCollapsed, keyState } = props;
-  const recents = window.PROBE_RECENTS;
+  // Recents are loaded at module init from PROBE_RECENTS as a mock,
+  // but the shell hydrates that global with real demos from
+  // /api/probe/demo/list shortly after mount. Subscribe to the
+  // updated event so the sidebar re-renders with the real recordings
+  // on disk — that's how we kill the "fake recents" credibility leak.
+  const [recents, setRecents] = React.useState(window.PROBE_RECENTS || []);
+  React.useEffect(() => {
+    const onUpdated = (e) => {
+      if (Array.isArray(e.detail)) setRecents(e.detail);
+    };
+    window.addEventListener('probe-recents-updated', onUpdated);
+    return () => window.removeEventListener('probe-recents-updated', onUpdated);
+  }, []);
   const labels  = window.PROBE_GROUP_LABELS;
 
   if (collapsed) {

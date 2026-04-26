@@ -127,6 +127,58 @@ window.ProbeShell = function ProbeShell() {
         else                  setKeyState({ source: 'none',   label: 'no key set' });
       })
       .catch(() => setKeyState({ source: 'none', label: 'unreachable' }));
+
+    // Real recents — replace the hard-coded sample projects in the
+    // sidebar with whatever demo recordings actually exist on disk.
+    // Falls back to the bundled mock list if the fetch fails so the
+    // sidebar never paints empty during the load.
+    fetch('/api/probe/demo/list')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (!d || !Array.isArray(d.demos)) return;
+        // Promote disk demos into the recents shape the sidebar
+        // already understands. Bundled demos get a 'sample' chip so
+        // judges see them as starter content, not personal history.
+        const realRecents = d.demos.map((demo, i) => ({
+          id: demo.name,
+          title: demo.name,
+          premise: demo.premise || '',
+          stage: 'done',
+          stageLabel: demo.bundled ? 'sample · bundled' : 'saved demo',
+          group: i === 0 ? 'today' : 'last7',
+          when: demo.savedAt
+            ? new Date(demo.savedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+            : '—',
+        }));
+        if (realRecents.length > 0) {
+          window.PROBE_RECENTS = realRecents;
+          // Trigger a re-render by dispatching a fake resize — the
+          // sidebar reads window.PROBE_RECENTS lazily; hot-swapping
+          // the global plus a tick gets it picked up.
+          try {
+            const ev = new CustomEvent('probe-recents-updated', { detail: realRecents });
+            window.dispatchEvent(ev);
+          } catch { /* */ }
+        }
+      })
+      .catch(() => { /* keep mock recents */ });
+
+    // Per-stage model routing — exposed via window global so the
+    // iframe stage components can read it without each making its
+    // own request. Hydrated from /api/probe/models.
+    fetch('/api/probe/models')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (!d) return;
+        window.__probeStageModels = d.models;
+        window.__probeStageMode   = d.mode;
+        // Notify already-mounted iframes so they refresh badge text.
+        try {
+          const ev = new CustomEvent('probe-models-loaded', { detail: d });
+          window.dispatchEvent(ev);
+        } catch { /* */ }
+      })
+      .catch(() => { /* badges fall back to defaults */ });
   }, []);
 
   const onToggleCollapsed = useCallback(() => {
