@@ -277,31 +277,5 @@ async function checkInventory(root: string): Promise<CheckResult[]> {
     detail: `${runs.length} run${runs.length === 1 ? '' : 's'} under runs/`,
   });
 
-  // Paper
-  const paperPdf = await fileSize(path.join(root, 'paper', 'probe.pdf'));
-  if (paperPdf) {
-    results.push({
-      name: 'Paper PDF',
-      passed: true,
-      detail: `${(paperPdf / 1024).toFixed(0)} KB at paper/probe.pdf`,
-    });
-  } else {
-    results.push({
-      name: 'Paper PDF',
-      passed: false,
-      detail: 'missing — run `probe build-paper`',
-      warning: true,
-    });
-  }
-
   return results;
-}
-
-async function fileSize(p: string): Promise<number | null> {
-  try {
-    const s = await fs.stat(p);
-    return s.size;
-  } catch {
-    return null;
-  }
 }

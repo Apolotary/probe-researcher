@@ -42,6 +42,11 @@ runs/*/branches/*/DONE.marker
 runs/*/branches/*/FAILED.marker
 runs/*/branches/*/IN_PROGRESS.marker
 
+# Build/run logs — ephemeral, never commit
+logs/
+*.log
+*.log.attempt*
+
 # Branch worktrees are checked-out copies of the main repo. They live as
 # real `git worktree add` directories, so the parent repo should NEVER
 # track them — not as files, not as gitlinks (submodule pointers). The

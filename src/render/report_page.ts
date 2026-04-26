@@ -361,9 +361,7 @@ function buildHtml(a: BuildArgs): string {
   <p class="footer-intro">If you use Probe in research or teaching, please cite the arXiv paper:</p>
   <pre class="bibtex"><code>${escapeHtml(BIBTEX)}</code></pre>
   <p class="footer-links">
-    <a href="https://github.com/Apolotary/probe-researcher">Source code</a> ·
-    <a href="paper/probe.pdf">Paper PDF</a> ·
-    <a href="DEMO_WALKTHROUGH.md">Demo walkthrough</a>
+    <a href="https://github.com/Apolotary/probe-researcher">Source code</a>
   </p>
   <p class="footer-tagline">Built at the Cerebral Valley Claude Opus 4.7 hackathon, April 2026.</p>
 </footer>
