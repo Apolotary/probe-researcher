@@ -2,106 +2,131 @@
   <img src="./assets/probe_wordmark.svg" alt="probe — a rehearsal stage for HCI study design" width="640"/>
 </p>
 
-> **A rehearsal stage for HCI study design.** Type a research premise. Watch Claude Opus 4.7 walk it through a seven-stage pipeline — interrogator → literature → methodology → artifacts → simulated evaluation → report → simulated peer review — and walk out with a sharpened study, draftable artifacts, and a panel of three reviewers who actually disagree.
+> **A rehearsal stage for HCI study design.** Type a research premise. Probe walks it through seven Claude-driven stages — interrogator → literature → methodology → artifacts → simulated evaluation → report → simulated peer review — and walks out with a sharpened study, draftable artifacts, and a panel of three reviewers who genuinely disagree about whether the study should exist. Then **Opus 4.7** audits the disagreement and tells you which conflicts the area chair must NOT average away.
 >
 > *Rehearsal stage for research. The performance still needs humans.*
 
-Built for the [Cerebral Valley **Built with Opus 4.7** hackathon](https://cerebralvalley.ai/e/built-with-4-7-hackathon), April 21–26 2026.
+Built solo for the [Cerebral Valley **Built with Opus 4.7** hackathon](https://cerebralvalley.ai/e/built-with-4-7-hackathon), April 21–26 2026.
 
 ---
 
-## Try it now
-
-Two paths in:
+## Try it in 30 seconds
 
 ```bash
 git clone https://github.com/Apolotary/probe-researcher.git
 cd probe-researcher && npm install && npm run build
-export ANTHROPIC_API_KEY=…   # optional — bundled demo runs without one
-npx probe ui --web           # opens http://127.0.0.1:4470/ui
+npx probe ui --web                # opens http://127.0.0.1:4470/ui
 ```
 
-| Path | What you get | API spend |
+Click **`▶ replay sample run`** in the left sidebar → walk a 14-second demo of the full seven-stage pipeline — **no API key required, $0 spend**. Every cached payload was produced by a real Anthropic call; replay is a deterministic re-run with a small synthetic delay so stage transitions stay watchable.
+
+| Path | What you see | API spend |
 |---|---|---|
-| **`▶ replay sample run`** in the sidebar | a 14-second walkthrough of a saved run (focus-rituals, 9 stages, 3 reviewers disagreeing) | **$0** |
-| Type a one-sentence premise → Enter | a real ~2-minute run with live Opus 4.7 + Sonnet 4.6 calls | ~$0.50 |
+| **`▶ replay sample run`** | The full bundled `focus-rituals` walkthrough — 9 stages, 3 reviewers disagreeing across `RR / ARR / RRX`, Opus disagreement audit | **$0** |
+| Type a one-sentence premise → ↵ | Real run with live Opus 4.7 + Sonnet 4.6 calls in [mixed mode](#why-opus-47-matters) | **~$0.30** |
 
 <p align="center">
   <img src="./docs/screenshots/01-home.png" alt="Probe web shell — sidebar + new-project home view" width="900"/>
-  <br/>
-  <em>The shell. Sidebar with replay button + recents · hero input · three columns of suggested directions.</em>
 </p>
 
 ---
 
-## The web UI is the demo
+## Why Opus 4.7 matters
 
-Everything in the submission is one browser tab. The shell at `/ui` mounts the new-project flow as an iframe so the sidebar (recents, replay, config) stays visible while you walk the seven stages.
+The hackathon is about *creative use of Opus 4.7*. Probe routes Opus to the four stages where long-context judgment and role separation matter most. Sonnet 4.6 handles the execution stages. Default `mode = 'mixed'`:
 
-### Two ways to start a study
+| Stage | Model | What Opus is doing |
+|---|---|---|
+| **brainstorm** | `claude-opus-4-7` | Splits the premise into three sub-RQs — different angles on one study, not three studies |
+| **methodology** | `claude-opus-4-7` | Three integrated study designs that *differ* on arc, method family, and RQ coverage matrix |
+| **review** | `claude-opus-4-7` | Three reviewers parameterised by `field × affiliation × topicConfidence` — recommendations spread across `RR / ARR / RRX`, objections substantively different |
+| **disagreement audit** *(v2)* | `claude-opus-4-7` | Opus-only meta-meta-review: forced-contrast schema with `realDisagreements`, `falseDisagreements`, and "do not average because" reasoning |
 
-After typing a premise you have two options:
+### From the bundled `focus-rituals` demo — three reviewers, real disagreement
 
-- **`↵ brainstorm`** — the standard flow. The interrogator agent splits your premise into three sub-research-questions (different angles on the same study) and you pick which to pursue.
-- **`⌘↵ skip · use as-is`** — if your question is already sharp. Wraps the premise as RQ A and jumps straight to literature. No three-way branching.
+> *Premise: How do remote workers stay focused during long video-call days?*
 
-### `▶ replay sample run` — the no-API-key path judges actually click
+| Reviewer | Profile | Recommendation | Core objection |
+|---|---|---|---|
+| **R1** | attention & cognitive ergonomics · academic · expert | `RR` | Compelling premise undermined by **crossover contamination** and unverified effect-size claims |
+| **R2** | remote work & organizational behavior · CSCW · industry · confident | `ARR` | Strong real-world relevance; minor methodological fixes would make this publishable quickly |
+| **R3** | cognitive neuroscience & psychophysiology · academic · expert | `RRX` | The **mechanistic claims fundamentally outrun the measurement apparatus** deployed |
+| **AC** | meta-review | `major revisions` | The panel is divided but converges. R2 sees ecological validity; R1 and R3 see structural problems. |
 
-Sidebar → demo picker → pre-recorded run. The right side is canned but every spinner and phase-dot still fires, so the cadence stays believable on camera.
+**Then the Opus Disagreement Auditor runs over those three reviewers** and produces a structured analysis identifying:
 
-<p align="center">
-  <img src="./docs/screenshots/02-replay-picker.png" alt="Demo replay picker showing the bundled focus-rituals run" width="900"/>
-</p>
+- **3 real disagreements** the AC must not average away (axes: `contribution`, `validity`, `methodology`)
+- **2 apparent disagreements** that look different but are the same objection in different language
+- The methodologically strongest reviewer
+- An AC decision with `requiredRevisions` items
 
-While replay is active, a small **`● replay · focus-rituals ×`** pill sits in the top-right of every stage so the user always knows the responses are cached. Click the pill to exit replay and return home.
+The forced-contrast schema is the difference between this and a generic "summarise the panel" prompt — the model is *required* to name disagreement and explain why it shouldn't be smoothed.
 
-<p align="center">
-  <img src="./docs/screenshots/04-replay-active.png" alt="Replay-active state with cyan pill badge in top-right corner" width="900"/>
-</p>
+### Boolean RQ composition (v2) — adapted from Textoshop
 
-### Walking the seven stages
-
-`brainstorm → literature → methodology → artifacts → evaluation → report → review`. Each stage has a model spinner, a phase-dot strip, breadcrumb back-jumps, and an editable result. Brainstorm shows three RQs as facets of one integrated study (not three separate studies — that's the methodology-stage move):
-
-<p align="center">
-  <img src="./docs/screenshots/03-brainstorm.png" alt="Brainstorm stage — three sub-research-questions stream in" width="900"/>
-</p>
-
-The review stage is the centerpiece: 1 area chair + 3 reviewers, each parameterised by `field × affiliation (academic | industry | independent) × topicConfidence (expert | confident | tentative | outsider)`. They land on different recommendation buckets (`A | ARR | RR | RRX | X`) and the area chair writes a meta-review reconciling them.
-
----
-
-## What's interesting about it
-
-- **Three reviewers genuinely disagree.** The simulated peer-review panel routinely lands recommendations spread across `RR / ARR / RRX`. The area-chair meta-review reconciles them. This holds across runs because Opus 4.7 sustains role-separation under length.
-- **Per-stage model selection.** `[models].mode` in `~/.config/probe/probe.toml` flips the whole pipeline between `sonnet` (cheap), `opus` (best), or `mixed` (Opus on orchestration — brainstorm/methodology/review — Sonnet on execution).
-- **Save once, replay forever.** A real run takes ~2 minutes. On the Done page, click `● save as demo` to capture the entire state to `~/.config/probe/demos/<slug>.json`. Replay walks through it in ~14 seconds with the same spinners — no API spend.
-- **Provenance, by force (offline pipeline).** `probe run` outputs go through a provenance linter that refuses to ship guidebooks where `[SIMULATION_REHEARSAL]` content uses evidence language. The web UI labels its simulated pilot/findings as rehearsal in the rendered text and exports, but does not run the linter against the live JSON it generates — treat web-stage outputs as scaffolding, not evidence.
-- **Graceful keyless replay.** Stages whose slice isn't cached AND whose live LLM call fails fall back to a shaped-but-empty payload. Every stage on the frontend has a stock fallback, so a judge with no key sees zero 500s and zero console errors.
-- **Skip-brainstorm path.** Researchers who already have a sharp question can `⌘↵` past the interrogator and run the rest of the pipeline with their premise as the only RQ.
+When two sub-RQs are selected on the brainstorm stage, three buttons appear: **`∪ merge`**, **`∩ shared`**, **`− subtract`**. Opus composes a fresh sub-RQ from the two parents, with a `rationale` field that has to explain what the composition adds vs. picking either parent alone. (Pattern adapted from Textoshop, [arxiv 2409.17088](https://arxiv.org/abs/2409.17088).)
 
 ---
 
-## Architecture
+## Built during the hackathon (April 21–26 2026)
 
-The new `probe ui` web surface is everything under:
+The submitted artifact is the **interactive web/TUI workflow** + the **live Anthropic web pipeline** + the **v2 Opus features**. Specifically:
 
+- `src/cli/ui_app.tsx`, `src/cli/ui_scenes/`, `src/cli/ui_state.ts` — TUI router + scenes + workflow state
+- `src/llm/probe_calls.ts` — async fns hitting the Anthropic SDK directly. **v2 additions:** `disagreementAudit`, `rqBoolean`
+- `src/web/server.ts`, `src/web/probe_api.ts` — Express server + `/api/probe/<stage>` endpoints. **v2 additions:** rate limits (30 req/min/IP), provenance guard for report/findings/review payloads, `/api/probe/models` for per-stage routing, `/api/probe/config` for live TOML round-trip
+- `src/web/probe_design/` — the design-handoff JSX + HTML. **v2 additions:** Opus-amber model badges, boolean-ops UI on brainstorm, replay-active pill, real recents from disk
+- `src/web/probe_demo.ts` + `assets/demos/focus-rituals.json` — save/replay infrastructure with the bundled gold demo (62KB, 9 stages, 3 reviewers, audit)
+- `src/config/probe_toml.ts` — atomic config layer with per-stage model resolver
+
+**Pre-existing (engine the new UI sits on, not part of the submission scope):**
+
+- `src/anthropic/client.ts`, `src/lint/`, `src/orchestrator/`, `src/render/` — the older offline pipeline behind `probe run`
+- `runs/` — 19 benchmark research runs documenting how Probe behaves at scale (kept as rigor reference)
+- `corpus/source_cards/`, `patterns/`, `agents/<role>.md` — the 12-source-card corpus, 16-pattern capture-risk library, agent prompts
+
+---
+
+## Honesty machinery
+
+Probe **does not produce evidence**. It produces a study plan and a rehearsal of what could go wrong.
+
+- Every simulated output carries `[SIMULATION_REHEARSAL]`
+- The provenance linter (offline, `probe lint`) refuses to ship guidebooks where simulated content uses evidence language (`findings show`, `users preferred`, `statistically significant`, etc.)
+- v2 closes the gap on the web side: `served()` runs the same forbidden-phrase scan against `report` / `findings` / `review` JSON before shipping. Hits get tagged inline with `[⚠ SIMULATED · do not cite]` and surfaced in `provenance.violations`
+- The replay system is a deterministic re-run of cached LLM responses. Every cached payload includes `modelMode` metadata. A cyan **`● replay · focus-rituals ×`** pill in the top-right of every stage marks all responses as cached, not live
+- The web UI requires an Anthropic key to run live (the new `probe_calls.ts` is Anthropic-only). `/api/probe/status` exposes `canRunLiveUi: true` only when a key resolves — no false positives. Frontend stock fallback handles the 500 cleanly
+
+---
+
+## Claims → where to verify
+
+| Claim | Verify by |
+|---|---|
+| Opus 4.7 powers brainstorm / methodology / review / disagreement audit | `GET /api/probe/models` (returns the resolved per-stage model); amber badge in each stage's spinner |
+| Replay is cached, not live | Cyan `● replay · …` pill on every stage; `assets/demos/focus-rituals.json` includes `modelMode: 'mixed'` and full payloads |
+| Three reviewers genuinely disagree | `assets/demos/focus-rituals.json` → `state.reviewSession.reviewers` (R1=RR, R2=ARR, R3=RRX with substantively different objections) |
+| Opus disagreement audit is forced-contrast | `assets/demos/focus-rituals.json` → `state.disagreementAudit` (3 real, 2 apparent, named "do not average" rationale per axis) |
+| Web outputs are guarded against evidence language | `src/web/probe_api.ts` `STAGES_TO_GUARD`; `src/lint/forbidden.ts` regex set |
+| Config is real, not mock | `/ui/config`; `~/.config/probe/probe.toml` (atomic write, `0600` perms) |
+| Recents are from disk | Sidebar hydrates from `/api/probe/demo/list` |
+| No hackathon-rules confusion | This README's "Built during the hackathon" section + `CLAUDE.md` |
+
+---
+
+## Try it live
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+npx probe ui --web
 ```
-src/cli/ui_app.tsx         # Ink router, scene state (TUI side)
-src/cli/ui_scenes/         # one .tsx per stage (TUI)
-src/cli/ui_state.ts        # workflow state carried between stages
-src/llm/probe_calls.ts     # async fns hitting Anthropic SDK directly
-src/web/probe_api.ts       # /api/probe/<stage> Express endpoints
-src/web/probe_design/      # the design-handoff JSX + HTML (web shell)
-src/web/probe_demo.ts      # demo save/replay (~/.config/probe/demos)
-src/config/probe_toml.ts   # ~/.config/probe/probe.toml read/write
+
+Or set the key via the in-app config screen at `/ui/config` — persisted to `~/.config/probe/probe.toml` with `0600` perms.
+
+```bash
+npm test                          # 97 / 97
+npx probe doctor --once           # 13 / 13 checks, "demo-ready"
 ```
-
-Pipeline order is fixed: `framing → literature → methodology → artifacts → evaluation → report → review`. Each stage endpoint goes through a `served()` helper that short-circuits to the active demo's saved slice (with synthetic latency) when replay is active, and falls back to a shaped-but-empty payload when both cache and live fail. See [`CLAUDE.md`](./CLAUDE.md) for the full architecture, model-routing table, and contribution guidelines.
-
-### Model routing
-
-Probe uses Claude **Opus 4.7** for stages that need skeptical judgment, vision, sustained adversarial stance, or long-context synthesis with provenance constraints. Non-critical stages route to **Sonnet 4.6** to preserve budget. Default mode is `sonnet` for fast demos; flip to `mixed` or `opus` in `~/.config/probe/probe.toml`.
 
 ---
 
@@ -113,21 +138,13 @@ For batch / CI / multi-branch use, the older offline CLI still ships:
 probe run "design a screen-reader-aware checkout flow for BLV users"
 ```
 
-This spawns three git worktrees — three divergent research programs — and runs each through an 8-stage pipeline that produces a `PROBE_GUIDEBOOK.md` per surviving branch (or a `WORKSHOP_NOT_RECOMMENDED.md` per blocked branch). The provenance linter fails the build if any element is unlabeled or if a `[SIMULATION_REHEARSAL]` element uses evidence language.
-
-The offline pipeline is the engine the new `probe ui` web shell sits on top of. It existed before the hackathon and is not part of the submission scope, but it remains the reference for how Probe is supposed to behave at scale. Three benchmark runs ship under `runs/` — `demo_run`, `benchmark_code_review`, `benchmark_creativity_support` — each with a `PROBE_REPORT.pdf` you can open to see what a finished guidebook looks like.
-
-```bash
-npx probe runs              # list shipped + local runs
-npx probe lint <file>       # provenance + forbidden-phrase linter
-npx probe doctor --once     # pre-demo verification (typecheck, tests, lints, deps)
-```
+Spawns three real git worktrees — three divergent research programs — and runs each through an 8-stage pipeline producing `PROBE_GUIDEBOOK.md` per surviving branch. Documented in [`CLAUDE.md`](./CLAUDE.md). Three named benchmark runs ship under `runs/`: `demo_run` (BLV screen-reader + AI news), `benchmark_code_review` (LLM code review), `benchmark_creativity_support` (poets). Each has a `PROBE_REPORT.pdf` you can open to see what a finished guidebook looks like.
 
 ---
 
-## 200-word submission summary
+## 200-word summary
 
-Probe is a rehearsal stage for HCI study design. An HCI PhD student types one sentence — *"How do remote workers stay focused during long video-call days?"* — and Probe walks the premise through seven stages with Claude Opus 4.7: an interrogator that sharpens it into three sub-research-questions, a literature agent that surfaces gaps per RQ, a methodologist that proposes integrated study designs (one paper, layered methods, RQ-coverage matrix), an artifact agent that drafts the implementation plan + validation protocol + IRB memo, a simulated pilot that surfaces friction with N synthetic participants, a report drafter that produces Discussion + Conclusion + arXiv-ready LaTeX, and — the wow moment — a simulated peer-review panel where three reviewers from different fields *disagree*, and an area chair writes a meta-review reconciling them. Every stage is live-callable through Anthropic's SDK; the rendered report and exports label simulated-pilot content as `[SIMULATION_REHEARSAL]`; every run can be saved and replayed in 14 seconds for demos. Built during the hackathon: the full `probe ui` web shell + TUI + live API integration. The bet is that PhD students get six months back to spend on the study that survives the rehearsal.
+> Probe is a rehearsal stage for HCI study design. A researcher types a premise — *"How do remote workers stay focused during long video-call days?"* — and a Claude-driven pipeline walks it through seven stages: an interrogator that sharpens it into three sub-research-questions, a literature agent that surfaces gaps per RQ, a methodologist that proposes integrated study designs, an artifact agent that drafts implementation plan + IRB memo + validation protocol, a simulated pilot that surfaces friction, a report drafter that produces Discussion + Conclusion + arXiv-ready LaTeX, and an ARR-style peer-review panel where three reviewers parameterised by `field × affiliation × topicConfidence` genuinely disagree across recommendation buckets (`RR / ARR / RRX`). **An Opus 4.7-only Disagreement Auditor** then runs over the panel with a forced-contrast schema and identifies which conflicts the area chair must not average away. Default mode is `mixed` — Opus 4.7 on the four orchestration stages, Sonnet 4.6 on execution. **Save once, replay forever**: a $0.30 live walk can be saved and replayed in 14 seconds with $0 spend, so demos don't burn credits. Every simulated output is `[SIMULATION_REHEARSAL]`-tagged; a forbidden-phrase guard refuses to let web outputs claim evidence.
 
 ---
 
@@ -136,14 +153,14 @@ Probe is a rehearsal stage for HCI study design. An HCI PhD student types one se
 **Probe does not replace real user research.** It triages design directions before participants are ever recruited.
 
 - **Simulation is rehearsal, not evidence.** Every walkthrough is a structured guess. The linter fails the build if any of them use evidence language.
-- **Scope: screen-capturable digital interactions.** Out of scope: ethnographic fieldwork, long-term in-the-wild deployment, embodied AR/VR without screen capture.
-- **Nothing here is findings.** If any human-facing artifact says `users preferred` or `findings show`, the linter failed and the build is broken.
+- **Single-author, single-domain corpus.** 12 hand-curated source cards, biased toward HCI methodology canon. Reviewers outside HCI may find the agent voice plausible but not verifiable from their own field.
+- **No empirical evaluation.** The bet that Probe saves PhD students months is unvalidated; the project ships before any researcher has used it for a real study. Next step is a controlled study with PhD cohorts.
+- **Anthropic-only live web.** The new web UI requires an Anthropic key for live calls; OpenAI fallback exists in the older offline pipeline but is deliberately disabled for the web path. Replay works without any key.
+- **Project page is templated.** `/ui/project` shows a coherent project-management view bound to a sample run. Labeled "view sample project page" to be honest about it.
 
 ---
 
 ## Citing this work
-
-If you use Probe in research, teaching, derivative software, or a paper, **please cite it**.
 
 ```bibtex
 @article{ryskeldiev2026probe,
@@ -155,7 +172,7 @@ If you use Probe in research, teaching, derivative software, or a paper, **pleas
 }
 ```
 
-A machine-readable citation lives in [`CITATION.cff`](./CITATION.cff). License: Apache 2.0 — see [`LICENSE`](./LICENSE) and [`NOTICE`](./NOTICE).
+A machine-readable citation lives in [`CITATION.cff`](./CITATION.cff). License: Apache 2.0 — see [`LICENSE`](./LICENSE) and [`NOTICE`](./NOTICE). Architecture deep-dive: [`CLAUDE.md`](./CLAUDE.md).
 
 ## Author
 
