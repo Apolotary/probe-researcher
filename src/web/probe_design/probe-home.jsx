@@ -27,7 +27,11 @@ function SuggestionRow({ item, idx, onLaunch }) {
   const [hover, setHover] = useState(false);
   return (
     <button
-      onClick={() => onLaunch(item.prompt)}
+      // 'edit' mode → fill the premise textarea but stay on the
+      // premise screen so the user can tweak before advancing.
+      // Tradeoff feedback from a real walk-through: the suggestions
+      // are *starters*, not commitments.
+      onClick={() => onLaunch(item.prompt, 'edit')}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
@@ -49,7 +53,7 @@ function SuggestionRow({ item, idx, onLaunch }) {
       }}>
         {item.prompt}
       </span>
-      <span style={{ color: palette.ink3, fontSize: 11, textAlign: 'right' }}>↵</span>
+      <span style={{ color: palette.ink3, fontSize: 11, textAlign: 'right', opacity: hover ? 1 : 0.5 }}>edit</span>
     </button>
   );
 }

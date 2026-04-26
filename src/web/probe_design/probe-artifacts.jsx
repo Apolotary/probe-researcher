@@ -403,9 +403,24 @@ function Artifacts({ chosenDesign, plan, selectedBranches, onBack, onContinue, g
     const text = bodyOf(id);
     navigator.clipboard?.writeText(text);
   };
-  const download = (id) => {
+  const download = async (id) => {
     const def = ARTIFACT_DEFS[id];
     const blob = new Blob([bodyOf(id)], { type: 'text/markdown' });
+    // Try the File System Access API first for a real native dialog,
+    // fall back to anchor-click which lands in Downloads.
+    try {
+      if (window.showSaveFilePicker) {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: def.filename,
+          types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }],
+        });
+        const w = await handle.createWritable();
+        await w.write(blob); await w.close();
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = def.filename;

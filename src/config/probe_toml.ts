@@ -92,9 +92,14 @@ export const SONNET = 'claude-sonnet-4-6';
 export const OPUS   = 'claude-opus-4-7';
 export const HAIKU  = 'claude-haiku-4-5-20251001';
 
-/** Stages where deep reasoning matters most (used by 'mixed' preset). */
+/** Stages where deep reasoning matters most (used by 'mixed' preset).
+ *  CLAUDE.md routes stage 5 (simulated walkthrough / pre-mortem)
+ *  to Opus 4.7 — the pre-mortem produces evidence-shaped text that the
+ *  user is most likely to (incorrectly) treat as findings, so its
+ *  reasoning quality is load-bearing. Sonnet sometimes drifts into
+ *  generic fatigue-language placeholders here. */
 const ORCHESTRATION_STAGES: ReadonlySet<UiStage> = new Set([
-  'brainstorm', 'methodology', 'review',
+  'brainstorm', 'methodology', 'findings', 'review',
 ]);
 
 export const DEFAULT_CONFIG: ProbeConfig = {
@@ -116,7 +121,7 @@ export const DEFAULT_CONFIG: ProbeConfig = {
     plan:        SONNET,
     artifacts:   SONNET,
     personas:    SONNET,
-    findings:    SONNET,
+    findings:    OPUS,
     report:      SONNET,
     review:      OPUS,
     evaluation:  SONNET, // legacy alias

@@ -204,8 +204,15 @@ window.ProbeShell = function ProbeShell() {
     }
   }, [projectIframeSrc]);
 
-  const onLaunchPrompt = useCallback((prompt) => {
-    const url = 'Probe New Project.html?prompt=' + encodeURIComponent(prompt) + '&go=brainstorm';
+  // mode: 'go' (default) auto-advances to brainstorm — used when the
+  // user has committed (typed + Enter, or used the command palette).
+  // mode: 'edit' just pre-fills the premise textarea so the user can
+  // tweak the wording before advancing — used when clicking a
+  // suggestion they haven't yet committed to.
+  const onLaunchPrompt = useCallback((prompt, mode = 'go') => {
+    const params = new URLSearchParams({ prompt });
+    if (mode === 'go') params.set('go', 'brainstorm');
+    const url = 'Probe New Project.html?' + params.toString();
     setNewProjectIframeSrc(url);
     setRoute('newproject');
     setAutoCollapse(true);

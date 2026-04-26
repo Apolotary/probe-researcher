@@ -356,13 +356,13 @@ function composeProjectPage(input) {
 </body></html>`;
 }
 
-// Inline PDF: open a print-ready HTML in a popup window the user can save as PDF.
+// Inline PDF: open a print-ready HTML in a new tab the user can save as PDF.
+// Uses blob URL + anchor click (not window.open) so Chrome/Safari treat
+// it as user-initiated navigation rather than a sized popup, which they
+// block unless popups are explicitly allowed.
 function openPrintablePdf(md, title) {
-  // Minimal markdown → HTML: headings, paragraphs, lists, bold/italic.
   const html = mdToHtml(md);
-  const w = window.open('', '_blank', 'width=820,height=1100');
-  if (!w) return false;
-  w.document.write(`<!doctype html>
+  const fullDoc = `<!doctype html>
 <html><head><title>${title}</title>
 <style>
   @page { size: letter; margin: 1in; }
@@ -378,9 +378,18 @@ function openPrintablePdf(md, title) {
   .stamp { color: #888; font-size: 9pt; margin-top: -2pt; }
 </style></head><body>${html}
 <script>setTimeout(() => window.print(), 300);</script>
-</body></html>`);
-  w.document.close();
-  return true;
+</body></html>`;
+  try {
+    const blob = new Blob([fullDoc], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function mdToHtml(md) {
@@ -411,12 +420,49 @@ function mdToHtml(md) {
   return out.join('\n');
 }
 
-function downloadBlob(filename, blob) {
+// Save a blob to disk. Tries the File System Access API first
+// (showSaveFilePicker) so the user gets a native "where do you want
+// to save this?" dialog and a deterministic filename — Chrome,
+// Edge, Opera support it as of 2026. Falls back to the legacy
+// anchor-click which dumps the file in the browser's default
+// Downloads folder. Returns a label describing where it landed so
+// the caller can put it in the toast.
+async function saveBlob(filename, blob, mimeAccept) {
+  try {
+    if (window.showSaveFilePicker) {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: mimeAccept ? [{ description: mimeAccept.description, accept: mimeAccept.accept }] : undefined,
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      // The handle reveals the chosen file's name; on Chrome we
+      // don't get the parent directory back (security), but at
+      // least the user picked it themselves.
+      return `saved · ${handle.name} (you chose the folder)`;
+    }
+  } catch (e) {
+    // AbortError = user cancelled — nothing to do, return null so the
+    // caller can show "cancelled" instead of error.
+    if (e && e.name === 'AbortError') return null;
+    // Anything else (permission, etc) → fall through to legacy save.
+  }
+  // Legacy anchor-click fallback. Lands in the browser's default
+  // Downloads folder; we surface that explicitly in the toast so the
+  // user isn't left wondering where their file went.
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return `saved · ${filename} → your Downloads folder`;
+}
+
+// Compatibility shim for callers that don't await: queues the save
+// and ignores the resulting label.
+function downloadBlob(filename, blob, mimeAccept) {
+  saveBlob(filename, blob, mimeAccept).catch(() => {});
 }
 
 function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBack, onDone, goTo }) {
@@ -425,6 +471,12 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
   const [conclusion, setConclusion] = useState(() => defaultConclusion(selectedBranches));
   const titleOptions = React.useMemo(() => generateTitles(mainRq, chosenDesign), [mainRq, chosenDesign?.id]);
   const [titles, setTitles] = useState(titleOptions);
+  // `live` tracks whether each section's content has been replaced by
+  // the LLM (true) or is still showing stock placeholder text (false).
+  // Surfaced via PlaceholderTag so the user can tell drafts from real
+  // model output. Persona feedback called this out: "you can't tell
+  // what's a stub and what just came back from Sonnet."
+  const [live, setLive] = useState({ titles: false, discussion: false, conclusion: false });
   const [titleIdx, setTitleIdx] = useState(0);
   const [editingTitleIdx, setEditingTitleIdx] = useState(null);
   const [editing, setEditing] = useState(null); // 'disc' | 'conc'
@@ -435,9 +487,6 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
 
   useEffect(() => {
     const t = setTimeout(() => setStage(1), 1100);
-    // Fire LLM call to replace stock titles + discussion + conclusion.
-    // Findings come from the evaluation stage; if absent, the API will
-    // produce reasonable text from the plan + design alone.
     const findings = (evalResult && evalResult.findings) || [];
     fetch('/api/probe/report', {
       method: 'POST',
@@ -452,11 +501,13 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (!data) return;
+        const update = { ...live };
         if (Array.isArray(data.titleOptions) && data.titleOptions.length) {
-          setTitles(data.titleOptions.slice(0, 3));
+          setTitles(data.titleOptions.slice(0, 3)); update.titles = true;
         }
-        if (data.discussion) setDiscussion(data.discussion);
-        if (data.conclusion) setConclusion(data.conclusion);
+        if (data.discussion) { setDiscussion(data.discussion); update.discussion = true; }
+        if (data.conclusion) { setConclusion(data.conclusion); update.conclusion = true; }
+        setLive(update);
       })
       .catch(() => { /* keep stock content */ });
     return () => clearTimeout(t);
@@ -479,20 +530,24 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
   const reportInput = { mainRq, selectedBranches, chosenDesign, plan,
     evaluation, discussion, conclusion, n, paperTitle: titles[titleIdx] || mainRq };
 
-  const onMd = () => {
+  const onMd = async () => {
     const md = composeMarkdown(reportInput);
-    downloadBlob('probe-report.md', new Blob([md], { type: 'text/markdown' }));
-    flash('saved · probe-report.md');
+    const label = await saveBlob('probe-report.md',
+      new Blob([md], { type: 'text/markdown' }),
+      { description: 'Markdown', accept: { 'text/markdown': ['.md'] } });
+    flash(label || 'cancelled');
   };
-  const onTex = () => {
+  const onTex = async () => {
     const tex = composeLatex(reportInput);
-    downloadBlob('probe-report.tex', new Blob([tex], { type: 'text/x-tex' }));
-    flash('saved · probe-report.tex (arXiv)');
+    const label = await saveBlob('probe-report.tex',
+      new Blob([tex], { type: 'text/x-tex' }),
+      { description: 'LaTeX (arXiv)', accept: { 'text/x-tex': ['.tex'] } });
+    flash(label || 'cancelled');
   };
   const onPdf = () => {
     const md = composeMarkdown(reportInput);
     const ok = openPrintablePdf(md, 'probe-report');
-    flash(ok ? 'opened · use cmd/ctrl+p to save as PDF' : 'popup blocked — allow popups to export PDF');
+    flash(ok ? 'opened in new tab · cmd/ctrl+p to save as PDF' : 'could not open new tab');
   };
   const onProjectPage = () => {
     // First try to fetch a generated teaser SVG from /api/probe/teaser.
@@ -517,24 +572,40 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
           : null;
         const teaserCaption = (data && data.caption) || null;
         const html = composeProjectPage({ ...reportInput, teaserHtml, teaserCaption });
-        const w = window.open('', '_blank', 'width=1100,height=900');
-        if (!w) { flash('popup blocked — allow popups to preview project page'); return; }
-        w.document.write(html); w.document.close();
+        // Open as a regular tab via blob URL + target=_blank link.
+        // window.open(html, '_blank', 'width=1100,height=900') is
+        // treated as a popup by Chrome/Safari and gets blocked unless
+        // the user has explicitly allowed popups for this origin.
+        // A blob URL with a temporary anchor click is "user-initiated
+        // navigation" → opens as a normal tab. The blob is revoked
+        // after a short delay to free memory.
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
         flash(teaserHtml
-          ? '✓ project page opened — teaser figure generated by Claude'
-          : 'project page opened (teaser fallback — Claude API unavailable)');
+          ? '✓ project page opened in new tab — teaser figure generated by Claude'
+          : 'project page opened in new tab (teaser fallback — Claude API unavailable)');
       });
   };
   const onSave = () => setNamePrompt({ kind: 'save' });
   const onSaveOpen = () => setNamePrompt({ kind: 'saveOpen' });
-  const confirmSave = () => {
+  const confirmSave = async () => {
     const safeName = (projectName || 'probe-project').trim().replace(/[^a-z0-9-_]+/gi, '-').replace(/^-+|-+$/g, '') || 'probe-project';
     const md = composeMarkdown({ ...reportInput, projectName });
-    downloadBlob(`${safeName}.md`, new Blob([md], { type: 'text/markdown' }));
-    flash(`saved · ${safeName}.md`);
+    const label = await saveBlob(`${safeName}.md`,
+      new Blob([md], { type: 'text/markdown' }),
+      { description: 'Markdown', accept: { 'text/markdown': ['.md'] } });
+    flash(label || 'cancelled');
     const kind = namePrompt?.kind;
     setNamePrompt(null);
-    if (kind === 'saveOpen') setTimeout(() => onDone && onDone({ projectName: safeName }), 400);
+    if (kind === 'saveOpen' && label) setTimeout(() => onDone && onDone({ projectName: safeName }), 400);
   };
 
   return (
@@ -588,7 +659,8 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
           </>
         ) : (
           <div className="fade-in" style={{ marginTop: 22 }}>
-            <SectionHeader title="paper title" hint="pick one · edit it · or write your own" />
+            <SectionHeader title="paper title" hint="pick one · edit it · or write your own"
+              tag={window.PlaceholderTag ? <window.PlaceholderTag live={live.titles} compact /> : null} />
             <TitlePicker titles={titles} setTitles={setTitles}
               titleIdx={titleIdx} setTitleIdx={setTitleIdx}
               editingTitleIdx={editingTitleIdx} setEditingTitleIdx={setEditingTitleIdx}
@@ -598,12 +670,14 @@ function Report({ mainRq, selectedBranches, chosenDesign, plan, evalResult, onBa
               hint="sketch of what discussion sections might look like — not findings"
               value={discussion} setValue={setDiscussion}
               defaultTag="SIMULATION_REHEARSAL"
+              tag={window.PlaceholderTag ? <window.PlaceholderTag live={live.discussion} compact /> : null}
               isEditing={editing === 'disc'} setEditing={(v) => setEditing(v ? 'disc' : null)} />
 
             <SectionEditable label="conclusion-shaped notes (rehearsal)"
               hint="sketch of conclusion structure — not findings"
               value={conclusion} setValue={setConclusion}
               defaultTag="SIMULATION_REHEARSAL"
+              tag={window.PlaceholderTag ? <window.PlaceholderTag live={live.conclusion} compact /> : null}
               isEditing={editing === 'conc'} setEditing={(v) => setEditing(v ? 'conc' : null)} />
 
             <SectionHeader title="export" hint="rehearsal memo is primary · paper-shaped exports are watermarked" />
@@ -922,11 +996,11 @@ function DraftingRow() {
 //
 // Editing always uses the textarea (provenance is parsed back out
 // of the saved text on the next render).
-function SectionEditable({ label, hint, value, setValue, isEditing, setEditing, defaultTag }) {
+function SectionEditable({ label, hint, value, setValue, isEditing, setEditing, defaultTag, tag }) {
   const useTagged = !!defaultTag && !!window.TaggedView;
   return (
     <div className="fade-in" style={{ marginTop: 28 }}>
-      <SectionHeader title={label} hint={hint} />
+      <SectionHeader title={label} hint={hint} tag={tag} />
       <div style={{
         padding: '14px 16px', background: palette.bg2,
         border: `1px solid ${palette.rule}`, borderLeft: `3px solid ${palette.amber}`,
@@ -962,13 +1036,14 @@ function SectionEditable({ label, hint, value, setValue, isEditing, setEditing, 
   );
 }
 
-function SectionHeader({ title, hint }) {
+function SectionHeader({ title, hint, tag }) {
   return (
     <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, margin: '24px 0 10px' }}>
       <span style={{ color: palette.amber, fontSize: 11, letterSpacing: '0.14em',
         textTransform: 'uppercase', fontWeight: 600 }}>{title}</span>
       {hint && <span style={{ color: palette.ink3, fontSize: 11 }}>· {hint}</span>}
       <span style={{ flex: 1, borderBottom: `1px solid ${palette.rule}`, transform: 'translateY(-4px)' }} />
+      {tag && <span style={{ flexShrink: 0, marginLeft: 6 }}>{tag}</span>}
     </div>
   );
 }

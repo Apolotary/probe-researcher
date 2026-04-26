@@ -102,8 +102,16 @@ function TaggedParagraph({ tag, sourceId, body, compact }) {
       </div>
       <div style={{
         color: palette.ink, fontSize: compact ? 12.5 : 13.5, lineHeight: 1.6,
-        whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-      }}>{body}</div>
+      }}>
+        {/* Render through MarkdownText so headings / bullets / **bold**
+            in pre-mortem and discussion-shaped text actually format.
+            Without this, the gutter strip wraps a wall of pre-wrap
+            plain text. Falls back to whitespace-pre-wrap if the
+            module isn't loaded yet (script-order edge case). */}
+        {window.MarkdownText
+          ? <window.MarkdownText text={body} />
+          : <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{body}</div>}
+      </div>
     </div>
   );
 }

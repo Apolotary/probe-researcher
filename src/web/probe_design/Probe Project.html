@@ -59,9 +59,14 @@ function ProjectShell() {
   const [density, setDensity] = useState(TWEAKS.density);
   const [deadline, setDeadline] = useState(() => new Date(TWEAKS.deadlineISO + 'T00:00:00'));
   const [today, setToday] = useState(() => {
-    // Anchor "today" 32 days before deadline so the gantt has a clear "now" line
-    const d = new Date(TWEAKS.deadlineISO + 'T00:00:00');
-    d.setDate(d.getDate() - 32);
+    // Anchor "today" to the actual current date — the gantt was
+    // showing a fake "now" 32 days before deadline, which made the
+    // chart legible but lied about where the user actually is. With
+    // today = real now, pushing the deadline further out makes the
+    // gap between today and the first stage visibly grow, which is
+    // the honest signal the user wants.
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
     return d;
   });
   const [durations, setDurations] = useState(() => window.PROBE_DEFAULT_DURATIONS);
@@ -149,6 +154,40 @@ function ProjectShell() {
   );
 }
 
+// Breadcrumb link: looks like a quiet inline link, hover underlines.
+// Trade-off: the breadcrumb used to be inert spans, which a real
+// walk-through immediately tried to click. Making them interactive
+// while keeping the visual weight (no button chrome) is the smallest
+// change that resolves the surprise.
+function CrumbLink({ onClick, style, children }) {
+  const [hover, setHover] = React.useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: 'transparent', border: 'none',
+        padding: 0, margin: 0, font: 'inherit', cursor: 'pointer',
+        textDecoration: hover ? 'underline' : 'none',
+        ...style,
+      }}>
+      {children}
+    </button>
+  );
+}
+
+// Talk to the parent shell when the project page is embedded; fall
+// back to a direct anchor when running standalone (e.g. opening
+// /ui/project in a fresh tab).
+function navigateShell(target) {
+  if (window.parent && window.parent !== window) {
+    try { window.parent.postMessage({ type: 'probe-nav', target }, '*'); return; }
+    catch { /* fall through */ }
+  }
+  if (target === 'home') window.location.href = '/ui';
+}
+
 // ─── Project header (name, breadcrumb, tabs) ───
 function ProjectHeader({ project, tab, setTab, deadline, today }) {
   const helpers = window.PROBE_GANTT_HELPERS;
@@ -158,15 +197,19 @@ function ProjectHeader({ project, tab, setTab, deadline, today }) {
       borderBottom: `1px solid ${palette.rule}`,
       background: palette.bg,
     }}>
-      {/* breadcrumb row */}
+      {/* breadcrumb row.
+          'probe' goes home; 'projects' opens the projects index when
+          the page is embedded in the shell (postMessage), or falls
+          back to direct navigation in standalone preview. The current
+          project name stays static. */}
       <div style={{
         padding: '12px 22px', display: 'flex', alignItems: 'center', gap: 12,
         color: palette.ink3, fontSize: 12,
         borderBottom: `1px solid ${palette.rule}`,
       }}>
-        <span style={{ color: palette.amber }}>probe</span>
+        <CrumbLink onClick={() => navigateShell('home')} style={{ color: palette.amber }}>probe</CrumbLink>
         <span>›</span>
-        <span style={{ color: palette.ink2 }}>projects</span>
+        <CrumbLink onClick={() => navigateShell('home')} style={{ color: palette.ink2 }}>projects</CrumbLink>
         <span>›</span>
         <span style={{ color: palette.ink }}>meeting-fatigue · v3</span>
         <span style={{ marginLeft: 'auto', display: 'flex', gap: 14, alignItems: 'center' }}>

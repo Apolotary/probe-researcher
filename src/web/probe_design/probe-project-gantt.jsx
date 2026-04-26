@@ -61,12 +61,18 @@ function ProjectTimeline({
     return out;
   }, [order, deadline]);
 
-  // Earliest start across stages — the chart's left edge has 3 days of pad
+  // Earliest start across stages — the chart's left edge has 3 days of pad.
+  // Critical: when the user drags the deadline far into the future, the
+  // earliest stage start moves with it. Without explicit clamping, today
+  // drops off the left edge and the user loses their "where am I?"
+  // anchor. Clamp chartStart so today is always inside the chart with at
+  // least 3 days of pad.
   const earliest = order.reduce(
     (acc, s) => layout[s.id].start < acc ? layout[s.id].start : acc,
     layout[order[0].id].start
   );
-  const chartStart = addDays(earliest, -3);
+  const naiveStart = addDays(earliest, -3);
+  const chartStart = today < naiveStart ? addDays(today, -3) : naiveStart;
   const chartEnd = addDays(deadline, 4);
   const totalDays = diffDays(chartEnd, chartStart);
 
@@ -277,13 +283,27 @@ function ProjectTimeline({
         </div>
       </div>
 
-      {/* small reference legend */}
+      {/* small reference legend.
+          The "slack" line surfaces the gap between today and the
+          earliest stage start. Positive slack = comfortable buffer;
+          negative = the user has already started but the schedule
+          says they shouldn't have; zero = right on. Without this,
+          pushing the deadline far out makes the chart "grow" without
+          giving any signal of how much breathing room that bought. */}
       <div style={{
         marginTop: 12, display: 'flex', gap: 18, flexWrap: 'wrap',
         color: ganttPalette.ink3, fontSize: 11.5,
       }}>
         <span><kbd style={window.__probeKbd}>drag</kbd> a bar edge to resize · drag SUBMIT or TODAY to move them</span>
         <span style={{ marginLeft: 'auto' }}>
+          {(() => {
+            const slack = diffDays(earliest, today);
+            const tag =
+              slack > 7  ? `${slack}d slack before stage 1 starts`
+            : slack >= 0 ? `${slack}d before stage 1 starts`
+            :              `${Math.abs(slack)}d into stage 1 already`;
+            return tag + ' · ';
+          })()}
           {diffDays(deadline, today)} days to submit · {order.reduce((a, s) => a + s.days, 0)}d total work
         </span>
       </div>

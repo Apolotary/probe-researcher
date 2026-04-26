@@ -96,6 +96,12 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
   const [personas, setPersonas] = useState([]);
   const [evaluation, setEvaluation] = useState('');
   const [editing, setEditing] = useState(null); // 'eval'
+  // Track whether the pre-mortem text + personas come from Opus
+  // (live=true) or are stock placeholders (false). Surfaced as a
+  // PlaceholderTag on the section header so users can tell. Stock
+  // pre-mortem is "useful for testing the layout" but should never
+  // be confused for actual model output.
+  const [live, setLive] = useState({ evaluation: false, personas: false });
 
   const run = () => {
     setPhase('running');
@@ -128,15 +134,19 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
         clearInterval(iv);
         setProgress(1);
         Promise.all([personaCall, findingsCall]).then(([pdata, fdata]) => {
+          let liveUpdate = { evaluation: false, personas: false };
           if (pdata && Array.isArray(pdata.personas) && pdata.personas.length) {
             setPersonas(pdata.personas);
+            liveUpdate.personas = true;
           }
           let evalText = defaultEvaluation(selectedBranches, n);
           if (fdata && Array.isArray(fdata.findings) && fdata.findings.length) {
             const lines = fdata.findings.map((f) => `**${f.id} · ${f.severity}**: ${f.title}\n  trigger — ${f.trigger}\n  evidence — ${f.evidence}\n  fix — ${f.fix}`);
             evalText = `[SIMULATION_REHEARSAL] frictions surfaced from the simulated walkthrough:\n\n${lines.join('\n\n')}\n\n${evalText}`;
+            liveUpdate.evaluation = true;
           }
           setEvaluation(evalText);
+          setLive(liveUpdate);
           setPhase('done');
         });
       } else {
@@ -256,6 +266,7 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
             <SectionEditable label="pre-mortem · risks (simulated, not findings)" hint="hypothesized failure modes — useful for tightening the protocol; not evidence"
               value={evaluation} setValue={setEvaluation}
               defaultTag="SIMULATION_REHEARSAL"
+              tag={window.PlaceholderTag ? <window.PlaceholderTag live={live.evaluation} compact /> : null}
               isEditing={editing === 'eval'} setEditing={(v) => setEditing(v ? 'eval' : null)} />
           </div>
         )}
@@ -394,11 +405,11 @@ function PersonaPool({ personas, compact, dim }) {
   );
 }
 
-function SectionEditable({ label, hint, value, setValue, isEditing, setEditing, defaultTag }) {
+function SectionEditable({ label, hint, value, setValue, isEditing, setEditing, defaultTag, tag }) {
   const useTagged = !!defaultTag && !!window.TaggedView;
   return (
     <div className="fade-in" style={{ marginTop: 28 }}>
-      <SectionHeader title={label} hint={hint} />
+      <SectionHeader title={label} hint={hint} tag={tag} />
       <div style={{
         padding: '14px 16px', background: palette.bg2,
         border: `1px solid ${palette.rule}`, borderLeft: `3px solid ${palette.amber}`,
@@ -434,13 +445,14 @@ function SectionEditable({ label, hint, value, setValue, isEditing, setEditing, 
   );
 }
 
-function SectionHeader({ title, hint }) {
+function SectionHeader({ title, hint, tag }) {
   return (
     <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, margin: '20px 0 10px' }}>
       <span style={{ color: palette.amber, fontSize: 11, letterSpacing: '0.14em',
         textTransform: 'uppercase', fontWeight: 600 }}>{title}</span>
       {hint && <span style={{ color: palette.ink3, fontSize: 11 }}>· {hint}</span>}
       <span style={{ flex: 1, borderBottom: `1px solid ${palette.rule}`, transform: 'translateY(-4px)' }} />
+      {tag && <span style={{ flexShrink: 0, marginLeft: 6 }}>{tag}</span>}
     </div>
   );
 }
