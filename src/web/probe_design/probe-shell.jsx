@@ -268,30 +268,38 @@ window.ProbeShell = function ProbeShell() {
           />
         )}
 
-        {/* hint strip — always visible, shows ⌘B + ⌘K */}
-        <div style={{
-          position: 'absolute', bottom: 12, right: 16, zIndex: 10,
-          display: 'flex', alignItems: 'center', gap: 14,
-          color: palette.ink4, fontSize: 10.5,
-          background: palette.bg, padding: '4px 10px',
-          border: `1px solid ${palette.rule}`, borderRadius: 2,
-        }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{
-              padding: '0 5px', border: `1px solid ${palette.rule}`, borderRadius: 2,
-              color: palette.ink3,
-            }}>⌘B</span>
-            <span>{collapsed ? 'show sidebar' : 'hide sidebar'}</span>
-          </span>
-          <span style={{ color: palette.ink4 }}>·</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{
-              padding: '0 5px', border: `1px solid ${palette.rule}`, borderRadius: 2,
-              color: palette.ink3,
-            }}>⌘K</span>
-            <span>command palette</span>
-          </span>
-        </div>
+        {/* Hint strip — anchored bottom-LEFT so it doesn't collide with
+            the per-stage footer's "continue · …" button on the right.
+            Hidden during the new-project iframe flow because each stage
+            has its own footer hints (← → switch RQ, ↵ continue, etc.)
+            and a second hint strip would overlap them. Shown on home,
+            project, and config views where the iframe doesn't paint
+            its own bottom bar. */}
+        {route !== 'newproject' && (
+          <div style={{
+            position: 'absolute', bottom: 12, left: 16, zIndex: 10,
+            display: 'flex', alignItems: 'center', gap: 14,
+            color: palette.ink4, fontSize: 10.5,
+            background: palette.bg, padding: '4px 10px',
+            border: `1px solid ${palette.rule}`, borderRadius: 2,
+          }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{
+                padding: '0 5px', border: `1px solid ${palette.rule}`, borderRadius: 2,
+                color: palette.ink3,
+              }}>⌘B</span>
+              <span>{collapsed ? 'show sidebar' : 'hide sidebar'}</span>
+            </span>
+            <span style={{ color: palette.ink4 }}>·</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{
+                padding: '0 5px', border: `1px solid ${palette.rule}`, borderRadius: 2,
+                color: palette.ink3,
+              }}>⌘K</span>
+              <span>command palette</span>
+            </span>
+          </div>
+        )}
       </div>
 
       <CommandPalette
