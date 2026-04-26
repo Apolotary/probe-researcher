@@ -239,6 +239,15 @@ function NewProject() {
     }
   }, [route]);
 
+  // Expose a debug-only goto for headless screenshot walkers and
+  // anyone debugging via DevTools. NOT a UI affordance — there's no
+  // surface that calls this in production. The hook attaches in a
+  // useEffect so it stays in sync with the latest setRoute closure.
+  React.useEffect(() => {
+    window.__probeDevGoto = (stage) => goTo(stage);
+    return () => { delete window.__probeDevGoto; };
+  });
+
   // Crumb-click handler. Used by every stage's <Crumb onStepClick={goTo} />
   // so the user can jump back to any earlier step without going through
   // a full back-button chain.
