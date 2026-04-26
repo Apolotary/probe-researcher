@@ -75,3 +75,5 @@ demo/recorded_run/*.webm
 node_modules/
 .claude/
 docs/DEMO_SLIDES.md
+PROJECT_FOR_LLM_EVAL.md
+PROBE_SUGGESTED_FIXES_FOR_AGENT.md
