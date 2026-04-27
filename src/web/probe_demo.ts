@@ -138,6 +138,21 @@ export function isReplaying(): boolean {
   return active !== null;
 }
 
+/**
+ * The premise stored in the active demo, or null when no demo is
+ * replaying. Used by the brainstorm endpoint to detect that the user
+ * has typed a fresh premise mid-replay (e.g. clicked "replay sample
+ * run", then went back and entered their own question) — in which
+ * case replay must be stopped so the rest of the pipeline runs live
+ * against the new premise instead of regurgitating the cached one.
+ */
+export function cachedPremise(): string | null {
+  if (!active) return null;
+  const s = active.state as { premise?: string };
+  const p = (s?.premise ?? '').toString();
+  return p.length > 0 ? p : null;
+}
+
 export function status(): { active: boolean; name?: string; delayMs?: number } {
   if (!active) return { active: false };
   return { active: true, name: active.name, delayMs: active.delayMs };
@@ -176,8 +191,17 @@ export function slice(stage: string, args: Record<string, unknown> = {}): unknow
     rqBoolean?: Record<string, unknown>;
   };
   switch (stage) {
-    case 'brainstorm':
+    case 'brainstorm': {
+      // Defense-in-depth: even if /brainstorm forgot to stop replay on
+      // a fresh premise, never serve cached RQs unless the requested
+      // premise matches the cached one. Compared case- and whitespace-
+      // insensitively so trivial editing on the saved demo's premise
+      // still hits cache.
+      const requested = String(args.premise ?? '').trim().toLowerCase();
+      const cached = String((s as { premise?: string }).premise ?? '').trim().toLowerCase();
+      if (requested && cached && requested !== cached) return null;
       return s.rqs ? { rqs: s.rqs } : null;
+    }
     case 'literature': {
       const rq = (args.rq ?? {}) as { letter?: string };
       const letter = rq.letter;

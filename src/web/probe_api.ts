@@ -381,6 +381,17 @@ export function mountProbeApi(app: express.Express): void {
       res.status(400).json({ error: 'premise (string) required' });
       return;
     }
+    // If a demo is replaying but the user has typed a premise that
+    // doesn't match the cached demo's premise, they've moved on from
+    // the canned sample run — stop replay so the entire pipeline
+    // (literature, methodology, ...) goes live against the new
+    // premise instead of regurgitating focus-rituals content.
+    if (demo.isReplaying()) {
+      const cached = demo.cachedPremise();
+      if (cached && cached.trim().toLowerCase() !== premise.trim().toLowerCase()) {
+        demo.stopReplay();
+      }
+    }
     await served(res, 'brainstorm', { premise }, async () => {
       const rqs = await brainstorm(premise);
       return { rqs };
