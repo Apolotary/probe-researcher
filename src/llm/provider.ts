@@ -61,12 +61,16 @@ export function detectProvider(): ProviderInfo {
 
 /**
  * Whether the live-web `/api/probe/<stage>` path can actually serve a real
- * LLM response. Currently requires an Anthropic key (env or stored config)
- * — see `probe_calls.ts`. Used by `/api/probe/status` so the frontend can
- * tell judges with only an OpenAI key that the web path needs Anthropic.
+ * LLM response. Returns true if either Anthropic or OpenAI has a usable
+ * key — `probe_calls.ts` dispatches to whichever provider `detectProvider`
+ * resolves. Used by `/api/probe/status` so the frontend knows when to skip
+ * the stock-content fallback.
  */
 export function canRunLiveWeb(): boolean {
-  return resolveKey('anthropic').source !== 'unset';
+  return (
+    resolveKey('anthropic').source !== 'unset' ||
+    resolveKey('openai').source !== 'unset'
+  );
 }
 
 function anthropicInfo(): ProviderInfo {

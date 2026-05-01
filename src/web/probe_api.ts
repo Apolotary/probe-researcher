@@ -19,9 +19,9 @@ import {
   hasApiKey,
   type RqOp,
 } from '../llm/probe_calls.js';
-import { canRunLiveWeb } from '../llm/provider.js';
+import { canRunLiveWeb, detectProvider, resolveModel } from '../llm/provider.js';
 import {
-  resolveKey, readConfig, writeConfig, modelForStage,
+  resolveKey, readConfig, writeConfig, modelForStage, OPUS,
   PROVIDERS, type Provider, type ProbeConfig, type UiStage,
 } from '../config/probe_toml.js';
 import { FORBIDDEN_PHRASES } from '../lint/forbidden.js';
@@ -58,19 +58,37 @@ export function mountProbeApi(app: express.Express): void {
   router.use(express.json({ limit: '2mb' }));
 
   // GET /api/probe/models — per-stage resolved model IDs for the active
-  // config. The frontend ModelStatusLine reads this on mount so each
-  // stage's spinner shows the actual model that will run, not a
-  // hardcoded label. Without this endpoint, switching probe.toml to
-  // mode='opus' would still show "claude-sonnet-4-6" everywhere.
+  // config AND active provider. The frontend ModelStatusLine reads this
+  // on mount so each stage's spinner shows the actual model that will
+  // run. When the live provider is OpenAI, the per-stage Claude id
+  // configured in probe.toml is mapped to its 'opus' or 'sonnet' tier
+  // and resolved through resolveModel(), so badges read e.g. 'gpt-5'
+  // instead of 'claude-opus-4-7' (which would be a lie).
   router.get('/models', (_req, res) => {
     try {
       const stages: UiStage[] = [
         'brainstorm', 'literature', 'methodology', 'plan',
         'artifacts', 'personas', 'findings', 'report', 'review',
       ];
+      const provider = detectProvider();
       const models: Record<string, string> = {};
-      for (const s of stages) models[s] = modelForStage(s);
-      res.json({ models, mode: readConfig().models.mode });
+      for (const s of stages) {
+        const claudeId = modelForStage(s);
+        if (provider.name === 'anthropic' || !provider.canCallApi) {
+          // Either an Anthropic call site OR demo mode (no live provider) —
+          // surface the configured Claude id for honesty / continuity.
+          models[s] = claudeId;
+        } else {
+          const tier: 'opus' | 'sonnet' = claudeId === OPUS ? 'opus' : 'sonnet';
+          models[s] = resolveModel(provider.name, tier).modelId;
+        }
+      }
+      res.json({
+        models,
+        mode: readConfig().models.mode,
+        provider: provider.name,
+        providerLabel: provider.label,
+      });
     } catch (e) {
       res.status(500).json({ error: String((e as Error).message) });
     }
@@ -82,9 +100,14 @@ export function mountProbeApi(app: express.Express): void {
   // what `/api/probe/<stage>` will actually accept. `canRunLiveUi` is the
   // boolean the frontend should treat as authoritative — `hasApiKey` is
   // the looser provider-layer signal and stays for backward compat.
+  //
+  // Now also reports the active provider (anthropic | openai | demo) and
+  // a human-readable label so the UI can render an honest badge for
+  // OpenAI users without reading two endpoints.
   router.get('/status', (_req, res) => {
     const a = resolveKey('anthropic');
     const o = resolveKey('openai');
+    const provider = detectProvider();
     res.json({
       hasApiKey: hasApiKey(),
       canRunLiveUi: canRunLiveWeb(),
@@ -92,6 +115,9 @@ export function mountProbeApi(app: express.Express): void {
       anthropicSource: a.source,
       openai: o.source !== 'unset',
       openaiSource: o.source,
+      provider: provider.name,
+      providerLabel: provider.label,
+      providerDescription: provider.description,
       demo: demo.status(),
     });
   });

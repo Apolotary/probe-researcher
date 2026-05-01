@@ -22,30 +22,45 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { detectProvider, NoApiKeysError } from './provider.js';
-import { modelForStage, resolveKey, type UiStage } from '../config/probe_toml.js';
+import OpenAI from 'openai';
+import { detectProvider, resolveModel, NoApiKeysError } from './provider.js';
+import { modelForStage, resolveKey, OPUS, type UiStage } from '../config/probe_toml.js';
 import type {
   SubRQ, LiteratureBlock, CandidateDesign, StudyPlan, Artifact,
   Persona, Friction,
 } from '../cli/ui_state.js';
 
 /**
- * Anthropic SDK client cached by the resolved key value. We re-cache on
+ * Provider SDK clients cached by their resolved key value. We re-cache on
  * key change so that editing `~/.config/probe/probe.toml` during a live
  * session takes effect on the next call without a server restart.
  */
 let anthropicClient: Anthropic | null = null;
-let cachedKeyValue = '';
+let cachedAnthropicKey = '';
 function anthropic(): Anthropic {
   const resolved = resolveKey('anthropic');
   if (resolved.source === 'unset' || !resolved.value) {
     throw new Error('Anthropic key not set (env $ANTHROPIC_API_KEY or stored in ~/.config/probe/probe.toml)');
   }
-  if (!anthropicClient || resolved.value !== cachedKeyValue) {
+  if (!anthropicClient || resolved.value !== cachedAnthropicKey) {
     anthropicClient = new Anthropic({ apiKey: resolved.value });
-    cachedKeyValue = resolved.value;
+    cachedAnthropicKey = resolved.value;
   }
   return anthropicClient;
+}
+
+let openaiClient: OpenAI | null = null;
+let cachedOpenaiKey = '';
+function openai(): OpenAI {
+  const resolved = resolveKey('openai');
+  if (resolved.source === 'unset' || !resolved.value) {
+    throw new Error('OpenAI key not set (env $OPENAI_API_KEY or stored in ~/.config/probe/probe.toml)');
+  }
+  if (!openaiClient || resolved.value !== cachedOpenaiKey) {
+    openaiClient = new OpenAI({ apiKey: resolved.value });
+    cachedOpenaiKey = resolved.value;
+  }
+  return openaiClient;
 }
 
 interface CallOpts {
@@ -57,36 +72,51 @@ interface CallOpts {
 }
 
 async function callLLM({ stage, system, user, maxTokens = 2048 }: CallOpts): Promise<string> {
-  // Live-web stage calls require Anthropic specifically. We don't fall
-  // through to the env-promoted OpenAI provider here because the JSON-
-  // fenced dispatch flow this module uses isn't wired for OpenAI yet —
-  // see src/anthropic/client.ts for the offline equivalent. If the user
-  // only has an OpenAI key, the frontend's stock-content fallback path
-  // takes over (every stage component handles 500 → canned output).
-  const anthropicKey = resolveKey('anthropic');
-  if (anthropicKey.source === 'unset') {
-    const provider = detectProvider();
-    if (!provider.canCallApi) throw new NoApiKeysError();
-    throw new Error(
-      `probe_calls: live web stages require an Anthropic key; ` +
-      `got '${provider.name}'. Set ANTHROPIC_API_KEY or store it in ~/.config/probe/probe.toml.`,
-    );
+  // Live-web stage calls now dispatch to whichever provider has a key
+  // (Anthropic preferred). The JSON-fenced extraction below is provider-
+  // agnostic — both SDKs return text we feed into extractJSON().
+  const provider = detectProvider();
+  if (!provider.canCallApi) throw new NoApiKeysError();
+
+  // Per-stage model id from probe.toml is a Claude id (OPUS or SONNET
+  // constant). Convert to the abstract 'opus'|'sonnet' tier so the
+  // OpenAI path can pick its own configured model for that tier.
+  // CLAUDE.md hard-pins stages 5-7 to Opus 4.7; on OpenAI those stages
+  // fall back to whatever PROBE_OPENAI_OPUS_MODEL points at (default
+  // gpt-5). The capability claims do not generalize — see the openai
+  // provider description in provider.ts for the user-facing caveat.
+  const claudeId = modelForStage(stage);
+  const tier: 'opus' | 'sonnet' = claudeId === OPUS ? 'opus' : 'sonnet';
+  const { modelId } = resolveModel(provider.name, tier);
+
+  if (provider.name === 'anthropic') {
+    const response = await anthropic().messages.create({
+      model: modelId,
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: user }],
+    });
+    return response.content
+      .filter((c): c is Anthropic.Messages.TextBlock => c.type === 'text')
+      .map((c) => c.text)
+      .join('');
   }
-  // Per-stage model resolution from probe.toml. The user can flip the
-  // whole pipeline with [models].mode = 'sonnet' | 'opus' | 'mixed',
-  // or set per-stage IDs explicitly with mode = 'custom'.
-  const modelId = modelForStage(stage);
-  const response = await anthropic().messages.create({
-    model: modelId,
-    max_tokens: maxTokens,
-    system,
-    messages: [{ role: 'user', content: user }],
-  });
-  const text = response.content
-    .filter((c): c is Anthropic.Messages.TextBlock => c.type === 'text')
-    .map((c) => c.text)
-    .join('');
-  return text;
+
+  if (provider.name === 'openai') {
+    // Chat Completions: system goes inside the messages array.
+    // max_completion_tokens is the OpenAI cap on output length.
+    const response = await openai().chat.completions.create({
+      model: modelId,
+      max_completion_tokens: maxTokens,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+    });
+    return response.choices[0]?.message?.content ?? '';
+  }
+
+  throw new NoApiKeysError();
 }
 
 /** Pull the first JSON block out of an LLM response. Tolerates fences. */
