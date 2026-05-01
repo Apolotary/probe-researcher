@@ -115,16 +115,33 @@ window.ProbeShell = function ProbeShell() {
   // Real API-key resolution state, fetched from /api/probe/status.
   // Defaults to 'none' so a fresh open without a key shows red until
   // the status fetch resolves — better than flashing a misleading
-  // green dot.
+  // green dot. The status endpoint now reports the active provider,
+  // so OpenAI-from-env users get an honest "openai · env" label
+  // instead of being conflated with config.toml.
   const [keyState, setKeyState] = useState({ source: 'none', label: '— checking' });
   useEffect(() => {
     fetch('/api/probe/status')
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         if (!d) return;
-        if (d.anthropic)      setKeyState({ source: 'env',    label: 'env' });
-        else if (d.hasApiKey) setKeyState({ source: 'config', label: 'config.toml' });
-        else                  setKeyState({ source: 'none',   label: 'no key set' });
+        // Resolve the source string from whichever provider is active.
+        // anthropicSource / openaiSource are 'env' | 'config' | 'unset'.
+        const isAnthropic = d.provider === 'anthropic';
+        const isOpenai    = d.provider === 'openai';
+        const src         = isAnthropic ? d.anthropicSource
+                          : isOpenai    ? d.openaiSource
+                          : 'unset';
+        if (src && src !== 'unset') {
+          const provLabel = isAnthropic ? 'anthropic'
+                          : isOpenai    ? 'openai'
+                          : d.provider;
+          setKeyState({
+            source: src,                                // 'env' | 'config'
+            label: `${provLabel} · ${src === 'env' ? 'env' : 'config.toml'}`,
+          });
+        } else {
+          setKeyState({ source: 'none', label: 'no key set' });
+        }
       })
       .catch(() => setKeyState({ source: 'none', label: 'unreachable' }));
 
@@ -274,6 +291,30 @@ window.ProbeShell = function ProbeShell() {
     return () => window.removeEventListener('keydown', onKey);
   }, [paletteOpen, onToggleCollapsed]);
 
+  // Cues rail listens for postMessage'd cues from iframes that prefer
+  // to defer to the parent. Iframes can also reach
+  // window.parent.__probePublishCue directly (same-origin under /ui/),
+  // which is the preferred path; this listener is the fallback for any
+  // future cross-origin embed or for hand-rolled tooling.
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (!e.data || typeof e.data !== 'object') return;
+      if (e.data.type === 'probe-publish-cue' && e.data.cue && window.__probePublishCue) {
+        window.__probePublishCue(e.data.cue);
+      } else if (e.data.type === 'probe-cue-open' && e.data.cue) {
+        // Deep-link from the rail's "open source" button. Best-effort
+        // routing: navigate to the project route if no obvious target,
+        // since most cue sources live inside the project iframe today.
+        if (e.data.cue.href && typeof e.data.cue.href === 'string') {
+          // No-op for now — leave routing to the iframe that emitted
+          // the cue once it receives the message back via postMessage.
+        }
+      }
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
   return (
     <div style={{ display: 'flex', height: '100%', background: palette.bg }}>
       <window.ProbeSidebar
@@ -382,6 +423,13 @@ window.ProbeShell = function ProbeShell() {
           </div>
         )}
       </div>
+
+      {/* RIGHT RAIL — persistent AI-cues sidebar.
+          Lives as a flex sibling so it never overlays the iframe;
+          collapsed = ~28px badge strip, expanded = ~320px panel.
+          User toggle persists in localStorage (probe.cues.collapsed).
+          Panel handles its own state — the shell only mounts it. */}
+      {window.CuesPanel && <window.CuesPanel />}
 
       <CommandPalette
         open={paletteOpen}

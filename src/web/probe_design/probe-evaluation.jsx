@@ -144,6 +144,27 @@ function Evaluation({ chosenDesign, plan, selectedBranches, onBack, onDone, goTo
             const lines = fdata.findings.map((f) => `**${f.id} · ${f.severity}**: ${f.title}\n  trigger — ${f.trigger}\n  evidence — ${f.evidence}\n  fix — ${f.fix}`);
             evalText = `[SIMULATION_REHEARSAL] frictions surfaced from the simulated walkthrough:\n\n${lines.join('\n\n')}\n\n${evalText}`;
             liveUpdate.evaluation = true;
+            // Surface each pre-mortem friction into the global cues rail.
+            // These are simulation rehearsal — not findings — so they get
+            // the SIMULATION_REHEARSAL provenance tag the rail uses for
+            // its color/badge. Severity passes through verbatim.
+            const publish = window.__probePublishCue;
+            if (publish) {
+              fdata.findings.forEach((f) => {
+                const sev = f.severity === 'critical' ? 'critical'
+                          : f.severity === 'medium'   ? 'medium'
+                          : 'low';
+                publish({
+                  id: `pre-mortem-${f.id || Math.random().toString(36).slice(2, 8)}`,
+                  source: 'pre-mortem',
+                  stage: 'findings',
+                  severity: sev,
+                  title: `${f.id || 'F'} · ${f.title || 'friction'}`,
+                  body: (f.fix ? `fix: ${f.fix}` : '') + (f.trigger ? ` · trigger: ${f.trigger}` : ''),
+                  provenance: 'SIMULATION_REHEARSAL',
+                });
+              });
+            }
           }
           setEvaluation(evalText);
           setLive(liveUpdate);

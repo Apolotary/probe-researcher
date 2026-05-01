@@ -118,7 +118,7 @@ function makeInitialState() {
       ],
       themes: [
         { name: 'Zoom Exhaustion & Fatigue Scale (ZEFS)', count: 14, color: '#7dcfff',
-          summary: 'Validated self-report instrument for videoconference fatigue. Most studies use it once at end-of-day; few sample it within-day.',
+          summary: 'Established self-report instrument for videoconference fatigue. Most studies use it once at end-of-day; few sample it within-day.',
           papers: [
             { title: 'Nonverbal Overload: A Theoretical Argument for the Causes of Zoom Fatigue', authors: 'Bailenson', venue: 'Technology, Mind & Behavior', year: 2021, rel: 0.94, anchor: true },
             { title: 'Construction and Initial Validation of the Zoom Exhaustion & Fatigue Scale', authors: 'Fauville, Luo, Queiroz, Bailenson, Hancock', venue: 'Computers in Human Behavior Reports', year: 2021, rel: 0.92, anchor: true },
@@ -211,7 +211,7 @@ function makeInitialState() {
           ],
         },
         { name: 'SURVEY.md', kind: 'survey', tone: '#7dcfff', edited: false, words: 720,
-          summary: 'Baseline + weekly survey instruments. Mostly assembled from validated scales.',
+          summary: 'Baseline + weekly survey instruments. Mostly assembled from established scales.',
           sections: [
             { h: 'baseline', body: 'ZEFS (15 items) · NASA-TLX (6 items) · UWES-9 work engagement · demographics · meeting load self-estimate.' },
             { h: 'post-meeting ESM (≤ 90s)', body: 'Single-item fatigue (1–7) · single-item focus (1–7) · two open-ended micro-prompts rotated daily.' },
@@ -369,8 +369,21 @@ function ProjectStages({ activeStageId, setActiveStageId, project, setProject, d
     }));
   };
 
+  // Refs into each stage card on the right pane keyed by stage id.
+  // The diamond reads `activeStageId` to decide which lane lights up;
+  // when a milestone is clicked the diamond can also fire
+  // setActiveStageId, which re-renders the right pane onto that stage
+  // card. No router change, no scroll juggling: switching the stage in
+  // the existing left rail is the same intent as "scroll to that
+  // stage" in a flat layout.
   return (
-    <div style={{ display: 'flex', height: '100%', minHeight: 0 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      <PipelineDiamond
+        project={project}
+        activeStageId={activeStageId}
+        onStageClick={(sid) => sid && setActiveStageId(sid)}
+      />
+      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
       {/* ─── Left rail ─── */}
       <div style={{
         width: 232, flex: 'none', borderRight: `1px solid ${palette.rule}`,
@@ -472,6 +485,7 @@ function ProjectStages({ activeStageId, setActiveStageId, project, setProject, d
           density={density}
           promptRef={promptRef}
         />
+      </div>
       </div>
     </div>
   );
@@ -598,6 +612,7 @@ function RerunDock({
           padding: density === 'compact' ? '6px 28px 0' : '10px 32px 0',
         }}>
           <window.ModelStatusLine
+            stage={uiStageFor(stage.id)}
             model={stageModel(stage.id)}
             phase={
               <span style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
@@ -695,16 +710,37 @@ function DiffStrip({ stage, stageData, draftRun, accept, discard }) {
   );
 }
 
-function stageModel(stageId) {
-  // Mirrors Probe Config.html stage routing
+// Map this view's stage taxonomy to the canonical UiStage values used
+// by /api/probe/models so ModelStatusLine resolves the live model id
+// (and works correctly when the active provider is OpenAI). When the
+// fetch resolves, ModelStatusLine swaps in the actual provider model
+// id; the static stageModel() below is the first-paint fallback.
+function uiStageFor(stageId) {
   switch (stageId) {
-    case 'framing':     return 'claude-sonnet-4-6';
+    case 'framing':     return 'brainstorm';
+    case 'literature':  return 'literature';
+    case 'methodology': return 'methodology';
+    case 'artifacts':   return 'artifacts';
+    case 'evaluation':  return 'findings';
+    case 'report':      return 'report';
+    case 'review':      return 'review';
+    default:            return undefined;
+  }
+}
+
+// First-paint fallback only — overridden by ModelStatusLine once
+// /api/probe/models resolves. Values match the 'mixed' preset from
+// CLAUDE.md (Opus on orchestration, Sonnet on execution) and use
+// current model ids — earlier entries pointed at retired claude-opus-4-5.
+function stageModel(stageId) {
+  switch (stageId) {
+    case 'framing':     return 'claude-opus-4-7';
     case 'literature':  return 'claude-sonnet-4-6';
-    case 'methodology': return 'claude-opus-4-5';
+    case 'methodology': return 'claude-opus-4-7';
     case 'artifacts':   return 'claude-sonnet-4-6';
-    case 'evaluation':  return 'claude-haiku-4-5-20251001';
-    case 'report':      return 'claude-opus-4-5';
-    case 'review':      return 'claude-sonnet-4-6';
+    case 'evaluation':  return 'claude-opus-4-7';
+    case 'report':      return 'claude-sonnet-4-6';
+    case 'review':      return 'claude-opus-4-7';
     default:            return 'claude-sonnet-4-6';
   }
 }
@@ -1349,6 +1385,359 @@ function Section({ title, accent, children }) {
   );
 }
 
+// ─── Pipeline diamond ───
+//
+// Diamond-shaped overview of Probe's pipeline (borrow #1, MultiColleagues,
+// Quan et al. CHI '26). The pipeline is conceptually:
+//
+//     premise (1)  →  3 RQ branches (diverge)  →  3 design candidates
+//                  (still diverging)            →  synthesis (1, converge)
+//
+// A flat top-to-bottom stage list hides that fan-out / fan-in shape. This
+// diamond makes it the first thing a reader sees when they open the
+// project page. They learn at a glance "where am I" and "is this widening
+// or narrowing now?"
+//
+// This component is INFORMATIONAL chrome — not a guidebook artifact —
+// so it carries no provenance tag in the markup. The lane labels do
+// match `STAGE_DEFS` IDs so the visual maps onto the canonical stage
+// taxonomy from CLAUDE.md.
+//
+// Lane assignments are stable: branch A reuses `accentLink` (cool),
+// branch B reuses `accentGood` (green), branch C reuses `accentAmber`
+// (warm). All three are existing palette accents — no new colors.
+function PipelineDiamond({ project, activeStageId, onStageClick }) {
+  // Lane definitions. Each lane carries a label + stable color.
+  // The 3 lanes correspond to Probe's 3 divergent branches; in the
+  // current single-project demo state the stages are shared across
+  // branches (same evaluation/report/review for the synthesized flow),
+  // but the 3 lanes still read the per-stage state to drive the glow
+  // when a stage is `running` or active.
+  const palette = window.__probePalette;
+  const lanes = [
+    { id: 'A', color: palette.accentLink  || '#7eaad2', label: 'branch A' },
+    { id: 'B', color: palette.accentGood  || '#7ab686', label: 'branch B' },
+    { id: 'C', color: palette.accentAmber || '#d9a548', label: 'branch C' },
+  ];
+
+  // Milestone definitions. Each milestone is anchored by the stageId
+  // it represents — so clicking it can drive the right pane to the
+  // matching stage card.
+  //
+  // The 3-zone layout left-to-right:
+  //   zone 0 = premise (single dot at top of diamond)
+  //   zone 1..3 = divergent middle (literature → methodology → artifacts)
+  //   zone 4 = parallel evaluation (still 3 lanes)
+  //   zone 5 = adversarial review (still 3 lanes, glow color flips)
+  //   zone 6 = synthesis (single dot at right of diamond — convergence)
+  const milestones = [
+    { x: 0.04, stage: 'premise',     stageId: null,          desc: 'Probe sharpens the rough premise into a working title and main RQ.' },
+    { x: 0.20, stage: 'framing',     stageId: 'framing',     desc: 'Probe interrogates the premise and surfaces three sub-RQs.' },
+    { x: 0.34, stage: 'literature',  stageId: 'literature',  desc: 'Probe maps the corpus onto each branch and flags gaps.' },
+    { x: 0.50, stage: 'methodology', stageId: 'methodology', desc: 'Probe drafts a study design per branch, scoped to one comparable plan.' },
+    { x: 0.62, stage: 'artifacts',   stageId: 'artifacts',   desc: 'Probe produces the handoff documents: protocol, survey, IRB memo.' },
+    { x: 0.74, stage: 'evaluation',  stageId: 'evaluation',  desc: 'Probe rehearses a simulated pilot and surfaces friction (rehearsal, not evidence).' },
+    { x: 0.86, stage: 'review',      stageId: 'review',      desc: 'Probe rehearses an adversarial peer-review panel: 1 AC plus 3 reviewers.' },
+    { x: 0.96, stage: 'synthesis',   stageId: 'report',      desc: 'Probe converges the three branches into one report and a labeled guidebook.' },
+  ];
+
+  // Diamond canvas geometry. width = 880 (matches existing 880px hero
+  // measure on the home page), height = 280 so it's hero-sized but not
+  // overwhelming.
+  const W = 880, H = 280;
+  // The premise dot sits at the left tip; synthesis dot at the right.
+  const leftX = W * 0.04, rightX = W * 0.96;
+  const midX  = (leftX + rightX) / 2;
+  const cy    = H / 2;
+  // Vertical spread between lanes at the widest middle.
+  const laneSpread = 56; // px between A and C at widest point
+  const laneOffset = (idx) => (idx - 1) * laneSpread; // A=-spread, B=0, C=+spread
+
+  // For each lane we compute a quadratic curve from premise → mid → synthesis.
+  // The control point at midX gives the "fan-out then fan-in" diamond.
+  const lanePathFor = (idx) => {
+    const oy = laneOffset(idx);
+    return `M ${leftX} ${cy} Q ${midX} ${cy + oy * 1.45}, ${rightX} ${cy}`;
+  };
+
+  // Helper: where does milestone at fractional x sit on lane idx?
+  // We approximate the quadratic Bezier B(t) at t=fractional-along
+  // for each lane. t = (x - leftX) / (rightX - leftX).
+  function pointOnLane(idx, frac) {
+    const t = Math.max(0, Math.min(1, frac));
+    const oy = laneOffset(idx);
+    // Quadratic Bezier: (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2
+    // P0 = (leftX, cy), P1 = (midX, cy + oy*1.45), P2 = (rightX, cy)
+    const u = 1 - t;
+    const px = u * u * leftX + 2 * u * t * midX + t * t * rightX;
+    const py = u * u * cy   + 2 * u * t * (cy + oy * 1.45) + t * t * cy;
+    return [px, py];
+  }
+
+  // Drive lane glow off the project state. A lane is "lit" if (a) the
+  // active stage maps to this milestone, OR (b) the stage is currently
+  // running. Otherwise lanes render in fgFaint outline.
+  //
+  // For demo purposes we treat the active stage as lit on ALL three
+  // lanes — the divergent triplet runs in parallel in the actual
+  // pipeline. Once the demo state grows per-branch status this can
+  // narrow to just the running branch.
+  function isLit(stageId) {
+    if (!stageId) return false;
+    if (stageId === activeStageId) return true;
+    const sd = project && project[stageId];
+    return !!(sd && sd.status === 'running');
+  }
+
+  // Tooltip state
+  const [hover, setHover] = useState(null); // milestone obj or null
+
+  return (
+    <div style={{
+      width: '100%', display: 'flex', justifyContent: 'center',
+      padding: '18px 16px 8px',
+      borderBottom: `1px solid ${palette.rule}`,
+      background: palette.bgPage || palette.bg,
+    }}>
+      <div style={{
+        position: 'relative', width: '100%', maxWidth: W + 24,
+        background: palette.bgPanel || palette.bg2,
+        border: `1px solid ${palette.border || palette.rule}`,
+        borderRadius: 4,
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)',
+      }}>
+        {/* Header row */}
+        <div style={{
+          display: 'flex', alignItems: 'baseline', gap: 12,
+          padding: '10px 16px 6px',
+          borderBottom: `1px dashed ${palette.border || palette.rule}`,
+        }}>
+          <span style={{
+            color: palette.fgMute || palette.ink3, fontSize: 11,
+            letterSpacing: '0.14em', textTransform: 'uppercase',
+            fontFamily: palette.fontMono || 'monospace',
+          }}>─── pipeline · diamond view</span>
+          <span style={{
+            color: palette.fgSecondary || palette.ink2, fontSize: 11.5,
+            fontFamily: palette.fontSans || 'sans-serif',
+          }}>
+            premise <span style={{ color: palette.fgFaint || palette.ink4 }}>›</span> 3 branches diverge <span style={{ color: palette.fgFaint || palette.ink4 }}>›</span> synthesis
+          </span>
+          <span style={{ marginLeft: 'auto', color: palette.fgMute || palette.ink3, fontSize: 11 }}>
+            click a milestone to focus its stage
+          </span>
+        </div>
+
+        {/* SVG body */}
+        <div style={{ position: 'relative', padding: '6px 12px 14px' }}>
+          <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet"
+            style={{ display: 'block' }}>
+            {/* SVG defs for soft glow on lit lanes */}
+            <defs>
+              {lanes.map((ln) => (
+                <filter key={ln.id} id={`pd-glow-${ln.id}`} x="-20%" y="-50%" width="140%" height="200%">
+                  <feGaussianBlur stdDeviation="3.4" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              ))}
+            </defs>
+
+            {/* Faint baseline through the middle for visual anchoring */}
+            <line x1={leftX} y1={cy} x2={rightX} y2={cy}
+              stroke={palette.fgFaint || palette.ink4} strokeWidth="0.5"
+              strokeDasharray="2 6" opacity="0.6"/>
+
+            {/* The three lanes */}
+            {lanes.map((ln, idx) => {
+              // A lane "lights" if the active milestone touches it.
+              // For the divergent middle stages the lane visualization
+              // is per-lane on every branch; only the lane color
+              // distinguishes them.
+              const litAny = milestones.some((m) => m.stageId === activeStageId && m.stageId);
+              const litColor = ln.color;
+              return (
+                <g key={ln.id}>
+                  {/* Soft halo behind lit lane */}
+                  {litAny && (
+                    <path
+                      d={lanePathFor(idx)}
+                      fill="none"
+                      stroke={litColor}
+                      strokeOpacity="0.18"
+                      strokeWidth="14"
+                      strokeLinecap="round"
+                    />
+                  )}
+                  {/* Main lane stroke */}
+                  <path
+                    d={lanePathFor(idx)}
+                    fill="none"
+                    stroke={litAny ? litColor : (palette.fgFaint || palette.ink4)}
+                    strokeWidth={litAny ? 1.6 : 1}
+                    strokeLinecap="round"
+                  />
+                  {/* Lane label at the widest point */}
+                  <text
+                    x={midX}
+                    y={cy + laneOffset(idx) * 1.45 + (idx === 2 ? 16 : (idx === 0 ? -8 : -8))}
+                    fill={litAny ? litColor : (palette.fgMute || palette.ink3)}
+                    fontSize="10.5"
+                    fontFamily={palette.fontMono || 'monospace'}
+                    textAnchor="middle"
+                    opacity={idx === 1 && !litAny ? 0.7 : 0.95}
+                  >
+                    {ln.label}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Premise dot (left tip) and Synthesis dot (right tip) */}
+            <PipelineEndDot
+              x={leftX} y={cy}
+              label="premise"
+              sublabel="rough idea"
+              accent={palette.accentAmber}
+              active={!activeStageId || activeStageId === 'framing'}
+              onClick={() => onStageClick && onStageClick('framing')}
+              palette={palette}
+              align="left"
+            />
+            <PipelineEndDot
+              x={rightX} y={cy}
+              label="synthesis"
+              sublabel="guidebook"
+              accent={palette.accentAmber}
+              active={activeStageId === 'report' || activeStageId === 'review'}
+              onClick={() => onStageClick && onStageClick('report')}
+              palette={palette}
+              align="right"
+            />
+
+            {/* Stage milestones — three dots per stage (one per lane), except premise + synthesis */}
+            {milestones.slice(1, -1).map((m) => {
+              const lit = isLit(m.stageId);
+              return lanes.map((ln, idx) => {
+                const [px, py] = pointOnLane(idx, m.x);
+                return (
+                  <g key={`${m.stage}-${ln.id}`}
+                    onMouseEnter={() => setHover(m)}
+                    onMouseLeave={() => setHover(null)}
+                    onClick={() => onStageClick && m.stageId && onStageClick(m.stageId)}
+                    style={{ cursor: m.stageId ? 'pointer' : 'default' }}>
+                    {lit && (
+                      <circle cx={px} cy={py} r={9}
+                        fill={ln.color} fillOpacity="0.18" />
+                    )}
+                    <circle cx={px} cy={py} r={lit ? 4.5 : 3}
+                      fill={lit ? ln.color : (palette.bgPanel || palette.bg2)}
+                      stroke={lit ? ln.color : (palette.fgFaint || palette.ink4)}
+                      strokeWidth={lit ? 1 : 1}/>
+                    {/* label only for the middle lane (B), so the row
+                        stays uncluttered */}
+                    {idx === 1 && (
+                      <text x={px} y={H - 26}
+                        fill={lit ? (palette.fgStrong || palette.ink) : (palette.fgMute || palette.ink3)}
+                        fontSize="11"
+                        fontWeight={lit ? 600 : 500}
+                        fontFamily={palette.fontMono || 'monospace'}
+                        textAnchor="middle">
+                        {m.stage}
+                      </text>
+                    )}
+                  </g>
+                );
+              });
+            })}
+
+            {/* Phase grouping labels along the bottom: divergent / parallel review / convergent */}
+            <text x={leftX + 8} y={H - 6}
+              fill={palette.fgMute || palette.ink3}
+              fontSize="10" letterSpacing="0.14em"
+              fontFamily={palette.fontMono || 'monospace'}>
+              IN
+            </text>
+            <text x={midX} y={H - 6}
+              fill={palette.fgMute || palette.ink3}
+              fontSize="10" letterSpacing="0.14em"
+              fontFamily={palette.fontMono || 'monospace'}
+              textAnchor="middle">
+              ── 3 branches in parallel ──
+            </text>
+            <text x={rightX - 8} y={H - 6}
+              fill={palette.fgMute || palette.ink3}
+              fontSize="10" letterSpacing="0.14em"
+              fontFamily={palette.fontMono || 'monospace'}
+              textAnchor="end">
+              OUT
+            </text>
+          </svg>
+
+          {/* Tooltip */}
+          {hover && (
+            <div style={{
+              position: 'absolute', top: 10, right: 14,
+              maxWidth: 320, padding: '8px 12px',
+              background: palette.bgPage || palette.bg,
+              border: `1px solid ${palette.borderStrong || palette.rule}`,
+              borderRadius: 3,
+              boxShadow: '0 8px 24px -10px rgba(0,0,0,0.55)',
+              color: palette.fgBody || palette.ink,
+              fontFamily: palette.fontSans || 'sans-serif',
+              fontSize: 12, lineHeight: 1.5,
+              pointerEvents: 'none',
+              zIndex: 5,
+            }}>
+              <div style={{
+                color: palette.accentAmber || palette.amber,
+                fontFamily: palette.fontMono || 'monospace',
+                fontSize: 10.5, letterSpacing: '0.14em',
+                textTransform: 'uppercase', marginBottom: 3,
+              }}>{hover.stage}</div>
+              <div>{hover.desc}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PipelineEndDot({ x, y, label, sublabel, accent, active, onClick, palette, align }) {
+  return (
+    <g onClick={onClick} style={{ cursor: 'pointer' }}>
+      {active && (
+        <circle cx={x} cy={y} r={14} fill={accent} fillOpacity="0.16" />
+      )}
+      <circle cx={x} cy={y} r={6}
+        fill={active ? accent : (palette.bgPanel || palette.bg2)}
+        stroke={accent} strokeWidth="1.4"/>
+      <text
+        x={align === 'right' ? x - 12 : x + 12}
+        y={y - 12}
+        fill={palette.fgStrong || palette.ink}
+        fontSize="11.5" fontWeight="600"
+        fontFamily={palette.fontMono || 'monospace'}
+        textAnchor={align === 'right' ? 'end' : 'start'}>
+        {label}
+      </text>
+      <text
+        x={align === 'right' ? x - 12 : x + 12}
+        y={y + 18}
+        fill={palette.fgMute || palette.ink3}
+        fontSize="10"
+        fontFamily={palette.fontMono || 'monospace'}
+        textAnchor={align === 'right' ? 'end' : 'start'}>
+        {sublabel}
+      </text>
+    </g>
+  );
+}
+
+window.PipelineDiamond = PipelineDiamond;
 window.ProjectStages = ProjectStages;
 window.PROBE_STAGE_DEFS = STAGE_DEFS;
 window.makeInitialProjectState = makeInitialState;

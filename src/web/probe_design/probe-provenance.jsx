@@ -63,43 +63,59 @@ window.parseTaggedProvenance = parseTagged;
 
 // Single-paragraph renderer: colored left gutter, hover tooltip with
 // tag name + hint, optional source-card pill on the right.
-function TaggedParagraph({ tag, sourceId, body, compact }) {
+//
+// Props:
+//   tag        — taxonomy key (RESEARCHER_INPUT / SIMULATION_REHEARSAL / …)
+//   sourceId   — optional pill on the right (e.g. SOURCE_CARD:<id>)
+//   body       — the paragraph text (markdown rendered via MarkdownText)
+//   compact    — tighter padding + smaller body text
+//   hideHeader — drop the label/source row entirely; gutter strip + body
+//                only. Useful when the surrounding card already labels
+//                the content (e.g., a reviewer card that's already
+//                colored / framed). Tag name still surfaces on hover
+//                via title attribute so the provenance is recoverable.
+//   inline     — when true, removes outer margin so the paragraph can
+//                slot directly into a card body without bottom gap.
+function TaggedParagraph({ tag, sourceId, body, compact, hideHeader, inline }) {
   const meta = TAXONOMY[tag] || TAXONOMY.AGENT_INFERENCE;
   const [hover, setHover] = React.useState(false);
   return (
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      title={hideHeader ? `${meta.label} — ${meta.hint}` : undefined}
       style={{
         position: 'relative',
         padding: compact ? '6px 12px 6px 14px' : '10px 14px 10px 18px',
-        margin: '0 0 8px',
+        margin: inline ? 0 : '0 0 8px',
         borderLeft: `3px solid ${meta.color}`,
         background: hover ? 'rgba(255,255,255,0.02)' : 'transparent',
         borderRadius: '0 3px 3px 0',
         transition: 'background 120ms',
       }}>
-      <div style={{
-        display: 'flex', alignItems: 'baseline', gap: 10,
-        marginBottom: compact ? 2 : 4,
-      }}>
-        <span style={{
-          color: meta.color, fontSize: 9.5, fontWeight: 700,
-          letterSpacing: '0.10em', textTransform: 'uppercase',
-        }}>{meta.label}</span>
-        {sourceId && (
+      {!hideHeader && (
+        <div style={{
+          display: 'flex', alignItems: 'baseline', gap: 10,
+          marginBottom: compact ? 2 : 4,
+        }}>
           <span style={{
-            color: meta.color, fontSize: 10,
-            border: `1px solid ${meta.color}`, padding: '0 6px',
-            borderRadius: 999, opacity: 0.7,
-          }}>{sourceId}</span>
-        )}
-        {hover && (
-          <span style={{
-            marginLeft: 'auto', color: palette.ink3, fontSize: 10.5, fontStyle: 'italic',
-          }}>{meta.hint}</span>
-        )}
-      </div>
+            color: meta.color, fontSize: 9.5, fontWeight: 700,
+            letterSpacing: '0.10em', textTransform: 'uppercase',
+          }}>{meta.label}</span>
+          {sourceId && (
+            <span style={{
+              color: meta.color, fontSize: 10,
+              border: `1px solid ${meta.color}`, padding: '0 6px',
+              borderRadius: 999, opacity: 0.7,
+            }}>{sourceId}</span>
+          )}
+          {hover && (
+            <span style={{
+              marginLeft: 'auto', color: palette.ink3, fontSize: 10.5, fontStyle: 'italic',
+            }}>{meta.hint}</span>
+          )}
+        </div>
+      )}
       <div style={{
         color: palette.ink, fontSize: compact ? 12.5 : 13.5, lineHeight: 1.6,
       }}>

@@ -35,6 +35,13 @@
 <div id="root"></div>
 
 <script src="probe-tokens.js"></script>
+<!-- probe-cues.jsx exposes window.__probePublishCue so child components
+     of this page (review, project-stages) can publish cues to the
+     parent shell's right rail. When this page runs inside the shell
+     iframe, the publisher resolves to window.parent.__probePublishCue
+     via the postMessage fallback; when the page is opened standalone
+     it publishes into its own (orphan) bus, which is harmless. -->
+<script type="text/babel" src="probe-cues.jsx"></script>
 <script type="text/babel" src="probe-spinner.jsx"></script>
 <script type="text/babel" src="probe-review.jsx"></script>
 <script type="text/babel" src="probe-project-stages.jsx"></script>

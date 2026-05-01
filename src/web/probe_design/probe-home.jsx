@@ -8,6 +8,231 @@
 const { useState, useRef, useEffect } = React;
 const palette = window.__probePalette;
 
+// ─── StepStrip (numbered onboarding strip, borrow #2 from MultiColleagues Fig 1) ───
+//
+// A first-time visitor doesn't know the *shape* of what's about to happen.
+// The 5 chips below collapse Probe's 8-stage pipeline into a digestible
+// arc that fits one row above the textbox. The strip is informational
+// only — chips don't navigate, they just open a tooltip with one extra
+// detail.
+//
+// Voice rules from CLAUDE.md apply: the strip describes what Probe DOES,
+// active voice ("Probe sharpens", "three branches diverge", "Probe
+// rehearses three reviewers"). No "users preferred", no "validated", no
+// "evidence suggests".
+const STEP_DEFS = [
+  {
+    n: 1,
+    label: 'Premise',
+    glyph: '◆',
+    desc: 'Probe sharpens your one-line premise.',
+    detail: 'Probe asks back the questions a skeptical research advisor would: who is this for, what do you mean by "focus", what would falsify the claim. The output is a tightened premise plus a working title.',
+  },
+  {
+    n: 2,
+    label: 'Branch',
+    glyph: '⚡',
+    desc: 'Three RQs diverge into three programs.',
+    detail: 'Probe runs three branches in parallel — A, B, C — that diverge on research question, intervention primitive, and method family. Each branch is a separate research program, not a variant of one program.',
+  },
+  {
+    n: 3,
+    label: 'Design',
+    glyph: '◇',
+    desc: 'Each branch drafts protocol, artifacts, and a simulated pilot.',
+    detail: 'For each branch Probe drafts methodology, the handoff documents (PROTOCOL.md, SURVEY.md, IRB_MEMO.md, IMPLEMENTATION.md, DIARY_KIT.md), and rehearses a simulated pilot to surface friction. The pilot is rehearsal, not evidence.',
+  },
+  {
+    n: 4,
+    label: 'Review',
+    glyph: '⊘',
+    desc: 'Probe rehearses an adversarial peer-review panel per branch.',
+    detail: 'A simulated 1AC + 3-reviewer panel attacks each branch on novelty, methodology, ethics, and accessibility. Branches that get blocked produce a WORKSHOP_NOT_RECOMMENDED memo instead of a guidebook.',
+  },
+  {
+    n: 5,
+    label: 'Synthesis',
+    glyph: '◉',
+    desc: 'Probe converges into one labeled study guidebook.',
+    detail: 'Probe assembles the surviving branches into one provenance-tagged guidebook. Every paragraph carries a label: [RESEARCHER_INPUT], [SOURCE_CARD:id], [SIMULATION_REHEARSAL], [HUMAN_REQUIRED], etc. A linter blocks shipping if any tag is missing.',
+  },
+];
+
+function StepStripChip({ step, idx, last, openTooltip, setOpenTooltip }) {
+  const [hover, setHover] = useState(false);
+  const open = openTooltip === idx;
+  // Toggle on click; close on second click or escape.
+  return (
+    <div style={{
+      position: 'relative', flex: '1 1 140px', minWidth: 130,
+      display: 'flex', alignItems: 'stretch',
+    }}>
+      <button
+        onClick={() => setOpenTooltip(open ? null : idx)}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        aria-expanded={open}
+        style={{
+          flex: 1,
+          display: 'flex', alignItems: 'flex-start', gap: 10,
+          padding: '10px 12px',
+          background: hover || open ? (palette.bgPanelHover || palette.bgPanel || palette.bg2) : (palette.bgPanel || palette.bg2),
+          border: `1px solid ${open ? (palette.borderStrong || palette.rule) : (palette.border || palette.rule)}`,
+          borderRadius: 4,
+          color: 'inherit', fontFamily: 'inherit',
+          textAlign: 'left', cursor: 'pointer',
+          transition: 'background 120ms, border-color 120ms',
+        }}>
+        {/* Numeric badge */}
+        <span style={{
+          flex: 'none',
+          width: 18, height: 18, borderRadius: '50%',
+          background: palette.accentAmber || palette.amber,
+          color: palette.bgPage || palette.bg,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: palette.fontMono || 'monospace',
+          fontSize: 10.5, fontWeight: 700,
+          marginTop: 1,
+        }}>{step.n}</span>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{
+            display: 'flex', alignItems: 'baseline', gap: 6,
+          }}>
+            <span style={{
+              color: palette.fgMute || palette.ink3, fontSize: 11,
+              fontFamily: palette.fontMono || 'monospace',
+            }}>{step.glyph}</span>
+            <span style={{
+              color: palette.fgStrong || palette.ink,
+              fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+              fontWeight: 600, fontSize: 13.5,
+            }}>{step.label}</span>
+          </div>
+          <div style={{
+            color: palette.fgSecondary || palette.ink2,
+            fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+            fontSize: 11, lineHeight: 1.4, marginTop: 3,
+          }}>
+            {step.desc}
+          </div>
+        </div>
+      </button>
+
+      {/* Arrow glyph between chips */}
+      {!last && (
+        <span style={{
+          flex: 'none', display: 'inline-flex', alignItems: 'center',
+          padding: '0 6px',
+          color: palette.fgMute || palette.ink3,
+          fontSize: 14, userSelect: 'none',
+        }}>›</span>
+      )}
+
+      {/* Tooltip — opens below the chip on click. Pure informational
+          content; closing on click-away is handled by the parent. */}
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 6px)', left: 0,
+          width: 280, padding: '10px 12px',
+          background: palette.bgPage || palette.bg,
+          border: `1px solid ${palette.borderStrong || palette.rule}`,
+          borderRadius: 3,
+          boxShadow: '0 12px 32px -10px rgba(0,0,0,0.55)',
+          color: palette.fgBody || palette.ink,
+          fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+          fontSize: 12, lineHeight: 1.55,
+          zIndex: 20,
+        }}>
+          <div style={{
+            color: palette.accentAmber || palette.amber,
+            fontFamily: palette.fontMono || 'monospace',
+            fontSize: 10.5, letterSpacing: '0.14em',
+            textTransform: 'uppercase', marginBottom: 4,
+          }}>step {step.n} · {step.label}</div>
+          <div>{step.detail}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StepStrip({ collapsedHint, defaultExpanded }) {
+  const [expanded, setExpanded] = useState(defaultExpanded !== false);
+  const [openTooltip, setOpenTooltip] = useState(null);
+
+  // Close any open tooltip when the user clicks elsewhere or hits Esc.
+  useEffect(() => {
+    if (openTooltip == null) return;
+    const onDoc = (e) => {
+      if (e.target && e.target.closest && e.target.closest('[data-step-strip]')) return;
+      setOpenTooltip(null);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') setOpenTooltip(null); };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [openTooltip]);
+
+  if (!expanded) {
+    return (
+      <div data-step-strip style={{ marginBottom: palette.s4 || 16, textAlign: 'center' }}>
+        <button onClick={() => setExpanded(true)} style={{
+          background: 'transparent', border: 'none',
+          color: palette.fgMute || palette.ink3,
+          fontFamily: 'inherit', fontSize: 11.5, cursor: 'pointer',
+          textDecoration: 'underline', textUnderlineOffset: 3,
+        }}>show what to expect ›</button>
+      </div>
+    );
+  }
+
+  return (
+    <div data-step-strip style={{ marginBottom: palette.s4 || 16 }}>
+      <div style={{
+        display: 'flex', alignItems: 'baseline', gap: 10,
+        marginBottom: 8,
+      }}>
+        <span style={{
+          color: palette.fgMute || palette.ink3,
+          fontFamily: palette.fontMono || 'monospace',
+          fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
+        }}>─── what Probe does</span>
+        <span style={{
+          color: palette.fgSecondary || palette.ink2,
+          fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+          fontSize: 11.5,
+        }}>five steps · click any chip for detail</span>
+        {collapsedHint && (
+          <button onClick={() => setExpanded(false)} style={{
+            marginLeft: 'auto', background: 'transparent', border: 'none',
+            color: palette.fgMute || palette.ink3,
+            fontFamily: 'inherit', fontSize: 11, cursor: 'pointer',
+          }}>hide ↑</button>
+        )}
+      </div>
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', alignItems: 'stretch',
+        gap: 0, rowGap: 8,
+      }}>
+        {STEP_DEFS.map((s, i) => (
+          <StepStripChip
+            key={s.n}
+            step={s}
+            idx={i}
+            last={i === STEP_DEFS.length - 1}
+            openTooltip={openTooltip}
+            setOpenTooltip={setOpenTooltip}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+window.StepStrip = StepStrip;
+
 function HomeCaret() {
   const [on, setOn] = useState(true);
   useEffect(() => {
@@ -150,10 +375,10 @@ window.ProbeHome = function ProbeHome({ onLaunchPrompt }) {
         </div>
 
         {/* First-time-visitor hint. The replay path is the recommended
-            entry point for anyone who doesn't have an Anthropic key
-            yet — judges, advisors, peers — but a fresh visitor on /ui
-            won't know to look at the sidebar. One amber-tinted line
-            below the subtitle points them at the no-cost path. */}
+            entry point for anyone who doesn't have an API key yet —
+            judges, advisors, peers — but a fresh visitor on /ui won't
+            know to look at the sidebar. One amber-tinted line below
+            the subtitle points them at the no-cost path. */}
         <div style={{
           color: palette.ink3, fontSize: 12, marginTop: 14, textAlign: 'center',
         }}>
@@ -162,8 +387,19 @@ window.ProbeHome = function ProbeHome({ onLaunchPrompt }) {
           <span style={{ color: palette.ink2 }}> in the left sidebar — a 14-second walkthrough, no API key needed.</span>
         </div>
 
+        {/* Numbered step strip — sets expectations BEFORE the user
+            commits to a premise. Default = expanded; auto-collapses
+            with a hide affordance once the user starts typing so the
+            chrome de-clutters once intent is committed. */}
+        <div style={{ marginTop: 28 }}>
+          <StepStrip
+            defaultExpanded
+            collapsedHint={text.trim().length > 0}
+          />
+        </div>
+
         <div style={{
-          marginTop: 36, display: 'flex', alignItems: 'flex-start', gap: 10,
+          marginTop: 16, display: 'flex', alignItems: 'flex-start', gap: 10,
           borderTop: `1px solid ${palette.rule}`, borderBottom: `1px solid ${palette.rule}`,
           padding: '18px 4px',
         }}>

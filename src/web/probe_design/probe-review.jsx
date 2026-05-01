@@ -38,10 +38,21 @@ const REC = {
 // `field`         — research area the reviewer claims expertise in
 // `affiliation`   — where they sit; shapes the kind of critique they bring
 // `topicConfidence` — how close the paper is to their actual reading list
+//
+// Affiliation colors map to existing palette accents so the persona-
+// card row scans as three distinct "colleagues":
+//   academic    → cool blue (palette.accentLink)
+//   industry    → warm bronze — derived from amber with reduced
+//                 luminance / saturation so the brand-amber action
+//                 token (#d9a548) stays reserved for primary CTAs per
+//                 probe-tokens.js. Bronze is unambiguously warm, scans
+//                 as "industry / craft," and won't be confused with
+//                 the focus/picked treatment.
+//   independent → green (palette.accentGood)
 const AFFIL = {
-  academic:    { label: 'academic',    short: 'AC', color: '#a89bd8', desc: 'university lab · publishes regularly' },
-  industry:    { label: 'industry',    short: 'IN', color: '#7dcfff', desc: 'practitioner · ships product' },
-  independent: { label: 'independent', short: 'IX', color: '#c5c8d4', desc: 'consultant · no affiliation' },
+  academic:    { label: 'academic',    short: 'AC', color: palette.accentLink || '#7eaad2', desc: 'university lab · publishes regularly' },
+  industry:    { label: 'industry',    short: 'IN', color: '#b88944',                       desc: 'practitioner · ships product' },
+  independent: { label: 'independent', short: 'IX', color: palette.accentGood || '#7ab686', desc: 'consultant · no affiliation' },
 };
 const TOPIC_CONF = {
   expert:     { label: 'topic expert',  color: '#7fb069', desc: 'this is their subfield' },
@@ -225,15 +236,24 @@ function ReviewBody({ data, density }) {
       </Section>
 
       <Section title={`reviews · ${effectiveReview.reviewers.length} reviewers`} accent="#7dcfff">
-        <div style={{ color: palette.ink3, fontSize: 11.5, marginTop: 4, marginBottom: 8 }}>
-          click a review to read it in full · recommendations span {summarizeRecs(effectiveReview.reviewers)}
+        <div style={{ color: palette.ink3, fontSize: 11.5, marginTop: 4, marginBottom: 10 }}>
+          click a colleague to read their review · recommendations span {summarizeRecs(effectiveReview.reviewers)}
           {Object.keys(rebuttals).length > 0 && (
             <span style={{ marginLeft: 10, color: '#7fb069' }}>
               · {Object.values(rebuttals).filter((r) => r.outcome === 'updated').length} rebuttal{Object.values(rebuttals).filter((r) => r.outcome === 'updated').length === 1 ? '' : 's'} accepted
             </span>
           )}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {/* Persona-card row. Three reviewers laid out as visually
+            distinct colleagues; expanded card spans the full row,
+            collapsed cards fall into remaining columns of an auto-fit
+            grid (3-up at desktop widths, 1-up at mobile). */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 10,
+          alignItems: 'start',
+        }}>
           {(review.reviewers || []).map((r) => (
             <ReviewerCard key={r.id} reviewer={r}
               expanded={openId === r.id}
@@ -450,6 +470,28 @@ function DisagreementAuditCard({ review }) {
       .then((data) => {
         setAudit(data);
         setRunning(false);
+        // Surface each real disagreement into the global cues rail so the
+        // user sees them even after navigating away from the review tab.
+        // This is the Rayan-et-al "44% missed" fix: the audit's load-bearing
+        // claims (whatWouldBeLostIfAveraged + epistemicRiskScore) shouldn't
+        // hide inside this card.
+        const publish = window.__probePublishCue;
+        if (publish && Array.isArray(data?.realDisagreements)) {
+          data.realDisagreements.forEach((d, i) => {
+            const risk = typeof d.epistemicRiskScore === 'number' ? d.epistemicRiskScore : 0;
+            const sev = risk >= 8 ? 'critical' : risk >= 5 ? 'high' : risk >= 3 ? 'medium' : 'low';
+            publish({
+              id: `audit-real-${i}-${(d.axis || 'axis').replace(/\W+/g, '_')}`,
+              source: 'audit',
+              stage: 'review',
+              severity: sev,
+              title: `disagreement · ${d.axis || 'axis'}${risk ? ` · risk ${risk}/10` : ''}`,
+              body: d.whyItMatters || d.doNotAverageBecause || '',
+              provenance: 'AGENT_INFERENCE',
+              axis: d.axis,
+            });
+          });
+        }
       })
       .catch((e) => {
         setError(String(e.message || e));
@@ -575,9 +617,21 @@ function DisagreementAuditCard({ review }) {
       </details>
 
       {audit.summary && (
-        <div style={{ color: palette.ink, fontSize: 13, lineHeight: 1.55 }}>
-          {audit.summary}
-        </div>
+        // Audit summary is Opus reasoning over the panel — provenance
+        // gutter (ink2 strip, AGENT_INFERENCE) makes that legible at a
+        // glance, consistent with the rest of the review surface.
+        window.TaggedParagraph ? (
+          <window.TaggedParagraph
+            tag="AGENT_INFERENCE"
+            body={audit.summary}
+            hideHeader
+            inline
+          />
+        ) : (
+          <div style={{ color: palette.ink, fontSize: 13, lineHeight: 1.55 }}>
+            {audit.summary}
+          </div>
+        )
       )}
 
       {Array.isArray(audit.realDisagreements) && audit.realDisagreements.length > 0 && (
@@ -624,11 +678,27 @@ function DisagreementAuditCard({ review }) {
                     );
                   })()}
                 </div>
+                {/* Reviewer position statements — each is Opus's
+                    account of where this reviewer stands on the
+                    disagreement axis. Provenance gutter (ink2 / agent
+                    reasoning) makes the simulated nature explicit so a
+                    reader doesn't read these as actual reviewer quotes. */}
                 {Array.isArray(d.reviewerPositions) && d.reviewerPositions.map((p, j) => (
-                  <div key={j} style={{ color: palette.ink2, fontSize: 12, marginBottom: 4, paddingLeft: 8 }}>
-                    <span style={{ color: '#7dcfff', fontWeight: 600, marginRight: 6 }}>{p.reviewer}:</span>
-                    {p.position}
-                  </div>
+                  window.TaggedParagraph ? (
+                    <window.TaggedParagraph
+                      key={j}
+                      tag="AGENT_INFERENCE"
+                      body={`**${p.reviewer}:** ${p.position}`}
+                      hideHeader
+                      inline
+                      compact
+                    />
+                  ) : (
+                    <div key={j} style={{ color: palette.ink2, fontSize: 12, marginBottom: 4, paddingLeft: 8 }}>
+                      <span style={{ color: '#7dcfff', fontWeight: 600, marginRight: 6 }}>{p.reviewer}:</span>
+                      {p.position}
+                    </div>
+                  )
                 ))}
                 {d.whyItMatters && (
                   <div style={{ color: palette.ink2, fontSize: 12, marginTop: 6, fontStyle: 'italic' }}>
@@ -672,28 +742,44 @@ function DisagreementAuditCard({ review }) {
             textTransform: 'uppercase', marginBottom: 6 }}>
             apparent disagreements · {audit.falseDisagreements.length} · same objection, different language
           </div>
+          {/* Apparent disagreements — Opus's reasoning that two
+              reviewers are saying the same thing in different language.
+              Provenance gutter (ink2 / agent reasoning) makes the
+              inferential nature explicit. */}
           {audit.falseDisagreements.map((d, i) => (
-            <div key={i} style={{
-              color: palette.fgSecondary || palette.ink3, fontSize: 12.5,
-              paddingLeft: 8, marginBottom: 8,
-              fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
-              lineHeight: 1.5,
-            }}>
-              <div>
-                <span style={{
-                  color: palette.fgBody || palette.ink2, fontWeight: 600,
-                  fontFamily: palette.fontMono || 'monospace', fontSize: 11,
-                  letterSpacing: '0.06em', textTransform: 'uppercase',
-                  marginRight: 8,
-                }}>{d.axis}</span>
-                {d.explanation}
-              </div>
-              {d.whyOnlyApparent && (
+            <div key={i} style={{ marginBottom: 8 }}>
+              {window.TaggedParagraph ? (
+                <window.TaggedParagraph
+                  tag="AGENT_INFERENCE"
+                  body={`**${d.axis}** — ${d.explanation || ''}${d.whyOnlyApparent ? `\n\n_why only apparent: ${d.whyOnlyApparent}_` : ''}`}
+                  hideHeader
+                  inline
+                  compact
+                />
+              ) : (
                 <div style={{
-                  color: palette.fgMute || palette.ink4, fontSize: 11.5,
-                  marginTop: 2, fontStyle: 'italic',
+                  color: palette.fgSecondary || palette.ink3, fontSize: 12.5,
+                  paddingLeft: 8,
+                  fontFamily: palette.fontSans || '"Inter Tight", sans-serif',
+                  lineHeight: 1.5,
                 }}>
-                  why only apparent: {d.whyOnlyApparent}
+                  <div>
+                    <span style={{
+                      color: palette.fgBody || palette.ink2, fontWeight: 600,
+                      fontFamily: palette.fontMono || 'monospace', fontSize: 11,
+                      letterSpacing: '0.06em', textTransform: 'uppercase',
+                      marginRight: 8,
+                    }}>{d.axis}</span>
+                    {d.explanation}
+                  </div>
+                  {d.whyOnlyApparent && (
+                    <div style={{
+                      color: palette.fgMute || palette.ink4, fontSize: 11.5,
+                      marginTop: 2, fontStyle: 'italic',
+                    }}>
+                      why only apparent: {d.whyOnlyApparent}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -950,15 +1036,37 @@ function MetaReviewCard({ meta, expanded, onToggle }) {
           padding: '12px 16px 14px 35px',
           borderTop: `1px dashed ${palette.rule}`,
         }}>
+          {/* Meta-review prose is the AC's synthesis of the panel —
+              agent reasoning over reviewer outputs. Provenance gutter
+              (ink2 strip) keeps that consistent with the rest of the
+              review surface. */}
           <DetailBlock label="summary" accent="#d9a548">
-            {window.MarkdownText
-              ? <window.MarkdownText text={meta.summary} />
-              : meta.summary}
+            {window.TaggedParagraph ? (
+              <window.TaggedParagraph
+                tag="AGENT_INFERENCE"
+                body={meta.summary}
+                hideHeader
+                inline
+              />
+            ) : (
+              window.MarkdownText
+                ? <window.MarkdownText text={meta.summary} />
+                : meta.summary
+            )}
           </DetailBlock>
           <DetailBlock label="proposed decision" accent="#d9a548">
-            {window.MarkdownText
-              ? <window.MarkdownText text={meta.proposed} />
-              : meta.proposed}
+            {window.TaggedParagraph ? (
+              <window.TaggedParagraph
+                tag="AGENT_INFERENCE"
+                body={meta.proposed}
+                hideHeader
+                inline
+              />
+            ) : (
+              window.MarkdownText
+                ? <window.MarkdownText text={meta.proposed} />
+                : meta.proposed
+            )}
           </DetailBlock>
           <DetailBlock label={`consensus points · ${meta.consensusPoints.length}`} accent="#d9a548">
             {/* Per audit §10.14: severity is a left-edge color block,
@@ -1032,7 +1140,13 @@ function ConsensusRow({ c, first }) {
   );
 }
 
-// ─── Reviewer card ─────────────────────────────────────────────────────────
+// ─── Reviewer persona card ─────────────────────────────────────────────────
+// Each reviewer renders as a visually distinct persona card (CHI '26
+// MultiColleagues borrow): avatar circle colored by affiliation,
+// topic-confidence pill, field-of-expertise label, recommendation chip,
+// then the existing one-liner. Clicking the card expands strengths /
+// weaknesses / to-authors / to-chairs in place. When expanded the
+// card spans the full row of the persona grid above.
 function ReviewerCard({ reviewer: r, expanded, onToggle, onRebuttalResolved }) {
   // Local rebuttal state. v3.4 promotes this from "textbox that goes
   // nowhere" to a real interaction: the user can ask Probe to address
@@ -1044,10 +1158,13 @@ function ReviewerCard({ reviewer: r, expanded, onToggle, onRebuttalResolved }) {
   const [challengeText, setChallengeText] = useState('');
   const [resolution, setResolution] = useState(null);  // null | 'pending' | object
   const [error, setError] = useState(null);
+  const [hover, setHover] = useState(false);
   // The reviewer card optimistically uses the *resolved* fields when a
   // rebuttal has been addressed; falls back to the original review.
   const live = resolution && resolution.kind === 'updated' ? resolution.updated : r;
   const rec = REC[live.rec] || REC[r.rec];
+  const a = AFFIL[r.affiliation] || AFFIL.independent;
+  const t = TOPIC_CONF[r.topicConfidence] || TOPIC_CONF.confident;
 
   const askProbeToAddress = async () => {
     if (!challengeText.trim()) return;
@@ -1065,6 +1182,27 @@ function ReviewerCard({ reviewer: r, expanded, onToggle, onRebuttalResolved }) {
       // Tell the parent — it'll re-run the disagreement audit so the
       // meta-decision reflects the new reviewer stance.
       onRebuttalResolved && onRebuttalResolved(r.id, data);
+      // Surface the rebuttal outcome into the global cues rail. A reviewer
+      // flipping their position (or holding the line under pressure) is
+      // exactly the kind of moment Rayan-et-al's "44% missed" finding warns
+      // about — the user shouldn't have to be on this tab to notice it.
+      const publish = window.__probePublishCue;
+      if (publish) {
+        const updated = data.updated || r;
+        const recShift = updated.rec && updated.rec !== r.rec
+          ? `${r.rec} → ${updated.rec}`
+          : 'position held';
+        publish({
+          id: `rebuttal-${r.id}-${Date.now()}`,
+          source: 'rebuttal',
+          stage: 'review',
+          severity: data.outcome === 'updated' ? 'high' : 'medium',
+          title: `${r.id} · rebuttal ${data.outcome || 'resolved'} · ${recShift}`,
+          body: data.rationale || '',
+          provenance: 'AGENT_INFERENCE',
+          reviewerId: r.id,
+        });
+      }
     } catch (e) {
       setError(String(e.message || e));
       setResolution(null);
@@ -1074,46 +1212,127 @@ function ReviewerCard({ reviewer: r, expanded, onToggle, onRebuttalResolved }) {
   return (
     <div style={{
       background: palette.bg2,
-      border: `1px solid ${expanded ? rec.color : palette.rule}`,
-      borderLeft: `3px solid ${rec.color}`,
+      border: `1px solid ${expanded ? rec.color : (hover ? a.color : palette.rule)}`,
+      borderTop: `3px solid ${a.color}`,  // affiliation strip on top
       borderRadius: 3,
       overflow: 'hidden',
-      transition: 'border-color 120ms',
+      transition: 'border-color 160ms',
+      // When expanded, span the full persona-grid row. Collapsed cards
+      // stay in their auto-fit column.
+      gridColumn: expanded ? '1 / -1' : 'auto',
+      display: 'flex', flexDirection: 'column',
     }}>
-      <button onClick={onToggle} style={{
-        display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-        padding: '10px 12px', background: 'transparent', border: 'none',
-        color: 'inherit', fontFamily: 'inherit', fontSize: 13,
-        cursor: 'pointer', textAlign: 'left',
-      }}>
-        <span style={{
-          display: 'inline-block', width: 10, color: rec.color,
-          transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-          transition: 'transform 140ms', flex: 'none',
-        }}>›</span>
-        <span style={{
-          width: 22, height: 22, borderRadius: 2, display: 'inline-flex',
-          alignItems: 'center', justifyContent: 'center', flex: 'none',
-          background: 'transparent', color: rec.color,
-          border: `1px solid ${rec.color}`, fontSize: 10, fontWeight: 700,
-        }}>{r.id}</span>
-        <span
-          title={`${rec.short} — ${rec.label} · ${rec.desc}`}
-          style={{
-          ...chipStyle, color: rec.color, borderColor: rec.color, flex: 'none',
-          textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: 10, fontWeight: 700,
-          cursor: 'help',
-        }}>{rec.short} · {rec.label}</span>
-        <span style={{
-          color: palette.ink, fontSize: 12.5, fontStyle: 'italic',
-          flex: 1, minWidth: 0,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>{r.oneLine}</span>
-        <SpecChips reviewer={r} />
+      <button
+        onClick={onToggle}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        style={{
+          display: 'flex', flexDirection: 'column', gap: 8, width: '100%',
+          padding: '12px 14px',
+          background: 'transparent', border: 'none',
+          color: 'inherit', fontFamily: 'inherit',
+          cursor: 'pointer', textAlign: 'left',
+        }}>
+        {/* Header band: avatar circle + identity + recommendation chip */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+        }}>
+          {/* Avatar circle — initial letter of the reviewer id, colored
+              by affiliation. The first signal a reader gets about who
+              this colleague is. */}
+          <span
+            title={`${r.id} · ${a.label}`}
+            style={{
+              flex: 'none',
+              width: 38, height: 38, borderRadius: '50%',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              background: 'transparent',
+              border: `1.5px solid ${a.color}`,
+              color: a.color,
+              fontSize: 14, fontWeight: 700,
+              letterSpacing: '0.04em',
+              fontFamily: palette.fontMono,
+            }}>{(r.id || '?').slice(-1)}</span>
+
+          {/* Identity column */}
+          <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{
+              display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap',
+            }}>
+              <span style={{
+                color: palette.fgStrong || palette.ink, fontSize: 13, fontWeight: 700,
+                fontFamily: palette.fontMono,
+                letterSpacing: '0.02em',
+              }}>{r.id}</span>
+              <span style={{
+                color: a.color, fontSize: 10.5, fontWeight: 600,
+                letterSpacing: '0.08em', textTransform: 'uppercase',
+              }}>{a.label}</span>
+            </div>
+            <span style={{
+              color: palette.fgSecondary || palette.ink2, fontSize: 12,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }} title={r.field}>{r.field}</span>
+          </div>
+
+          {/* Recommendation chip — flex-end, the action signal of the
+              card. Uses the existing five-bucket palette. */}
+          <span
+            title={`${rec.short} — ${rec.label} · ${rec.desc}`}
+            style={{
+              flex: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '3px 9px', borderRadius: 3,
+              background: `${rec.color}14`,
+              border: `1px solid ${rec.color}`,
+              color: rec.color,
+              fontSize: 10.5, fontWeight: 700,
+              letterSpacing: '0.10em', textTransform: 'uppercase',
+              fontFamily: palette.fontMono,
+              cursor: 'help',
+            }}>{rec.short}</span>
+        </div>
+
+        {/* Topic-confidence pill — outline-only, follows affiliation
+            color at lower opacity. Lives on its own row so it scans as
+            a profile attribute, not a recommendation badge. */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span
+            title={t.desc}
+            style={{
+              display: 'inline-block',
+              padding: '1px 8px',
+              border: `1px solid ${a.color}`,
+              borderRadius: 999,
+              color: a.color,
+              fontSize: 9.5, fontWeight: 700,
+              letterSpacing: '0.10em', textTransform: 'uppercase',
+              opacity: 0.78,
+              background: 'transparent',
+            }}>{t.label}</span>
+          {/* Caret affordance — tucked at right so the chip row is
+              still the first thing the eye lands on. */}
+          <span style={{
+            marginLeft: 'auto', color: palette.fgMute || palette.ink3,
+            fontSize: 10.5, letterSpacing: '0.06em',
+          }}>{expanded ? '▾ collapse' : '▸ read review'}</span>
+        </div>
+
+        {/* One-liner — the headline judgement, italic, full-width. */}
+        <div style={{
+          color: palette.fgBody || palette.ink, fontSize: 12.5, fontStyle: 'italic',
+          lineHeight: 1.5,
+          // Don't truncate when expanded — the one-liner is the headline
+          // and reads as a TLDR for the body content below.
+          display: '-webkit-box',
+          WebkitLineClamp: expanded ? 'unset' : 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        }}>{r.oneLine}</div>
       </button>
       {expanded && (
         <div className="fade-in" style={{
-          padding: '12px 16px 14px 35px',
+          padding: '4px 14px 14px',
           borderTop: `1px dashed ${palette.rule}`,
         }}>
           <SpecHeader reviewer={r} />
@@ -1133,28 +1352,52 @@ function ReviewerCard({ reviewer: r, expanded, onToggle, onRebuttalResolved }) {
               {r.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
             </ul>
           </DetailBlock>
+          {/* Reviewer body to authors — agent-inferred reasoning about
+              what this colleague would say. Provenance gutter makes
+              that explicit (ink2 strip = AGENT_INFERENCE) so the
+              reader doesn't mistake simulated reviewer text for an
+              actual reviewer's words. */}
           <DetailBlock label="comments to authors" accent={rec.color}>
-            <div style={{
-              padding: '10px 12px', background: palette.bg,
-              borderLeft: `2px solid ${rec.color}`,
-              color: palette.ink, fontSize: 13, lineHeight: 1.65,
-            }}>
-              {window.MarkdownText
-                ? <window.MarkdownText text={r.toAuthors} />
-                : <span style={{ whiteSpace: 'pre-wrap' }}>{r.toAuthors}</span>}
-            </div>
+            {window.TaggedParagraph ? (
+              <window.TaggedParagraph
+                tag="AGENT_INFERENCE"
+                body={r.toAuthors}
+                hideHeader
+                inline
+              />
+            ) : (
+              <div style={{
+                padding: '10px 12px', background: palette.bg,
+                borderLeft: `2px solid ${rec.color}`,
+                color: palette.ink, fontSize: 13, lineHeight: 1.65,
+              }}>
+                {window.MarkdownText
+                  ? <window.MarkdownText text={r.toAuthors} />
+                  : <span style={{ whiteSpace: 'pre-wrap' }}>{r.toAuthors}</span>}
+              </div>
+            )}
           </DetailBlock>
           <DetailBlock label="comments to chairs · confidential" accent={palette.ink3}>
-            <div style={{
-              padding: '10px 12px', background: palette.bg,
-              border: `1px dashed ${palette.rule}`,
-              color: palette.ink2, fontSize: 12.5, lineHeight: 1.6,
-              fontStyle: 'italic',
-            }}>
-              {window.MarkdownText
-                ? <window.MarkdownText text={r.toChairs} />
-                : r.toChairs}
-            </div>
+            {window.TaggedParagraph ? (
+              <window.TaggedParagraph
+                tag="AGENT_INFERENCE"
+                body={r.toChairs}
+                hideHeader
+                inline
+                compact
+              />
+            ) : (
+              <div style={{
+                padding: '10px 12px', background: palette.bg,
+                border: `1px dashed ${palette.rule}`,
+                color: palette.ink2, fontSize: 12.5, lineHeight: 1.6,
+                fontStyle: 'italic',
+              }}>
+                {window.MarkdownText
+                  ? <window.MarkdownText text={r.toChairs} />
+                  : r.toChairs}
+              </div>
+            )}
           </DetailBlock>
 
           {/* Rebuttal affordance — lets the user disagree with the
@@ -1262,29 +1505,12 @@ function ReviewerCard({ reviewer: r, expanded, onToggle, onRebuttalResolved }) {
   );
 }
 
-// ─── Reviewer specialization chips ────────────────────────────────────────
-function SpecChips({ reviewer: r }) {
-  const a = AFFIL[r.affiliation];
-  const t = TOPIC_CONF[r.topicConfidence];
-  return (
-    <span style={{ display: 'inline-flex', gap: 4, flex: 'none' }}>
-      <span style={{
-        ...chipStyle, color: a.color, borderColor: a.color,
-        fontSize: 9.5, fontWeight: 700, letterSpacing: '0.08em',
-        padding: '1px 6px',
-      }}>{a.short}</span>
-      <span style={{
-        ...chipStyle, color: t.color, borderColor: t.color,
-        fontSize: 9.5, fontWeight: 700, letterSpacing: '0.08em',
-        padding: '1px 6px', textTransform: 'uppercase',
-      }}>{r.topicConfidence === 'expert' ? 'expert'
-         : r.topicConfidence === 'confident' ? 'confident'
-         : r.topicConfidence === 'tentative' ? 'tentative'
-         : 'outsider'}</span>
-    </span>
-  );
-}
-
+// ─── Reviewer specialization (expanded body) ──────────────────────────────
+// SpecHeader still renders inside the expanded card body — the persona
+// header already shows affiliation + topic confidence + field, but
+// the expanded view benefits from each axis's descriptive line
+// ("university lab · publishes regularly", etc.) for a reader who
+// wants the full profile in front of them while reading the review.
 function SpecHeader({ reviewer: r }) {
   const a = AFFIL[r.affiliation];
   const t = TOPIC_CONF[r.topicConfidence];
