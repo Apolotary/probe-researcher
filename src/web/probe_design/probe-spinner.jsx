@@ -48,11 +48,13 @@
     );
   }
 
-  // Mixed-mode default mapping (Opus on orchestration, Sonnet on
-  // execution). Used as a synchronous fallback so the model badge
-  // never has to flash 'claude-sonnet-4-6' before the /api/probe/models
-  // fetch resolves — it can render the right label on first paint
-  // and only update if the user's actual config differs.
+  // Mixed-mode default mapping. Mirrors CLAUDE.md's 'mixed' preset
+  // (Opus on orchestration, Sonnet on execution). Used ONLY when the
+  // active provider is Anthropic AND /api/probe/models hasn't resolved
+  // yet. For OpenAI users we hold off rendering a real label until the
+  // network round-trip lands so the badge never lies (no "claude-opus-4-7"
+  // flash before settling on "gpt-5"). The placeholder during that gap
+  // is an em-dash, not a fake model id.
   const MIXED_MODE_DEFAULTS = {
     brainstorm:  'claude-opus-4-7',
     literature:  'claude-sonnet-4-6',
@@ -67,15 +69,21 @@
 
   // Per-stage model cache. Populated once on first ModelStatusLine
   // mount via /api/probe/models and reused by every subsequent stage.
-  // Pre-seed with mixed-mode defaults so first paint is correct.
+  // `stageModelResolved` flips true once the server confirms the
+  // active provider's model ids. Until then we show a placeholder for
+  // any caller that doesn't pass an explicit `model` prop.
   let stageModelCache = { ...MIXED_MODE_DEFAULTS };
+  let stageModelResolved = false;
   let stageModelInflight = null;
   function fetchStageModels(then) {
     if (stageModelInflight) return stageModelInflight.then(then);
     stageModelInflight = fetch('/api/probe/models')
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
-        if (d?.models) stageModelCache = d.models;
+        if (d?.models) {
+          stageModelCache = d.models;
+          stageModelResolved = true;
+        }
         return stageModelCache;
       })
       .catch(() => stageModelCache);
@@ -102,9 +110,15 @@
     compact = false,
   }) {
     const tickMs = useElapsed(elapsed === undefined && running, resetKey);
-    const [resolvedModel, setResolvedModel] = React.useState(
-      stage && stageModelCache?.[stage] ? stageModelCache[stage] : model,
-    );
+    // Initial render: if stage is set, only trust the cache when it's
+    // been resolved from /api/probe/models. Otherwise fall back to the
+    // explicit `model` prop, or null (which renders an em-dash). This
+    // prevents the badge from flashing 'claude-opus-4-7' for OpenAI
+    // users in the ~100ms before the models endpoint resolves.
+    const initial = stage
+      ? (stageModelResolved && stageModelCache[stage]) || null
+      : model;
+    const [resolvedModel, setResolvedModel] = React.useState(initial);
     React.useEffect(() => {
       if (!stage) return;
       let mounted = true;
@@ -113,15 +127,21 @@
       });
       return () => { mounted = false; };
     }, [stage]);
+    // Display copy: real model id once known, em-dash placeholder while
+    // the badge is in the resolving state.
+    const displayModel = resolvedModel || '—';
     const ms = elapsed !== undefined ? elapsed : tickMs;
     const sec = (ms / 1000);
     const elapsedStr = sec < 1 ? `${Math.round(ms)}ms`
                      : sec < 10 ? `${sec.toFixed(1)}s`
                      : `${Math.round(sec)}s`;
     const c = accent || palette.cyan;
-    // Highlight Opus tier so judges see the orchestration model at a
-    // glance — matches the hackathon framing ("built with Opus 4.7").
-    const isOpus = /opus/i.test(resolvedModel);
+    // Highlight orchestration-tier models so the active orchestrator is
+    // visible at a glance. Matches Anthropic's Opus 4.7 plus OpenAI's
+    // gpt-5 / o-series, since both are the configured 'opus' tier when
+    // their respective provider is active. Placeholder em-dash never
+    // matches.
+    const isOpus = resolvedModel ? /opus|gpt-5|^o\d/i.test(resolvedModel) : false;
     return (
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
@@ -132,7 +152,9 @@
         <span style={{
           color: isOpus ? palette.amber : palette.ink,
           fontWeight: isOpus ? 600 : 400,
-        }}>{resolvedModel}</span>
+          fontVariantNumeric: 'tabular-nums',
+          opacity: resolvedModel ? 1 : 0.5,
+        }}>{displayModel}</span>
         <span style={{ color: palette.ink4 }}>·</span>
         <span style={{ color: palette.ink2 }}>{phase}</span>
         <span style={{ color: palette.ink4, marginLeft: 'auto', fontVariantNumeric: 'tabular-nums' }}>
